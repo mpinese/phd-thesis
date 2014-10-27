@@ -1,7 +1,9 @@
 syntax:glob
 out/*
 *.aux
+*.gz
+*.log
+*.pdf
 thesis.lof
 thesis.lot
-thesis.synctex.gz
 thesis.toc
