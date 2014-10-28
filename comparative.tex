@@ -31,16 +31,6 @@ Outline ideas:
     \end{itemize}
   \end{itemize}
   
-  \item Methods
-  \begin{enumerate}
-    \item Models
-    \item Sample origin and processing
-    \item Sequencing
-    \item QC, mapping, realignment, BQSR
-    \item Somatic SNV and indel detection and analysis (pathway)
-    \item CNV and LOH detection
-  \end{enumerate}
-  
   \item Results
   \begin{enumerate}
     \item Somatic SNV and indels
@@ -50,4 +40,29 @@ Outline ideas:
   \item Conclusion
   
 \end{itemize}
+
+\section{Methods}
+
+\subsection{Models}
+
+\subsection{Sample Origin and Processing}
+
+\subsection{Sequencing}
+
+\subsection{QC}
+
+\subsection{Mapping}
+
+For initial mapping, all lanes were processed independently.  SHRiMP was used to map colourspace reads to the mm10 genome using `all-contigs' and `single-best-mapping' options.  Unpaired reads in the source fastq files were mapped as single reads; paired reads were mapped with pair mode `opp-in', and a per-fastq insert size distribution estimated from a normal distribution fit to insert sizes of the first 10,000 reads.  Likely duplicate reads were marked using Picard MarkDuplicates on each individual lane BAM, using an optical duplicate pixel distance parameter of 10.
+
+Lane BAMs were progressively merged: first, duplicate lane BAMs for a given mouse and sample type (tumour or normal) were combined, then tumour and normal BAMs for a given mouse, and finally combined tumour-normal BAMs for all mice.  Following each level of merging, GATK was used to separately perform local realignment and base quality score recalibration (LA-BQSR) on each BAM file of that level.  Finally, the full experiment BAM file was split by mouse and sample type for analysis, yielding 62 paired tumour and normal final BAMs.
+
+\subsection{Somatic SNV and Indel Detection}
+
+muTect and Strelka were used separately to detect somatic SNVs and indels in individual mouse tumour and normal BAMs.  muTect was supplied default parameters; Strelka used default parameter settings for the BWA mapper, modified so that isSkipDepthFilters = 1.  
+
+
+
+\subsection{CNV and LOH Detection}
+
 \end{document}
