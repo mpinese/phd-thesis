@@ -3,7 +3,9 @@ out/*
 *.aux
 *.gz
 *.log
-*.pdf
 thesis.lof
 thesis.lot
 thesis.toc
+
+syntax:regexp
+^[^/]*\.pdf$
