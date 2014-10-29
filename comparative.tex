@@ -53,6 +53,11 @@ Outline ideas:
 
 \subsection{Mapping}
 
+\begin{enumerate}
+  \item CS reads were mapped to mm10 with SHRiMP
+  \item 
+\end{enumerate}
+
 For initial mapping, all lanes were processed independently.  SHRiMP was used to map colourspace reads to the mm10 genome using `all-contigs' and `single-best-mapping' options.  Unpaired reads in the source fastq files were mapped as single reads; paired reads were mapped with pair mode `opp-in', and a per-fastq insert size distribution estimated from a normal distribution fit to insert sizes of the first 10,000 reads.  Likely duplicate reads were marked using Picard MarkDuplicates on each individual lane BAM, using an optical duplicate pixel distance parameter of 10.
 
 Lane BAMs were progressively merged: first, duplicate lane BAMs for a given mouse and sample type (tumour or normal) were combined, then tumour and normal BAMs for a given mouse, and finally combined tumour-normal BAMs for all mice.  Following each level of merging, GATK was used to separately perform local realignment and base quality score recalibration (LA-BQSR) on each BAM file of that level.  Finally, the full experiment BAM file was split by mouse and sample type for analysis, yielding 62 paired tumour and normal final BAMs.
@@ -61,6 +66,28 @@ Lane BAMs were progressively merged: first, duplicate lane BAMs for a given mous
 
 muTect and Strelka were used separately to detect somatic SNVs and indels in individual mouse tumour and normal BAMs.  muTect was supplied default parameters; Strelka used default parameter settings for the BWA mapper, modified so that isSkipDepthFilters = 1.  
 
+\begin{lstlisting}[language=C]
+[user]
+isSkipDepthFilters = 1
+maxInputDepth = 10000
+depthFilterMultiple = 3.0
+snvMaxFilteredBasecallFrac = 0.4
+snvMaxSpanningDeletionFrac = 0.75
+indelMaxRefRepeat = 8
+indelMaxWindowFilteredBasecallFrac = 0.3
+indelMaxIntHpolLength = 14
+ssnvPrior = 0.000001
+sindelPrior = 0.000001
+ssnvNoise = 0.0000005
+sindelNoise = 0.000001
+ssnvNoiseStrandBiasFrac = 0.5
+minTier1Mapq = 20
+minTier2Mapq = 5
+ssnvQuality_LowerBound = 15
+sindelQuality_LowerBound = 30
+isWriteRealignedBam = 0
+binSize = 25000000
+\end{lstlisting}
 
 
 \subsection{CNV and LOH Detection}
