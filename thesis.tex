@@ -1,15 +1,15 @@
-%\documentclass[11pt,a4paper,draft,oneside]{report}
-\documentclass[11pt,a4paper]{report}
+%% PREAMBLE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\usepackage{booktabs}
+%\documentclass[11pt,a4paper,draft,oneside]{memoir}
+\documentclass[11pt,a4paper,final,twoside]{memoir}
+
 \usepackage{subfiles}
 \usepackage{pdfpages}
-\usepackage{setspace}
 
-\doublespacing
-%\onehalfspacing
-%\singlespacing
+%\OnehalfSpacing
 
+
+%% FRONTMATTER %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{document}
 \pagestyle{empty}
 
@@ -21,23 +21,28 @@
 
 \includepdf[pages={1}]{resources/originalitystatement_1.pdf}
 
+\frontmatter
+
 \chapter*{Acknowledgements}
 \thispagestyle{empty}
-\pagenumbering{gobble}
+\clearpage
 
 \begin{abstract}
 Da abstract.
 \end{abstract}
+\thispagestyle{empty}
+\pagenumbering{gobble}
+\clearpage
 
 \pagenumbering{roman}
-\setcounter{page}{1}
 \tableofcontents
+\clearpage
 \listoffigures
+\clearpage
 \listoftables
 
+\openany
 \chapter*{Abbreviations}
-
-\pagenumbering{arabic}
 
 \begin{tabular}[c]{ l | l }
   CPV           & Clinico-pathological variable \\
@@ -55,8 +60,6 @@ Unless otherwise specified, the following versions of software were used in all 
 
 \begin{tabular}{ll}
 \toprule
-%  Software      & Version \\
-%\midrule
   bamtools                    & 2.2.2 \\
   bedtools                    & 2.18.2 \\
   cd-hit                      & 4.6.1 TODO plus patch \\
@@ -79,6 +82,8 @@ Unless otherwise specified, the following versions of software were used in all 
 \bottomrule
 \end{tabular}
 
+\mainmatter
+\openright
 
 \subfile{intro}
 \subfile{prognostic}
