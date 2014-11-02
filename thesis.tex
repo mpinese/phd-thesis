@@ -9,9 +9,14 @@
 \usepackage{pdfpages}
 \usepackage{listings}
 \usepackage{graphicx}
-%\usepackage{algpseudocode}
 \usepackage[]{algorithm2e}
 \usepackage{amsmath}
+\usepackage[draft,footnote,nomargin]{fixme}   % TODO: Remove draft flag for final!
+
+\FXRegisterAuthor{mp}{amp}{MP}
+\FXRegisterAuthor{mjc}{amjc}{MJC}
+
+\include{macros}
 
 %\usepackage{tikz}
 %\usepackage{pgfplots}
@@ -28,6 +33,8 @@
 
 \begin{document}
 \pagestyle{empty}
+
+\listoffixmes
 
 \title{Mah Dissertat'n}
 \author{Mark Pinese}
