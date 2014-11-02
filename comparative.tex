@@ -114,10 +114,10 @@ Overview:
   \item CNV:
   \begin{itemize}
     \item Ideal maths and assumptions.
-    \item Simplifications: Multinomial \--> Poisson \--> Normal
+    \item Simplifications: Multinomial to Poisson to Normal
     \item Implementation under Fisherian approach.
     \item HMM on P-values as before, using 3 mixes based on symmetry of statistic.
-  \end{itemize} 
+  \end{itemize}
 \end{itemize}
 
 
@@ -125,26 +125,38 @@ Overview:
 
 This work took a simple approach to identify loci with significant evidence of \gls{LOH} in a tumour sample: locate high-confidence heterozygous loci in matched normal DNA, and then test only these heterozygous loci for a significant change in allelic fraction between matched tumour and normal samples.
 
-Location of high-confidence heterozygous loci in normal DNA was achieved using samtools mpileup, and a custom filter based on Bayes factors (algorithm \ref{alg:comp_find_het}).  samtools mpileup provides, per locus, posterior log-likelihoods for each possible genotype, $\ell(G = g|D) = \log(P(D|G = g))$, where $D$ are the observed read data at the locus, and $g$ is a genotype.  These genotype likelihoods for each of the two possible genotype classes, homozygous and heterozygous, must be combined 
+\paragraph{Identifying heterozygous loci in normal DNA}
 
-\begin{eqnarray}
-Hom & = & \{AA, CC, GG, TT\} \\
-Het & = & \{AC, AG, AT, CG, CT, GT\}
+High-confidence heterozygous loci in normal DNA were identified by comparing posterior genotype likelihoods using a \gls{BMC} approach.  \gls{BMC} is a procedure for deciding which of two competing models is better favoured by the observed data; here the two models are, for a given locus: `the locus is homozygous' (model $HOM$), and `the locus is heterozygous' (model $HET$).  The likelihoods of these two models (assessed on the reads observed at a locus) can be used to calculate a Bayes factor, which encodes which of the two models is better supported by the data at that locus, and how strongly.  More formally, we partition the ten possible diploid genotypes at a locus into two classes, $Hom$ and $Het$:
+\begin{align}
+Hom &= \{AA, CC, GG, TT\} \\
+Het &= \{AC, AG, AT, CG, CT, GT\}
 \label{eq:comm_het_genotypes}
-\end{eqnarray}
-
-\begin{eqnarray}
-K & = & \frac{P(D|G \in Het)}{P(D|G \in Hom)} \\
-  & = & \frac{\sum_{g \in Het} P(D|G = g)P(G = g|G \in Het) }{\sum_{g \in Hom} P(D|G = g)P(G = g|G \in Hom) }
+\end{align}
+The two models, $HOM$ and $HET$, may be written
+\begin{align}
+HOM &: G \in Hom \\
+HET &: G \in Het
+\label{eq:comm_het_genotypes}
+\end{align}
+where $G$ is the true genotype at the locus.  The Bayes factor $K$ comparing $HOM$ and $HET$ is then
+\begin{align}
+K &= \frac{\mathcal{L}(HET)}{\mathcal{L}(HOM)} \\
+  &= \frac{Pr(D|G \in Het)}{Pr(D|G \in Hom)} \\
+  &= \frac{\sum_{g \in Het} Pr(D|G = g)Pr(G = g|G \in Het) }{\sum_{g \in Hom} Pr(D|G = g)Pr(G = g|G \in Hom) }
 \label{eq:comm_het_bayes}
-\end{eqnarray}
+\end{align}
+with $D$ being the reads at the locus.  We make the simplifying assumption that all genotypes in each of $Hom$ and $Het$ are equally likely, so that all $Pr(G = g|G \in X) = \frac{1}{\|X\|}$ for $X \in \{Hom, Het\}$.  Then
+\begin{align}
+K &= \frac{\frac{1}{\|Het\|}\sum_{g \in Het} Pr(D|G = g)}{\frac{1}{\|Hom\|}\sum_{g \in Hom} Pr(D|G = g)} \\
+  &= \frac{\frac{1}{\|Het\|}\sum_{g \in Het} \mathcal{L}(G = g|D)}{\frac{1}{\|Hom\|}\sum_{g \in Hom} \mathcal{L}(G = g|D)}
+\end{align} 
+encodes the weight of evidence for the observed read data $D$ favouring a locus being heterozygous over homozygous, and a value exceeding a given threshold is taken as significant evidence that the locus under consideration is heterozygous.
 
-\begin{equation}
-K = \frac{\frac{1}{|Het|}\sum_{g \in Het} P(D|G = g)}{\frac{1}{|Hom|}\sum_{g \in Hom} P(D|G = g) }
-\end{equation}
+An implementation of the above heterozygous locus detection method is given in algorithm \ref{alg:comp_find_het}.  The input posterior genotype likelihoods $\mathcal{L}(G = g|D)$ are supplied by \lstinline|samtools mpileup -q 20 -Q 20 -v -u| operating on per-mouse normal sample \glspl{BAM}, and the minimum value of $K$ for a locus to be called as heterozygous is $\exp(minscore)$.  Two additional filters are also employed in the algorithm: a locus is \emph{not} reported as heterozygous if either the total read depth at the locus is less than $mindepth$, or if the difference in samtools-supplied log likelihood between the top two genotypes is less than $mindelta$ nats.  The latter filter is used to exclude any problem loci with an apparent triallelic state.
 
 \begin{algorithm}
-  \KwData{Total sequence depth at the locus $D$, minimum depth for call $mindepth$, list of alternate alleles $A$, list of Phred-scaled genotype likelihoods $L$, minimum likelihood difference in bits between top two genotypes $mindelta$, minimum Bayes factor in bits for heterozygous to be called over homozygous $minscore$.}
+  \KwData{Total sequence depth at the locus $D$, minimum depth for call $mindepth$, list of alternate alleles $A$, list of Phred-scaled genotype likelihoods $L$, minimum likelihood difference in nats between top two genotypes $mindelta$, minimum Bayes factor in nats for heterozygous to be called over homozygous $minscore$.}
   \KwResult{A boolean: true if the locus is called heterozygous, false if it is not}
 
   \Begin {
@@ -152,16 +164,16 @@ K = \frac{\frac{1}{|Het|}\sum_{g \in Het} P(D|G = g)}{\frac{1}{|Hom|}\sum_{g \in
       \KwRet false\;
     }
     \tcp{Convert Phred-scaled likelihoods to nats}
-    \For{$i \leftarrow 1$ \KwTo $|L|$}{
-      $L_i \longleftarrow -0.23025851 L_i$\;
+    \For{$i \leftarrow 1$ \KwTo $\|L\|$}{
+      $L_i \longleftarrow -\frac{1}{10} \log(10) L_i$\;
     }
-    \tcp{Ensure the likelihood difference between the two most likely genotypes is at least $mindelta$.  The 1.442695 factor converts bits to nats.}
+    \tcp{Ensure the likelihood difference between the two most likely genotypes is at least $mindelta$.}
     $L^* \longleftarrow L$ sorted in decreasing order\;
-    \If {$L^*_1 - L^*_2 \le mindelta \div 1.442695$}{
+    \If {$L^*_1 - L^*_2 \le mindelta$}{
       \KwRet false\;
     }
     \tcp{Calculate combined likelihoods for heterozygous and homozygous genotypes}
-    \Switch{$|A|$}{
+    \Switch{$\|A\|$}{
       \Case{$2$}{
         $L_{het} \longleftarrow L_2$\;
         $L_{hom} \longleftarrow \log\left(\frac{1}{2}\sum_{i \in \{1, 3\}} \exp(L_i) \right)$\;
@@ -176,7 +188,7 @@ K = \frac{\frac{1}{|Het|}\sum_{g \in Het} P(D|G = g)}{\frac{1}{|Hom|}\sum_{g \in
     }
 
   \tcp{Compute the Bayes factor for heterozygous vs homozygous, and compare to the threshold}
-  \If {$L_{het} - L_{hom} \le minscore \div 1.442695$}{
+  \If {$L_{het} - L_{hom} \le minscore$}{
     \KwRet false\;
   }
   
@@ -187,9 +199,60 @@ K = \frac{\frac{1}{|Het|}\sum_{g \in Het} P(D|G = g)}{\frac{1}{|Hom|}\sum_{g \in
   \caption{Determine if a locus is heterozygous}
 \end{algorithm}
 
-\subsubsection{Copy number variation at individual loci}
+\paragraph{Identifying tumour \acrshort{LOH} at known normal heterozygous loci}
+
+Given a set of loci that are known to be heterozygous with high confidence in the normal DNA of a given mouse, testing for \gls{LOH} in the tumour DNA of the same mouse is straightforward.  Considering only a single heterozygous locus, reads from a normal DNA sample will predominantly be for the two bases constituting the heterozygous genotype, possibly with a small number of reads from other bases due to sequencing or mapping errors.  The number of reads for the two genotype bases may be quite different, as the exome capture processing step may favour one allele over the other, and lead to allelic bias in the observed read fractions.  However, under the null hypothesis of no LOH and no mutation at the locus in the tumour DNA, the relative proportions of reads for the two genotype bases should be the same in both the tumour and the normal samples.  This null hypothesis can be tested using a contingency test comparing two binomial proportions; for this work I used the two sided Z-pooled test as implemented in R package \lstinline|Exact|.  \mpfatal{Technically this is testing more than just LOH -- consider eg muts or just CNV}
 
 
+%The input posterior genotype likelihoods $\mathcal{L}(G = g|D)$ were supplied by \lstinline|samtools mpileup -q 20 -Q 20 -v -u| operating on per-mouse normal sample \glspl{BAM}, and $K \geq 100$ was used as a threshold for calling heterozygous loci ($minscore \longleftarrow \log(100)$).  Two additional filters were also employed in the algorithm: the total post-filtered depth at a locus needed to be at least 10 reads ($mindepth \longleftarrow 10$), and the difference in samtools-supplied log likelihood between the top two genotypes was required to be at least $\log(32)$ nats ($mindelta \longleftarrow \log(32)$).  The latter filter was used to exclude any problem loci with an apparent triallelic state.
+
+\subsubsection{\Acrlong{CNV} at individual loci}
+
+\paragraph{Problem description}
+
+Considering a single locus, either a single nucleotide or a contiguous stretch of DNA, the expected number of reads from a sequencing experiment that map to that locus is proportional to the copy number of the locus in the DNA input for sequencing.  Based on this relationship it is -- in principle -- possible to estimate copy number from sequencing data, however a number of complicating factors are present, related to sequence `mappability', exon capture affinity, sample contamination, and problem indeterminancy.
+
+There are many regions in mammalian genomes for which it is challenging to map reads.  These regions may be either poorly characterised themselves in the reference genome, or may be sufficiently like other parts of the genome for an unambiguous mapping to be impossible with the short and error-prone reads produced by \gls{NGS} technologies.  Most processing pipelines discard such ambiguous reads, with the net effect that difficult-to-map regions of the genome have much lower read depth than would be expected based on the quantity of DNA for those regions present as input to the sequencing procedure.  Copy-number analysis techniques need to take this `mappability' bias into account, or regions of reference DNA that are challenging to map may falsely be reported to undergo copy number loss.
+
+A similar effect to `mappability' bias is additionally present in datasets generated by exome sequencing.  The process of exome enrichment necessarily favours certain regions of the reference genome (hopefully, the exome), over others.  This enrichment is always imperfect: some non-target DNA will persist through the procedure, and not all target regions will be retained to the same degree.  The ultimate effect of the exome enrichment procedure is to introduce an additional per-locus bias, `exon capture affinity' that requires correction before copy number calls can be made.  Unlike for `mappability bias', ignoring exon capture affinity bias can lead to either false copy number loss or false copy number gain calls.
+
+Contamination of tumour DNA is a universal problem in solid tumour sequencing.  This contamination may be with non-cancerous diploid DNA, or alternate cancer genotypes present in the same sample, or both.  In the case of \gls{CNV} estimation based on read depth, the presence of contaminating diploid DNA causes a shrinkage of the observed \gls{CNV} profile towards that of diploid cells, and reduces the \gls{SNR} of the copy number estimates.  \gls{CNV} callers aware of this effect must take this effect into account in their calls, and may also be required to estimate the fraction of contaminating normal DNA.  In tumour samples containing multiple tumour genotypes, with varying locus copy numbers, \gls{CNV} estimates are for the mean copy number of the genotypes, weighted by their prevalence in the sample.  In such cases, deconvolution of the signal into its component genotypes based on a single sample of the tumour is impossible without the benefit of additional external information.
+
+Ultimately, without knowledge of the number of cells input into the sequencing procedure, \gls{CNV} estimation from \gls{NGS} data is a fundamentally indeterminate problem.  This is easily seen by considering the case of a hypothetical fully haploid tumour: the read counts of all loci will be completely consistent with those of a normal diploid sample.  Without observing that the quantity of DNA present per input tumour cell is half that of a diploid cell, the haploid tumour and diploid normal samples would be completely indistinguishable.  Information on the number of cells used for extraction is very seldom available, and so in almost all cases additional assumptions are required to assign absolute copy number to \gls{NGS} read depth data.
+
+Taking all the above complications into account, I developed an organism-agnostic \gls{CNV} detection procedure for exome or \gls{WGS} data that uses \gls{NGS} read depths as input.  
+
+\paragraph{\Acrlong{CNV} estimation procedure}
+
+The mathematical setup of the procedure is as follows.  Consider $m$ disjoint loci on the reference genome; these loci may be individual base pairs or contiguous regions.  For a single matched tumour-normal sample pair, let the number of reads mapped to locus $i \in 1 \dots m$ be $N_i$ for the normal sample, and $T_i$ for the tumour sample.  Denote the total read depths at all examined loci as $D_N$ and $D_T$, $D_N = \sum_{i=1}^{m} N_i$, $D_T = \sum_{i=1}^{m} T_i$. To consider normal DNA contamination effects, we suppose that the tumour sample is actually a mixture of normal cell diploid DNA, and cancer cell DNA, where the fraction of cancer cells in the sample is the unknown quantity $f \in \left(0, 1\right]$.  Loci are subject to differential exome enrichment, locus size, and mapping biases, which are combined into the single per-locus quantity $B_i$, such that $\left<N_i\right> \propto B_i$, and $\sum_{i=1}^{m} B_i = 1$.
+
+We model the process of sequencing as a number of independent Poisson processes, one for each of the $m$ loci under consideration.  The Poisson rate for each locus $i$ is proportional to the product of the number of molecules of $i$ present for sequencing, and the per-locus bias quantity $B_i$.  Therefore, the number of reads at locus $i$ in the diploid normal sample is Poisson distributed as
+\begin{equation}
+  N_i \sim Pois\left(E_N B_i\right) \label{eq:comp_cnv_Npois}
+\end{equation}
+where $E_N$ is the expected total number of reads at all loci in the normal sample, $E_N = \langle D_N \rangle$ . \footnote{This model can be decomposed into the more physically natural form
+\begin{equation}
+  N \sim Mult\left(\{N_1, \dots, N_m\}; D_N, \{B_1, \dots, B_m\}\right) Pois\left(D_N; E_N\right)
+\end{equation}}
+\mpnote{check this decomposition}
+
+For the tumour sample, the expression for the Poisson rate parameter is more complex, as locus copy number is no longer constant and needs to be taken into account.  Ignoring for the moment the possibility of diploid DNA contamination in the tumour sample (i.e.\ let $f = 1$), we suppose that the number of reads at locus $i$ in pure tumour sample is distributed as
+\begin{equation}
+  T_i \overset{f = 1}{\sim} Pois\left(E_T \left( B_i C_i \frac{1}{\sum_{j} B_j C_j} \right) \right)
+\end{equation}
+where $C_i$ is the copy number of locus $i$, and $E_T = \langle D_T \rangle$, as for the normal sample case.  $1/\sum_{j} B_j C_j$ is a normalization factor that ensures $\langle \sum T_i \rangle = E_T$.  The presence of diploid contamination shifts the read distributions toward those expected under the diploid case, as
+\begin{align}
+  T_i &\sim f Pois\left(E_T \left( B_i C_i \frac{1}{\sum_{j} B_j C_j} \right) \right) + (1-f) Pois\left(E_T B_i\right) \\
+      &\sim Pois\left(E_T B_i \left( f \left( C_i \frac{1}{\sum_{j} B_j C_j} \right) + \left(1-f\right) \right) \right) \label{eq:comp_cnv_Tpois}
+\end{align}
+
+Normal approximations to the above Poisson distributions were used to develop a practical approximate test.  For sufficiently high $\lambda$, if $X \sim Pois\left(\lambda\right)$, then $\sqrt{x} \approxdist N\left(\sqrt{\lambda}, \frac{1}{4}\right)$.  Applying this approximation to equations \ref{eq:comp_cnv_Npois} and \ref{eq:comp_cnv_Tpois},
+\begin{align}
+  \sqrt{N_i} &\approxdist N\left(\sqrt{E_N B_i}, \frac{1}{4}\right) \\
+  \sqrt{T_i} &\approxdist N\left(\sqrt{E_T B_i} \sqrt{\left( f \left( C_i \frac{1}{\sum_{j} B_j C_j} \right) + \left(1-f\right) \right) }, \frac{1}{4}\right)
+\end{align}
+
+\mpfatal{todo: continue}
 
 \subsubsection{Combining calls from adjacent loci}
 
