@@ -238,21 +238,28 @@ where $E_N$ is the expected total number of reads at all loci in the normal samp
 
 For the tumour sample, the expression for the Poisson rate parameter is more complex, as locus copy number is no longer constant and needs to be taken into account.  Ignoring for the moment the possibility of diploid DNA contamination in the tumour sample (i.e.\ let $f = 1$), we suppose that the number of reads at locus $i$ in pure tumour sample is distributed as
 \begin{equation}
-  T_i \overset{f = 1}{\sim} Pois\left(E_T \left( B_i C_i \frac{1}{\sum_{j} B_j C_j} \right) \right)
+  T_i \overset{f = 1}{\sim} Pois\left(E_T B_i C_i K \right)
 \end{equation}
-where $C_i$ is the copy number of locus $i$, and $E_T = \langle D_T \rangle$, as for the normal sample case.  $1/\sum_{j} B_j C_j$ is a normalization factor that ensures $\langle \sum T_i \rangle = E_T$.  The presence of diploid contamination shifts the read distributions toward those expected under the diploid case, as
+where $C_i$ is the copy number of locus $i$ relative to diploid cells, and $E_T = \langle D_T \rangle$, as for the normal sample case.  $K = 1/\sum_{j} B_j C_j$ is a normalization factor that ensures $\langle \sum T_i \rangle = E_T$.  Now considering possible diploid DNA contamination, if tumour cells are present at a fraction $f$, with the remainder diploid cells, the tumour locus read count is distributed as
 \begin{align}
-  T_i &\sim f Pois\left(E_T \left( B_i C_i \frac{1}{\sum_{j} B_j C_j} \right) \right) + (1-f) Pois\left(E_T B_i\right) \\
-      &\sim Pois\left(E_T B_i \left( f \left( C_i \frac{1}{\sum_{j} B_j C_j} \right) + \left(1-f\right) \right) \right) \label{eq:comp_cnv_Tpois}
+  T_i &\sim f Pois\left(E_T B_i C_i K \right) + (1-f) Pois\left(E_T B_i\right) \\
+      &\sim Pois\left(E_T B_i \left( f \left( C_i K - 1 \right) + 1 \right) \right) \label{eq:comp_cnv_Tpois}
 \end{align}
 
-Normal approximations to the above Poisson distributions were used to develop a practical approximate test.  For sufficiently high $\lambda$, if $X \sim Pois\left(\lambda\right)$, then $\sqrt{x} \approxdist N\left(\sqrt{\lambda}, \frac{1}{4}\right)$.  Applying this approximation to equations \ref{eq:comp_cnv_Npois} and \ref{eq:comp_cnv_Tpois},
+We develop a per-locus \gls{CNV} test statistic, $V_i$, as the square root of the ratio of tumour and normal sample reads at locus $i$, and derive an approximation to its distribution.  Let the test statistic $V_i = \sqrt{\frac{T_i}{N_i}} = \frac{\sqrt{T_i}}{\sqrt{N_i}}$.  For sufficiently high $\lambda$, if $X \sim Pois\left(\lambda\right)$, then $\sqrt{x} \approxdist N\left(\sqrt{\lambda}, \frac{1}{4}\right)$ \cite{Bartlett1936}.  Applying this approximation to equations \ref{eq:comp_cnv_Npois} and \ref{eq:comp_cnv_Tpois},
 \begin{align}
   \sqrt{N_i} &\approxdist N\left(\sqrt{E_N B_i}, \frac{1}{4}\right) \\
-  \sqrt{T_i} &\approxdist N\left(\sqrt{E_T B_i} \sqrt{\left( f \left( C_i \frac{1}{\sum_{j} B_j C_j} \right) + \left(1-f\right) \right) }, \frac{1}{4}\right)
+  \sqrt{T_i} &\approxdist N\left(\sqrt{E_T B_i} \sqrt{\left( f \left( C_i K - 1 \right) + 1 \right) }, \frac{1}{4}\right)
 \end{align}
-
-\mpfatal{todo: continue}
+Under the null hypothesis of no CNV at locus $i$, $C_i = 1$, and
+\begin{equation}
+  \sqrt{T_i} \overset{H_0}{\approxdist} N\left(\sqrt{E_T B_i} \sqrt{\left( f \left( K - 1 \right) + 1 \right) }, \frac{1}{4}\right)
+\end{equation}
+Therefore, under the null hypothesis, and if $\sqrt{E_N B_i}$ is sufficiently large for $\sqrt{N_i}$ to be almost always positive, the test statistic $V_i$ is approximately distributed as
+\begin{equation}
+  V_i \overset{H_0}{\approxdist} NR \left(\sqrt{E_T B_i}\sqrt{\left( f \left( K - 1 \right) + 1 \right) }, \sqrt{E_N B_i}, \frac{1}{4}, \frac{1}{4}, 0\right)
+\end{equation}
+where $NR(\mu_z, \mu_w, \sigma_z^2, \sigma_w^2, c)$ is the approximate normal ratio distribution from section 5 of \cite{Marsaglia2006}.
 
 \subsubsection{Combining calls from adjacent loci}
 
