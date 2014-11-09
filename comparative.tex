@@ -131,13 +131,11 @@ High-confidence heterozygous loci in normal DNA were identified by comparing pos
 \begin{align}
 Hom &= \{AA, CC, GG, TT\} \\
 Het &= \{AC, AG, AT, CG, CT, GT\}
-\label{eq:comm_het_genotypes}
 \end{align}
 The two models, $HOM$ and $HET$, may be written
 \begin{align}
 HOM &: G \in Hom \\
 HET &: G \in Het
-\label{eq:comm_het_genotypes}
 \end{align}
 where $G$ is the true genotype at the locus.  The Bayes factor $K$ comparing $HOM$ and $HET$ is then
 \begin{align}
@@ -224,42 +222,46 @@ Taking all the above complications into account, I developed an organism-agnosti
 
 \paragraph{\Acrlong{CNV} estimation procedure}
 
-The mathematical setup of the procedure is as follows.  Consider $m$ disjoint loci on the reference genome; these loci may be individual base pairs or contiguous regions.  For a single matched tumour-normal sample pair, let the number of reads mapped to locus $i \in 1 \dots m$ be $N_i$ for the normal sample, and $T_i$ for the tumour sample.  Denote the total read depths at all examined loci as $D_N$ and $D_T$, $D_N = \sum_{i=1}^{m} N_i$, $D_T = \sum_{i=1}^{m} T_i$. To consider normal DNA contamination effects, we suppose that the tumour sample is actually a mixture of normal cell diploid DNA, and cancer cell DNA, where the fraction of cancer cells in the sample is the unknown quantity $f \in \left(0, 1\right]$.  Loci are subject to differential exome enrichment, locus size, and mapping biases, which are combined into the single per-locus quantity $B_i$, such that $\left<N_i\right> \propto B_i$, and $\sum_{i=1}^{m} B_i = 1$.
+The mathematical setup of the procedure is as follows.  Consider $m$ disjoint loci on the reference genome; these loci may be individual base pairs or contiguous regions.  For a single matched tumour-normal sample pair, let the number of reads mapped to locus $i \in 1 \dots m$ be $N_i$ for the normal sample, and $T_i$ for the tumour sample.  Denote the total read depths at all examined loci as $D_N$ and $D_T$, $D_N = \sum_{i=1}^{m} N_i$, $D_T = \sum_{i=1}^{m} T_i$. To consider normal DNA contamination effects, we suppose that the tumour sample is actually a mixture of normal cell diploid DNA, and cancer cell DNA, where the fraction of cancer cells in the sample is the unknown quantity $f \in \left(0, 1\right]$.  Loci are subject to differential exome enrichment, locus size, and mapping biases, which are combined into the single per-locus quantity $B_i$, such that $\left<N_i\right> \propto B_i$, $\left<T_i\right> \propto B_i$, and $\sum_{i=1}^{m} B_i = 1$.
 
-We model the process of sequencing as a number of independent Poisson processes, one for each of the $m$ loci under consideration.  The Poisson rate for each locus $i$ is proportional to the product of the number of molecules of $i$ present for sequencing, and the per-locus bias quantity $B_i$.  Therefore, the number of reads at locus $i$ in the diploid normal sample is Poisson distributed as
+We approximately model the process of sequencing as a large number of independent Poisson processes, one for each of the $m$ loci under consideration.  The Poisson rate for each locus $i$ is proportional to the product of the number of molecules of $i$ present for sequencing, and the per-locus bias quantity $B_i$.  Therefore, the number of reads at locus $i$ in the diploid normal sample is approximately Poisson distributed as
 \begin{equation}
-  N_i \sim Pois\left(E_N B_i\right) \label{eq:comp_cnv_Npois}
-\end{equation}
-where $E_N$ is the expected total number of reads at all loci in the normal sample, $E_N = \langle D_N \rangle$ . \footnote{This model can be decomposed into the more physically natural form
-\begin{equation}
-  N \sim Mult\left(\{N_1, \dots, N_m\}; D_N, \{B_1, \dots, B_m\}\right) Pois\left(D_N; E_N\right)
-\end{equation}}
-\mpnote{check this decomposition}
+  N_i \approxdist Pois\left(D_N B_i\right) \label{eq:comp_cnv_Npois}
+\end{equation}. \footnote{This model is an approximation of the more physically correct multinomial model with read failure, where $N^{(0)} \sim Multi\left(S; B^{(0)}\right)$, $B^{(0)} = \left(R_F, B_1(1-R_F), B_2(1-R_F), \dots, B_m(1-R_F)\right)$, and $N^{(0)} = \left(N_F, N_1, N_2, \dots, N_m\right)$; $T^{(0)}$ is defined analogously.  This model considers that the sequencer has at most $S$ physical sites available for sequencing, but that $N_F$ of these do not yield observed sequence, either because they are not occupied by DNA, or because their data are filtered prior to mapping.  For $m$ large, or `site failure rate' $R_F$ large, the negative dependencies between locus read depths induced by the multinomial distribution's restriction on its sum are relaxed, and $N_i \approxdist Pois$ for $i \geq 1$.}
 
-For the tumour sample, the expression for the Poisson rate parameter is more complex, as locus copy number is no longer constant and needs to be taken into account.  Ignoring for the moment the possibility of diploid DNA contamination in the tumour sample (i.e.\ let $f = 1$), we suppose that the number of reads at locus $i$ in pure tumour sample is distributed as
+For the tumour sample, the expression for the Poisson rate parameter is more complex than in the normal case, as locus copy number is no longer assumed constant.  Ignoring for the moment the possibility of diploid DNA contamination in the tumour sample (i.e.\ let $f = 1$), we suppose that the number of reads at locus $i$ in pure tumour sample is distributed as
 \begin{equation}
-  T_i \overset{f = 1}{\sim} Pois\left(E_T B_i C_i K \right)
+  T_i \overset{f = 1}{\approxdist} Pois\left(D_T B_i C_i K \right)
+  \label{eq:comp_cnv_Tpois_pure}
 \end{equation}
-where $C_i$ is the copy number of locus $i$ relative to diploid cells, and $E_T = \langle D_T \rangle$, as for the normal sample case.  $K = 1/\sum_{j} B_j C_j$ is a normalization factor that ensures $\langle \sum T_i \rangle = E_T$.  Now considering possible diploid DNA contamination, if tumour cells are present at a fraction $f$, with the remainder diploid cells, the tumour locus read count is distributed as
+where $C_i$ is the copy number of locus $i$ relative to diploid cells.  $K = 1/\sum_{j} B_j C_j$ is a normalization factor that ensures $\langle \sum T_i \rangle = D_T$.  Now considering possible diploid DNA contamination, if tumour cells are present at a fraction $f$, with the remainder diploid cells, the tumour locus read count is distributed as
 \begin{align}
-  T_i &\sim f Pois\left(E_T B_i C_i K \right) + (1-f) Pois\left(E_T B_i\right) \\
-      &\sim Pois\left(E_T B_i \left( f \left( C_i K - 1 \right) + 1 \right) \right) \label{eq:comp_cnv_Tpois}
+  T_i &\approxdist f Pois\left(D_T B_i C_i K \right) + (1-f) Pois\left(D_T B_i\right) \\
+      &\approxdist Pois\left(D_T B_i \left( f \left( C_i K - 1 \right) + 1 \right) \right) \label{eq:comp_cnv_Tpois}
 \end{align}
+As intuitively expected, the presence of normal diploid contamination has the effect of attenuating the influence of the cancer ploidy signal $C_i K$ toward the diploid value of $1$.
 
-We develop a per-locus \gls{CNV} test statistic, $V_i$, as the square root of the ratio of tumour and normal sample reads at locus $i$, and derive an approximation to its distribution.  Let the test statistic $V_i = \sqrt{\frac{T_i}{N_i}} = \frac{\sqrt{T_i}}{\sqrt{N_i}}$.  For sufficiently high $\lambda$, if $X \sim Pois\left(\lambda\right)$, then $\sqrt{x} \approxdist N\left(\sqrt{\lambda}, \frac{1}{4}\right)$ \cite{Bartlett1936}.  Applying this approximation to equations \ref{eq:comp_cnv_Npois} and \ref{eq:comp_cnv_Tpois},
-\begin{align}
-  \sqrt{N_i} &\approxdist N\left(\sqrt{E_N B_i}, \frac{1}{4}\right) \\
-  \sqrt{T_i} &\approxdist N\left(\sqrt{E_T B_i} \sqrt{\left( f \left( C_i K - 1 \right) + 1 \right) }, \frac{1}{4}\right)
-\end{align}
-Under the null hypothesis of no CNV at locus $i$, $C_i = 1$, and
+\mpnote{Say something about K here?  Main points: K encodes the expected signal of diploid DNA, and is present as a consequence of the interaction of variable ploidy with the input normalization to total DNA quantity instead of total cell count.  Due to the underdetermined nature of the system when the number of input cells is unknown, K must be estimated from the data.  There is no way to conclusively determine the correct K, due to the general indeterminancy of the CNV genotyping problem.  Therefore, we use the heurestic that the most common copy number will be diploid, when determining a value for K.}
+
+We develop a per-locus \gls{CNV} test based on a ratio test for two Poisson distributed random variables.  Let $R_i$ be the ratio of the read appearance rates at locus $i$ in tumour and normal samples.  Again considering only the pure sample case ($f = 1$), from equations \ref{eq:comp_cnv_Npois} and \ref{eq:comp_cnv_Tpois_pure} we have $R_i = \frac{D_T B_i C_i K}{D_N B_i} = \frac{D_T C_i K}{D_N}$.  Then, the null hypothesis of no \gls{CNV} at locus $i$, $H_0: C_i = 1$, is equivalent to a hypothesis on $R_i$, $H_0: R_i = \frac{D_T}{D_N}K$.  We test this hypothesis on $R_i$ using the $W_5$ statistic of \cite{Gu2008},
 \begin{equation}
-  \sqrt{T_i} \overset{H_0}{\approxdist} N\left(\sqrt{E_T B_i} \sqrt{\left( f \left( K - 1 \right) + 1 \right) }, \frac{1}{4}\right)
+  W_5(X_0, X_1) = \frac{2\left(\sqrt{X_0 + 3/8} - \sqrt{R_{H0}\left(X_1 + 3/8\right)}\right)}{\sqrt{1 + R_{H0}}}
 \end{equation}
-Therefore, under the null hypothesis, and if $\sqrt{E_N B_i}$ is sufficiently large for $\sqrt{N_i}$ to be almost always positive, the test statistic $V_i$ is approximately distributed as
+where $R_{H0} = \frac{D_T}{D_N}\hat{K}$.  This statistic is asymptotically normally distributed, so the one-sided copy number gain P-value ($H_1: C_i > 1$) is
 \begin{equation}
-  V_i \overset{H_0}{\approxdist} NR \left(\sqrt{E_T B_i}\sqrt{\left( f \left( K - 1 \right) + 1 \right) }, \sqrt{E_N B_i}, \frac{1}{4}, \frac{1}{4}, 0\right)
+  p_{gain} = 1 - \Phi\left(w_5(t_i, n_i)\right)
 \end{equation}
-where $NR(\mu_z, \mu_w, \sigma_z^2, \sigma_w^2, c)$ is the approximate normal ratio distribution from section 5 of \cite{Marsaglia2006}.
+where $w_5$ is the observed value of the statistic $W_5$, and $\Phi$ is the cumulative distribution function of the standard normal distribution.  The one-sided P-value for copy number loss is equivalently
+\begin{equation}
+  p_{loss} = 1 - \Phi\left(w_5(n_i, t_i)\right)
+\end{equation}
+and the combined two-sided P-value for \gls{CNV} at locus $i$ is
+\mpfatal{This maths needs to be redone.  In particular, $R_{H0}$ is probably going to be different for loss vs gain.  Need less hangover}
+\begin{equation}
+  p_{CNV} = 2 min(p_{loss}, p_{gain})
+\end{equation}
+
+
 
 \subsubsection{Combining calls from adjacent loci}
 
@@ -283,7 +285,7 @@ Extension of the procedure to the \gls{CNV} case requires three states: \emph{Di
 \caption{Locality-sensitive FDR estimation of CNV calls using a Markov chain double-Beta-Uniform mixture model.\label{fig:comp_cnv_hmm}}
 \end{figure}
 
-Although the given procedure is simple in formulation, some additional complexities were required for a practical implementation, all related to the high degree of flexibility of the Beta distribution.  The Uniform distribution is a special case of the Beta distribution, and therefore in cases where the distribution of P-values is near Uniform (ie. all sites appear to satisfy the null hypothesis), the fitting problem is ill-posed.  This issue was resolved by enforcing $\alpha \leq 0.95$ for \gls{LOH} and \gls{CNV} loss detection, and $\beta \leq 0.95$ for \gls{CNV} gain detection.  For \gls{FDR} correction of \gls{CNV} P-values, structural zeros were placed on the probabilities of direct transitions between \emph{Loss} and \emph{Gain} states (figure \ref{fig:comp_cnv_hmm}); although such transitions are biologically plausible, they were found to contribute to unstable fits in noisy data.
+Although the given procedure is simple in formulation, some additional complexities were required for a practical implementation, all related to the high degree of flexibility of the Beta distribution.  The Uniform distribution is a special case of the Beta distribution, and therefore in cases where the distribution of P-values is near Uniform (ie. all sites appear to satisfy the null hypothesis), the fitting problem is ill-posed.  This issue was resolved by enforcing Beta parameters $\alpha \leq 0.95$ for \gls{LOH} and \gls{CNV} loss detection, and $\beta \leq 0.95$ for \gls{CNV} gain detection.  For \gls{FDR} correction of \gls{CNV} P-values, structural zeros were placed on the probabilities of direct transitions between \emph{Loss} and \emph{Gain} states (figure \ref{fig:comp_cnv_hmm}); although such transitions are biologically plausible, they were found to contribute to unstable fits in noisy data.
 
 %\bibliographystyle{plain}
 %\bibliography{thesis}
