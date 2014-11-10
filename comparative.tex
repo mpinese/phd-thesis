@@ -155,7 +155,7 @@ An implementation of the above heterozygous locus detection method is given in a
 
 \begin{algorithm}
   \KwData{Total sequence depth at the locus $D$, minimum depth for call $mindepth$, list of alternate alleles $A$, list of Phred-scaled genotype likelihoods $L$, minimum likelihood difference in nats between top two genotypes $mindelta$, minimum Bayes factor in nats for heterozygous to be called over homozygous $minscore$.}
-  \KwResult{A boolean: true if the locus is called heterozygous, false if it is not}
+  \KwResult{A boolean: true if the locus is called heterozygous, false if it is not.}
 
   \Begin {
     \If {$D \leq mindepth$}{
@@ -218,13 +218,13 @@ Ultimately, without knowledge of the number of cells input into the sequencing p
 
 Taking all the above complications into account, I developed an organism-agnostic \gls{CNV} detection procedure for exome or \gls{WGS} data that uses \gls{NGS} read depths as input.  
 
-\paragraph{\Acrshort{CNV} detection procedure}
+\paragraph{\Acrshort{CNV} model and test development}
 
 The mathematical setup of the procedure is as follows.  We reserve upper case variable symbols for random variables, and use lower case equivalents for observed values of these random variables.  Consider $m$ disjoint loci on the reference genome; these loci may be individual base pairs or contiguous regions.  For a single matched tumour-normal sample pair, let the number of reads that were mapped to locus $i \in \{1 \dots m\}$ be $n_i$ for the normal sample, and $t_i$ for the tumour sample.  Denote the total read depths at all examined loci as $d_N$ and $d_T$, $d_N = \sum_{i=1}^{m} n_i$, $d_T = \sum_{i=1}^{m} t_i$. To consider normal DNA contamination effects, we suppose that the tumour sample is actually a mixture of normal cell diploid DNA, and cancer cell DNA, where the fraction of cancer cells in the sample is the unknown quantity $f \in \left(0, 1\right]$.  Loci are subject to differential exome enrichment, locus size, and mapping biases, which are combined into the single per-locus quantity $b_i$, such that $\left<N_i\right> \propto b_i$, $\left<T_i\right> \propto b_i$, and $\sum_{i=1}^{m} b_i = 1$.
 
 We model the process of reads in \gls{NGS} as a Bernoulli scheme, and use the weak dependence between read depths at different sites to derive a per-locus Poisson approximation.  In this model the sequencer has a fixed $s$ total physical sites available for sequencing; in the SOLiD 4 system these sites correspond to positions on the sequencing slide.  Some of these sites yield observed sequence that is then mapped and used to estimate read depth, however many of them do not produce sequence reads, either because they are never populated with DNA, or because they fail low-level quality checks.  We suppose that these failed sites occur independent of the DNA sequence, and at a rate of $r_F$ among all available sites.  Then, a given physical sequencing site can either fail to yield sequence, with probability $r_F$, or it can produce observed sequence for one of $m$ loci, each at probablity $(1-r_F)b_i$, for $i \in \{1 \dots m\}$.  This per-site categorical distribution, when sampled for each of $s$ independent sites, results in a multinomial distribution on read depths,
 \begin{equation}
-\left[N_F, N_1, \dots, N_m\right] \sim Multi\left(s, \left[r_F, (1-r_F)b_1, \dots, (1-r_F)b_m\right]\right)
+\left(N_F, N_1, \dots, N_m\right) \sim Multi\left(s, \left(r_F, (1-r_F)b_1, \dots, (1-r_F)b_m\right)\right)
 \end{equation}
 where $N_F$ is the number of failed sites (not observed), and $N_i$ is the number of reads observed for locus $i$.  The multinomial distribution induces a negative dependency on the number of reads observed at different loci, as the total read count $s$ is fixed.  However, for $m$ large, or site failure rate $r_F$ large\cite{McDonald1980}, these negative dependencies are small, and 
 \begin{equation}
@@ -237,57 +237,74 @@ The quantity $s(1-r_F) = \left<D_N\right>$ is unknown, and we approximate it wit
 
 For the tumour sample, the expression for the Poisson rate parameter is more complex than in the normal case, as locus copy number is no longer assumed constant.  Ignoring for the moment the possibility of diploid DNA contamination in the tumour sample (i.e.\ let $f = 1$), and following the derivation used in the normal case, we find that the number of reads at locus $i$ in pure tumour sample is distributed as
 \begin{equation}
-  T_i \overset{f = 1}{\approxdist} Pois\left(d_T b_i c_i k \right)
+  T_i \overset{f = 1}{\approxdist} Pois\left(d_T b_i c_i k_{pure} \right)
   \label{eq:comp_cnv_Tpois_pure}
 \end{equation}
-where $c_i$ is the copy number of locus $i$ in the tumour DNA, relative to diploid cells.  $k = 1/\sum_{j} b_j c_j$ is a normalization factor that ensures $\langle \sum T_i \rangle = d_T$.  Now considering possible diploid DNA contamination, if tumour DNA is present at a \emph{DNA} fraction $g$, with the remainder diploid DNA, the tumour locus read count is distributed as
-\begin{align}
-  T_i &\approxdist g Pois\left(d_T b_i c_i k \right) + (1-g) Pois\left(d_T b_i\right) \\
-      &\equiv Pois\left(g d_T b_i c_i k + (1-g) d_T b_i\right) \label{eq:comp_cnv_Tpois_g}
-\end{align}
-$g$ is dependent on the tumour cell fraction $f$, the exome enrichment biases $b$, as well as the relative quantities of DNA in tumour and normal cells, $q_T$ and $q_N$,
-\begin{align}
-  q_N &= \sum_{i=1}^m b_i = 1 \\
-  q_T &= \sum_{i=1}^m b_i c_i = k^{-1}\\
-  g &= \frac{f q_T}{f q_T + (1-f) q_N} \\
-    &= \frac{f}{f + k\left(1-f\right)} \label{eq:comp_cnv_g_f}
-\end{align}
-Combining \ref{eq:comp_cnv_Tpois_g} and \ref{eq:comp_cnv_g_f},
+where $c_i$ is the copy number of locus $i$ in the tumour DNA, relative to diploid cells.  $k_{pure} = 1/\sum_{j} b_j c_j$ is a normalization factor that ensures $\langle \sum T_i \rangle = d_T$.  Now considering possible diploid DNA contamination, if tumour cells are present at a fraction $f$, with the remainder diploid cells, the tumour locus read count is distributed as
 \begin{equation}
-  T_i \approxdist Pois\left(d_T b_i \left(1 + \frac{f}{f + k(1-f)} \left(c_i k - 1\right) \right) \right)
+  T_i \approxdist Pois\left(k d_T b_i \left( 1 + f \left(c_i - 1\right) \right) \right)
+\label{eq:comp_cnv_Tpois_g}
 \end{equation}
-As intuitively expected, as the amount of normal diploid contamination increases ($f \to 0$), the influence of the cancer ploidy signal $c_i k$ tends to zero, and the tumour read depth distributions contract toward those of diploid cells.
+Here $k$ is no longer a simple normalization factor like $k_{pure}$, but is a value that involves sample purity and cancer cell DNA content.  \mpfatal{Add the derivation in somewhere -- perhaps an appendix.  It's a pain in the arse so probs want to avoid the main text.}
 
-The variable $k$ is more than a convenient normalization constant: it encodes the signal expected of diploid loci in the tumour cells, and therefore controls the absolute copy numbers called by the procedure.  To see this, observe that the tumour ploidy signal is $c_i k$, and therefore that tumour ploidy relative to $2n$, $c_i$, is completely confounded with $k$.  As noted earlier, without knowing the number of input cells in the tumour sample, it is impossible to determine absolute ploidy from \gls{NGS} depth data, and so there is no way to conclusively determine the correct value for $k$.  In this work I used the heuristic that the most common ploidy in a tumour cell should be diploid, and therefore selected values of $k$ that ensure that the most common \gls{CNV} call would be diploid (ie No CNV).  This heuristic will almost certainly be wrong in cases, but is necessary given the fundamentally indeterminate nature of the \gls{CNV} problem.  Interpretation of the results of this \gls{CNV} calling procedure must take into account the possibility that $k$ is mis-specified, and that all CNV calls should be shifted appropriately.
+The variable $k$ is more than a convenient normalization constant: it encodes the signal expected of diploid loci in the tumour cells, and therefore controls the absolute copy numbers called by the procedure.  To see this, observe that the pure tumour ploidy signal is $c_i k$, and therefore that tumour ploidy relative to $2n$, $c_i$, is completely confounded with $k$.  As noted earlier, without knowing the number of input cells in the tumour sample, it is impossible to determine absolute ploidy from \gls{NGS} depth data, and so there is no way to conclusively determine the correct value for $k$.  In this work I used the heuristic that the most common ploidy in a tumour cell should be diploid, and therefore selected values for $k$ to ensure that the most common \gls{CNV} call would be diploid (ie No CNV).  This heuristic will almost certainly be wrong in cases, but is necessary given the fundamentally indeterminate nature of the \gls{CNV} problem.  Interpretation of the results of this \gls{CNV} calling procedure must take into account the possibility that $k$ is mis-specified, and that all CNV calls should be shifted appropriately.
 
-Given the above approximate Poisson distributions for normal and tumour read depths as a function of locus ploidy, I develop a per-locus \gls{CNV} test based on a ratio test for two Poisson-distributed random variables.  Let $r_i$ be the ratio of the read appearance rates at locus $i$ in tumour and normal samples, 
+Given the above approximate Poisson distributions for normal and tumour read depths as a function of locus ploidy, I developed a per-locus \gls{CNV} test based on a ratio test for two Poisson-distributed random variables.  Let $R_i$ be the ratio of the read appearance rates at locus $i$ in tumour and normal samples, 
 \begin{align}
-  r_i &= \frac{d_T b_i \left( f \left( c_i k - 1 \right) + 1\right)}{d_n b_i} \\
-      &= \frac{d_T}{d_N} \left( f \left( c_i k - 1 \right) + 1\right)
+  R_i &= \frac{k D_T b_i \left( 1 + f \left(c_i - 1\right) \right)}{D_N b_i} \\
+      &= \frac{D_T}{D_N} \left( k \left( 1 + f \left( c_i - 1 \right)\right) \right)
 \end{align}
-Then, the null hypothesis of no \gls{CNV} at locus $i$, $H_0: c_i = 1$, is equivalent to a hypothesis on $r_i$, 
+Then, the null hypothesis of no \gls{CNV} at locus $i$, $H_0: c_i = 1$, is equivalent to a hypothesis on $R_i$, 
 \begin{equation}
-H_0: r_i = \frac{d_T}{d_N} \left( f \left(k - 1\right) + 1 \right)
+H_0: R_i = \frac{D_T}{D_N}k
 \end{equation}
 We test this hypothesis on $R_i$ using the $W_5$ statistic of \cite{Gu2008},
 \begin{equation}
-  W_5(X_0, X_1) = \frac{2\left(\sqrt{X_0 + 3/8} - \sqrt{R_{H0}\left(X_1 + 3/8\right)}\right)}{\sqrt{1 + R_{H0}}}
+  W_5(X_0, X_1) = \frac{2\left(\sqrt{X_0 + 3/8} - \sqrt{r_{H0}\left(X_1 + 3/8\right)}\right)}{\sqrt{1 + r_{H0}}}
 \end{equation}
-where $R_{H0} = \frac{D_T}{D_N}\hat{K}$.  This statistic is asymptotically normally distributed, so the one-sided copy number gain P-value ($H_1: C_i > 1$) is
+where $r_{H0} = \frac{d_T}{d_N}\hat{k}$.  This statistic is asymptotically normally distributed, so the one-sided copy number gain P-value ($H_1: c_i > 1$) is
 \begin{equation}
   p_{gain} = 1 - \Phi\left(w_5(t_i, n_i)\right)
 \end{equation}
-where $w_5$ is the observed value of the statistic $W_5$, and $\Phi$ is the cumulative distribution function of the standard normal distribution.  The one-sided P-value for copy number loss is equivalently
+where $w_5$ is the observed value of the statistic $W_5$, and $\Phi$ is the cumulative distribution function of the standard normal distribution.  $W_5$ is symmetric, so the one-sided P-value for copy number loss is
 \begin{equation}
-  p_{loss} = 1 - \Phi\left(w_5(n_i, t_i)\right)
+  p_{loss} = \Phi\left(w_5(t_i, n_i)\right)
 \end{equation}
 and the combined two-sided P-value for \gls{CNV} at locus $i$ is
-\mpfatal{This maths needs to be redone.  In particular, $R_{H0}$ is probably going to be different for loss vs gain.  Need less hangover}
 \begin{equation}
-  p_{CNV} = 2 min(p_{loss}, p_{gain})
+  p_{CNV} = \left\{ 
+    \begin{array}{l l}
+      2 p_{loss} & \quad \text{if $t_i/n_i < r_{H0}$} \\
+      2 p_{gain} & \quad \text{if $t_i/n_i \geq r_{H0}$}
+    \end{array}
+  \right.
 \end{equation}
 
+\paragraph{\Acrshort{CNV} detection procedure}
+Pseudocode for the implementation of per-locus \gls{CNV} detection is given in algorithm \ref{alg:comp_find_cnv}.  \mpfatal{Add specific value of mindepth used}
 
+\begin{algorithm}
+  \KwData{An $m$-vector of normal locus read depths $n$, an $m$-vector of tumour locus read depths $t$, minimum normal sample depth $mindepth$.}
+  \KwResult{An $m$-vector of floats: for each locus, the one-sided P-value for \acrshort{CNV} loss at that locus, $p_{loss}$.}
+
+  \Begin {
+    \tcp{Estimate $k$ so that the modal ploidy signal will be called as diploid}
+    $S \longleftarrow \{ t_i/n_i : i \in \{1 \dots m\} \wedge n_i \geq mindepth \}$\;
+    $\hat{k} \longleftarrow mode(S)$\;
+    
+    \tcp{Calculate P-values.  $W_5$ and $\Phi$ are as defined in the text.}
+    $P \longleftarrow \text{m-vector of NAs}$\;
+    \For {$i \leftarrow 1$ \KwTo $m$} {
+      \If {$n_i \geq mindepth$} {
+        $P_i \longleftarrow \Phi\left(W_5(t_i, n_i)\right)$\;
+      }
+    }
+    
+    \KwRet $P$\;
+  }
+  \label{alg:comp_find_cnv}
+  \caption{Calculate \acrshort{CNV} loss P-values}
+\end{algorithm}
 
 \subsubsection{Combining calls from adjacent loci}
 
@@ -303,7 +320,7 @@ The original Pounds-Morris procedure considers all tests as equivalent, and thus
 \caption{Locality-sensitive FDR estimation of LOH calls using a Markov chain Beta-Uniform mixture model.\label{fig:comp_loh_hmm}}
 \end{figure}
 
-Extension of the procedure to the \gls{CNV} case requires three states: \emph{Diploid}, \emph{Loss}, and \emph{Gain} (figure~\ref{fig:comp_cnv_hmm}).  The \emph{Loss} and \emph{Gain} states are modelled by Beta distributions, left-skewed in the \emph{Loss} case, and right-skewed in the \emph{Gain} case.  The posterior probability of a locus being in state \emph{Diploid} then gives the overall \gls{FDR} for a \gls{CNV} call at that locus.  \Gls{BIC} model selection is performed as for the \gls{LOH} case, except in this case four models are compared: \emph{Diploid}, \emph{Diploid / Loss}, \emph{Diploid / Gain}, and \emph{Loss / Diploid / Gain}.
+Extension of the procedure to the \gls{CNV} case requires three states: \emph{Diploid}, \emph{Loss}, and \emph{Gain} (figure~\ref{fig:comp_cnv_hmm}).  We take advantage of the $W_5$ statistic's symmetry and fit the \gls{HMM} to the one-sided $p_{loss}$ \gls{CNV} P-values; \gls{CNV} loss is then indicated by P-values near zero, and \gls{CNV} gain by P-values near one.  The \emph{Loss} and \emph{Gain} states are modelled by Beta distributions, left-skewed in the \emph{Loss} case, and right-skewed in the \emph{Gain} case.  The posterior probability of a locus being in state \emph{Diploid} then gives the overall \gls{FDR} for a \gls{CNV} call at that locus.  \Gls{BIC} model selection is performed as for the \gls{LOH} case, except in this case four models are compared: \emph{Diploid}, \emph{Diploid / Loss}, \emph{Diploid / Gain}, and \emph{Loss / Diploid / Gain}.
 
 \begin{figure}
 \centering
