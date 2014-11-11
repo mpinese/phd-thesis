@@ -105,19 +105,6 @@ Overview:
       \item That Bayesian thing.  Unfortunately affected by CNV, which is unknown.
     \end{itemize}
   \end{itemize}
-  \item LOH:
-  \begin{itemize}
-    \item Maths linking diploid and bias to observed fractions.
-    \item Use of FET / similar to detect deviation
-    \item HMM on P-value mixture distibution for FDR control and calling.
-  \end{itemize}
-  \item CNV:
-  \begin{itemize}
-    \item Ideal maths and assumptions.
-    \item Simplifications: Multinomial to Poisson to Normal
-    \item Implementation under Fisherian approach.
-    \item HMM on P-values as before, using 3 mixes based on symmetry of statistic.
-  \end{itemize}
 \end{itemize}
 
 
@@ -151,7 +138,7 @@ K &= \frac{\frac{1}{\|Het\|}\sum_{g \in Het} Pr(D|G = g)}{\frac{1}{\|Hom\|}\sum_
 \end{align} 
 encodes the weight of evidence for the observed read data $D$ favouring a locus being heterozygous over homozygous, and a value exceeding a given threshold is taken as significant evidence that the locus under consideration is heterozygous.
 
-An implementation of the above heterozygous locus detection method is given in algorithm \ref{alg:comp_find_het}.  The input posterior genotype likelihoods $\mathcal{L}(G = g|D)$ are supplied by \lstinline|samtools mpileup -q 20 -Q 20 -v -u| operating on per-mouse normal sample \glspl{BAM}, and the minimum value of $K$ for a locus to be called as heterozygous is $\exp(minscore)$.  Two additional filters are also employed in the algorithm: a locus is \emph{not} reported as heterozygous if either the total read depth at the locus is less than $mindepth$, or if the difference in samtools-supplied log likelihood between the top two genotypes is less than $mindelta$ nats.  The latter filter is used to exclude any problem loci with an apparent triallelic state.
+An implementation of the above heterozygous locus detection method is given in algorithm \ref{alg:comp_find_het}.  The input posterior genotype likelihoods $\mathcal{L}(G = g|D)$ are supplied by \lstinline|samtools mpileup -q 20 -Q 20 -v -u| operating on per-mouse normal sample \glspl{BAM}, and the minimum value of $K$ for a locus to be called as heterozygous is $\exp(minscore)$.  Two additional filters are also employed in the algorithm: a locus is \emph{not} reported as heterozygous if either the total read depth at the locus is less than $mindepth$, or if the difference in samtools-supplied log likelihood between the top two genotypes is less than $mindelta$ nats.  The latter filter is used to exclude any problem loci with an apparent triallelic state.  \mpfatal{give instantiation values for the algo somewhere}
 
 \begin{algorithm}
   \KwData{Total sequence depth at the locus $D$, minimum depth for call $mindepth$, list of alternate alleles $A$, list of Phred-scaled genotype likelihoods $L$, minimum likelihood difference in nats between top two genotypes $mindelta$, minimum Bayes factor in nats for heterozygous to be called over homozygous $minscore$.}
@@ -199,13 +186,14 @@ An implementation of the above heterozygous locus detection method is given in a
 
 \paragraph{Identifying tumour \acrshort{LOH} at known normal heterozygous loci}
 
-Given a set of loci that are known to be heterozygous with high confidence in the normal DNA of a given mouse, it is straightforward to test for \gls{LOH} in the tumour DNA of the same mouse, provided the tumour ploidy at the locus is $2n$ or less.  Considering only a single heterozygous locus, reads from a normal DNA sample will predominantly be for the two bases constituting the heterozygous genotype, possibly with a small number of reads from other bases due to sequencing or mapping errors.  The number of reads for the two genotype bases may be quite different, as the exome capture processing step may favour one allele over the other, and lead to allelic bias in the observed read fractions.  However, under the null hypothesis of no LOH and no mutation at the locus in the tumour DNA, if the tumour ploidy at the locus is $2n$ or less, then the relative proportions of reads for the two genotype bases should be the same in both the tumour and the normal samples.  This null hypothesis can be tested using a contingency test comparing two binomial proportions; for this work I used the two sided Z-pooled test as implemented in R package \lstinline|Exact|.
+Given a set of loci that are known to be heterozygous with high confidence in the normal DNA of a given mouse, it is straightforward to test for \gls{LOH} in the tumour DNA of the same mouse, provided the tumour ploidy at the locus is $2n$ or less.  Considering only a single heterozygous locus, reads from a normal DNA sample will predominantly be for the two bases constituting the heterozygous genotype, possibly with a small number of reads from other bases due to sequencing or mapping errors.  The number of reads for the two genotype bases may be quite different, as the exome capture processing step may favour one allele over the other, and lead to allelic bias in the observed read fractions.  However, under the null hypothesis of no LOH and no mutation at the locus in the tumour DNA, if the tumour ploidy at the locus is $2n$ or less, then the relative proportions of reads for the two genotype bases should be the same in both the tumour and the normal samples.  This null hypothesis can be tested using a contingency test comparing two binomial proportions; for this work I used the two sided Z-pooled test as implemented in R package \lstinline|Exact|.  
+
+In the general case with potential normal cell contamination of the tumour sample, it is not possible to use allelic imbalance as an indicator of \gls{LOH} if the local copy number exceeds two.  For example, in the triploid case, a \gls{LOH} haplotype AAA, and a non-\gls{LOH} haplotype AAB, both exhibit allelic imbalance.  For this reason, allelic imbalance calls from the above test must be interpreted in the context of local \gls{CNV} estimates from the next procedure, and \gls{LOH} calls only made if allelic imbalance is detected in regions of copy number $2n$ or less.
 
 
 \subsubsection{\Acrlong{CNV} at individual loci}
 
 \paragraph{Problem description}
-
 Considering a single locus, either a single nucleotide or a contiguous stretch of DNA, the expected number of reads from a sequencing experiment that map to that locus is proportional to the copy number of the locus in the DNA input for sequencing.  Based on this relationship it is -- in principle -- possible to estimate copy number from sequencing data, however a number of complicating factors are present, related to sequence `mappability', exon capture affinity, sample contamination, and problem indeterminancy.
 
 There are many regions in mammalian genomes for which it is challenging to map reads.  These regions may be either poorly characterised themselves in the reference genome, or may be sufficiently like other parts of the genome for an unambiguous mapping to be impossible with the short and error-prone reads produced by \gls{NGS} technologies.  Most processing pipelines discard such ambiguous reads, with the net effect that difficult-to-map regions of the genome have much lower read depth than would be expected based on the quantity of DNA for those regions present as input to the sequencing procedure.  Copy-number analysis techniques need to take this `mappability' bias into account, or regions of reference DNA that are challenging to map may falsely be reported to undergo copy number loss.
@@ -219,7 +207,6 @@ Ultimately, without knowledge of the number of cells input into the sequencing p
 Taking all the above complications into account, I developed an organism-agnostic \gls{CNV} detection procedure for exome or \gls{WGS} data that uses \gls{NGS} read depths as input.  
 
 \paragraph{\Acrshort{CNV} model and test development}
-
 The mathematical setup of the procedure is as follows.  We reserve upper case variable symbols for random variables, and use lower case equivalents for observed values of these random variables.  Consider $m$ disjoint loci on the reference genome; these loci may be individual base pairs or contiguous regions.  For a single matched tumour-normal sample pair, let the number of reads that were mapped to locus $i \in \{1 \dots m\}$ be $n_i$ for the normal sample, and $t_i$ for the tumour sample.  Denote the total read depths at all examined loci as $d_N$ and $d_T$, $d_N = \sum_{i=1}^{m} n_i$, $d_T = \sum_{i=1}^{m} t_i$. To consider normal DNA contamination effects, we suppose that the tumour sample is actually a mixture of normal cell diploid DNA, and cancer cell DNA, where the fraction of cancer cells in the sample is the unknown quantity $f \in \left(0, 1\right]$.  Loci are subject to differential exome enrichment, locus size, and mapping biases, which are combined into the single per-locus quantity $b_i$, such that $\left<N_i\right> \propto b_i$, $\left<T_i\right> \propto b_i$, and $\sum_{i=1}^{m} b_i = 1$.
 
 We model the process of reads in \gls{NGS} as a Bernoulli scheme, and use the weak dependence between read depths at different sites to derive a per-locus Poisson approximation.  In this model the sequencer has a fixed $s$ total physical sites available for sequencing; in the SOLiD 4 system these sites correspond to positions on the sequencing slide.  Some of these sites yield observed sequence that is then mapped and used to estimate read depth, however many of them do not produce sequence reads, either because they are never populated with DNA, or because they fail low-level quality checks.  We suppose that these failed sites occur independent of the DNA sequence, and at a rate of $r_F$ among all available sites.  Then, a given physical sequencing site can either fail to yield sequence, with probability $r_F$, or it can produce observed sequence for one of $m$ loci, each at probablity $(1-r_F)b_i$, for $i \in \{1 \dots m\}$.  This per-site categorical distribution, when sampled for each of $s$ independent sites, results in a multinomial distribution on read depths,
@@ -284,27 +271,32 @@ and the combined two-sided P-value for \gls{CNV} at locus $i$ is
 Pseudocode for the implementation of per-locus \gls{CNV} detection is given in algorithm \ref{alg:comp_find_cnv}.  \mpfatal{Add specific value of mindepth used}
 
 \begin{algorithm}
-  \KwData{An $m$-vector of normal locus read depths $n$, an $m$-vector of tumour locus read depths $t$, minimum normal sample depth $mindepth$.}
-  \KwResult{An $m$-vector of floats: for each locus, the one-sided P-value for \acrshort{CNV} loss at that locus, $p_{loss}$.}
+  \KwData{An $m$-vector of normal locus read depths $\bm{n}$, an $m$-vector of tumour locus read depths $\bm{t}$, minimum normal sample depth $mindepth$.}
+  \KwResult{An $m$-vector of floats: for each locus, the one-sided P-value for \acrshort{CNV} loss at that locus, $\bm{p_{loss}}$.}
 
   \Begin {
+    $d_N \longleftarrow \sum_{i=1}^m n_i$\;
+    $d_T \longleftarrow \sum_{i=1}^m t_i$\;
     \tcp{Estimate $k$ so that the modal ploidy signal will be called as diploid}
-    $S \longleftarrow \{ t_i/n_i : i \in \{1 \dots m\} \wedge n_i \geq mindepth \}$\;
-    $\hat{k} \longleftarrow mode(S)$\;
+    $s \longleftarrow \{ (t_i / d_T) \div (n_i / d_N) : i \in \{1 \dots m\} \wedge n_i \geq mindepth \}$\;
+    $\hat{S} \longleftarrow KDE(s)$\;
+    $\hat{k} \longleftarrow mode(\hat{S})$\;
     
     \tcp{Calculate P-values.  $W_5$ and $\Phi$ are as defined in the text.}
-    $P \longleftarrow \text{m-vector of NAs}$\;
+    $r_{H0} \longleftarrow \frac{d_T}{d_N}\hat{k}$\;
+    $\bm{p} \longleftarrow \text{m-vector of NAs}$\;
     \For {$i \leftarrow 1$ \KwTo $m$} {
       \If {$n_i \geq mindepth$} {
-        $P_i \longleftarrow \Phi\left(W_5(t_i, n_i)\right)$\;
+        $p_i \longleftarrow \Phi\left(W_5(t_i, n_i)\right)$\;
       }
     }
     
-    \KwRet $P$\;
+    \KwRet $\bm{p}$\;
   }
   \label{alg:comp_find_cnv}
   \caption{Calculate \acrshort{CNV} loss P-values}
 \end{algorithm}
+
 
 \subsubsection{Combining calls from adjacent loci}
 
@@ -312,8 +304,7 @@ Pseudocode for the implementation of per-locus \gls{CNV} detection is given in a
 
 A number of approaches could be used to smooth LOH and CNV calls and share information between neighbouring loci; in this work I chose the \gls{HMM} formalism and extended the Pounds-Morris FDR estimator\cite{Pounds2003} to the locality-sensitive case.  The Pounds-Morris procedure fits the observed distribution of test P-values to a mixture of Uniform and Beta distributions.  The Uniform distribution models the expected distribution of P-values under the null hypothesis, whereas the Beta distribution approximately fits the highly left-skewed distribution of P-values expected of tests for which the null hypothesis is false.  After the observed distribution of P-values has been fit to the Beta-Uniform mixture model, the \gls{FDR} associated with a given P-value can be estimated from the densities of the Beta and Uniform component distributions at that P-value.
 
-The original Pounds-Morris procedure considers all tests as equivalent, and thus integrates no locality information, but for the \gls{LOH} case combining the procedure with the locality-sensitive \gls{HMM} is straightforward (figure~\ref{fig:comp_loh_hmm}).  The \gls{HMM} moves between two discrete states: \emph{No LOH}, and \emph{LOH}.  The \emph{No LOH} state emits a Uniform distribution of P-values, as expected under the null hypothesis of no \gls{LOH}, whereas the \emph{LOH} state emits a left-skewed Beta distribution of P-values, approximating the P-value distribution observed for loci at which the null hypothesis is false.  Observed P-values at a chain of adjacent loci are fit to the \gls{HMM} by standard algorithms, and the posterior probability of a locus being in state \emph{No LOH} directly gives the locality-adjusted \gls{FDR} for that locus.  In cases where too few extreme P-values are present to reliably estimate the parameters of the Beta distribution, the fit becomes unstable and \gls{FDR} estimates potentially unreliable.  To handle this situation gracefully, the method fits both the full \emph{No LOH / LOH} model, and a restricted \emph{No LOH} only model, and selects the model with the superior \gls{BIC}.
-
+The original Pounds-Morris procedure considers all tests as equivalent, and thus integrates no locality information, but for the \gls{LOH} case combining the procedure with the locality-sensitive \gls{HMM} is straightforward (figure~\ref{fig:comp_loh_hmm}).  The \gls{HMM} moves between two discrete states: \emph{No LOH}, and \emph{LOH}.  The \emph{No LOH} state emits a Uniform distribution of P-values, as expected under the null hypothesis of no \gls{LOH}, whereas the \emph{LOH} state emits a left-skewed Beta distribution of P-values, approximating the P-value distribution observed for loci at which the null hypothesis is false.  Observed P-values at a chain of adjacent loci are fit to the \gls{HMM} by standard algorithms implemented in R package depmixS4, and the posterior probability of a locus being in state \emph{No LOH} directly gives the locality-adjusted \gls{FDR} for that locus.  In cases where too few extreme P-values are present to reliably estimate the parameters of the Beta distribution, the fit becomes unstable and \gls{FDR} estimates potentially unreliable.  To handle this situation gracefully, the method fits both the full \emph{No LOH / LOH} model, and a restricted \emph{No LOH} only model, and selects the model with the superior \gls{BIC}.
 \begin{figure}
 \centering
 \includegraphics[width=100mm]{resources/comp_loh_hmm.jpg}
@@ -321,7 +312,6 @@ The original Pounds-Morris procedure considers all tests as equivalent, and thus
 \end{figure}
 
 Extension of the procedure to the \gls{CNV} case requires three states: \emph{Diploid}, \emph{Loss}, and \emph{Gain} (figure~\ref{fig:comp_cnv_hmm}).  We take advantage of the $W_5$ statistic's symmetry and fit the \gls{HMM} to the one-sided $p_{loss}$ \gls{CNV} P-values; \gls{CNV} loss is then indicated by P-values near zero, and \gls{CNV} gain by P-values near one.  The \emph{Loss} and \emph{Gain} states are modelled by Beta distributions, left-skewed in the \emph{Loss} case, and right-skewed in the \emph{Gain} case.  The posterior probability of a locus being in state \emph{Diploid} then gives the overall \gls{FDR} for a \gls{CNV} call at that locus.  \Gls{BIC} model selection is performed as for the \gls{LOH} case, except in this case four models are compared: \emph{Diploid}, \emph{Diploid / Loss}, \emph{Diploid / Gain}, and \emph{Loss / Diploid / Gain}.
-
 \begin{figure}
 \centering
 \includegraphics[width=100mm]{resources/comp_cnv_hmm.jpg}
