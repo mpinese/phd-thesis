@@ -1,27 +1,44 @@
 \documentclass[thesis.tex]{subfiles}
 \begin{document}
-\chapter{Prognostic Signatures}
+\chapter{Survival Processes in Pancreatic Cancer}
 \label{ch:prognostic}
 
 Outline ideas:
 \begin{itemize}
-  \item Introduction / overview:
+  \item Overall thesis for this work: That specific molecular processes control survival following PC resection, and that these processes are not apparent from examining CPVs, but can be identified and detected using GEX data.
+  \item Introduction
   \begin{itemize}
-    \item Overall thesis for this work: \\
-    Sub-theses:
+    \item General background on outcome with PC, with focus on post-op.  Make the note of the wide range of survival times.  Segue into reasons for this variability...
+    \item Background on predictive CPVs in PC.  MSKCC.
+    \item What is known about molecular risk factors so far?
     \begin{itemize}
-      \item
+      \item There are some very specific cases, eg HER2
+      \item On more broad sigs, there are some (eg Collisson), but:
+      \begin{itemize}
+        \item Generated backwards, generally by unsupervised clustering
+        \item Cluster-based sigs don't appropriately capture smooth varying states, eg stroma content.
+      \end{itemize}
+    \item Wrap-up.  Range of survival in PC is high, and is \emph{not} well-explained by known effects.  This is probably a consequence of the ad-hoc approach used to identify processes.  Thesis: that distinct molecular processes are determining survival in PC.  Set to find these using modern techniques.  Allude to future -- that these processes may point to new therapeutic directions and also are useful simply for staging (or maybe keep this point for the conclusion)
     \end{itemize}
   \end{itemize}
   
   \item Methods
   \begin{enumerate}
-    \item
+    \item Cohort recruitment and ethics (if this is the first survival chapter, else just reference the previous one)
+    \item Sample prep and GEX wet lab
+    \item Normalization, standardization, cohort subsetting, etc
+    \item Filtering.  Unsupervised $\rightarrow$ Van-ISIS $\rightarrow$ AdaEN/SCAD/EN.  Select latter based on CV IBS, due to instability of AdaEN/SCAD.  What about TIE*?
+    \item DR: Induce modules (APC) or metagenes (PCA).  Can investigate sparse PCA as intermediate method.
+    \item Functional assignation.  Statnikov multiplicity problem.  GSVA or similar on MSigDB, also on sigs from above.  Correlate.
+    \item Sanity checking.  Perform the above filtering and DR steps on permuted data.  Verify that the distribution of correlations with non-permuted signatures is as random as expected.
   \end{enumerate}
   
   \item Results
   \begin{enumerate}
-    \item
+    \item Cohort characteristics (if first surv chapter)
+    \item Filtering metrics.  Unsup, ISIS, penalized.  Report CV IBS for penalized methods.
+    \item DR.  Number of components / clusters with best CV IBS.
+    \item Function.
   \end{enumerate}
 
   \item Conclusion
