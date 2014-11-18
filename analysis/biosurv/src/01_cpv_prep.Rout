@@ -1,0 +1,183 @@
+R> cpvs = read.csv("../data/originals/Data request_MPinese 1.2.csv")
+R> 
+R> levelToNA = function(x, nalevels)
++ {
++ 	x = as.character(x)
++ 	x[x %in% nalevels] = NA
++ 	factor(x)
++ }
+R> 
+R> # Recode simple cases
+R> cpvs$PatientID = paste("APGI_", cpvs$PatientID, sep = "")
+R> cpvs$Gender = factor(cpvs$Gender)
+R> cpvs$Ethnicity = levelToNA(cpvs$Ethnicity, "")
+R> cpvs$Country = factor(cpvs$Country)
+R> cpvs$Smoker = levelToNA(cpvs$Smoker, "")
+R> cpvs$Operation.Date = as.Date(cpvs$Operation.Date, format = "%d/%m/%Y")
+R> cpvs$Type.of.Procedure = factor(cpvs$Type.of.Procedure)
+R> cpvs$Date.of.Diagnosis = as.Date(cpvs$Date.of.Diagnosis, format = "%d/%m/%Y")
+R> cpvs$Histologic.Type = factor(cpvs$Histologic.Type)
+R> cpvs$Histologic.Subtype = levelToNA(cpvs$Histologic.Subtype, "")
+R> cpvs$Grade = ordered(as.numeric(substr(cpvs$Grade, 1, 1)), levels = 1:4)
+R> cpvs$Tumour.Location = factor(cpvs$Tumour.Location)
+R> cpvs$Tumor.Size..mm. = as.numeric(cpvs$Tumor.Size..mm.)
+R> cpvs$Perineural.Inv = levelToNA(cpvs$Perineural.Inv, c("Not reported", ""))
+R> cpvs$Vascular.Inv = levelToNA(cpvs$Vascular.Inv, c("Not reported", ""))
+R> cpvs$Regional.LN.Total = as.numeric(cpvs$Regional.LN.Total)
+R> cpvs$Regional.LN.Inv = as.numeric(cpvs$Regional.LN.Inv)
+R> cpvs$SepRec.LN.Total = as.numeric(cpvs$Regional.LN.Total)
+R> cpvs$SepRec.LN.Inv = as.numeric(cpvs$Regional.LN.Inv)
+R> cpvs$Excision.Status = levelToNA(substr(cpvs$Excision.Status, 1, 2), "RX")
+R> cpvs$Pancreatic.Margin = levelToNA(cpvs$Pancreatic.Margin, c("Not Applicable", "Not Reported"))
+R> cpvs$Periunc.Margin = levelToNA(cpvs$Periunc.Margin, c("Not Applicable", "", "Not Reported"))
+R> cpvs$PV.Groove.Margin = levelToNA(cpvs$PV.Groove.Margin, c("Not Applicable", "", "Not Reported"))
+R> cpvs$Retrop.Margin = levelToNA(cpvs$Retrop.Margin, c("Not Applicable", "", "Not Reported"))
+R> cpvs$CBD.Margin = levelToNA(cpvs$CBD.Margin, c("Not Applicable", "", "Not Reported"))
+R> cpvs$Duodenal.Margin = levelToNA(cpvs$Duodenal.Margin, c("Not Applicable", "", "Not Reported"))
+R> cpvs$Gastric.Margin = levelToNA(cpvs$Gastric.Margin, c("Not Applicable", "", "Not Reported"))
+R> cpvs$Stage.Version = levelToNA(cpvs$Stage.Version, "")
+R> cpvs$pM = ordered(levelToNA(cpvs$pM, "MX"), levels = c("M0", "M1"))
+R> cpvs$pN = ordered(levelToNA(substr(cpvs$pN, 1, 2), "NX"), levels = c("N0", "N1"))
+R> cpvs$pT = ordered(levelToNA(cpvs$pT, "TX"), levels = c("Tis", "T1", "T2", "T3", "T4"))
+R> cpvs$Status = factor(cpvs$Status)
+R> cpvs$Date.of.Death = as.Date(cpvs$Date.of.Death, format = "%d/%m/%Y")
+R> cpvs$Cause.of.Death = levelToNA(cpvs$Cause.of.Death, c("", "Unknown"))
+R> cpvs$Date.of.Recurrence = as.Date(cpvs$Date.of.Recurrence, format = "%d/%m/%Y")
+R> cpvs$DOLFU = as.Date(cpvs$DOLFU, format = "%d-%b-%y")
+R> 
+R> # Perform more complex recodings
+R> cpvs$No..Years.Smoked.Approx = c(
++ 	"< 10" =   5, 
++ 	"11-20" = 15, 
++ 	"21-30" = 25, 
++ 	"31-40" = 35, 
++ 	"41-50" = 45,
++ 	"> 50" =  55)[gsub("Smoked ", "", gsub(" years", "", cpvs$No..Years.Smoked))]
+R> cpvs$No..Years.Smoked.Approx[cpvs$No..Years.Smoked == ""] = NA
+R> 
+R> cpvs$Overall.Stage[cpvs$Overall.Stage %in% c("0", "NA (Biopsy)")] = NA
+R> cpvs$Overall.Stage = gsub(" .*", "", cpvs$Overall.Stage)
+R> cpvs$Overall.Stage = ordered(cpvs$Overall.Stage, levels = c("IA", "IB", "IIA", "IIB", "III", "IV"))
+R> 
+R> cpvs$Recurrence[cpvs$Recurrence == ""] = "Not observed"
+R> cpvs$Recurrence[cpvs$Recurrence %in% c("Not applicable", "Unknown")] = NA
+R> cpvs$Recurrence = ordered(cpvs$Recurrence, levels = c("Not observed", "Suspected", "Confirmed"))
+R> 
+R> temp.sites = sort(unique(unlist(strsplit(cpvs$Recurrence.Site, ", "))), decreasing = TRUE)
+R> for (temp.site in temp.sites)
++ {
++ 	cpvs = cbind(cpvs, sapply(strsplit(cpvs$Recurrence.Site, ", "), function(x) temp.site %in% x))
++ 	if (temp.site == "Other (please specify)") { temp.site = "Other" }
++ 	colnames(cpvs)[ncol(cpvs)] = make.names(sprintf("Recurrence.Site.%s", gsub(" ", "", temp.site)))
++ }
+R> 
+R> 
+R> # Calculate derived variables
+R> cpvs$Pack.Years = cpvs$No..Years.Smoked.Approx * cpvs$No..of.Smokes.Day / 20
+R> 
+R> 
+R> # Rename variabes for some consistency
+R> temp.renamer = c(
++ "PatientID"							= "Patient.ID",
++ "Gender"							= "Patient.Gender",
++ "Ethnicity"							= "Patient.Ethnicity",
++ "Country"							= "Patient.Country",
++ "DOLFU"								= "History.LastFollowup.Date",
++ "Pack.Years"						= "History.Smoking.PackYears",
++ "Date.of.Diagnosis"					= "History.Diagnosis.Date",
++ "Age.at.Diagnosis..Years."			= "History.Diagnosis.AgeAtYears",
++ "Operation.Date"					= "History.Surgery.Date",
++ "Type.of.Procedure"					= "Treat.Surgery.Procedure",
++ "Excision.Status"					= "Treat.Surgery.ExcisionStatus",
++ "Pancreatic.Margin"					= "Treat.Surgery.Margin.Pancreatic",
++ "Pancreatic.Margin..mm."			= "Treat.Surgery.MarginSizeMm.Pancreatic",
++ "Periunc.Margin"					= "Treat.Surgery.Margin.Periunc",
++ "Periunc.Margin..mm."				= "Treat.Surgery.MarginSizeMm.Periunc", 
++ "PV.Groove.Margin"					= "Treat.Surgery.Margin.PVGroove",
++ "PV.Groove.Margin..mm."				= "Treat.Surgery.MarginSizeMm.PVGroove", 
++ "Retrop.Margin"						= "Treat.Surgery.Margin.Retrop",
++ "Retrop.Margin..mm."				= "Treat.Surgery.MarginSizeMm.Retrop", 
++ "CBD.Margin"						= "Treat.Surgery.Margin.CBD",
++ "CBD.Margin..mm."					= "Treat.Surgery.MarginSizeMm.CBD", 
++ "Duodenal.Margin"					= "Treat.Surgery.Margin.Duodenal",
++ "Duodenal.Margin..mm."				= "Treat.Surgery.MarginSizeMm.Duodenal", 
++ "Gastric.Margin"					= "Treat.Surgery.Margin.Gastric",
++ "Gastric.Margin..mm."				= "Treat.Surgery.MarginSizeMm.Gastric", 
++ "Margin.Comments"					= "Treat.Surgery.Margin.Comments",
++ "Histologic.Type"					= "Path.HistoType",
++ "Histologic.Subtype"				= "Path.HistoType.Subtype",
++ "Grade"								= "Path.Grade",
++ "Tumour.Location"					= "Path.TumourLocation",
++ "Tumor.Size..mm."					= "Path.TumourSizeMm",
++ "Perineural.Inv"					= "Path.Invasion.PN",
++ "Vascular.Inv"						= "Path.Invasion.VS",
++ "Regional.LN.Total"					= "Path.Nodes.Regional.Total",
++ "Regional.LN.Inv"					= "Path.Nodes.Regional.Involved",
++ "SepRec.LN.Total"					= "Path.Nodes.SepRec.Total",
++ "SepRec.LN.Inv"						= "Path.Nodes.SepRec.Involved",
++ "Stage.Version"						= "Staging.Version",
++ "pM"								= "Staging.pM",
++ "pN"								= "Staging.pN",
++ "pT"								= "Staging.pT",
++ "Overall.Stage"						= "Staging.Stage",
++ "Recurrence"						= "History.Recurrence",
++ "Date.of.Recurrence"				= "History.Recurrence.Date",
++ "Recurrence.Site.Stomach"			= "History.Recurrence.Site.Stomach",
++ "Recurrence.Site.Peritoneum"		= "History.Recurrence.Site.Peritoneum",
++ "Recurrence.Site.PancreaticRemnant" = "History.Recurrence.Site.PancRemnant",
++ "Recurrence.Site.PancreaticBed"		= "History.Recurrence.Site.PancBed",
++ "Recurrence.Site.Other"				= "History.Recurrence.Site.Other",
++ "Recurrence.Site.Omentum"			= "History.Recurrence.Site.Omentum",
++ "Recurrence.Site.Mesentery"			= "History.Recurrence.Site.Mesentery",
++ "Recurrence.Site.LymphNodes"		= "History.Recurrence.Site.LymphNodes",
++ "Recurrence.Site.Lung"				= "History.Recurrence.Site.Lung",
++ "Recurrence.Site.Liver"				= "History.Recurrence.Site.Liver",
++ "Recurrence.Site.Brain"				= "History.Recurrence.Site.Brain",
++ "Recurrence.Site.Bone"				= "History.Recurrence.Site.Bone",
++ "Status"							= "History.Status",
++ "Date.of.Death"						= "History.Death.Date",
++ "Cause.of.Death"					= "History.Death.Cause",
++ "Smoker"							= NA,
++ "No..Years.Smoked"					= NA,
++ "No..of.Smokes.Day"					= NA,
++ "Recurrence.Site"					= NA,
++ "Recurrence.Site..Other."			= NA,
++ "Length.FU..Days."					= NA,
++ "No..Years.Smoked.Approx"			= NA)
+R> 
+R> cpvs = cpvs[,names(temp.renamer)]
+R> cpvs = cpvs[,colnames(cpvs) %in% names(temp.renamer)[!is.na(temp.renamer)]]
+R> colnames(cpvs) = temp.renamer[colnames(cpvs)]
+R> 
+R> 
+R> # Further derived variables for survival modelling
+R> cpvs$Surv.Event.Death = grepl("Deceased", cpvs$History.Status)*1
+R> cpvs$Surv.EventTimeFromDiag.Death = ifelse(cpvs$Surv.Event.Death == 1, cpvs$History.Death.Date - cpvs$History.Diagnosis.Date, cpvs$History.LastFollowup.Date - cpvs$History.Diagnosis.Date)
+R> cpvs$Surv.EventTimeFromSurg.Death = ifelse(cpvs$Surv.Event.Death == 1, cpvs$History.Death.Date - cpvs$History.Surgery.Date, cpvs$History.LastFollowup.Date - cpvs$History.Surgery.Date)
+R> cpvs$Surv.EventTimeFromRec.Death = ifelse(cpvs$Surv.Event.Death == 1, cpvs$History.Death.Date - cpvs$History.Recurrence.Date, cpvs$History.LastFollowup.Date - cpvs$History.Recurrence.Date)
+R> cpvs$Surv.Event.DSDeath = (cpvs$History.Status == "Deceased - Of Disease")*1
+R> cpvs$Surv.EventTimeFromDiag.DSDeath = ifelse(cpvs$Surv.Event.DSDeath == 1, cpvs$History.Death.Date - cpvs$History.Diagnosis.Date, cpvs$History.LastFollowup.Date - cpvs$History.Diagnosis.Date)
+R> cpvs$Surv.EventTimeFromSurg.DSDeath = ifelse(cpvs$Surv.Event.DSDeath == 1, cpvs$History.Death.Date - cpvs$History.Surgery.Date, cpvs$History.LastFollowup.Date - cpvs$History.Surgery.Date)
+R> cpvs$Surv.EventTimeFromRec.DSDeath = ifelse(cpvs$Surv.Event.DSDeath == 1, cpvs$History.Death.Date - cpvs$History.Recurrence.Date, cpvs$History.LastFollowup.Date - cpvs$History.Recurrence.Date)
+R> cpvs$Surv.Event.Recurrence = (cpvs$History.Recurrence == "Confirmed")*1
+R> cpvs$Surv.EventTimeFromDiag.Recurrence = ifelse(cpvs$Surv.Event.Recurrence == 1, cpvs$History.Recurrence.Date - cpvs$History.Diagnosis.Date, cpvs$History.LastFollowup.Date - cpvs$History.Diagnosis.Date)
+R> cpvs$Surv.EventTimeFromSurg.Recurrence = ifelse(cpvs$Surv.Event.Recurrence == 1, cpvs$History.Recurrence.Date - cpvs$History.Surgery.Date, cpvs$History.LastFollowup.Date - cpvs$History.Surgery.Date)
+R> 
+R> 
+R> rm(levelToNA, temp.renamer, temp.site, temp.sites)
+R> 
+R> saveRDS(cpvs, "../data/01_cpvs.rds")
+R> 
+R> sessionInfo()
+R version 3.1.1 (2014-07-10)
+Platform: x86_64-unknown-linux-gnu (64-bit)
+
+locale:
+ [1] LC_CTYPE=en_US.iso885915       LC_NUMERIC=C                   LC_TIME=en_US.iso885915       
+ [4] LC_COLLATE=en_US.iso885915     LC_MONETARY=en_US.iso885915    LC_MESSAGES=en_US.iso885915   
+ [7] LC_PAPER=en_US.iso885915       LC_NAME=C                      LC_ADDRESS=C                  
+[10] LC_TELEPHONE=C                 LC_MEASUREMENT=en_US.iso885915 LC_IDENTIFICATION=C           
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  base     
+R> 
