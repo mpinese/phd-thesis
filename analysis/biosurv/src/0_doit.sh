@@ -5,3 +5,4 @@ test ! -e 03_subset_gex_cpv.done && Rscript 03_subset_gex_cpv.R > 03_subset_gex_
 test ! -e 04_norm_gex.done && Rscript 04_norm_gex.R > 04_norm_gex.Rout && touch 04_norm_gex.done
 test ! -e 05_match_gex_cpv.done && Rscript 05_match_gex_cpv.R > 05_match_gex_cpv.Rout && touch 05_match_gex_cpv.done
 test ! -e 06_EDA.done && Rscript 06_EDA.R > 06_EDA.Rout && touch 06_EDA.done
+test ! -e 07_SIS_prep.done && Rscript 07_SIS_prep.R > 07_SIS_prep.Rout && touch 07_SIS_prep.done
