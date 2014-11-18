@@ -1,5 +1,7 @@
 syntax:glob
+
 *.fuse_hidden*
+
 build/*
 *.aux
 *.gz
@@ -12,11 +14,15 @@ build/*
 *.gls
 *.out
 *.xdy
+*.loa
+*.lox
 thesis.lof
 thesis.lot
 thesis.toc
 
-*.loa
-*.lox
+data/*
+analysis/biosurv/results/04_norm_gex.pdf
+
+
 syntax:regexp
 ^[^/]*\.pdf$
