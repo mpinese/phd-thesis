@@ -5,12 +5,10 @@
 
 \begin{document}
 
-<<setup, include=FALSE, cache=TRUE>>=
+<<setup, include=FALSE>>=
 library(knitr)
-# set global chunk options
-#opts_chunk$set(fig.path='figure/', fig.align='center', fig.show='hold')
-opts_chunk$set(fig.path='figure/', fig.align='center')
-options(formatR.arrow=TRUE,width=90)
+opts_chunk$set(fig.align = 'center', dev = 'pdf', fig.width = 6, fig.height = 6, dev.args = list(pointsize = 8), tidy = TRUE, width.cutoff = 60, formatR.arrow = TRUE, cache = TRUE, cache.lazy = FALSE, autodep = TRUE, cache.comments = FALSE, cache.extra = list(R.version, sessionInfo(), file.info('../../data/07_data_for_SIS.rda')$mtime, tools::md5sum('../../src/08_SIS_common_funcs.R')))
+opts_knit$set(progress = TRUE, verbose = TRUE)
 @
 
 \title{09\_SIS\_diag\_dsd}
@@ -28,7 +26,8 @@ library(apcluster)
 library(fastICA)
 library(fdrtool)
 library(NMF)
-library(MASS)
+library(gplots)
+library(stargazer)
 
 ######################################################################
 # DATA
@@ -41,12 +40,16 @@ source("../../src/08_SIS_common_funcs.R")
 ######################################################################
 x = x.diag_dsd
 y = y.diag_dsd
+samps = samps.diag_dsd
 tau = 0.72
 theta = 0.05
 x0 = 6.335
-ncomp = 5
 all_sigs = x.msigdb.c123467.merged
-seed = 1234
+seed = 1234567890
+nmf.nrun.rank = 50
+nmf.nrun.fit = 500
+nmf.rank = 6
+nmf.rankrange = 2:20
 
 ######################################################################
 # DERIVED VARIABLES
@@ -73,7 +76,7 @@ xlin.sel = xlin[cpss.sis$sel,]
 
 \section{Expression correlation}
 
-<<correl-plots, fig.width=4, fig.height=4, out.width='.4\\linewidth'>>=
+<<correl-plots>>=
 x.sel.kcor = cor(t(x.sel), method = "kendall")
 x.sel.dcor = sapply(1:(nrow(x.sel)-1), function(i) c(rep(NA, i), sapply((i+1):nrow(x.sel), function(j) dcor(x.sel[i,], x.sel[j,]))))
 x.sel.dcor = cbind(x.sel.dcor, NA)
@@ -81,15 +84,180 @@ diag(x.sel.dcor) = 1
 x.sel.dcor[upper.tri(x.sel.dcor)] = t(x.sel.dcor)[upper.tri(x.sel.dcor)]
 
 #par(mar=c(4,4,.1,.1),cex.lab=.95,cex.axis=.9,mgp=c(2,.7,0),tcl=-.3,las=1)
-corPlot(x.sel.kcor, main = "Correlation Clusters of CPSS-SIS-FAST Probes\nKendall log")
-corPlot(abs(x.sel.kcor), zlim = c(0, 1), pal = "GnBu", main = "Correlation Clusters of CPSS-SIS-FAST Probes\nAbsolute Kendall log")
-corPlot(x.sel.dcor, zlim = c(0, 1), pal = "GnBu", main = "Correlation Clusters of CPSS-SIS-FAST Probes\ndcor log")
+corPlot(x.sel.kcor, main = "Correlation Clusters of CPSS-SIS-FAST Probes\nKendall log", useRaster = FALSE)
+corPlot(abs(x.sel.kcor), zlim = c(0, 1), pal = "GnBu", main = "Correlation Clusters of CPSS-SIS-FAST Probes\nAbsolute Kendall log", useRaster = FALSE)
+corPlot(x.sel.dcor, zlim = c(0, 1), pal = "GnBu", main = "Correlation Clusters of CPSS-SIS-FAST Probes\ndcor log", useRaster = FALSE)
 
 # x.sel.dcor.apc = apclusterK(s = x.sel.dcor, details = TRUE, K = ncomp)
 # heatmap(x.sel.dcor.apc, x.sel.dcor)
 @
 
 
+\section{Factorization}
+
+\subsection{Rank estimation}
+
+<<nmf-rank>>=
+set.seed(seed)
+temp.nmf.rank = nmf(
+	x = xlin.sel, 
+	rank = nmf.rankrange, 
+	method = "snmf/l", 
+	seed = "random", nrun = nmf.nrun.rank, 
+	.options = list(verbose = 1, track = TRUE, parallel = TRUE, keep.all = TRUE))
+temp.nmf.rank.random = nmf(
+	x = randomize(xlin.sel), 
+	rank = nmf.rankrange, 
+	method = "snmf/l", 
+	seed = "random", nrun = nmf.nrun.rank, 
+	.options = list(verbose = 1, track = TRUE, parallel = TRUE, keep.all = TRUE))
+@
+
+<<nmf-rank-plots>>=
+plot(temp.nmf.rank, temp.nmf.rank.random)
+for (i in 1:length(temp.nmf.rank$fit))	{ consensusmap(temp.nmf.rank$fit[[i]]); consensusmap(temp.nmf.rank.random$fit[[i]]) }
+temp.resids = sapply(temp.nmf.rank$fit, function(f) sapply(f, residuals))
+temp.resids_rel = t(t(temp.resids) / apply(temp.resids, 2, min))
+temp.resids_scaled = t((t(temp.resids) - apply(temp.resids, 2, min)) / (apply(temp.resids, 2, max) - apply(temp.resids, 2, min)))
+plot(0 ~ 0, type = "n", xlim = c(1, nrow(temp.resids)), ylim = range(temp.resids_rel), ylab = "Relative residual", main = "Solution Stability")
+for (i in 1:ncol(temp.resids))
+{
+	points(temp.resids_rel[,i], col = i, pch = colnames(temp.resids)[i])
+	lines(cummin(temp.resids_rel[,i]), col = i)
+}
+plot(0 ~ 0, type = "n", xlim = c(1, nrow(temp.resids)), ylim = range(temp.resids_scaled), ylab = "Scaled residual", main = "Solution Stability")
+for (i in 1:ncol(temp.resids))
+{
+	points(temp.resids_scaled[,i], col = i, pch = colnames(temp.resids)[i])
+	lines(cummin(temp.resids_scaled[,i]), col = i)
+}
+temp.orig_resids = sapply(temp.nmf.rank$fit, residuals)
+temp.perm_resids = sapply(temp.nmf.rank.random$fit, residuals)
+temp.orig_resids.spline = splinefun(nmf.nrun.rank, temp.orig_resids)
+temp.perm_resids.spline = splinefun(nmf.nrun.rank, temp.perm_resids)
+temp.x = seq(min(nmf.nrun.rank), max(nmf.nrun.rank), 0.01)
+plot(temp.orig_resids.spline(temp.x, deriv = 1) ~ temp.x, type = "l", col = "black", ylim = range(c(temp.orig_resids.spline(temp.x, deriv = 1), temp.perm_resids.spline(temp.x, deriv = 1))))
+lines(temp.perm_resids.spline(temp.x, deriv = 1) ~ temp.x, col = "red")
+legend("topright", legend = c("Original data", "Permuted data"), fill = c("black", "red"), inset = 0.05)
+@
+
+\subsection{Fit}
+
+<<nmf>>=
+set.seed(seed)
+xlin.sel.nmf = nmf(
+	x = xlin.sel, 
+	rank = nmf.rank, 
+	method = "snmf/l", 
+	seed = "random", nrun = nmf.nrun.fit, 
+	.options = list(verbose = 0, track = TRUE, parallel = TRUE, keep.all = TRUE))
+@
+
+<<nmf-plots>>=
+consensusmap(xlin.sel.nmf)
+basismap(xlin.sel.nmf)
+coefmap(xlin.sel.nmf)
+temp.resids = sapply(xlin.sel.nmf, residuals)
+plot(1:length(temp.resids), temp.resids, ylab = "Residual", main = "Solution Stability")
+lines(1:length(temp.resids), cummin(temp.resids))
+@
+
+\subsection{Component CPV associations}
+
+\subsubsection{Survival: Diagnosis to disease-specific death}
+<<nmf-surv>>=
+for (i in 1:nrow(coef(xlin.sel.nmf)))
+{
+	stargazer(coxph(y ~ coef(xlin.sel.nmf)[i,]))
+}
+temp.nullfit = coxph(y ~ 1)
+temp.nullresids = residuals(temp.nullfit, type = "martingale")
+par(mfrow = c(2, 3))
+for (i in 1:nrow(coef(xlin.sel.nmf)))
+{
+	scatter.smooth(temp.nullresids ~ coef(xlin.sel.nmf)[i,])
+}
+par(mfrow = c(1, 1))
+@
+
+\subsection{Purity}
+<<nmf-purity>>=
+apply(coef(xlin.sel.nmf), 1, function(xc) cor.test(samps$purity_qpure, xc, method = "kendall"))
+par(mfrow = c(2, 3))
+for (i in 1:nrow(coef(xlin.sel.nmf)))
+{
+	scatter.smooth(samps$purity_qpure ~ coef(xlin.sel.nmf)[i,])
+}
+par(mfrow = c(1, 1))
+@
+
+\subsection{MTC P-values}
+<<nmf-pvals>>=
+xlin.sel.nmf.cpv.pvals = data.frame(
+	p.surv = apply(coef(xlin.sel.nmf), 1, function(xc) pchisq(2*diff(coxph(y ~ xc)$loglik), df = 1, lower.tail = FALSE)),
+	p.pure = apply(coef(xlin.sel.nmf), 1, function(xc) cor.test(samps$purity_qpure, xc, method = "kendall")$p.value)
+)
+temp.pvals.FWER = p.adjust(c(xlin.sel.nmf.cpv.pvals$p.surv, xlin.sel.nmf.cpv.pvals$p.pure), "holm")
+temp.qvals.BY = p.adjust(c(xlin.sel.nmf.cpv.pvals$p.surv, xlin.sel.nmf.cpv.pvals$p.pure), "BY")
+xlin.sel.nmf.cpv.pvals$p.surv.FWER = temp.pvals.FWER[1:(length(temp.pvals.FWER)/2)]
+xlin.sel.nmf.cpv.pvals$p.pure.FWER = temp.pvals.FWER[(length(temp.pvals.FWER)/2 + 1):length(temp.pvals.FWER)]
+xlin.sel.nmf.cpv.pvals$q.surv.BY = temp.qvals.BY[1:(length(temp.qvals.BY)/2)]
+xlin.sel.nmf.cpv.pvals$q.pure.BY = temp.qvals.BY[(length(temp.qvals.BY)/2 + 1):length(temp.qvals.BY)]
+xlin.sel.nmf.cpv.pvals
+@
+
+
+\subsection{MSigDB score correlation thresholding}
+<<nmf-msigdb-cors>>=
+xlin.sel.nmf.msigdb.corr = cor(t(coef(xlin.sel.nmf)), t(sigs), method = "kendall")
+temp.sel_rows = apply(abs(xlin.sel.nmf.msigdb.corr) >= 0.5, 1, any)
+temp.sel_cols = apply(abs(xlin.sel.nmf.msigdb.corr) >= 0.5, 2, any)
+#image(xlin.sel.nmf.msigdb.corr[temp.sel_rows, temp.sel_cols])
+heatmap.2(xlin.sel.nmf.msigdb.corr[temp.sel_rows, temp.sel_cols], trace = "none", scale = "none", useRaster = TRUE, col = brewer.pal(11, "PiYG"), symbreaks = TRUE)
+heatmap.2(xlin.sel.nmf.msigdb.corr[temp.sel_rows, temp.sel_cols], trace = "none", scale = "none", useRaster = TRUE, col = brewer.pal(3, "PiYG"), breaks = c(-1, -0.5, 0.5, 1))
+@
+
+% <<nmf-msigdb-cor-tables>>=
+% @
+
+
+% library(fdrci)
+% library(parallel)
+% set.seed(1234)
+% B = 2000
+% stats.perm = mclapply(1:B, function(i) {
+% 	cat(i, " ", sep = "")
+% 	coef.perm = coef(xlin.sel.nmf)[,sample.int(ncol(coef(xlin.sel.nmf)))]
+% 	stats = 1-abs((cor(t(coef.perm), t(x.msigdb.c46.merged[,colnames(coef(xlin.sel.nmf))]), method = "kendall")))
+% 	stats
+% 	}, mc.cores = 2)
+
+% stats.obs = 1-abs((cor(t(coef(xlin.sel.nmf)), t(x.msigdb.c23467.merged[,colnames(coef(xlin.sel.nmf))]), method = "kendall")))
+
+% stats.threshold = 0.5
+% rowSums(stats.obs < 1 - stats.threshold)
+
+% stats.fdr = t(sapply(1:nrow(coef(xlin.sel.nmf)), function(i) {
+% 	obs = stats.obs[i,]
+% 	perm = lapply(stats.perm, function(p) data.frame(statistic = p[i,]))
+% 	fdr = fdr_od(obs, perm, "statistic", length(obs), thres = 1-stats.threshold)
+% 	if (all(is.na(fdr)))	{ return(rep(NA, 7)) }
+% 	return(fdr)
+% }))
+% colnames(stats.fdr) = c("FDR", "ll", "ul", "pi0", "c1", "ro", "vp1")
+% stats.fdr
+
+
+% msigdb.nmf.cors.pvals = apply(coef(xlin.sel.nmf), 1, function(c1) apply(x.msigdb.c46.merged[,colnames(coef(xlin.sel.nmf))], 1, function(m1) cor.test(c1, m1, method = "kendall")$p.value))
+% apply(msigdb.nmf.cors.pvals, 2, p.adjust, method = "BY")
+
+
+% par(mfrow = c(3, 3))
+% for (i in seq(0, 1, length.out = 9))
+% {
+% 	temp.x = mvrnorm(1e4, c(0, 0), matrix(c(1, i, i, 1), nrow = 2))
+% 	plot(temp.x[1:100,], main = sprintf("%.3g  rho = %.3g", i, cor(temp.x[,1], temp.x[,2], method = "kendall")), xlim = c(-3, 3), ylim = c(-3, 3))
+% }
 
 \section{Session information}
 
@@ -148,82 +316,9 @@ sessionInfo()
 % }
 
 
-% temp.nmf = nmf(
-% 	x = xlin.diag_dsd.sel, 
-% 	rank = 6, 
-% 	method = "snmf/l", 
-% 	seed = "random", nrun = 200, 
-% 	.options = list(verbose = 2, track = TRUE, parallel = FALSE))
-% plot(temp.nmf)
-% consensusmap(temp.nmf)
-% basismap(temp.nmf)
-% coefmap(temp.nmf)
-
-% apply(coef(temp.nmf), 1, function(xc) coxph(y.diag_dsd ~ xc))
-% apply(coef(temp.nmf), 1, function(xc) cor.test(samps.diag_dsd$purity_qpure, xc, method = "kendall"))
-% temp.nullfit = coxph(y.diag_dsd ~ 1)
-% temp.nullresids = residuals(temp.nullfit, type = "martingale")
-% par(mfrow = c(2, 3))
-% for (i in 1:nrow(coef(temp.nmf)))
-% {
-% 	scatter.smooth(temp.nullresids ~ coef(temp.nmf)[i,])
-% }
-% par(mfrow = c(1, 1))
-% par(mfrow = c(2, 3))
-% for (i in 1:nrow(coef(temp.nmf)))
-% {
-% 	scatter.smooth(samps.diag_dsd$purity_qpure ~ coef(temp.nmf)[i,])
-% }
-% par(mfrow = c(1, 1))
-% temp.nmf.pvals = data.frame(
-% 	p.surv = apply(coef(temp.nmf), 1, function(xc) pchisq(2*diff(coxph(y.diag_dsd ~ xc)$loglik), df = 1, lower.tail = FALSE)),
-% 	p.pure = apply(coef(temp.nmf), 1, function(xc) cor.test(samps.diag_dsd$purity_qpure, xc, method = "kendall")$p.value)
-% )
-% temp.qvals = p.adjust(c(temp.nmf.pvals$p.surv, temp.nmf.pvals$p.pure), "holm")
-% temp.nmf.pvals$q.surv = temp.qvals[1:(length(temp.qvals)/2)]
-% temp.nmf.pvals$q.pure = temp.qvals[(length(temp.qvals)/2 + 1):length(temp.qvals)]
 
 
-% library(fdrci)
-% library(parallel)
-% set.seed(1234)
-% B = 2000
-% stats.perm = mclapply(1:B, function(i) {
-% 	cat(i, " ", sep = "")
-% 	coef.perm = coef(temp.nmf)[,sample.int(ncol(coef(temp.nmf)))]
-% 	stats = 1-abs((cor(t(coef.perm), t(x.msigdb.c46.merged[,colnames(coef(temp.nmf))]), method = "kendall")))
-% 	stats
-% 	}, mc.cores = 2)
-
-% stats.obs = 1-abs((cor(t(coef(temp.nmf)), t(x.msigdb.c23467.merged[,colnames(coef(temp.nmf))]), method = "kendall")))
-
-% stats.threshold = 0.5
-% rowSums(stats.obs < 1 - stats.threshold)
-
-% stats.fdr = t(sapply(1:nrow(coef(temp.nmf)), function(i) {
-% 	obs = stats.obs[i,]
-% 	perm = lapply(stats.perm, function(p) data.frame(statistic = p[i,]))
-% 	fdr = fdr_od(obs, perm, "statistic", length(obs), thres = 1-stats.threshold)
-% 	if (all(is.na(fdr)))	{ return(rep(NA, 7)) }
-% 	return(fdr)
-% }))
-% colnames(stats.fdr) = c("FDR", "ll", "ul", "pi0", "c1", "ro", "vp1")
-% stats.fdr
-
-
-% msigdb.nmf.cors.pvals = apply(coef(temp.nmf), 1, function(c1) apply(x.msigdb.c46.merged[,colnames(coef(temp.nmf))], 1, function(m1) cor.test(c1, m1, method = "kendall")$p.value))
-% apply(msigdb.nmf.cors.pvals, 2, p.adjust, method = "BY")
-
-
-% par(mfrow = c(3, 3))
-% for (i in seq(0, 1, length.out = 9))
-% {
-% 	temp.x = mvrnorm(1e4, c(0, 0), matrix(c(1, i, i, 1), nrow = 2))
-% 	plot(temp.x[1:100,], main = sprintf("%.3g  rho = %.3g", i, cor(temp.x[,1], temp.x[,2], method = "kendall")), xlim = c(-3, 3), ylim = c(-3, 3))
-% }
-
-
-% # msigdb.nmf.cors = cor(t(coef(temp.nmf)), t(x.msigdb.c46.merged[,colnames(coef(temp.nmf))]), method = "kendall")
+% # msigdb.nmf.cors = cor(t(coef(xlin.sel.nmf)), t(x.msigdb.c46.merged[,colnames(coef(xlin.sel.nmf))]), method = "kendall")
 
 % # library(fdrtool)
 % # msigdb.nmf.cors.lfdr_pvals = apply(msigdb.nmf.cors.pvals, 2, function(p) fdrtool(p, "pvalue")$lfdr)
@@ -243,25 +338,25 @@ sessionInfo()
 
 
 % # library(CCA)
-% # correl = matcor(t(coef(temp.nmf)), t(x.msigdb.merged[,colnames(coef(temp.nmf))]))
+% # correl = matcor(t(coef(xlin.sel.nmf)), t(x.msigdb.merged[,colnames(coef(xlin.sel.nmf))]))
 % # img.matcor(correl, type = 2)
-% # res.regul <- estim.regul(t(coef(temp.nmf)), t(x.msigdb.merged[,colnames(coef(temp.nmf))]), plt = TRUE)
+% # res.regul <- estim.regul(t(coef(xlin.sel.nmf)), t(x.msigdb.merged[,colnames(coef(xlin.sel.nmf))]), plt = TRUE)
 
 
 % # library(fdrci)
 % # library(parallel)
-% # stats.obs = 1-abs(as.vector(cor(t(coef(temp.nmf)), t(x.msigdb.merged[,colnames(coef(temp.nmf))]), method = "kendall")))
+% # stats.obs = 1-abs(as.vector(cor(t(coef(xlin.sel.nmf)), t(x.msigdb.merged[,colnames(coef(xlin.sel.nmf))]), method = "kendall")))
 % # stats.perm = mclapply(1:1e2, function(i) {
 % # 	cat(i, " ", sep = "")
-% # 	coef.perm = coef(temp.nmf)[,sample.int(ncol(coef(temp.nmf)))]
-% # 	data.frame(statistic = 1-abs(as.vector(cor(t(coef(temp.nmf)), t(x.msigdb.merged[,colnames(coef(temp.nmf))]), method = "kendall"))))
+% # 	coef.perm = coef(xlin.sel.nmf)[,sample.int(ncol(coef(xlin.sel.nmf)))]
+% # 	data.frame(statistic = 1-abs(as.vector(cor(t(coef(xlin.sel.nmf)), t(x.msigdb.merged[,colnames(coef(xlin.sel.nmf))]), method = "kendall"))))
 % # 	}, mc.cores = 16)
 
 
-% pairs(cbind(t(coef(temp.nmf)), t(x.msigdb.merged[,colnames(coef(temp.nmf))])[,apply(abs(msigdb.nmf.cors), 2, max) >= 0.5]))
+% pairs(cbind(t(coef(xlin.sel.nmf)), t(x.msigdb.merged[,colnames(coef(xlin.sel.nmf))])[,apply(abs(msigdb.nmf.cors), 2, max) >= 0.5]))
 
-% pairs(cbind(t(coef(temp.nmf)), t(x.msigdb[,colnames(coef(temp.nmf))])[,rank(-apply(abs(msigdb.nmf.cors), 2, max)) <= 10]))
-% pairs(cbind(log2(t(coef(temp.nmf)) + 1e-3), t(x.msigdb[,colnames(coef(temp.nmf))])[,rank(-apply(abs(msigdb.nmf.cors), 2, max)) <= 10]))
+% pairs(cbind(t(coef(xlin.sel.nmf)), t(x.msigdb[,colnames(coef(xlin.sel.nmf))])[,rank(-apply(abs(msigdb.nmf.cors), 2, max)) <= 10]))
+% pairs(cbind(log2(t(coef(xlin.sel.nmf)) + 1e-3), t(x.msigdb[,colnames(coef(xlin.sel.nmf))])[,rank(-apply(abs(msigdb.nmf.cors), 2, max)) <= 10]))
 
 % #library(bnlearn)
 % #x.sel.bn = boot.strength(as.data.frame(t(x.sel)), algorithm = "hc", debug = TRUE)
