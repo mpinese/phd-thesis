@@ -38,7 +38,6 @@ SIS.FAST = function(x, y, ...)
 CPSS = function(x, y, selfunc, tau, B = 50, ...)
 {
 	n = ncol(x)
-	p = nrow(x)
 
 	samps = lapply(1:B, function(i) sort(sample.int(n, floor(n/2))))
 
@@ -74,10 +73,10 @@ corPlot = function(cors, zlim = c(-1, 1), pal = "RdYlGn", scores = NULL, ...)
 	}
 
 	pars = par(no.readonly = TRUE)
-	par(mar = c(6, 3, 5, 3))
+	par(mar = c(6, 3, 5, 3)/1.5)
 	layout(matrix(c(1, 2), nrow = 1), widths = c(8, 1))
-	image(z = z, zlim = zlim, col = thepal, xaxt = "n", yaxt = "n", useRaster = TRUE, ...)
-	par(mar = c(6, 2, 5, 1))
+	image(z = z, zlim = zlim, col = thepal, xaxt = "n", yaxt = "n", ...)
+	par(mar = c(6, 2, 5, 1)/1.5)
 	image(x = c(0, 1), y = seq(zlim[1], zlim[2], length.out = 100), z = matrix(seq(zlim[1], zlim[2], length.out = 99), nrow = 1), col = thepal, xaxt = "n", xlab = "", ylab = "", useRaster = TRUE)
 	par(pars)
 }
