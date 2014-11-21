@@ -38,9 +38,9 @@ source("../../src/08_SIS_common_funcs.R")
 ######################################################################
 # HIGH LEVEL PARAMETERS
 ######################################################################
-x = x.diag_dsd
-y = y.diag_dsd
-samps = samps.diag_dsd
+x = x.surg_dsd
+y = y.surg_dsd
+samps = samps.surg_dsd
 tau = 0.72
 theta = 0.05
 x0 = 6.335
@@ -111,7 +111,7 @@ temp.nmf.rank.random = lapply(1:nmf.rankrandcount, function(i) {
 		rank = nmf.rankrange, 
 		method = "snmf/l", 
 		seed = seed, nrun = nmf.nrun.rank, 
-		.options = list(verbose = 1, track = TRUE, parallel = 16, keep.all = TRUE))
+		.options = list(verbose = 1, track = TRUE, parallel = 16, keep.all = TRUE))	
 	})
 @
 

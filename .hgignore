@@ -29,3 +29,5 @@ reports/*/NMF_*/*.rds
 
 syntax:regexp
 ^[^/]*\.pdf$
+.*\.o[0-9]+$
+.*\.po[0-9]+$

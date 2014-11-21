@@ -1,4 +1,4 @@
-all: 09_SIS_diag_dsd.pdf
+all: 11_SIS_recr_dsd.pdf
 
 %.pdf : %.Rnw
 	/home/marpin/bin/Rscript -e "knitr::knit2pdf('$<')"
