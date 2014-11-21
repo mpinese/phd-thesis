@@ -38,9 +38,9 @@ source("../../src/08_SIS_common_funcs.R")
 ######################################################################
 # HIGH LEVEL PARAMETERS
 ######################################################################
-x = x.diag_dsd
-y = y.diag_dsd
-samps = samps.diag_dsd
+x = x.diag_rec
+y = y.diag_rec
+samps = samps.diag_rec
 tau = 0.72
 theta = 0.05
 x0 = 6.335
