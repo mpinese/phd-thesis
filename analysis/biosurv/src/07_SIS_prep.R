@@ -73,67 +73,86 @@ stopifnot(samps.diag_rec$patient_id == cpvs.diag_rec$Patient.ID)
 stopifnot(samps.surg_rec$patient_id == cpvs.surg_rec$Patient.ID)
 
 
-calcGSVAScores = function(x, rnaseq = FALSE)
+# Convert the signed scores (UP/DN) into single UP-DN combined scores.
+combineSignedGSVAScores = function(scores)
+{
+	score_stems = gsub("_(UP|DN)$", "", rownames(scores))
+	combined = tapply(1:nrow(scores), score_stems, function(is) {
+		if (length(is) == 1)	{ return(scores[is,,drop = FALSE]) }
+		this_scores = scores[is,]
+		up_scores = grepl("_UP$", rownames(this_scores))
+		dn_scores = grepl("_DN$", rownames(this_scores))
+		other_scores = !(up_scores | dn_scores)
+		if (sum(up_scores) == 0 || sum(dn_scores) == 0)		{ return(scores[is,,drop == FALSE]) }
+		combined_up_score = apply(scores[is,][up_scores,,drop = FALSE], 2, median)
+		combined_dn_score = apply(scores[is,][dn_scores,,drop = FALSE], 2, median)
+		signed_score = combined_up_score - combined_dn_score
+		result = matrix(signed_score, nrow = 1)
+		rownames(result) = gsub("_UP$", "_SIGNED", rownames(scores)[is][which(up_scores)[1]])
+		if (sum(other_scores) != 0)
+		{
+			result = rbind(result, scores[is,][other_scores,,drop = FALSE])
+		}
+		return(result)
+	})
+	combined = do.call(rbind, combined)
+	colnames(combined) = colnames(scores)
+	combined
+}
+
+
+calcSingleCategoryGSVAScores = function(category_id, x, rnaseq)
+{
+	message(sprintf("Processing MSigDB %s", category_id))
+	message("  Loading GMT")
+	gmt = getGmt(sprintf("../data/MSigDB/%s.all.v4.0.symbols.gmt", category_id), 
+		geneIdType = SymbolIdentifier("illuminaHumanv4"), 
+		collectionType = BroadCollection(category = category_id))
+
+	message("  Splitting by type")
+	gmt.one_sided = gmt[grep("_(UP|DN)$", names(gmt))]
+	gmt.two_sided = gmt[which(!grepl("_(UP|DN)$", names(gmt)))]
+
+	if (length(gmt.one_sided) != 0)
+	{
+		message("  Calculating one-sided scores")
+		gsva.one_sided = gsva(x, gmt.one_sided, abs.ranking = FALSE, rnaseq = rnaseq)
+		message("  Combining one-sided scores")
+		scores.one_sided = combineSignedGSVAScores(gsva.one_sided$es.obs)
+	}
+	else
+	{
+		message("  No one-sided signatures; skipping score calculation")
+		scores.one_sided = c()
+	}
+
+	if (length(gmt.two_sided) != 0)
+	{
+		message("  Calculating two-sided scores")
+		gsva.two_sided = gsva(x, gmt.two_sided, abs.ranking = TRUE, rnaseq = rnaseq)
+		scores.two_sided = gsva.two_sided$es.obs
+	}
+	else
+	{
+		message("  No two-sided signatures; skipping score calculation")
+		scores.two_sided = c()
+	}
+
+	message("  Merging results")
+	scores.combined = rbind(scores.one_sided, scores.two_sided)
+	rownames(scores.combined) = paste(category_id, rownames(scores.combined), sep = ".")
+	scores.combined
+}
+
+
+calcGSVAScores = function(x, categories = c("c1", "c2", "c3", "c4", "c5", "c6", "c7"), rnaseq = FALSE)
 {
 	require(GSVA)
 	require(GSEABase)
 	require("illuminaHumanv4.db")
 
-	msigdb.c1 = getGmt("../data/MSigDB/c1.all.v4.0.symbols.gmt", geneIdType = SymbolIdentifier("illuminaHumanv4"), collectionType = BroadCollection(category = "c1"))
-	msigdb.c2 = getGmt("../data/MSigDB/c2.all.v4.0.symbols.gmt", geneIdType = SymbolIdentifier("illuminaHumanv4"), collectionType = BroadCollection(category = "c2"))
-	msigdb.c3 = getGmt("../data/MSigDB/c3.all.v4.0.symbols.gmt", geneIdType = SymbolIdentifier("illuminaHumanv4"), collectionType = BroadCollection(category = "c3"))
-	msigdb.c4 = getGmt("../data/MSigDB/c4.all.v4.0.symbols.gmt", geneIdType = SymbolIdentifier("illuminaHumanv4"), collectionType = BroadCollection(category = "c4"))
-	msigdb.c6 = getGmt("../data/MSigDB/c6.all.v4.0.symbols.gmt", geneIdType = SymbolIdentifier("illuminaHumanv4"), collectionType = BroadCollection(category = "c6"))
-	msigdb.c7 = getGmt("../data/MSigDB/c7.all.v4.0.symbols.gmt", geneIdType = SymbolIdentifier("illuminaHumanv4"), collectionType = BroadCollection(category = "c7"))
-
-	# Focus on c4 and c6 for now.  These are the most likely
-	# to yield useful hits.  c2 will probably give heaps of stuff, but
-	# interpretation and FDR control will be nasty.  Get into c7 only
-	# if there's some indication of immunological involvement from
-	# the previous tests.  c3 always seems promising, but I've never
-	# really got it to work well, and c4/6 capture much of it anyway.
-
-	gsva.c1 = gsva(x, msigdb.c1, abs.ranking = TRUE)
-	gsva.c2 = gsva(x, msigdb.c2, abs.ranking = TRUE)
-	gsva.c3 = gsva(x, msigdb.c3, abs.ranking = TRUE)
-	gsva.c4 = gsva(x, msigdb.c4, abs.ranking = TRUE, rnaseq = rnaseq)
-	gsva.c6 = gsva(x, msigdb.c6, abs.ranking = FALSE, rnaseq = rnaseq)
-	gsva.c7 = gsva(x, msigdb.c7, abs.ranking = FALSE)
-
-	# Convert the signed scores (UP/DN) into single UP-DN combined scores.
-	combineSignedScores = function(scores)
-	{
-		score_stems = gsub("_(UP|DN)$", "", rownames(scores))
-		combined = tapply(1:nrow(scores), score_stems, function(is) {
-			if (length(is) == 1)	{ return(scores[is,,drop = FALSE]) }
-			this_scores = scores[is,]
-			up_scores = grepl("_UP$", rownames(this_scores))
-			dn_scores = grepl("_DN$", rownames(this_scores))
-			other_scores = !(up_scores | dn_scores)
-			if (sum(up_scores) == 0 || sum(dn_scores) == 0)		{ return(scores[is,,drop == FALSE]) }
-			combined_up_score = apply(scores[is,][up_scores,,drop = FALSE], 2, median)
-			combined_dn_score = apply(scores[is,][dn_scores,,drop = FALSE], 2, median)
-			signed_score = combined_up_score - combined_dn_score
-			result = matrix(signed_score, nrow = 1)
-			rownames(result) = gsub("_UP$", "_SIGNED", rownames(scores)[is][which(up_scores)[1]])
-			if (sum(other_scores) != 0)
-			{
-				result = rbind(result, scores[is,][other_scores,,drop = FALSE])
-			}
-			return(result)
-		})
-		combined = do.call(rbind, combined)
-		colnames(combined) = colnames(scores)
-		combined
-	}
-
-	gsva.c6.signed = combineSignedScores(gsva.c6$es.obs)
-	gsva.c7.signed = combineSignedScores(gsva.c7$es.obs)
-
-	gsva.c123467 = rbind(gsva.c1$es.obs, gsva.c2$es.obs, gsva.c3$es.obs, gsva.c4$es.obs, gsva.c6.signed, gsva.c7.signed)
-	gsva.c46 = rbind(gsva.c4$es.obs, gsva.c6.signed)
-
-	list(c46 = gsva.c46, c123467 = gsva.c123467)
+	scores = lapply(categories, calcSingleCategoryGSVAScores, x = x, rnaseq = rnaseq)
+	do.call(rbind, scores)
 }
 
 
@@ -154,11 +173,7 @@ mergeSimilarGSVAScores = function(scores, threshold)
 }
 
 
-x.msigdb.sets = calcGSVAScores(x, rnaseq = FALSE)
-x.msigdb.c46 = x.msigdb.sets$c46
-x.msigdb.c123467 = x.msigdb.sets$c123467
-x.msigdb.c46.merged = mergeSimilarGSVAScores(x.msigdb.c46, threshold = 0.98)
-x.msigdb.c123467.merged = mergeSimilarGSVAScores(x.msigdb.c123467, threshold = 0.98)
+x.msigdb = calcGSVAScores(x, rnaseq = FALSE)
 
 
 save.image("../data/07_data_for_SIS.rda")
