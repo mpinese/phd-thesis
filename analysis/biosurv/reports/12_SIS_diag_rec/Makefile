@@ -7,6 +7,7 @@ clean:
 	rm -f *.aux
 	rm -f *.log
 	rm -f *.tex
+	rm -f *.pdf
 
 ultraclean: clean
 	rm -f *.pdf
