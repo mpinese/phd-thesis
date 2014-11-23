@@ -25,7 +25,9 @@ analysis/biosurv/results/04_norm_gex.pdf
 
 cache/*
 figure/*
-reports/*/NMF_*/*.rds
+reports/*/*.rds
+reports/*/*.rda
+reports/*/*.tex
 
 syntax:regexp
 ^[^/]*\.pdf$

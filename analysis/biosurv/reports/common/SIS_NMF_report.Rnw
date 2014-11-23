@@ -7,90 +7,51 @@
 
 <<setup, include=FALSE>>=
 library(knitr)
-opts_chunk$set(fig.align = 'center', dev = 'pdf', fig.width = 6, fig.height = 6, dev.args = list(pointsize = 8), tidy = TRUE, width.cutoff = 60, formatR.arrow = TRUE, cache = TRUE, cache.lazy = FALSE, autodep = TRUE, cache.comments = FALSE, cache.extra = list(R.version, sessionInfo(), file.info('../../data/07_data_for_SIS.rda')$mtime, tools::md5sum('../../src/08_SIS_common_funcs.R')))
+opts_chunk$set(fig.align = 'center', dev = 'pdf', fig.width = 6, fig.height = 6, dev.args = list(pointsize = 8), tidy = TRUE, width.cutoff = 60, formatR.arrow = TRUE, cache = FALSE)
 opts_knit$set(progress = TRUE, verbose = TRUE)
+#data_source = commandArgs(TRUE)[1]
 @
 
-\title{09\_SIS\_diag\_dsd}
+\title{\Sexpr{gsub("_", " ", sprintf("SIS_NMF_%s", data_source))}}
 \maketitle
 
 \section{Preparation}
 
-<<libs, cache=FALSE>>=
+<<libs-load>>=
 ######################################################################
 # LIBRARIES
 ######################################################################
 options(java.parameters = "-Xmx4G")
-library(xtable)
+
+library(survival)
+library(energy)
+library(NMF)
+
 library(glmulti)
 library(glmnet)
-library(energy)
+
 library(RColorBrewer)
-library(NMF)
 library(gplots)
+
+library(xtable)
 library(stargazer)
 
-nmf.options(cores = 16, pbackend = "par", gc = 1, shared.memory = TRUE)
+setwd(data_dir)
+load("image.rda")
 @
-
-<<load-prep>>=
-######################################################################
-# DATA
-######################################################################
-load("../../data/07_data_for_SIS.rda")
-source("../../src/08_SIS_common_funcs.R")
-
-######################################################################
-# HIGH LEVEL PARAMETERS
-######################################################################
-x = x.diag_dsd
-y = y.diag_dsd
-samps = samps.diag_dsd
-tau = 0.72
-theta = 0.05
-x0 = 6.335
-all_sigs = x.msigdb
-seed = 1234567890
-nmf.nrun.rank = 50
-nmf.nrun.fit = 500
-nmf.rank = "auto"
-nmf.rankrange = 2:10
-nmf.rankrandcount = 10
-sig.corr.threshold = 0.5
-
-######################################################################
-# DERIVED VARIABLES
-######################################################################
-xlin = 2^(x-x0)
-xlin.scaled = (xlin - apply(xlin, 1, min)) / as.vector(diff(apply(xlin, 1, range)))
-sigs = all_sigs[,colnames(x)]
-@
-
 
 \section{Probe selection}
 
-From the tables in the CPSS pub, if we have theta = 0.01 ($\implies$ floor(nrow(x)*0.01) = \Sexpr{floor(nrow(x)*0.01)} vars selected), and tau = 0.50, then we expect fewer than nrow(x)*1.31e-4 = \Sexpr{nrow(x)*1.31e-4} incorrect vars to be chosen.
+%From the tables in the CPSS pub, if we have theta = 0.01 ($\implies$ floor(nrow(x)*0.01) = \Sexpr{floor(nrow(x)*0.01)} vars selected), and tau = 0.50, then we expect fewer than nrow(x)*1.31e-4 = \Sexpr{nrow(x)*1.31e-4} incorrect vars to be chosen.
 <<probe-sel>>=
-set.seed(seed)
-cpss.sis = CPSS(x, y, SIS.FAST, tau, 50, nsis = floor(theta*nrow(x)))
 table(cpss.sis$sel)
 mean(cpss.sis$sel)
-
-x.sel = x[cpss.sis$sel,]
-xlin.sel = xlin[cpss.sis$sel,]
-xlin.scaled.sel = xlin.scaled[cpss.sis$sel,]
 @
 
 
 \section{Expression correlation}
 
 <<correl-plots>>=
-x.sel.kcor = cor(t(x.sel), method = "kendall")
-x.sel.dcor = sapply(1:(nrow(x.sel)-1), function(i) c(rep(NA, i), sapply((i+1):nrow(x.sel), function(j) dcor(x.sel[i,], x.sel[j,]))))
-x.sel.dcor = cbind(x.sel.dcor, NA)
-diag(x.sel.dcor) = 1
-x.sel.dcor[upper.tri(x.sel.dcor)] = t(x.sel.dcor)[upper.tri(x.sel.dcor)]
-
 corPlot(x.sel.kcor, main = "Correlation Clusters of CPSS-SIS-FAST Probes\nKendall log", useRaster = FALSE)
 corPlot(abs(x.sel.kcor), zlim = c(0, 1), pal = "GnBu", main = "Correlation Clusters of CPSS-SIS-FAST Probes\nAbsolute Kendall log", useRaster = FALSE)
 corPlot(x.sel.dcor, zlim = c(0, 1), pal = "GnBu", main = "Correlation Clusters of CPSS-SIS-FAST Probes\ndcor log", useRaster = FALSE)
@@ -101,34 +62,12 @@ corPlot(x.sel.dcor, zlim = c(0, 1), pal = "GnBu", main = "Correlation Clusters o
 
 \subsection{Rank estimation}
 
-<<nmf-rank>>=
-message("Initial factorizations...")
-temp.nmf.rank = nmf(
-	x = xlin.scaled.sel, 
-	rank = nmf.rankrange, 
-	method = "snmf/l", 
-	seed = seed, nrun = nmf.nrun.rank, 
-	.options = list(verbose = 1, track = TRUE, parallel = TRUE, keep.all = TRUE))
-message("Random factorizations...")
-temp.nmf.rank.random = lapply(1:nmf.rankrandcount, function(i) {
-	message(i)
-	nmf(x = randomize(xlin.scaled.sel), 
-		rank = nmf.rankrange, 
-		method = "snmf/l", 
-		seed = seed, nrun = nmf.nrun.rank, 
-		.options = list(verbose = 1, track = TRUE, parallel = TRUE, keep.all = TRUE))
-	})
-@
-
-<<nmf-rank-plots, cache=FALSE>>=
+<<nmf-rank-plots>>=
 plot(temp.nmf.rank, temp.nmf.rank.random[[1]])
 for (i in 1:length(temp.nmf.rank$fit))
 { 
 	consensusmap(temp.nmf.rank$fit[[i]])
 }
-temp.resids = sapply(temp.nmf.rank$fit, function(f) sapply(f, residuals))
-temp.resids_rel = t(t(temp.resids) / apply(temp.resids, 2, min))
-temp.resids_scaled = t((t(temp.resids) - apply(temp.resids, 2, min)) / (apply(temp.resids, 2, max) - apply(temp.resids, 2, min)))
 plot(0 ~ 0, type = "n", xlim = c(1, nrow(temp.resids)), ylim = range(temp.resids_rel), ylab = "Relative residual", main = "Solution Stability")
 for (i in 1:ncol(temp.resids))
 {
@@ -141,27 +80,16 @@ for (i in 1:ncol(temp.resids))
 	points(temp.resids_scaled[,i], col = i, pch = colnames(temp.resids)[i])
 	lines(cummin(temp.resids_scaled[,i]), col = i)
 }
-temp.orig_resids = sapply(temp.nmf.rank$fit, residuals)
-temp.perm_resids = sapply(temp.nmf.rank.random, function(rep) sapply(rep$fit, residuals))
-temp.orig_resids.delta = diff(temp.orig_resids)
-temp.perm_resids.delta = apply(temp.perm_resids, 2, diff)
-temp.perm_resids.delta.mean = rowMeans(temp.perm_resids.delta)
-temp.perm_resids.delta.sd = apply(temp.perm_resids.delta, 1, sd)
-temp.perm_resids.delta.threshold = temp.perm_resids.delta.mean - 2*temp.perm_resids.delta.sd
-temp.perm_resids.delta.above_threshold = temp.orig_resids.delta >= temp.perm_resids.delta.threshold
-if (all(temp.perm_resids.delta.above_threshold))			{ nmf.rank.auto = min(nmf.rankrange) 
-} else if (all(!(temp.perm_resids.delta.above_threshold)))	{ nmf.rank.auto = max(nmf.rankrange)
-} else 														{ nmf.rank.auto = min(nmf.rankrange[temp.perm_resids.delta.above_threshold]) }
 
 plot(nmf.rankrange[-1], -temp.orig_resids.delta,
-	type = "o", col = "black", pch = 21, ylim = range(c(temp.orig_resids.delta, temp.perm_resids.delta.mean)),
+	type = "o", col = "black", pch = 21, ylim = range(-c(temp.orig_resids.delta, temp.perm_resids.delta.mean)),
 	xlab = "Factorization Rank Added", ylab = "Improvement in Total Residual Error")
-lines(nmf.rankrange[-1], temp.perm_resids.delta.mean, col = "red", type = "o", pch = 21, lwd = 1)
+lines(nmf.rankrange[-1], -temp.perm_resids.delta.mean, col = "red", type = "o", pch = 21, lwd = 1)
 for (i in 1:ncol(temp.perm_resids))
 {
-	lines(nmf.rankrange[-1], temp.perm_resids.delta[,i], type = "o", col = rgb(1, 0, 0, 0.25))
+	lines(nmf.rankrange[-1], -temp.perm_resids.delta[,i], type = "o", col = rgb(1, 0, 0, 0.25))
 }
-lines(nmf.rankrange[-1], temp.perm_resids.delta.threshold, col = "red", lty = "dotted")
+lines(nmf.rankrange[-1], -temp.perm_resids.delta.threshold, col = "red", lty = "dotted")
 if (nmf.rank == "auto")
 {
 	temp.col = "green"
@@ -170,21 +98,11 @@ if (nmf.rank == "auto")
 	temp.col = "blue"
 }
 abline(v = nmf.rank, col = temp.col, lwd = 2)
-legend("bottomright", legend = c("Original data", "Permuted data", sprintf("Selected rank (%s)", ifelse(temp.col == "green", "auto", "fixed"))), col = c("black", "red", temp.col),  lty = "solid", pch = 21, inset = 0.05)
+legend("topright", legend = c("Original data", "Permuted data", sprintf("Selected rank (%s)", ifelse(temp.col == "green", "auto", "fixed"))), col = c("black", "red", temp.col),  lty = "solid", pch = 21, inset = 0.05)
 @
 
 \subsection{Fit}
-
-<<nmf>>=
-xlin.scaled.sel.nmf = nmf(
-	x = xlin.scaled.sel, 
-	rank = nmf.rank, 
-	method = "snmf/l", 
-	seed = seed, nrun = nmf.nrun.fit, 
-	.options = list(verbose = 0, track = TRUE, parallel = TRUE, keep.all = TRUE))
-@
-
-<<nmf-plots, cache=FALSE>>=
+<<nmf-plots>>=
 consensusmap(xlin.scaled.sel.nmf)
 basismap(xlin.scaled.sel.nmf)
 coefmap(xlin.scaled.sel.nmf)
@@ -194,23 +112,22 @@ lines(1:length(temp.resids), cummin(temp.resids))
 @
 
 \subsection{Component CPV associations}
-
 \subsubsection{Survival: Diagnosis to disease-specific death}
-<<nmf-surv-tables, echo=FALSE, comment=NA, results='asis', cache=FALSE>>=
+<<nmf-surv-tables, echo=FALSE, comment=NA, results='asis'>>=
 for (i in 1:nrow(coef(xlin.scaled.sel.nmf)))
 {
 	stargazer(coxph(y ~ coef(xlin.scaled.sel.nmf)[i,]))
 }
 @
 
-<<nmf-surv-fits, cache=FALSE>>=
+<<nmf-surv-fits>>=
 for (i in 1:nrow(coef(xlin.scaled.sel.nmf)))
 {
 	print(summary(coxph(y ~ coef(xlin.scaled.sel.nmf)[i,])))
 }
 @
 
-<<nmf-surv-resid-plots, cache=FALSE>>=
+<<nmf-surv-resid-plots>>=
 temp.nullfit = coxph(y ~ 1)
 temp.nullresids = residuals(temp.nullfit, type = "martingale")
 par(mfrow = c(2, 3))
@@ -222,7 +139,7 @@ par(mfrow = c(1, 1))
 @
 
 \subsection{Purity}
-<<nmf-purity-plots, cache=FALSE>>=
+<<nmf-purity-plots>>=
 apply(coef(xlin.scaled.sel.nmf), 1, function(xc) cor.test(samps$purity_qpure, xc, method = "kendall"))
 par(mfrow = c(2, 3))
 for (i in 1:nrow(coef(xlin.scaled.sel.nmf)))
@@ -236,7 +153,9 @@ par(mfrow = c(1, 1))
 <<nmf-pvals>>=
 xlin.scaled.sel.nmf.cpv.pvals = data.frame(
 	p.surv = apply(coef(xlin.scaled.sel.nmf), 1, function(xc) pchisq(2*diff(coxph(y ~ xc)$loglik), df = 1, lower.tail = FALSE)),
-	p.pure = apply(coef(xlin.scaled.sel.nmf), 1, function(xc) cor.test(samps$purity_qpure, xc, method = "kendall")$p.value)
+	p.pure = apply(coef(xlin.scaled.sel.nmf), 1, function(xc) cor.test(samps$purity_qpure, xc, method = "kendall")$p.value), 
+	d.surv = apply(coef(xlin.scaled.sel.nmf), 1, function(xc) sign(coef(coxph(y ~ xc)))),
+	d.pure = apply(coef(xlin.scaled.sel.nmf), 1, function(xc) sign(cor.test(samps$purity_qpure, xc, method = "kendall")$statistic))
 )
 temp.pvals.FWER = p.adjust(c(xlin.scaled.sel.nmf.cpv.pvals$p.surv, xlin.scaled.sel.nmf.cpv.pvals$p.pure), "holm")
 temp.qvals.BY = p.adjust(c(xlin.scaled.sel.nmf.cpv.pvals$p.surv, xlin.scaled.sel.nmf.cpv.pvals$p.pure), "BY")
@@ -249,8 +168,7 @@ xlin.scaled.sel.nmf.cpv.pvals
 
 
 \subsection{MSigDB score correlation thresholding}
-<<nmf-msigdb-cor-plots, cache=FALSE>>=
-xlin.scaled.sel.nmf.msigdb.corr = cor(t(coef(xlin.scaled.sel.nmf)), t(sigs), method = "kendall")
+<<nmf-msigdb-cor-plots>>=
 temp.sel_cols = apply(abs(xlin.scaled.sel.nmf.msigdb.corr) >= sig.corr.threshold, 2, any)
 heatmap.2(xlin.scaled.sel.nmf.msigdb.corr[, temp.sel_cols], trace = "none", scale = "none", useRaster = TRUE, col = brewer.pal(11, "PiYG"), symbreaks = TRUE)
 heatmap.2(xlin.scaled.sel.nmf.msigdb.corr[, temp.sel_cols], trace = "none", scale = "none", useRaster = TRUE, col = brewer.pal(3, "PiYG"), breaks = c(-1, -sig.corr.threshold, sig.corr.threshold, 1))
@@ -283,7 +201,8 @@ tables = lapply(1:temp.nmeta, function(metagene_i) {
 				Correlation = this_cors[sigs_to_report],
 				Metagenes = apply(all_cors[,sigs_to_report,drop=FALSE], 2, function(cors) {
 					sel = abs(cors) >= sig.corr.threshold
-					paste(which(sel) * sign(cors[which(sel)]), collapse = ",")
+					# A positive number implies that positive GSVA signal is associated with worse prognosis
+					paste(which(sel) * sign(cors[which(sel)]) * sign(xlin.scaled.sel.nmf.cpv.pvals$d.surv[metagene_i]), collapse = ",")
 				}))
 			table = table[order(-(table$Correlation)),]
 			rownames(table) <- NULL
@@ -309,32 +228,23 @@ tables
 
 
 <<nmf-metagene-surv-glmulti>>=
-asreg.data = data.frame(time = y[,1], event = y[,2], mg = t(coef(xlin.scaled.sel.nmf)))
-nobs.coxph = function(obj)	{ obj$nevent }
-asreg.result = glmulti(Surv(time, event) ~ ., data = asreg.data, fitfunction = "coxph", level = 2, marginality = TRUE, crit = bic, plotty = FALSE, report = FALSE)
-rm(nobs.coxph)
 print(asreg.result)
 coef(asreg.result)
 summary(asreg.result@objects[[1]])
 @
 
-<<nmf-metagene-surv-glmulti-plots, cache=FALSE>>=
+<<nmf-metagene-surv-glmulti-plots>>=
 plot(asreg.result, type = "p")
 plot(asreg.result, type = "s")
 plot(asreg.result, type = "w")
 @
 
 <<nmf-metagene-surv-glmnet>>=
-glmnet.x = t(coef(xlin.scaled.sel.nmf))
-colnames(glmnet.x) = paste("mg", 1:ncol(glmnet.x), sep = ".")
-glmnet.fit.cv = cv.glmnet(x = glmnet.x, y = cbind(time = y[,1], status = y[,2]*1), family = "cox", nfolds = 10)
-glmnet.coef.1se = coef(glmnet.fit.cv$glmnet.fit, s = glmnet.fit.cv$lambda.1se)
-glmnet.coef.min = coef(glmnet.fit.cv$glmnet.fit, s = glmnet.fit.cv$lambda.min)
 glmnet.coef.1se
 glmnet.coef.min
 @
 
-<<nmf-metagene-surv-glmnet-plots, cache=FALSE>>=
+<<nmf-metagene-surv-glmnet-plots>>=
 plot(glmnet.fit.cv)
 plot(glmnet.fit.cv$glmnet.fit, label = TRUE)
 abline(v = sum(abs(glmnet.coef.1se)))
@@ -342,16 +252,11 @@ abline(v = sum(abs(glmnet.coef.min)))
 @
 
 <<nmf-metagene-surv-adaglmnet>>=
-adaglmnet.weights = 1/abs(coef(coxph(y ~ glmnet.x)))
-adaglmnet.x = t(t(glmnet.x) * adaglmnet.weights)
-adaglmnet.fit.cv = cv.glmnet(x = adaglmnet.x, y = cbind(time = y[,1], status = y[,2]*1), family = "cox", nfolds = 10, standardize = FALSE)
-adaglmnet.coef.1se = coef(adaglmnet.fit.cv$glmnet.fit, s = adaglmnet.fit.cv$lambda.1se)
-adaglmnet.coef.min = coef(adaglmnet.fit.cv$glmnet.fit, s = adaglmnet.fit.cv$lambda.min)
 adaglmnet.coef.1se / adaglmnet.weights
 adaglmnet.coef.min / adaglmnet.weights
 @
 
-<<nmf-metagene-surv-adaglmnet-plots, cache=FALSE>>=
+<<nmf-metagene-surv-adaglmnet-plots>>=
 plot(adaglmnet.fit.cv)
 plot(adaglmnet.fit.cv$glmnet.fit, label = TRUE)
 abline(v = sum(abs(adaglmnet.coef.1se)))
@@ -360,11 +265,8 @@ abline(v = sum(abs(adaglmnet.coef.min)))
 
 \section{Session information}
 <<sessioninfo>>=
+session_info
 sessionInfo()
-@
-
-<<save, echo=FALSE, cache=FALSE>>=
-save.image("image.rda")
 @
 
 \end{document}

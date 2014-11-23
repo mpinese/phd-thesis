@@ -1,0 +1,128 @@
+\documentclass{article}
+\usepackage{geometry}
+\usepackage{amsmath}
+\geometry{verbose,tmargin=2.5cm,bmargin=2.5cm,lmargin=2.5cm,rmargin=2.5cm}
+
+\begin{document}
+
+<<setup, include=FALSE>>=
+library(knitr)
+opts_chunk$set(fig.align = 'center', dev = 'pdf', fig.width = 6, fig.height = 6, dev.args = list(pointsize = 8), tidy = TRUE, width.cutoff = 60, formatR.arrow = TRUE, cache = FALSE, autodep = TRUE)
+opts_knit$set(progress = TRUE, verbose = TRUE)
+@
+
+\title{Combined Analysis of SIS-NMF Metagenes}
+\maketitle
+
+
+\section{Data used}
+Diagnosis and surgery timepoints were determined to be very similar, and therefore surgery times will not be examined further.  The intervals of interest are then:
+\begin{itemize}
+  \item Diagnosis to DSD
+  \item Diagnosis to Recurrence
+  \item Recurrence to DSD
+\end{itemize}
+
+
+\section{Preparation and data loading}
+<<load, cache=TRUE>>=
+fits = list()
+load("../09_SIS_diag_dsd/image.rda")
+fits$diag_dsd = xlin.scaled.sel.nmf
+load("../11_SIS_recr_dsd/image.rda")
+fits$recr_dsd = xlin.scaled.sel.nmf
+load("../12_SIS_diag_rec/image.rda")
+fits$diag_rec = xlin.scaled.sel.nmf
+temp = NA
+temp = ls()
+rm(list = temp[!(temp %in% c("fits", "cpvs", "samples", "features"))])
+@
+
+\section{Coefficient merging}
+<<coefs-merge, cache=TRUE>>=
+library(NMF)
+patient_ids = sort(unique(unlist(lapply(fits, function(x) colnames(coef(x))))))
+merged_coefs = do.call(rbind, lapply(names(fits), function(fit_name) {
+	coefs = coef(fits[[fit_name]])
+	coefs = coefs[,match(patient_ids, colnames(coefs))]
+	rownames(coefs) = paste(substr(fit_name, 1, 1), substr(fit_name, 6, 6), 1:nrow(coefs), sep = "")
+	coefs
+}))
+merged_coefs_allpresent = merged_coefs[,apply(!is.na(merged_coefs), 2, all)]
+@
+
+<<coefs-plots>>=
+corPlot = function(cors, zlim = c(-1, 1), pal = "RdYlGn", scores = NULL, ...)
+{
+	clust = hclust(dist(cors))
+	thepal = brewer.pal(brewer.pal.info[pal,]$maxcolors, pal)
+
+	z = cors[rev(clust$order), clust$order]
+	if (!is.null(scores)) {
+		scores = t(scores)
+		scores = (scores - apply(scores, 1, min)) / as.vector(diff(apply(scores, 1, range)))
+		scores = t(apply(scores, 1, function(x) { if(mean(x) < 0.5) x else 1-x } ))
+		scores = scores * (zlim[2] - zlim[1]) + zlim[1]
+		scores = t(scores)
+		scores = scores[,ncol(scores):1]
+		z = cbind(z, scores[rev(clust$order),])
+	}
+
+	pars = par(no.readonly = TRUE)
+	par(mar = c(6, 3, 5, 3)/1.5)
+	layout(matrix(c(1, 2), nrow = 1), widths = c(8, 1))
+	image(z = z, zlim = zlim, col = thepal, xaxt = "n", yaxt = "n", ...)
+	axis(3, (0:(nrow(z)-1) + 0.5)/(nrow(z)-1)-(0.5/nrow(z)), labels = rownames(z), las = 2)
+	axis(2, (0:(ncol(z)-1) + 0.5)/(ncol(z)-1)-(0.5/ncol(z)), labels = colnames(z), las = 2)
+	par(mar = c(6, 2, 5, 1)/1.5)
+	image(x = c(0, 1), y = seq(zlim[1], zlim[2], length.out = 100), z = matrix(seq(zlim[1], zlim[2], length.out = 99), nrow = 1), col = thepal, xaxt = "n", xlab = "", ylab = "", useRaster = TRUE)
+	par(pars)
+}
+
+general_corfun = function(x, ...)
+{
+	cors = sapply(1:nrow(x), function(i1)
+	{
+		sapply(1:nrow(x), function(i2)
+		{
+			x1 = x[i1,]
+			x2 = x[i2,]
+			s = !is.na(x1) & !is.na(x2)
+			if (sum(s) == 0)	{ return(0) }
+			x1 = x1[s]
+			x2 = x2[s]
+			return(cor(x1, x2, ...))
+		})
+	})
+	rownames(cors) = rownames(x)
+	colnames(cors) = rownames(x)
+	cors
+}
+
+cor_distfun = function(x, ...)
+{
+	# Compute 'correlation distance' between all rows of x, as 1-abs(cor)
+	# Currently very inefficient (performs over 2X the number of calcs actually
+	# needed), because I can't be fucked dicking around with diag at this 
+	# time of night.
+	as.dist(1-abs(general_corfun(x, ...)))
+}
+
+library(RColorBrewer)
+library(gplots)
+heatmap.2(merged_coefs, scale = "none", trace = "none", distfun = function(x) cor_distfun(x, method = "kendall"), col = brewer.pal(9, "GnBu"))
+heatmap.2(merged_coefs_allpresent, scale = "none", trace = "none", distfun = function(x) cor_distfun(x, method = "kendall"), col = brewer.pal(9, "GnBu"))
+
+heatmap.2(merged_coefs, scale = "none", trace = "none", col = brewer.pal(9, "GnBu"))
+heatmap.2(merged_coefs_allpresent, scale = "none", trace = "none", col = brewer.pal(9, "GnBu"))
+
+corPlot(general_corfun(merged_coefs, method = "kendall"))
+corPlot(general_corfun(merged_coefs_allpresent, method = "kendall"))
+@
+
+\section{Session information}
+<<sessioninfo>>=
+sessionInfo()
+@
+
+\end{document}

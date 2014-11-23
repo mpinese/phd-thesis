@@ -1,6 +1,6 @@
-all: 10_SIS_surg_dsd.pdf
+all: 15_SIS_NMF_combined.pdf
 
-%.pdf : %.Rnw
+%.pdf: %.Rnw
 	/home/marpin/bin/Rscript -e "knitr::knit2pdf('$<')"
 
 clean:

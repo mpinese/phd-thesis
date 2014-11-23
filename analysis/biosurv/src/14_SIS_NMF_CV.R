@@ -8,7 +8,7 @@ library(NMF)
 library(glmnet)
 library(glmulti)
 
-#nmf.options(cores = 32, pbackend = "par", gc = 1000, shared.memory = FALSE)
+nmf.options(cores = 8, pbackend = "par", gc = 1, shared.memory = TRUE)
 
 ######################################################################
 # DATA
@@ -59,7 +59,7 @@ sis_nmf_fitpred = function(x, y, xtest, theta, tau, nmf.nrun.rank, nmf.nrun.fit,
 		rank = nmf.rankrange, 
 		method = "snmf/l", 
 		seed = seed, nrun = nmf.nrun.rank, 
-		.options = list(verbose = 1, track = TRUE, parallel = 32, keep.all = TRUE))
+		.options = list(verbose = 1, track = TRUE, parallel = TRUE, keep.all = TRUE))
 	message("Random factorizations...")
 	temp.nmf.rank.random = lapply(1:nmf.rankrandcount, function(i) {
 		message(i)
@@ -67,7 +67,7 @@ sis_nmf_fitpred = function(x, y, xtest, theta, tau, nmf.nrun.rank, nmf.nrun.fit,
 			rank = nmf.rankrange, 
 			method = "snmf/l", 
 			seed = seed, nrun = nmf.nrun.rank, 
-			.options = list(verbose = 1, track = TRUE, parallel = 32, keep.all = TRUE))
+			.options = list(verbose = 1, track = TRUE, parallel = TRUE, keep.all = TRUE))
 		})
 	temp.orig_resids = sapply(temp.nmf.rank$fit, residuals)
 	temp.perm_resids = sapply(temp.nmf.rank.random, function(rep) sapply(rep$fit, residuals))
@@ -91,7 +91,7 @@ sis_nmf_fitpred = function(x, y, xtest, theta, tau, nmf.nrun.rank, nmf.nrun.fit,
 		rank = nmf.rank, 
 		method = "snmf/l", 
 		seed = seed, nrun = nmf.nrun.fit, 
-		.options = list(verbose = 0, track = TRUE, parallel = 32, keep.all = TRUE))
+		.options = list(verbose = 0, track = TRUE, parallel = TRUE, keep.all = TRUE))
 
 	######################################################################
 	# TRAIN X SCORING
