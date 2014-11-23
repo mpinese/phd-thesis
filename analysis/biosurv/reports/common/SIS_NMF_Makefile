@@ -1,0 +1,22 @@
+.PRECIOUS: image.rda
+
+all: SIS_NMF_report.pdf
+
+SIS_NMF_report.pdf: image.rda
+	/home/marpin/bin/Rscript -e "data_dir = '$(shell pwd)'; data_source = '$(DATA_SOURCE)'; knitr::knit2pdf('../common/SIS_NMF_report.Rnw')"
+
+image.rda: 
+	/home/marpin/bin/Rscript ../common/SIS_NMF_calcs.R $(DATA_SOURCE)
+
+clean:
+	rm -f *.aux
+	rm -f *.log
+	rm -f *.tex
+	rm -f *.pdf
+	rm -rf NMF_*
+
+ultraclean: clean
+	rm -f *.pdf
+	rm -f *.rda
+	rm -rf cache/
+	rm -rf figure/
