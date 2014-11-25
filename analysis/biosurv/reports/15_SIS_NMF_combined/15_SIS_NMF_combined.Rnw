@@ -51,7 +51,33 @@ merged_coefs = do.call(rbind, lapply(names(fits), function(fit_name) {
 merged_coefs_allpresent = merged_coefs[,apply(!is.na(merged_coefs), 2, all)]
 @
 
-<<coefs-plots>>=
+<<coefs-heatmaps>>=
+library(RColorBrewer)
+library(gplots)
+heatmap.2(merged_coefs, scale = "none", trace = "none", col = brewer.pal(9, "GnBu"))
+heatmap.2(merged_coefs_allpresent, scale = "none", trace = "none", col = brewer.pal(9, "GnBu"))
+@
+
+<<coefs-pvclust-calc, cache=TRUE>>=
+library(pvclust)
+set.seed(1234567890)
+cons_clust = pvclust(t(merged_coefs), method.hclust = "complete", method.dist = "euclidean", nboot = 4000)
+@
+
+<<coefs-pvclust-plot>>=
+library(pvclust)
+plot(cons_clust)
+pvrect(cons_clust, alpha = 0.99)
+seplot(cons_clust)
+@
+
+<<coefs-pairs>>=
+pairs(t(merged_coefs), pch = 16, cex = 0.5, col = rgb(0, 0, 0, 0.25))
+@
+
+<<coefs-corplots>>=
+library(RColorBrewer)
+
 corPlot = function(cors, zlim = c(-1, 1), pal = "RdYlGn", scores = NULL, ...)
 {
 	clust = hclust(dist(cors))
@@ -99,25 +125,10 @@ general_corfun = function(x, ...)
 	cors
 }
 
-cor_distfun = function(x, ...)
-{
-	# Compute 'correlation distance' between all rows of x, as 1-abs(cor)
-	# Currently very inefficient (performs over 2X the number of calcs actually
-	# needed), because I can't be fucked dicking around with diag at this 
-	# time of night.
-	as.dist(1-abs(general_corfun(x, ...)))
-}
-
-library(RColorBrewer)
-library(gplots)
-heatmap.2(merged_coefs, scale = "none", trace = "none", distfun = function(x) cor_distfun(x, method = "kendall"), col = brewer.pal(9, "GnBu"))
-heatmap.2(merged_coefs_allpresent, scale = "none", trace = "none", distfun = function(x) cor_distfun(x, method = "kendall"), col = brewer.pal(9, "GnBu"))
-
-heatmap.2(merged_coefs, scale = "none", trace = "none", col = brewer.pal(9, "GnBu"))
-heatmap.2(merged_coefs_allpresent, scale = "none", trace = "none", col = brewer.pal(9, "GnBu"))
-
 corPlot(general_corfun(merged_coefs, method = "kendall"))
 corPlot(general_corfun(merged_coefs_allpresent, method = "kendall"))
+corPlot(as.matrix(dist(merged_coefs)), zlim = c(0, max(dist(merged_coefs))))
+corPlot(as.matrix(dist(merged_coefs_allpresent)), zlim = c(0, max(dist(merged_coefs_allpresent))))
 @
 
 \section{Session information}
