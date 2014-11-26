@@ -1,5 +1,6 @@
 \documentclass[thesis.tex]{subfiles}
 \begin{document}
+
 \chapter{Survival Processes in Pancreatic Cancer}
 \label{ch:prognostic}
 
@@ -42,6 +43,47 @@ Outline ideas:
   \end{enumerate}
 
   \item Conclusion
-  
 \end{itemize}
+
+\section{Introduction}
+
+\section{Methods}
+\subsection{Cohort recruitment and ethics}
+\mpfatal{CPVs current as of 4 Nov 2014}
+
+\subsection{Sample collection, preparation, and gene expression microarrays}
+\mpfatal{}
+End with saved as \gls{IDAT} files.  241 of them (class 7 with CPVs only)
+
+\subsection{Data preprocessing}
+\paragraph{Microarray quality control and normalization}
+\gls{IDAT} files were read into Bioconductor \texttt{lumi} structures using the \texttt{lumidat} package.  Seven arrays were excluded on the basis of poor signal, due to fewer than 30\% of probes on these arrays having been assigned detection P-values of better than 0.01.  The remaining 234 microarrays represented a range of tumour types, and were normalized as one batch using the \texttt{lumi} package.  Normalization proceeded serially as RMA-like background subtraction (\texttt{lumiB} method \texttt{"bgAdjust.affy"}), VST (\texttt{lumiT} method \texttt{"vst"}), and quantile normalization (\texttt{lumiN} method \texttt{"quantile"}).
+\paragraph{Unsupervised probe selection}
+Probes were excluded if they met any of the following criteria: fewer than 10\% of samples with expression P-values of less than 0.01, a probe quality (from the \texttt{illuminaHumanv4PROBEQUALITY} field in Bioconductor package \texttt{illuminaHumanv4.db}) not equal to `perfect' or `good', no gene annotation, or a standard deviation of normalized expression values across all samples of less than 0.03.  This latter threshold was chosen after examining technical replicate samples, and is expected to yield approximately a 5\% false rejection rate.  In cases where multiple post-filter microarray probes mapped to the same gene, only the probe with the highest standard deviation across all samples was retained.  The effect of these combined filtering steps was to reduce the number of features under consideration from 47,273 probes to 13,000, one per gene.  \paragraph{Sample selection}  From the full set of 234 tumour samples that passed quality checks, eight were from four samples that had each been arrayed twice, and two were from patients with multiple conflicting \gls{CPV} data.  The two with conflicting \gls{CPV} data were excluded from study, and the eight replicated samples were averaged following \gls{MDS} indicating that each replicate pair had very similar expression.
+\paragraph{Summary}
+The above preprocessing steps yielded matched \gls{CPV} and resected tumour \gls{GEX} data for 13,000 genes across 228 patients.
+
+\subsection{GSVA scoring}
+
+
+\subsection{Outcome-associated gene selection}
+Genes that were associated with either disease-specific survival or time to progression were identified by \gls{SIS} operating on the \gls{FAST} statistic \cite{Gorst-Rasmussen2013}, with a \gls{CPSS} wrapper to reduce the false positive rate \cite{Shah2013}.  
+Specifically, 50 rounds of \gls{CPSS} were performed, with parameter $\tau = 0.72$, and a compound base variable selection procedure.  The base variable selection procedure comprised three rounds of \gls{FAST} \gls{SIS}, with each round selecting the 325 genes most associated by \gls{FAST} statistic with the duration of one of three clinical intervals: time from diagnosis to recurrence, time from recurrence to disease-specific death, and time from diagnosis to disease-specific death.  
+Multiple intervals were chosen as it was deemed possible that the biology affecting the progression of pre- and post-recurrence disease may be different.  
+A gene identified by at least one of the three rounds of \gls{FAST} \gls{SIS} was deemed chosen by the base variable selection procedure.  
+\mpfatal{Results?}  
+213 of 13,000 genes were deemed to be outcome-associated by this process, giving $\hat{\theta} = 0.048$ and therefore an expected bound on the number of false positive genes of 10 (equivalent to $FDR \leq 0.05$) \citep{Bartlett1936}2013}.
+
+
+\subsection{Rank estimation and metagene factorization}
+
+
+\subsection{Metagene functional characterization}
+
+\section{Results}
+\subsection{}
+\subsection{Linking metagenes to biology}
+
+\section{Discussion}
+
 \end{document}

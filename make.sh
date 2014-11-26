@@ -1,10 +1,15 @@
 #!/bin/bash
 mkdir -p build
+cp thesis.bib build
 pdflatex --output-directory build -interaction=nonstopmode thesis.tex
+cd build
 bibtex thesis.aux
 makeglossaries thesis
+cd ..
 pdflatex --output-directory build -interaction=nonstopmode thesis.tex
-bibtex thesis.aux
+cd build
+bibtex build/thesis.aux
 makeglossaries thesis
-pdflatex --output-directory build -synctex=1 -interaction=nonstopmode thesis.tex
+cd ..
+pdflatex --output-directory build -interaction=nonstopmode thesis.tex
 mv build/thesis.pdf .

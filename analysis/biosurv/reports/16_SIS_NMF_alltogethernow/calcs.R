@@ -2,18 +2,14 @@
 # LIBRARIES
 ######################################################################
 options(java.parameters = "-Xmx4G")
-library(xtable)
 library(glmulti)
 library(glmnet)
 library(energy)
 library(RColorBrewer)
-library(NMF)
 library(gplots)
-library(stargazer)
 library(ahaz)
 library(survival)
-
-nmf.options(cores = 1, pbackend = "seq", gc = 1, shared.memory = TRUE)
+library(bigmemory)
 
 
 ######################################################################
@@ -22,7 +18,6 @@ nmf.options(cores = 1, pbackend = "seq", gc = 1, shared.memory = TRUE)
 message("Loading data")
 load("../../data/07_data_for_SIS.rda")
 source("../../src/08_SIS_common_funcs.R")
-
 
 ######################################################################
 # HIGH LEVEL PARAMETERS
@@ -106,29 +101,35 @@ message(sprintf("%d/%d selected, observed theta = %.3f", sum(cpss.sis$sel), leng
 ######################################################################
 # RANK ESTIMATION
 ######################################################################
+source("snmfl.R")
 message("NMF rank estimation")
-temp.nmf.rank = nmf(
-	x = xlin.scaled.sel, 
-	rank = nmf.rankrange, 
-	method = "snmf/l", 
-	seed = seed, nrun = nmf.nrun.rank, 
-	.options = list(verbose = 1, track = TRUE, parallel = TRUE, keep.all = TRUE))
+set.seed(seed)
+temp.nmf.rank = snmfl(
+	A = xlin.scaled.sel, 
+	ks = nmf.rankrange, 
+	nrun = nmf.nrun.rank, 
+	maxiter = 1e4, cores = 8)
 message("  Randomized")
+set.seed(seed)
 temp.nmf.rank.random = lapply(1:nmf.rankrandcount, function(i) {
 	message(i)
-	nmf(x = randomize(xlin.scaled.sel), 
-		rank = nmf.rankrange, 
-		method = "snmf/l", 
-		seed = seed, nrun = nmf.nrun.rank, 
-		.options = list(verbose = 1, track = TRUE, parallel = TRUE, keep.all = TRUE))
-	})
+	Aperm = apply(xlin.scaled.sel, 2, sample)
+	snmfl(
+		A = Aperm, 
+		ks = nmf.rankrange, 
+		nrun = nmf.nrun.rank, 
+		maxiter = 1e4, cores = 8)
+	}
+)
+
+save.image("temp.rda")
 
 message("Automatic rank calculation")
-temp.resids = sapply(temp.nmf.rank$fit, function(f) sapply(f, residuals))
+temp.resids = sapply(temp.nmf.rank, function(kf) kf$norms)
 temp.resids_rel = t(t(temp.resids) / apply(temp.resids, 2, min))
 temp.resids_scaled = t((t(temp.resids) - apply(temp.resids, 2, min)) / (apply(temp.resids, 2, max) - apply(temp.resids, 2, min)))
-temp.orig_resids = sapply(temp.nmf.rank$fit, residuals)
-temp.perm_resids = sapply(temp.nmf.rank.random, function(rep) sapply(rep$fit, residuals))
+temp.orig_resids = sapply(temp.nmf.rank, function(kf) min(kf$norms))
+temp.perm_resids = sapply(temp.nmf.rank.random, function(rep) sapply(rep, function(kf) min(kf$norms)))
 temp.orig_resids.delta = diff(temp.orig_resids)
 temp.perm_resids.delta = apply(temp.perm_resids, 2, diff)
 temp.perm_resids.delta.mean = rowMeans(temp.perm_resids.delta)
@@ -147,21 +148,19 @@ if (nmf.rank == "auto")
 # FACTORIZATION
 ######################################################################
 message("Full factorization")
-xlin.scaled.sel.nmf = nmf(
-	x = xlin.scaled.sel, 
-	rank = nmf.rank, 
-	method = "snmf/l", 
-	seed = seed, nrun = nmf.nrun.fit, 
-	.options = list(verbose = 0, track = TRUE, parallel = TRUE, keep.all = TRUE))
+xlin.scaled.sel.nmf = snmfl(
+	A = xlin.scaled.sel, 
+	k = nmf.rank, 
+	nrun = nmf.nrun.fit, 
+	maxiter = 1e4, cores = 8)
 
-coefs = t(coef(xlin.scaled.sel.nmf))
+save.image("temp2.rda")
+
+coefs = t(xlin.scaled.sel.nmf$best_fit$H)
 colnames(coefs) = paste("mg", 1:ncol(coefs), sep = ".")
 coefs.diag_dsd = coefs[rownames(y.diag_dsd),]
 coefs.diag_rec = coefs[rownames(y.diag_rec),]
 coefs.recr_dsd = coefs[rownames(y.recr_dsd),]
-
-
-save.image("temp.rda")
 
 
 ######################################################################
