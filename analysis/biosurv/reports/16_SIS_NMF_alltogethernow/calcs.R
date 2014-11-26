@@ -9,7 +9,7 @@ library(RColorBrewer)
 library(gplots)
 library(ahaz)
 library(survival)
-library(bigmemory)
+library(snmfl)
 
 
 ######################################################################
@@ -101,14 +101,13 @@ message(sprintf("%d/%d selected, observed theta = %.3f", sum(cpss.sis$sel), leng
 ######################################################################
 # RANK ESTIMATION
 ######################################################################
-source("snmfl.R")
 message("NMF rank estimation")
 set.seed(seed)
 temp.nmf.rank = snmfl(
 	A = xlin.scaled.sel, 
 	ks = nmf.rankrange, 
 	nrun = nmf.nrun.rank, 
-	maxiter = 1e4, cores = 8)
+	max_iter = 1e4, cores = 12)
 message("  Randomized")
 set.seed(seed)
 temp.nmf.rank.random = lapply(1:nmf.rankrandcount, function(i) {
@@ -118,7 +117,7 @@ temp.nmf.rank.random = lapply(1:nmf.rankrandcount, function(i) {
 		A = Aperm, 
 		ks = nmf.rankrange, 
 		nrun = nmf.nrun.rank, 
-		maxiter = 1e4, cores = 8)
+		max_iter = 1e4, cores = 12)
 	}
 )
 
@@ -139,9 +138,11 @@ temp.perm_resids.delta.above_threshold = temp.orig_resids.delta >= temp.perm_res
 if (all(temp.perm_resids.delta.above_threshold))			{ nmf.rank.auto = min(nmf.rankrange) 
 } else if (all(!(temp.perm_resids.delta.above_threshold)))	{ nmf.rank.auto = max(nmf.rankrange)
 } else 														{ nmf.rank.auto = min(nmf.rankrange[temp.perm_resids.delta.above_threshold]) }
+nmf.rank.wasauto = FALSE
 if (nmf.rank == "auto")
 {
 	nmf.rank = nmf.rank.auto
+	nmf.rank.wasauto = TRUE
 }
 
 ######################################################################
@@ -152,12 +153,13 @@ xlin.scaled.sel.nmf = snmfl(
 	A = xlin.scaled.sel, 
 	k = nmf.rank, 
 	nrun = nmf.nrun.fit, 
-	maxiter = 1e4, cores = 8)
+	max_iter = 1e4, cores = 12)
 
 save.image("temp2.rda")
 
-coefs = t(xlin.scaled.sel.nmf$best_fit$H)
+coefs = t(xlin.scaled.sel.nmf[[1]]$best_fit$H)
 colnames(coefs) = paste("mg", 1:ncol(coefs), sep = ".")
+rownames(coefs) = colnames(xlin.scaled.sel)
 coefs.diag_dsd = coefs[rownames(y.diag_dsd),]
 coefs.diag_rec = coefs[rownames(y.diag_rec),]
 coefs.recr_dsd = coefs[rownames(y.recr_dsd),]
@@ -187,9 +189,9 @@ diag_dsd.asreg.data = as.data.frame(cbind(time = y.diag_dsd[,1], event = y.diag_
 diag_rec.asreg.data = as.data.frame(cbind(time = y.diag_rec[,1], event = y.diag_rec[,2], coefs.diag_rec))
 recr_dsd.asreg.data = as.data.frame(cbind(time = y.recr_dsd[,1], event = y.recr_dsd[,2], coefs.recr_dsd))
 nobs.coxph = function(obj)	{ obj$nevent }
-diag_dsd.asreg.result = glmulti(Surv(time, event) ~ ., data = diag_dsd.asreg.data, fitfunction = "coxph", level = 2, marginality = TRUE, crit = bic, plotty = FALSE, report = FALSE)
-diag_rec.asreg.result = glmulti(Surv(time, event) ~ ., data = diag_rec.asreg.data, fitfunction = "coxph", level = 2, marginality = TRUE, crit = bic, plotty = FALSE, report = FALSE)
-recr_dsd.asreg.result = glmulti(Surv(time, event) ~ ., data = recr_dsd.asreg.data, fitfunction = "coxph", level = 2, marginality = TRUE, crit = bic, plotty = FALSE, report = FALSE)
+diag_dsd.asreg.result = glmulti(Surv(time, event) ~ ., data = diag_dsd.asreg.data, fitfunction = "coxph", level = 1, marginality = TRUE, crit = bic, plotty = FALSE, report = FALSE)
+diag_rec.asreg.result = glmulti(Surv(time, event) ~ ., data = diag_rec.asreg.data, fitfunction = "coxph", level = 1, marginality = TRUE, crit = bic, plotty = FALSE, report = FALSE)
+recr_dsd.asreg.result = glmulti(Surv(time, event) ~ ., data = recr_dsd.asreg.data, fitfunction = "coxph", level = 1, marginality = TRUE, crit = bic, plotty = FALSE, report = FALSE)
 rm(nobs.coxph)
 
 

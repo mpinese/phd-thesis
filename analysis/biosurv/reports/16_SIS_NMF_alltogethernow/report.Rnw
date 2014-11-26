@@ -1,6 +1,7 @@
 \documentclass{article}
 \usepackage{geometry}
 \usepackage{amsmath}
+\usepackage{lscape}
 \geometry{verbose,tmargin=2.5cm,bmargin=2.5cm,lmargin=2.5cm,rmargin=2.5cm}
 
 \begin{document}
@@ -12,7 +13,7 @@ opts_knit$set(progress = TRUE, verbose = TRUE)
 #data_source = commandArgs(TRUE)[1]
 @
 
-\title{\Sexpr{gsub("_", " ", sprintf("SIS_NMF_%s", data_source))}}
+\title{SIS NMF All Together Now}
 \maketitle
 
 \section{Preparation}
@@ -36,7 +37,6 @@ library(gplots)
 library(xtable)
 library(stargazer)
 
-setwd(data_dir)
 load("image.rda")
 @
 
@@ -63,11 +63,6 @@ corPlot(x.sel.dcor, zlim = c(0, 1), pal = "GnBu", main = "Correlation Clusters o
 \subsection{Rank estimation}
 
 <<nmf-rank-plots>>=
-plot(temp.nmf.rank, temp.nmf.rank.random[[1]])
-for (i in 1:length(temp.nmf.rank$fit))
-{ 
-	consensusmap(temp.nmf.rank$fit[[i]])
-}
 plot(0 ~ 0, type = "n", xlim = c(1, nrow(temp.resids)), ylim = range(temp.resids_rel), ylab = "Relative residual", main = "Solution Stability")
 for (i in 1:ncol(temp.resids))
 {
@@ -90,10 +85,9 @@ for (i in 1:ncol(temp.perm_resids))
 	lines(nmf.rankrange[-1], -temp.perm_resids.delta[,i], type = "o", col = rgb(1, 0, 0, 0.25))
 }
 lines(nmf.rankrange[-1], -temp.perm_resids.delta.threshold, col = "red", lty = "dotted")
-if (nmf.rank == "auto")
+if (nmf.rank.wasauto == TRUE)
 {
 	temp.col = "green"
-	nmf.rank = nmf.rank.auto
 } else {
 	temp.col = "blue"
 }
@@ -103,12 +97,10 @@ legend("topright", legend = c("Original data", "Permuted data", sprintf("Selecte
 
 \subsection{Fit}
 <<nmf-plots>>=
-consensusmap(xlin.scaled.sel.nmf)
-basismap(xlin.scaled.sel.nmf)
-coefmap(xlin.scaled.sel.nmf)
-temp.resids = sapply(xlin.scaled.sel.nmf, residuals)
-plot(1:length(temp.resids), temp.resids, ylab = "Residual", main = "Solution Stability")
-lines(1:length(temp.resids), cummin(temp.resids))
+image(xlin.scaled.sel.nmf[[1]]$best_fit$W)
+image(xlin.scaled.sel.nmf[[1]]$best_fit$H)
+plot(1:length(xlin.scaled.sel.nmf[[1]]$norms), xlin.scaled.sel.nmf[[1]]$norms, ylab = "Residual", main = "Solution Stability")
+lines(1:length(xlin.scaled.sel.nmf[[1]]$norms), cummin(xlin.scaled.sel.nmf[[1]]$norms))
 @
 
 \subsection{Component CPV associations}
@@ -116,7 +108,7 @@ lines(1:length(temp.resids), cummin(temp.resids))
 <<nmf-surv-fits-diagrec>>=
 for (i in 1:ncol(coefs.diag_rec))
 {
-	summary(coxph(y.diag_rec ~ coefs.diag_rec[,i]))
+	print(summary(coxph(y.diag_rec ~ coefs.diag_rec[,i])))
 }
 @
 
@@ -124,7 +116,7 @@ for (i in 1:ncol(coefs.diag_rec))
 <<nmf-surv-fits-diagdsd>>=
 for (i in 1:ncol(coefs.diag_dsd))
 {
-	summary(coxph(y.diag_dsd ~ coefs.diag_dsd[,i]))
+	print(summary(coxph(y.diag_dsd ~ coefs.diag_dsd[,i])))
 }
 @
 
@@ -132,7 +124,7 @@ for (i in 1:ncol(coefs.diag_dsd))
 <<nmf-surv-fits-recrdsd>>=
 for (i in 1:ncol(coefs.recr_dsd))
 {
-	summary(coxph(y.recr_dsd ~ coefs.recr_dsd[,i]))
+	print(summary(coxph(y.recr_dsd ~ coefs.recr_dsd[,i])))
 }
 @
 
@@ -155,13 +147,26 @@ xlin.scaled.sel.nmf.cpv.pvals = data.frame(
 )
 temp.pvals = as.matrix(xlin.scaled.sel.nmf.cpv.pvals[,grepl("\\.p$", colnames(xlin.scaled.sel.nmf.cpv.pvals))])
 temp.pvals.FWER = matrix(p.adjust(as.vector(temp.pvals), "holm"), nrow = nrow(temp.pvals))
-colnames(temp.pvals.FWER) = gsub("$", ".Holm", colnames(temp.pvals.FWER))
+colnames(temp.pvals.FWER) = paste(colnames(temp.pvals), "Holm", sep = ".")
 temp.pvals.BY = matrix(p.adjust(as.vector(temp.pvals), "BY"), nrow = nrow(temp.pvals))
-colnames(temp.pvals.BY) = gsub("$", ".BY", colnames(temp.pvals.FWER))
-xlin.scaled.sel.nmf.cpv.pvals = rbind(xlin.scaled.sel.nmf.cpv.pvals, temp.pvals.FWER, temp.pvals.BY)
+colnames(temp.pvals.BY) = paste(colnames(temp.pvals), "BY", sep = ".")
+xlin.scaled.sel.nmf.cpv.pvals = cbind(xlin.scaled.sel.nmf.cpv.pvals, temp.pvals.FWER, temp.pvals.BY)
 xlin.scaled.sel.nmf.cpv.pvals = xlin.scaled.sel.nmf.cpv.pvals[,order(colnames(xlin.scaled.sel.nmf.cpv.pvals))]
 xlin.scaled.sel.nmf.cpv.pvals
 @
+
+
+%\newpage
+%\begin{landscape}
+\begin{table}
+\resizebox{\textwidth}{!}{
+\centering
+<<nmf-pvals-xtable, echo=FALSE, results='asis'>>=
+kable(xlin.scaled.sel.nmf.cpv.pvals[,!grepl("\\.(BY|p)$", colnames(xlin.scaled.sel.nmf.cpv.pvals))])
+@
+}\end{table}
+%\end{landscape}
+%\newpage
 
 
 \subsection{MSigDB score correlation thresholding}
@@ -214,7 +219,7 @@ tables
 
 
 \subsubsection{Outcome: Diagnosis to recurrence}
-\subsubsubsection{All-subsets regression}
+\paragraph{All-subsets regression}
 <<nmf-metagene-diagrec-glmulti>>=
 print(diag_rec.asreg.result)
 coef(diag_rec.asreg.result)
@@ -227,7 +232,7 @@ plot(diag_rec.asreg.result, type = "s")
 plot(diag_rec.asreg.result, type = "w")
 @
 
-\subsubsubsection{LASSO}
+\paragraph{LASSO}
 <<nmf-metagene-diagrec-glmnet>>=
 diag_rec.glmnet.coef.1se
 diag_rec.glmnet.coef.min
@@ -240,7 +245,7 @@ abline(v = sum(abs(diag_rec.glmnet.coef.1se)))
 abline(v = sum(abs(diag_rec.glmnet.coef.min)))
 @
 
-\subsubsubsection{Adaptive LASSO}
+\paragraph{Adaptive LASSO}
 <<nmf-metagene-diagrec-adaglmnet>>=
 diag_rec.adaglmnet.coef.1se / diag_rec.adaglmnet.weights
 diag_rec.adaglmnet.coef.min / diag_rec.adaglmnet.weights
@@ -254,7 +259,7 @@ abline(v = sum(abs(diag_rec.adaglmnet.coef.min)))
 @
 
 \subsubsection{Outcome: Diagnosis to disease-specific death}
-\subsubsubsection{All-subsets regression}
+\paragraph{All-subsets regression}
 <<nmf-metagene-diagdsd-glmulti>>=
 print(diag_dsd.asreg.result)
 coef(diag_dsd.asreg.result)
@@ -267,7 +272,7 @@ plot(diag_dsd.asreg.result, type = "s")
 plot(diag_dsd.asreg.result, type = "w")
 @
 
-\subsubsubsection{LASSO}
+\paragraph{LASSO}
 <<nmf-metagene-diagdsd-glmnet>>=
 diag_dsd.glmnet.coef.1se
 diag_dsd.glmnet.coef.min
@@ -280,7 +285,7 @@ abline(v = sum(abs(diag_dsd.glmnet.coef.1se)))
 abline(v = sum(abs(diag_dsd.glmnet.coef.min)))
 @
 
-\subsubsubsection{Adaptive LASSO}
+\paragraph{Adaptive LASSO}
 <<nmf-metagene-diagdsd-adaglmnet>>=
 diag_dsd.adaglmnet.coef.1se / diag_dsd.adaglmnet.weights
 diag_dsd.adaglmnet.coef.min / diag_dsd.adaglmnet.weights
@@ -294,7 +299,7 @@ abline(v = sum(abs(diag_dsd.adaglmnet.coef.min)))
 @
 
 \subsubsection{Outcome: Recurrence to disease-specific death}
-\subsubsubsection{All-subsets regression}
+\paragraph{All-subsets regression}
 <<nmf-metagene-recrdsd-glmulti>>=
 print(recr_dsd.asreg.result)
 coef(recr_dsd.asreg.result)
@@ -307,7 +312,7 @@ plot(recr_dsd.asreg.result, type = "s")
 plot(recr_dsd.asreg.result, type = "w")
 @
 
-\subsubsubsection{LASSO}
+\paragraph{LASSO}
 <<nmf-metagene-recrdsd-glmnet>>=
 recr_dsd.glmnet.coef.1se
 recr_dsd.glmnet.coef.min
@@ -320,7 +325,7 @@ abline(v = sum(abs(recr_dsd.glmnet.coef.1se)))
 abline(v = sum(abs(recr_dsd.glmnet.coef.min)))
 @
 
-\subsubsubsection{Adaptive LASSO}
+\paragraph{Adaptive LASSO}
 <<nmf-metagene-recrdsd-adaglmnet>>=
 recr_dsd.adaglmnet.coef.1se / recr_dsd.adaglmnet.weights
 recr_dsd.adaglmnet.coef.min / recr_dsd.adaglmnet.weights

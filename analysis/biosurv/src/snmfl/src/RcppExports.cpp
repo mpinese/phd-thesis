@@ -6,9 +6,9 @@
 
 using namespace Rcpp;
 
-// snmfl
-Rcpp::List snmfl(const arma::mat& A, arma::uword k, double eta, double alpha, size_t max_iter, double conv_delta, size_t conv_interval);
-RcppExport SEXP snmfl_snmfl(SEXP ASEXP, SEXP kSEXP, SEXP etaSEXP, SEXP alphaSEXP, SEXP max_iterSEXP, SEXP conv_deltaSEXP, SEXP conv_intervalSEXP) {
+// snmfl_atomic
+Rcpp::List snmfl_atomic(const arma::mat& A, arma::uword k, double eta, double alpha, size_t max_iter, double conv_delta, size_t conv_interval);
+RcppExport SEXP snmfl_snmfl_atomic(SEXP ASEXP, SEXP kSEXP, SEXP etaSEXP, SEXP alphaSEXP, SEXP max_iterSEXP, SEXP conv_deltaSEXP, SEXP conv_intervalSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
     {
@@ -20,7 +20,7 @@ BEGIN_RCPP
         Rcpp::traits::input_parameter< size_t >::type max_iter(max_iterSEXP );
         Rcpp::traits::input_parameter< double >::type conv_delta(conv_deltaSEXP );
         Rcpp::traits::input_parameter< size_t >::type conv_interval(conv_intervalSEXP );
-        Rcpp::List __result = snmfl(A, k, eta, alpha, max_iter, conv_delta, conv_interval);
+        Rcpp::List __result = snmfl_atomic(A, k, eta, alpha, max_iter, conv_delta, conv_interval);
         PROTECT(__sexp_result = Rcpp::wrap(__result));
     }
     UNPROTECT(1);
