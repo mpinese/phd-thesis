@@ -48,7 +48,7 @@ void r_warning(std::string text)
 // Returns a list of W, H, norm, and converged.
 //
 // [[Rcpp::export]]
-Rcpp::List snmfl(const arma::mat& A, arma::uword k, double eta, double alpha, size_t max_iter, double conv_delta, size_t conv_interval)
+Rcpp::List snmfl_atomic(const arma::mat& A, arma::uword k, double eta, double alpha, size_t max_iter, double conv_delta, size_t conv_interval)
 {
     size_t i;
     arma::uword j;
