@@ -18,12 +18,14 @@ sel.patient.surg_dsd = sel.patient.au & sel.patient.pdac & sel.patient.surgok & 
 sel.patient.recr_dsd = sel.patient.au & sel.patient.pdac & sel.patient.surgok & (!is.na(cpvs$Surv.EventTimeFromRec.Death)) & (!is.na(cpvs$Surv.Event.DSDeath))
 sel.patient.diag_rec = sel.patient.au & sel.patient.pdac & sel.patient.surgok & (!is.na(cpvs$Surv.EventTimeFromDiag.Rec)) & (!is.na(cpvs$Surv.Event.Rec))
 sel.patient.surg_rec = sel.patient.au & sel.patient.pdac & sel.patient.surgok & (!is.na(cpvs$Surv.EventTimeFromSurg.Rec)) & (!is.na(cpvs$Surv.Event.Rec))
+sel.patient.pdac_au =  sel.patient.au & sel.patient.pdac
 
 sum(sel.patient.diag_dsd)
 sum(sel.patient.surg_dsd)
 sum(sel.patient.recr_dsd)
 sum(sel.patient.diag_rec)
 sum(sel.patient.surg_rec)
+sum(sel.patient.pdac_au)
 
 
 # Collapse gene expression measurements to one per gene, by 
@@ -46,31 +48,37 @@ x.surg_dsd = x[, sel.patient.surg_dsd]
 x.recr_dsd = x[, sel.patient.recr_dsd]
 x.diag_rec = x[, sel.patient.diag_rec]
 x.surg_rec = x[, sel.patient.surg_rec]
+x.pdac_au = x[, sel.patient.pdac_au]
 feats.diag_dsd = features[rownames(x.diag_dsd),]
 feats.surg_dsd = features[rownames(x.surg_dsd),]
 feats.recr_dsd = features[rownames(x.recr_dsd),]
 feats.diag_rec = features[rownames(x.diag_rec),]
 feats.surg_rec = features[rownames(x.surg_rec),]
+feats.pdac_au = features[rownames(x.pdac_au),]
 samps.diag_dsd = samples[colnames(x.diag_dsd),]
 samps.surg_dsd = samples[colnames(x.surg_dsd),]
 samps.recr_dsd = samples[colnames(x.recr_dsd),]
 samps.diag_rec = samples[colnames(x.diag_rec),]
 samps.surg_rec = samples[colnames(x.surg_rec),]
+samps.pdac_au = samples[colnames(x.pdac_au),]
 cpvs.diag_dsd = cpvs[sel.patient.diag_dsd,]
 cpvs.surg_dsd = cpvs[sel.patient.surg_dsd,]
 cpvs.recr_dsd = cpvs[sel.patient.recr_dsd,]
 cpvs.diag_rec = cpvs[sel.patient.diag_rec,]
 cpvs.surg_rec = cpvs[sel.patient.surg_rec,]
+cpvs.pdac_au = cpvs[sel.patient.pdac_au,]
 y.diag_dsd = Surv(cpvs.diag_dsd$Surv.EventTimeFromDiag.DSDeath, 	cpvs.diag_dsd$Surv.Event.DSDeath)
 y.surg_dsd = Surv(cpvs.surg_dsd$Surv.EventTimeFromSurg.DSDeath, 	cpvs.surg_dsd$Surv.Event.DSDeath)
 y.recr_dsd = Surv(cpvs.recr_dsd$Surv.EventTimeFromRec.DSDeath, 		cpvs.recr_dsd$Surv.Event.DSDeath)
 y.diag_rec = Surv(cpvs.diag_rec$Surv.EventTimeFromDiag.Recurrence, 	cpvs.diag_rec$Surv.Event.Recurrence)
 y.surg_rec = Surv(cpvs.surg_rec$Surv.EventTimeFromSurg.Recurrence, 	cpvs.surg_rec$Surv.Event.Recurrence)
+y.pdac_au = Surv(cpvs.pdac_au$Surv.EventTimeFromSurg.Recurrence, 	cpvs.pdac_au$Surv.Event.Recurrence)
 stopifnot(samps.diag_dsd$patient_id == cpvs.diag_dsd$Patient.ID)
 stopifnot(samps.surg_dsd$patient_id == cpvs.surg_dsd$Patient.ID)
 stopifnot(samps.recr_dsd$patient_id == cpvs.recr_dsd$Patient.ID)
 stopifnot(samps.diag_rec$patient_id == cpvs.diag_rec$Patient.ID)
 stopifnot(samps.surg_rec$patient_id == cpvs.surg_rec$Patient.ID)
+stopifnot(samps.pdac_au$patient_id == cpvs.pdac_au$Patient.ID)
 
 
 # Convert the signed scores (UP/DN) into single UP-DN combined scores.
@@ -174,11 +182,22 @@ mergeSimilarGSVAScores = function(scores, threshold)
 }
 
 
-x.msigdb = calcGSVAScores(x, rnaseq = FALSE)
-x.msigdb.merged = mergeSimilarGSVAScores(x.msigdb, 0.98)
+x.pdac_au.msigdb = calcGSVAScores(x.pdac_au, rnaseq = FALSE)
+x.pdac_au.msigdb.merged = mergeSimilarGSVAScores(x.pdac_au.msigdb, 0.98)
+x.diag_dsd.msigdb = x.pdac_au.msigdb[,colnames(x.diag_dsd)]
+x.diag_dsd.msigdb.merged = x.pdac_au.msigdb.merged[,colnames(x.diag_dsd)]
+x.surg_dsd.msigdb = x.pdac_au.msigdb[,colnames(x.surg_dsd)]
+x.surg_dsd.msigdb.merged = x.pdac_au.msigdb.merged[,colnames(x.surg_dsd)]
+x.diag_rec.msigdb = x.pdac_au.msigdb[,colnames(x.diag_rec)]
+x.diag_rec.msigdb.merged = x.pdac_au.msigdb.merged[,colnames(x.diag_rec)]
+x.surg_rec.msigdb = x.pdac_au.msigdb[,colnames(x.surg_rec)]
+x.surg_rec.msigdb.merged = x.pdac_au.msigdb.merged[,colnames(x.surg_rec)]
+x.recr_dsd.msigdb = x.pdac_au.msigdb[,colnames(x.recr_dsd)]
+x.recr_dsd.msigdb.merged = x.pdac_au.msigdb.merged[,colnames(x.recr_dsd)]
 
 
 save.image("../data/07_data_for_SIS.rda")
 
 
 sessionInfo()
+
