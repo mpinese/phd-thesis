@@ -9,7 +9,7 @@ library(RColorBrewer)
 library(gplots)
 library(ahaz)
 library(survival)
-library(NMF)
+library(snmfl)
 
 
 ######################################################################
@@ -26,11 +26,11 @@ rownames(y.diag_dsd) = colnames(x.diag_dsd)
 rownames(y.diag_rec) = colnames(x.diag_rec)
 rownames(y.recr_dsd) = colnames(x.recr_dsd)
 samps = samples[colnames(x),]
-y_list = list(diag_dsd = y.diag_dsd, diag_rec = y.diag_rec, recr_dsd = y.recr_dsd)
+y_list = list(diag_dsd = y.diag_dsd)
 tau = 0.75
-theta1 = 0.025
+theta1 = 0.05
 x0 = 6.335
-all_sigs = x.msigdb.merged
+all_sigs = x.msigdb
 seed = 1234567890
 nmf.nrun.rank = 50
 nmf.nrun.fit = 500
@@ -102,30 +102,33 @@ message(sprintf("%d/%d selected, observed theta = %.3f", sum(cpss.sis$sel), leng
 # RANK ESTIMATION
 ######################################################################
 message("NMF rank estimation")
-nmf.options(track = FALSE, pbackend = "par", gc = 1, shared.memory = FALSE)
-temp.nmf.rank = nmf(
-	x = xlin.scaled.sel, 
-	rank = nmf.rankrange, 
-	method = "snmf/l", 
-	seed = seed, nrun = nmf.nrun.rank, 
-	.options = list(verbose = 1, parallel = 32, keep.all = TRUE))
+set.seed(seed)
+temp.nmf.rank = snmfl(
+	A = xlin.scaled.sel, 
+	ks = nmf.rankrange, 
+	nrun = nmf.nrun.rank, 
+	max_iter = 1e4, cores = 12)
+message("  Randomized")
+set.seed(seed)
 temp.nmf.rank.random = lapply(1:nmf.rankrandcount, function(i) {
 	message(i)
-	nmf(x = randomize(xlin.scaled.sel), 
-		rank = nmf.rankrange, 
-		method = "snmf/l", 
-		seed = seed, nrun = nmf.nrun.rank, 
-		.options = list(verbose = 1, parallel = 32, keep.all = TRUE))
-	})
+	Aperm = apply(xlin.scaled.sel, 2, sample)
+	snmfl(
+		A = Aperm, 
+		ks = nmf.rankrange, 
+		nrun = nmf.nrun.rank, 
+		max_iter = 1e4, cores = 12)
+	}
+)
 
 save.image("temp.rda")
 
 message("Automatic rank calculation")
-temp.resids = sapply(temp.nmf.rank$fit, function(f) sapply(f, residuals))
+temp.resids = sapply(temp.nmf.rank, function(kf) kf$norms)
 temp.resids_rel = t(t(temp.resids) / apply(temp.resids, 2, min))
 temp.resids_scaled = t((t(temp.resids) - apply(temp.resids, 2, min)) / (apply(temp.resids, 2, max) - apply(temp.resids, 2, min)))
-temp.orig_resids = sapply(temp.nmf.rank$fit, residuals)
-temp.perm_resids = sapply(temp.nmf.rank.random, function(rep) sapply(rep$fit, residuals))
+temp.orig_resids = sapply(temp.nmf.rank, function(kf) min(kf$norms))
+temp.perm_resids = sapply(temp.nmf.rank.random, function(rep) sapply(rep, function(kf) min(kf$norms)))
 temp.orig_resids.delta = diff(temp.orig_resids)
 temp.perm_resids.delta = apply(temp.perm_resids, 2, diff)
 temp.perm_resids.delta.mean = rowMeans(temp.perm_resids.delta)
@@ -145,16 +148,16 @@ if (nmf.rank == "auto")
 ######################################################################
 # FACTORIZATION
 ######################################################################
-xlin.scaled.sel.nmf = nmf(
-	x = xlin.scaled.sel, 
-	rank = nmf.rank, 
-	method = "snmf/l", 
-	seed = seed, nrun = nmf.nrun.fit, 
-	.options = list(verbose = 0, parallel = 32, keep.all = TRUE))
+message("Full factorization")
+xlin.scaled.sel.nmf = snmfl(
+	A = xlin.scaled.sel, 
+	k = nmf.rank, 
+	nrun = nmf.nrun.fit, 
+	max_iter = 1e4, cores = 12)
 
 save.image("temp2.rda")
 
-coefs = t(coef(xlin.scaled.sel.nmf))
+coefs = t(xlin.scaled.sel.nmf[[1]]$best_fit$H)
 colnames(coefs) = paste("mg", 1:ncol(coefs), sep = ".")
 rownames(coefs) = colnames(xlin.scaled.sel)
 coefs.diag_dsd = coefs[rownames(y.diag_dsd),]
@@ -227,108 +230,3 @@ recr_dsd.adaglmnet.coef.min = coef(recr_dsd.adaglmnet.fit.cv$glmnet.fit, s = rec
 
 session_info = sessionInfo()
 save.image("image.rda")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-nmf.rank = 6
-
-######################################################################
-# FACTORIZATION
-######################################################################
-xlin.scaled.sel.nmf = nmf(
-	x = xlin.scaled.sel, 
-	rank = nmf.rank, 
-	method = "snmf/l", 
-	seed = seed, nrun = nmf.nrun.fit, 
-	.options = list(verbose = 0, parallel = TRUE, keep.all = TRUE))
-
-coefs = t(coef(xlin.scaled.sel.nmf))
-colnames(coefs) = paste("mg", 1:ncol(coefs), sep = ".")
-rownames(coefs) = colnames(xlin.scaled.sel)
-coefs.diag_dsd = coefs[rownames(y.diag_dsd),]
-coefs.diag_rec = coefs[rownames(y.diag_rec),]
-coefs.recr_dsd = coefs[rownames(y.recr_dsd),]
-
-
-######################################################################
-# EXPRESSION CORRELATION
-######################################################################
-message("Correlation")
-x.sel.kcor = cor(t(x.sel), method = "kendall")
-x.sel.dcor = sapply(1:(nrow(x.sel)-1), function(i) c(rep(NA, i), sapply((i+1):nrow(x.sel), function(j) dcor(x.sel[i,], x.sel[j,]))))
-x.sel.dcor = cbind(x.sel.dcor, NA)
-diag(x.sel.dcor) = 1
-x.sel.dcor[upper.tri(x.sel.dcor)] = t(x.sel.dcor)[upper.tri(x.sel.dcor)]
-
-
-######################################################################
-# SIGNATURE-METAGENE CORRELATION
-######################################################################
-xlin.scaled.sel.nmf.msigdb.corr = cor(coefs, t(sigs), method = "kendall")
-
-
-######################################################################
-# ALL-SUBSETS REGRESSION
-######################################################################
-diag_dsd.asreg.data = as.data.frame(cbind(time = y.diag_dsd[,1], event = y.diag_dsd[,2], coefs.diag_dsd))
-diag_rec.asreg.data = as.data.frame(cbind(time = y.diag_rec[,1], event = y.diag_rec[,2], coefs.diag_rec))
-recr_dsd.asreg.data = as.data.frame(cbind(time = y.recr_dsd[,1], event = y.recr_dsd[,2], coefs.recr_dsd))
-nobs.coxph = function(obj)	{ obj$nevent }
-diag_dsd.asreg.result = glmulti(Surv(time, event) ~ ., data = diag_dsd.asreg.data, fitfunction = "coxph", level = 1, marginality = TRUE, crit = bic, plotty = FALSE, report = FALSE)
-diag_rec.asreg.result = glmulti(Surv(time, event) ~ ., data = diag_rec.asreg.data, fitfunction = "coxph", level = 1, marginality = TRUE, crit = bic, plotty = FALSE, report = FALSE)
-recr_dsd.asreg.result = glmulti(Surv(time, event) ~ ., data = recr_dsd.asreg.data, fitfunction = "coxph", level = 1, marginality = TRUE, crit = bic, plotty = FALSE, report = FALSE)
-rm(nobs.coxph)
-
-
-######################################################################
-# LASSO
-######################################################################
-diag_dsd.glmnet.fit.cv = cv.glmnet(x = coefs.diag_dsd, y = cbind(time = y.diag_dsd[,1], status = y.diag_dsd[,2]*1), family = "cox", nfolds = 10)
-diag_rec.glmnet.fit.cv = cv.glmnet(x = coefs.diag_rec, y = cbind(time = y.diag_rec[,1], status = y.diag_rec[,2]*1), family = "cox", nfolds = 10)
-recr_dsd.glmnet.fit.cv = cv.glmnet(x = coefs.recr_dsd, y = cbind(time = y.recr_dsd[,1], status = y.recr_dsd[,2]*1), family = "cox", nfolds = 10)
-diag_dsd.glmnet.coef.1se = coef(diag_dsd.glmnet.fit.cv$glmnet.fit, s = diag_dsd.glmnet.fit.cv$lambda.1se)
-diag_dsd.glmnet.coef.min = coef(diag_dsd.glmnet.fit.cv$glmnet.fit, s = diag_dsd.glmnet.fit.cv$lambda.min)
-diag_rec.glmnet.coef.1se = coef(diag_rec.glmnet.fit.cv$glmnet.fit, s = diag_rec.glmnet.fit.cv$lambda.1se)
-diag_rec.glmnet.coef.min = coef(diag_rec.glmnet.fit.cv$glmnet.fit, s = diag_rec.glmnet.fit.cv$lambda.min)
-recr_dsd.glmnet.coef.1se = coef(recr_dsd.glmnet.fit.cv$glmnet.fit, s = recr_dsd.glmnet.fit.cv$lambda.1se)
-recr_dsd.glmnet.coef.min = coef(recr_dsd.glmnet.fit.cv$glmnet.fit, s = recr_dsd.glmnet.fit.cv$lambda.min)
-
-
-######################################################################
-# ADAPTIVE LASSO
-######################################################################
-diag_dsd.adaglmnet.weights = 1/abs(coef(coxph(y.diag_dsd ~ coefs.diag_dsd)))
-diag_rec.adaglmnet.weights = 1/abs(coef(coxph(y.diag_rec ~ coefs.diag_rec)))
-recr_dsd.adaglmnet.weights = 1/abs(coef(coxph(y.recr_dsd ~ coefs.recr_dsd)))
-diag_dsd.adaglmnet.x = t(t(coefs.diag_dsd) * diag_dsd.adaglmnet.weights)
-diag_rec.adaglmnet.x = t(t(coefs.diag_rec) * diag_rec.adaglmnet.weights)
-recr_dsd.adaglmnet.x = t(t(coefs.recr_dsd) * recr_dsd.adaglmnet.weights)
-diag_dsd.adaglmnet.fit.cv = cv.glmnet(x = diag_dsd.adaglmnet.x, y = cbind(time = y.diag_dsd[,1], status = y.diag_dsd[,2]*1), family = "cox", nfolds = 10, standardize = FALSE)
-diag_rec.adaglmnet.fit.cv = cv.glmnet(x = diag_rec.adaglmnet.x, y = cbind(time = y.diag_rec[,1], status = y.diag_rec[,2]*1), family = "cox", nfolds = 10, standardize = FALSE)
-recr_dsd.adaglmnet.fit.cv = cv.glmnet(x = recr_dsd.adaglmnet.x, y = cbind(time = y.recr_dsd[,1], status = y.recr_dsd[,2]*1), family = "cox", nfolds = 10, standardize = FALSE)
-diag_dsd.adaglmnet.coef.1se = coef(diag_dsd.adaglmnet.fit.cv$glmnet.fit, s = diag_dsd.adaglmnet.fit.cv$lambda.1se)
-diag_dsd.adaglmnet.coef.min = coef(diag_dsd.adaglmnet.fit.cv$glmnet.fit, s = diag_dsd.adaglmnet.fit.cv$lambda.min)
-diag_rec.adaglmnet.coef.1se = coef(diag_rec.adaglmnet.fit.cv$glmnet.fit, s = diag_rec.adaglmnet.fit.cv$lambda.1se)
-diag_rec.adaglmnet.coef.min = coef(diag_rec.adaglmnet.fit.cv$glmnet.fit, s = diag_rec.adaglmnet.fit.cv$lambda.min)
-recr_dsd.adaglmnet.coef.1se = coef(recr_dsd.adaglmnet.fit.cv$glmnet.fit, s = recr_dsd.adaglmnet.fit.cv$lambda.1se)
-recr_dsd.adaglmnet.coef.min = coef(recr_dsd.adaglmnet.fit.cv$glmnet.fit, s = recr_dsd.adaglmnet.fit.cv$lambda.min)
-
-session_info = sessionInfo()
-save.image("image-byeye.rda")
-

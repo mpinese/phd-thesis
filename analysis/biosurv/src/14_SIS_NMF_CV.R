@@ -1,14 +1,14 @@
 ######################################################################
 # LIBRARIES
 ######################################################################
-options(java.parameters = "-Xmx4G")
+options(java.parameters = "-Xmx4G", echo = TRUE)
 library(survival)
 library(apcluster)
 library(NMF)
 library(glmnet)
 library(glmulti)
 
-nmf.options(cores = 8, pbackend = "par", gc = 1, shared.memory = TRUE)
+nmf.options(cores = 32, pbackend = "par", gc = 1, shared.memory = FALSE)
 
 ######################################################################
 # DATA
@@ -59,7 +59,7 @@ sis_nmf_fitpred = function(x, y, xtest, theta, tau, nmf.nrun.rank, nmf.nrun.fit,
 		rank = nmf.rankrange, 
 		method = "snmf/l", 
 		seed = seed, nrun = nmf.nrun.rank, 
-		.options = list(verbose = 1, track = TRUE, parallel = TRUE, keep.all = TRUE))
+		.options = list(verbose = 1, track = FALSE, parallel = TRUE, keep.all = TRUE))
 	message("Random factorizations...")
 	temp.nmf.rank.random = lapply(1:nmf.rankrandcount, function(i) {
 		message(i)
@@ -67,7 +67,7 @@ sis_nmf_fitpred = function(x, y, xtest, theta, tau, nmf.nrun.rank, nmf.nrun.fit,
 			rank = nmf.rankrange, 
 			method = "snmf/l", 
 			seed = seed, nrun = nmf.nrun.rank, 
-			.options = list(verbose = 1, track = TRUE, parallel = TRUE, keep.all = TRUE))
+			.options = list(verbose = 1, track = FALSE, parallel = TRUE, keep.all = TRUE))
 		})
 	temp.orig_resids = sapply(temp.nmf.rank$fit, residuals)
 	temp.perm_resids = sapply(temp.nmf.rank.random, function(rep) sapply(rep$fit, residuals))
@@ -91,7 +91,7 @@ sis_nmf_fitpred = function(x, y, xtest, theta, tau, nmf.nrun.rank, nmf.nrun.fit,
 		rank = nmf.rank, 
 		method = "snmf/l", 
 		seed = seed, nrun = nmf.nrun.fit, 
-		.options = list(verbose = 0, track = TRUE, parallel = TRUE, keep.all = TRUE))
+		.options = list(verbose = 2, track = FALSE, parallel = TRUE, keep.all = TRUE))
 
 	######################################################################
 	# TRAIN X SCORING
@@ -197,6 +197,8 @@ cv_results = lapply(data_list, function(data_item) {
 # doCV(data_list[[1]]$x, data_list[[1]]$y, function(x, y, x.test) sis_nmf_fitpred(x, y, x.test, theta, tau, nmf.nrun.rank, nmf.nrun.fit, nmf.rankrange, nmf.rankrandcount, seed), 3, seed)
 
 
-sessionInfo()
+sessioninfo = sessionInfo()
+sessioninfo
 
 saveRDS(cv_results, file = "../data/14_SIS_NMF_CV_results.rds")
+

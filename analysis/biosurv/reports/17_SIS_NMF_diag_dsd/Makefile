@@ -1,12 +1,12 @@
-.PRECIOUS: image.rda image-byeye.rda
+.PRECIOUS: image.rda
 
 all: report.pdf
 
-report.pdf: image.rda image-byeye.rda
-	Rscript -e "knitr::knit2pdf('report.Rnw')"
+report.pdf: image.rda
+	/home/marpin/bin/Rscript -e "knitr::knit2pdf('report.Rnw')"
 
-image.rda image-byeye.rda: 
-	Rscript calcs.R
+image.rda: 
+	/home/marpin/bin/Rscript calcs.R
 
 clean:
 	rm -f *.aux
@@ -20,4 +20,3 @@ ultraclean: clean
 	rm -f *.rda
 	rm -rf cache/
 	rm -rf figure/
-

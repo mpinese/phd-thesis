@@ -1,7 +1,7 @@
 ######################################################################
 # LIBRARIES
 ######################################################################
-options(java.parameters = "-Xmx4G")
+options(java.parameters = "-Xmx4G", echo = TRUE)
 library(glmulti)
 library(glmnet)
 library(energy)
@@ -26,16 +26,16 @@ rownames(y.diag_dsd) = colnames(x.diag_dsd)
 rownames(y.diag_rec) = colnames(x.diag_rec)
 rownames(y.recr_dsd) = colnames(x.recr_dsd)
 samps = samples[colnames(x),]
-y_list = list(diag_dsd = y.diag_dsd, diag_rec = y.diag_rec, recr_dsd = y.recr_dsd)
-tau = 0.75
-theta1 = 0.025
+y_list = list(diag_dsd = y.diag_dsd)
+tau = 0.72
+theta1 = 0.05
 x0 = 6.335
 all_sigs = x.msigdb.merged
 seed = 1234567890
 nmf.nrun.rank = 50
 nmf.nrun.fit = 500
 nmf.rank = "auto"
-nmf.rankrange = 2:15
+nmf.rankrange = 2:10
 nmf.rankrandcount = 10
 sig.corr.threshold = 0.5
 
@@ -142,6 +142,7 @@ if (nmf.rank == "auto")
 	nmf.rank.wasauto = TRUE
 }
 
+
 ######################################################################
 # FACTORIZATION
 ######################################################################
@@ -225,110 +226,29 @@ diag_rec.adaglmnet.coef.min = coef(diag_rec.adaglmnet.fit.cv$glmnet.fit, s = dia
 recr_dsd.adaglmnet.coef.1se = coef(recr_dsd.adaglmnet.fit.cv$glmnet.fit, s = recr_dsd.adaglmnet.fit.cv$lambda.1se)
 recr_dsd.adaglmnet.coef.min = coef(recr_dsd.adaglmnet.fit.cv$glmnet.fit, s = recr_dsd.adaglmnet.fit.cv$lambda.min)
 
+
+######################################################################
+# META-PCNA SCORING
+######################################################################
+metapcna.sig = c("ADAMTS13", "ALAS2", "APOBEC3B", "ARID3A", "ASF1B", "AURKA", 
+	"AURKB", "BIRC5", "BPGM", "BUB1B", "BZRPL1", "C21orf45", "CCNA2", "CCNB1", 
+	"CCNB2", "CDC2", "CDC20", "CDC45L", "CDCA3", "CDCA4", "CDCA8", "CDKN3", 
+	"CDT1", "CENPA", "CHAF1A", "CKLF", "CKS1B", "CKS2", "DDX39", 
+	"DKFZp762E1312", "DTL", "EPB42", "ERAF", "ESPL1", "FBXO5", "FBXO7", 
+	"FECH", "FEN1", "FOXM1", "GATA1", "GINS1", "GINS2", "GTPBP2", "GTSE1", 
+	"GYPA", "GYPB", "H3F3A", "HMBS", "HMGB2", "HMGN2", "KEL", "KIAA0101", 
+	"KIF20A", "KIF22", "KIF2C", "KIF4A", "KLF1", "KLF15", "LBR", "LIG1", 
+	"LMNB1", "LOC146909", "LSM6", "LYL1", "MAD2L1", "MCM2", "MCM3", "MCM4", 
+	"MCM5", "MCM6", "MCM7", "MELK", "MICB", "MKI67", "MLF1IP", "NCAPD2", 
+	"NCAPD3", "NCAPG2", "NFE2", "NUDT1", "NUP210", "NUP37", "NUSAP1", "OIP5", 
+	"ORC6L", "PCNA", "PF4", "PGD", "PLEK", "POLE2", "PPBP", "PPIH", "PRC1", 
+	"PSMD9", "PTTG1", "RACGAP1", "RAD51AP1", "RFC3", "RFC4", "RFWD3", "RHAG", 
+	"RHCE", "RHD", "RPA3", "RPIA", "RPP30", "RRM2", "SFRS2", "SHCBP1", "SMC4", 
+	"SNF8", "SNRPB", "SNRPD1", "SPTA1", "TACC3", "TAL1", "TCF3", "TFDP1", 
+	"TIMELESS", "TOP2A", "TPX2", "TRIM10", "TRIM58", "TRMT5", "TROAP", "TYMS", 
+	"UBE2C", "VRK1", "WHSC1", "ZWINT")
+metapcna.scores = apply(x[rownames(x) %in% metapcna.sig,], 2, median)
+
 session_info = sessionInfo()
 save.image("image.rda")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-nmf.rank = 6
-
-######################################################################
-# FACTORIZATION
-######################################################################
-xlin.scaled.sel.nmf = nmf(
-	x = xlin.scaled.sel, 
-	rank = nmf.rank, 
-	method = "snmf/l", 
-	seed = seed, nrun = nmf.nrun.fit, 
-	.options = list(verbose = 0, parallel = TRUE, keep.all = TRUE))
-
-coefs = t(coef(xlin.scaled.sel.nmf))
-colnames(coefs) = paste("mg", 1:ncol(coefs), sep = ".")
-rownames(coefs) = colnames(xlin.scaled.sel)
-coefs.diag_dsd = coefs[rownames(y.diag_dsd),]
-coefs.diag_rec = coefs[rownames(y.diag_rec),]
-coefs.recr_dsd = coefs[rownames(y.recr_dsd),]
-
-
-######################################################################
-# EXPRESSION CORRELATION
-######################################################################
-message("Correlation")
-x.sel.kcor = cor(t(x.sel), method = "kendall")
-x.sel.dcor = sapply(1:(nrow(x.sel)-1), function(i) c(rep(NA, i), sapply((i+1):nrow(x.sel), function(j) dcor(x.sel[i,], x.sel[j,]))))
-x.sel.dcor = cbind(x.sel.dcor, NA)
-diag(x.sel.dcor) = 1
-x.sel.dcor[upper.tri(x.sel.dcor)] = t(x.sel.dcor)[upper.tri(x.sel.dcor)]
-
-
-######################################################################
-# SIGNATURE-METAGENE CORRELATION
-######################################################################
-xlin.scaled.sel.nmf.msigdb.corr = cor(coefs, t(sigs), method = "kendall")
-
-
-######################################################################
-# ALL-SUBSETS REGRESSION
-######################################################################
-diag_dsd.asreg.data = as.data.frame(cbind(time = y.diag_dsd[,1], event = y.diag_dsd[,2], coefs.diag_dsd))
-diag_rec.asreg.data = as.data.frame(cbind(time = y.diag_rec[,1], event = y.diag_rec[,2], coefs.diag_rec))
-recr_dsd.asreg.data = as.data.frame(cbind(time = y.recr_dsd[,1], event = y.recr_dsd[,2], coefs.recr_dsd))
-nobs.coxph = function(obj)	{ obj$nevent }
-diag_dsd.asreg.result = glmulti(Surv(time, event) ~ ., data = diag_dsd.asreg.data, fitfunction = "coxph", level = 1, marginality = TRUE, crit = bic, plotty = FALSE, report = FALSE)
-diag_rec.asreg.result = glmulti(Surv(time, event) ~ ., data = diag_rec.asreg.data, fitfunction = "coxph", level = 1, marginality = TRUE, crit = bic, plotty = FALSE, report = FALSE)
-recr_dsd.asreg.result = glmulti(Surv(time, event) ~ ., data = recr_dsd.asreg.data, fitfunction = "coxph", level = 1, marginality = TRUE, crit = bic, plotty = FALSE, report = FALSE)
-rm(nobs.coxph)
-
-
-######################################################################
-# LASSO
-######################################################################
-diag_dsd.glmnet.fit.cv = cv.glmnet(x = coefs.diag_dsd, y = cbind(time = y.diag_dsd[,1], status = y.diag_dsd[,2]*1), family = "cox", nfolds = 10)
-diag_rec.glmnet.fit.cv = cv.glmnet(x = coefs.diag_rec, y = cbind(time = y.diag_rec[,1], status = y.diag_rec[,2]*1), family = "cox", nfolds = 10)
-recr_dsd.glmnet.fit.cv = cv.glmnet(x = coefs.recr_dsd, y = cbind(time = y.recr_dsd[,1], status = y.recr_dsd[,2]*1), family = "cox", nfolds = 10)
-diag_dsd.glmnet.coef.1se = coef(diag_dsd.glmnet.fit.cv$glmnet.fit, s = diag_dsd.glmnet.fit.cv$lambda.1se)
-diag_dsd.glmnet.coef.min = coef(diag_dsd.glmnet.fit.cv$glmnet.fit, s = diag_dsd.glmnet.fit.cv$lambda.min)
-diag_rec.glmnet.coef.1se = coef(diag_rec.glmnet.fit.cv$glmnet.fit, s = diag_rec.glmnet.fit.cv$lambda.1se)
-diag_rec.glmnet.coef.min = coef(diag_rec.glmnet.fit.cv$glmnet.fit, s = diag_rec.glmnet.fit.cv$lambda.min)
-recr_dsd.glmnet.coef.1se = coef(recr_dsd.glmnet.fit.cv$glmnet.fit, s = recr_dsd.glmnet.fit.cv$lambda.1se)
-recr_dsd.glmnet.coef.min = coef(recr_dsd.glmnet.fit.cv$glmnet.fit, s = recr_dsd.glmnet.fit.cv$lambda.min)
-
-
-######################################################################
-# ADAPTIVE LASSO
-######################################################################
-diag_dsd.adaglmnet.weights = 1/abs(coef(coxph(y.diag_dsd ~ coefs.diag_dsd)))
-diag_rec.adaglmnet.weights = 1/abs(coef(coxph(y.diag_rec ~ coefs.diag_rec)))
-recr_dsd.adaglmnet.weights = 1/abs(coef(coxph(y.recr_dsd ~ coefs.recr_dsd)))
-diag_dsd.adaglmnet.x = t(t(coefs.diag_dsd) * diag_dsd.adaglmnet.weights)
-diag_rec.adaglmnet.x = t(t(coefs.diag_rec) * diag_rec.adaglmnet.weights)
-recr_dsd.adaglmnet.x = t(t(coefs.recr_dsd) * recr_dsd.adaglmnet.weights)
-diag_dsd.adaglmnet.fit.cv = cv.glmnet(x = diag_dsd.adaglmnet.x, y = cbind(time = y.diag_dsd[,1], status = y.diag_dsd[,2]*1), family = "cox", nfolds = 10, standardize = FALSE)
-diag_rec.adaglmnet.fit.cv = cv.glmnet(x = diag_rec.adaglmnet.x, y = cbind(time = y.diag_rec[,1], status = y.diag_rec[,2]*1), family = "cox", nfolds = 10, standardize = FALSE)
-recr_dsd.adaglmnet.fit.cv = cv.glmnet(x = recr_dsd.adaglmnet.x, y = cbind(time = y.recr_dsd[,1], status = y.recr_dsd[,2]*1), family = "cox", nfolds = 10, standardize = FALSE)
-diag_dsd.adaglmnet.coef.1se = coef(diag_dsd.adaglmnet.fit.cv$glmnet.fit, s = diag_dsd.adaglmnet.fit.cv$lambda.1se)
-diag_dsd.adaglmnet.coef.min = coef(diag_dsd.adaglmnet.fit.cv$glmnet.fit, s = diag_dsd.adaglmnet.fit.cv$lambda.min)
-diag_rec.adaglmnet.coef.1se = coef(diag_rec.adaglmnet.fit.cv$glmnet.fit, s = diag_rec.adaglmnet.fit.cv$lambda.1se)
-diag_rec.adaglmnet.coef.min = coef(diag_rec.adaglmnet.fit.cv$glmnet.fit, s = diag_rec.adaglmnet.fit.cv$lambda.min)
-recr_dsd.adaglmnet.coef.1se = coef(recr_dsd.adaglmnet.fit.cv$glmnet.fit, s = recr_dsd.adaglmnet.fit.cv$lambda.1se)
-recr_dsd.adaglmnet.coef.min = coef(recr_dsd.adaglmnet.fit.cv$glmnet.fit, s = recr_dsd.adaglmnet.fit.cv$lambda.min)
-
-session_info = sessionInfo()
-save.image("image-byeye.rda")
 
