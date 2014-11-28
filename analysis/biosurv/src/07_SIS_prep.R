@@ -158,9 +158,10 @@ calcGSVAScores = function(x, categories = c("c1", "c2", "c3", "c4", "c5", "c6", 
 
 mergeSimilarGSVAScores = function(scores, threshold)
 {
-	scores = scale(t(scores))
+#	scores = scale(t(scores))
+	scores = t(scores)
 	dists = as.dist((1 - cor(scores))/2)
-	clust = hclust(dists)
+	clust = hclust(dists, method = "complete")
 	cuts = cutree(clust, h = 1 - threshold)
 	merged = tapply(1:ncol(scores), cuts, function(is) {
 		newval = matrix(apply(scores[,is,drop = FALSE], 1, median), nrow = 1)
@@ -174,6 +175,7 @@ mergeSimilarGSVAScores = function(scores, threshold)
 
 
 x.msigdb = calcGSVAScores(x, rnaseq = FALSE)
+x.msigdb.merged = mergeSimilarGSVAScores(x.msigdb, 0.98)
 
 
 save.image("../data/07_data_for_SIS.rda")

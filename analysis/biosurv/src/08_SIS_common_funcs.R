@@ -80,3 +80,4 @@ corPlot = function(cors, zlim = c(-1, 1), pal = "RdYlGn", scores = NULL, ...)
 	image(x = c(0, 1), y = seq(zlim[1], zlim[2], length.out = 100), z = matrix(seq(zlim[1], zlim[2], length.out = 99), nrow = 1), col = thepal, xaxt = "n", xlab = "", ylab = "", useRaster = TRUE)
 	par(pars)
 }
+
