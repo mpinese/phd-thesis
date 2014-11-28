@@ -3,18 +3,19 @@
 ######################################################################
 options(java.parameters = "-Xmx4G", echo = TRUE)
 library(survival)
-library(apcluster)
 library(NMF)
 library(glmnet)
 library(glmulti)
 
 nmf.options(cores = 32, pbackend = "par", gc = 1, shared.memory = FALSE)
 
+
 ######################################################################
 # DATA
 ######################################################################
 load("../data/07_data_for_SIS.rda")
 source("08_SIS_common_funcs.R")
+
 
 ######################################################################
 # HIGH LEVEL PARAMETERS
@@ -174,31 +175,12 @@ doCV = function(x, y, fitpred, K, seed)
 }
 
 
-data_list = list(
-	diag_dsd = list(x = x.diag_dsd, y = y.diag_dsd),
-	surg_dsd = list(x = x.surg_dsd, y = y.surg_dsd),
-	recr_dsd = list(x = x.recr_dsd, y = y.recr_dsd),
-	diag_rec = list(x = x.diag_rec, y = y.diag_rec),
-	surg_rec = list(x = x.surg_rec, y = y.surg_rec))
-
-
-cv_results = lapply(data_list, function(data_item) {
-	doCV(data_item$x, data_item$y, function(x, y, x.test) sis_nmf_fitpred(x, y, x.test, theta, tau, nmf.nrun.rank, nmf.nrun.fit, nmf.rankrange, nmf.rankrandcount, seed), 10, seed)
-})
-
-
-# nmf.rankrange = 3:6
-# nmf.rankrandcount = 3
-# nmf.nrun.rank = 1
-# nmf.nrun.fit = 10
-# data_list = data_list[1]
-# data_list[[1]]$x = data_list[[1]]$x[1:4000,1:30]
-# data_list[[1]]$y = data_list[[1]]$y[1:30,]
-# doCV(data_list[[1]]$x, data_list[[1]]$y, function(x, y, x.test) sis_nmf_fitpred(x, y, x.test, theta, tau, nmf.nrun.rank, nmf.nrun.fit, nmf.rankrange, nmf.rankrandcount, seed), 3, seed)
+cv.diag_dsd = doCV(x.diag_dsd, y.diag_dsd, 
+	function(x, y, x.test) sis_nmf_fitpred(x, y, x.test, theta, tau, nmf.nrun.rank, nmf.nrun.fit, nmf.rankrange, nmf.rankrandcount, seed), 
+	10, seed)
 
 
 sessioninfo = sessionInfo()
 sessioninfo
 
 saveRDS(cv_results, file = "../data/14_SIS_NMF_CV_results.rds")
-
