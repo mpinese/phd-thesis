@@ -1,0 +1,1186 @@
+R> library(survival)
+R> library(NMF)
+R> library(glmnet)
+R> library(glmulti)
+R> 
+R> nmf.options(cores = 32, pbackend = "par", gc = 1, shared.memory = FALSE)
+R> 
+R> 
+R> ######################################################################
+R> # DATA
+R> ######################################################################
+R> load("../data/07_data_for_SIS.rda")
+R> source("08_SIS_common_funcs.R")
+R> 
+R> 
+R> ######################################################################
+R> # HIGH LEVEL PARAMETERS
+R> ######################################################################
+R> tau = 0.72
+R> theta = 0.05
+R> x0 = 6.335
+R> seed = 1234567890
+R> nmf.nrun.rank = 50
+R> nmf.nrun.fit = 500
+R> nmf.rankrange = 2:10
+R> nmf.rankrandcount = 10
+R> 
+R> 
+R> sis_nmf_fitpred = function(x, y, xtest, theta, tau, nmf.nrun.rank, nmf.nrun.fit, nmf.rankrange, nmf.rankrandcount, seed)
++ {
++ 	######################################################################
++ 	# DERIVED VARIABLES
++ 	######################################################################
++ 	xlin = 2^x
++ 	xtestlin = 2^xtest
++ 	xtestlin.scaled = (xtestlin - apply(xlin, 1, min)) / as.vector(diff(apply(xlin, 1, range)))
++ 	xlin.scaled = (xlin - apply(xlin, 1, min)) / as.vector(diff(apply(xlin, 1, range)))
++ 
++ 	######################################################################
++ 	# PROBE SELECTION
++ 	######################################################################
++ 	set.seed(seed)
++ 	cpss.sis = CPSS(x, y, SIS.FAST, tau, 50, nsis = floor(theta*nrow(x)))
++ 
++ 	x.sel = x[cpss.sis$sel,]
++ 	xlin.sel = xlin[cpss.sis$sel,]
++ 	xlin.scaled.sel = xlin.scaled[cpss.sis$sel,]
++ 	xtestlin.scaled.sel = xtestlin.scaled[cpss.sis$sel,]
++ 
++ 	######################################################################
++ 	# RANK ESTIMATION
++ 	######################################################################
++ 	message("Initial factorizations...")
++ 	temp.nmf.rank = nmf(
++ 		x = xlin.scaled.sel, 
++ 		rank = nmf.rankrange, 
++ 		method = "snmf/l", 
++ 		seed = seed, nrun = nmf.nrun.rank, 
++ 		.options = list(verbose = 1, track = FALSE, parallel = TRUE, keep.all = TRUE))
++ 	message("Random factorizations...")
++ 	temp.nmf.rank.random = lapply(1:nmf.rankrandcount, function(i) {
++ 		message(i)
++ 		nmf(x = randomize(xlin.scaled.sel), 
++ 			rank = nmf.rankrange, 
++ 			method = "snmf/l", 
++ 			seed = seed, nrun = nmf.nrun.rank, 
++ 			.options = list(verbose = 1, track = FALSE, parallel = TRUE, keep.all = TRUE))
++ 		})
++ 	temp.orig_resids = sapply(temp.nmf.rank$fit, residuals)
++ 	temp.perm_resids = sapply(temp.nmf.rank.random, function(rep) sapply(rep$fit, residuals))
++ 	temp.perm_resids_mean = rowMeans(temp.perm_resids)
++ 	temp.orig_resids.spline = splinefun(nmf.rankrange, temp.orig_resids, method = "natural")
++ 	temp.perm_resids.spline = apply(temp.perm_resids, 2, function(r) splinefun(nmf.rankrange, r, method = "natural"))
++ 	temp.perm_resids_mean.spline = splinefun(nmf.rankrange, temp.perm_resids_mean)
++ 	temp.orig_resids.d1 = temp.orig_resids.spline(nmf.rankrange, deriv = 1)
++ 	temp.perm_resids_mean.d1 = temp.perm_resids_mean.spline(nmf.rankrange, deriv = 1)
++ 	temp.perm_resids.d1 = sapply(temp.perm_resids.spline, function(x) x(nmf.rankrange, deriv = 1))
++ 	temp.perm_resids.d1.mean = rowMeans(temp.perm_resids.d1)
++ 	temp.perm_resids.d1.sd = apply(temp.perm_resids.d1, 1, sd)
++ 	nmf.rank = nmf.rankrange[min(which(temp.orig_resids.d1 >= temp.perm_resids.d1.mean - 2*temp.perm_resids.d1.sd))]
++ 	if (length(nmf.rank) == 0)	{ nmf.rank = max(nmf.rankrange) }
++ 
++ 	######################################################################
++ 	# NMF FACTORIZATION
++ 	######################################################################
++ 	xlin.scaled.sel.nmf = nmf(
++ 		x = xlin.scaled.sel, 
++ 		rank = nmf.rank, 
++ 		method = "snmf/l", 
++ 		seed = seed, nrun = nmf.nrun.fit, 
++ 		.options = list(verbose = 2, track = FALSE, parallel = TRUE, keep.all = TRUE))
++ 
++ 	######################################################################
++ 	# TRAIN X SCORING
++ 	######################################################################
++ 	xlin.scores = t(coef(xlin.scaled.sel.nmf))
++ 	colnames(xlin.scores) = paste("mg", 1:ncol(xlin.scores), sep = ".")
++ 
++ 	######################################################################
++ 	# TEST X SCORING
++ 	######################################################################
++ 	xtestlin.scores = t(xtestlin.scaled.sel) %*% basis(xlin.scaled.sel.nmf)
++ 	colnames(xtestlin.scores) = paste("mg", 1:ncol(xtestlin.scores), sep = ".")
++ 
++ 	######################################################################
++ 	# BEST SUBSET SELECTION
++ 	######################################################################
++ 	asreg.data <<- cbind(data.frame(time = y[,1], event = y[,2]), xlin.scores)
++ 	nobs.coxph <<- function(obj)	{ obj$nevent }
++ 	asreg.result = glmulti(Surv(time, event) ~ ., data = asreg.data, fitfunction = "coxph", level = 2, marginality = TRUE, crit = bic, plotty = FALSE, report = FALSE)
++ 	#rm(nobs.coxph)
++ 	pred.bs.best = predict(asreg.result@objects[[1]], newdata = as.data.frame(xtestlin.scores))
++ 	pred.bs.average = as.vector(predict(asreg.result, newdata = as.data.frame(xtestlin.scores))$averages)
++ 
++ 	######################################################################
++ 	# LASSO
++ 	######################################################################
++ 	glmnet.fit.cv = cv.glmnet(x = xlin.scores, y = cbind(time = y[,1], status = y[,2]*1), family = "cox", nfolds = 10)
++ 	pred.lasso.1se = as.vector(predict(glmnet.fit.cv$glmnet.fit, newx = xtestlin.scores, s = glmnet.fit.cv$lambda.1se, type = "link"))
++ 	pred.lasso.min = as.vector(predict(glmnet.fit.cv$glmnet.fit, newx = xtestlin.scores, s = glmnet.fit.cv$lambda.min, type = "link"))
++ 
++ 	######################################################################
++ 	# ADAPTIVE LASSO
++ 	######################################################################
++ 	adaglmnet.weights = 1/abs(coef(coxph(y ~ xlin.scores)))
++ 	adaglmnet.x = t(t(xlin.scores) * adaglmnet.weights)
++ 	adaglmnet.newx = t(t(xtestlin.scores) * adaglmnet.weights)
++ 	adaglmnet.fit.cv = cv.glmnet(x = adaglmnet.x, y = cbind(time = y[,1], status = y[,2]*1), family = "cox", nfolds = 10, standardize = FALSE)
++ 	pred.adalasso.1se = as.vector(predict(adaglmnet.fit.cv$glmnet.fit, newx = adaglmnet.newx, s = adaglmnet.fit.cv$lambda.1se))
++ 	pred.adalasso.min = as.vector(predict(adaglmnet.fit.cv$glmnet.fit, newx = adaglmnet.newx, s = adaglmnet.fit.cv$lambda.min))
++ 
++ 	as.matrix(cbind(
++ 		bs.best = pred.bs.best, 
++ 		bs.average = pred.bs.average, 
++ 		lasso.1se = pred.lasso.1se, 
++ 		lasso.min = pred.lasso.min, 
++ 		adalasso.1se = pred.adalasso.1se, 
++ 		adalasso.min = pred.adalasso.min), ncol = 6)
++ }
+R> 
+R> 
+R> doCV = function(x, y, fitpred, K, seed)
++ {
++ 	set.seed(seed)
++ 	n = nrow(y)
++ 	folds = sample(rep(1:K, ceiling(n/K))[1:n])
++ 
++ 	yhat_runs = lapply(1:K, function(k) {
++ 		message(sprintf("Fold %d of %d", k, K))
++ 		ind.test = folds == k
++ 		ind.train = !ind.test
++ 
++ 		x.test = x[,ind.test,drop = FALSE]
++ 		x.train = x[,ind.train,drop = FALSE]
++ 		y.test = y[ind.test,,drop = FALSE]
++ 		y.train = y[ind.train,,drop = FALSE]
++ 
++ 		yhat.test = fitpred(x.train, y.train, x.test)
++ 		yhat.test
++ 	})
++ 
++ 	yhats = matrix(NA, nrow = ncol(yhat_runs[[1]]), ncol = n)
++ 	rownames(yhats) = colnames(yhat_runs[[1]])
++ 	for (k in 1:K)
++ 	{
++ 		yhats[,folds == k] = yhat_runs[[k]]
++ 		colnames(yhats)[folds == k] = colnames(x)[folds == k]
++ 	}
++ 
++ 	yhats
++ }
+R> 
+R> 
+R> cv.diag_dsd = doCV(x.diag_dsd, y.diag_dsd, 
++ 	function(x, y, x.test) sis_nmf_fitpred(x, y, x.test, theta, tau, nmf.nrun.rank, nmf.nrun.fit, nmf.rankrange, nmf.rankrandcount, seed), 
++ 	10, seed)
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Runs:  1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 20 19  2123  2224 25 26 28 27 29 30 31 32 61 54 47 45 33 43 52 38 36 44 42 62 53 51 40 58 56 50 63 60 64 59 49 34 39 35 41 48 46 57 55 37 86 94 82 96 93 85 83 77 75 72 90 91 79 84 65 70 95 92 76 88 68 71 80 74 78 81 89 66 67 73 69 87 118 126 128 97 125 114 109 124 111 100 116 107 117 123 102 104 120 115 113 122 108 112 105 110 127 121 98 99 103 106 119 101 160 150 158 157 129 146 141 148 155 134 156 139 147 137 149 143 159 145 154 140 132 144 136 153 142 130 131 152 138 151 182 135 190 192 133 180 173 187 171 181 161 189 188 178 179 175 166 185 191 169 174 177 163 168 162 172 176 164 184 186 170 183 214 167 224 212 222 165 205 213 203 220 221 211 210 223 201 219 193 207 217 206 195 194 198 196 209 204 208 216 202 199 215 246 218 256 200 244 254 242 245 197 235 255 237 253 249 252 243 251 225 238 228 226 239 233 227 230 240 248 278 247 241 236 231 234 288 250 276 286 274 277 229 287 267 269 232 275 283 259 257 284 281 270 285 258 262 260 273 272 280 279 271 310 268 265 266 263 282 261 318 308 299 320 309 319 301 306 313 316 307 291 315 264 302 289 317 297 290 312 294 292 305 342 304 311 298 303 300 293 295 341 340 351 323 331 352 314 338 350 333 347 339 345 296 344 349 348 322 337 324 334 321 343 329 374 326 335 332 336 330 325 373 372 383 327 355 371 365 384 379 377 346 370 363 328 376 354 380 382 369 361 381 406 364 353 367 366 375 356 362 357 358 405 368 404 403 416 409 415 402 378 386 359 387 395 411 360 397 414 438 408 412 413 401 388 385 394 393 399 396 437 400 398 407 389 435 436 390 448 418 441 447 419 446 434 391 410 392 470 427 440 445 443 444 429 420 433 431 417 428 425 426 469 432 421 439 430 480 422 468 467 473 479 450 478 424 423 476 459 451 475 466 461 442 472 463 465 477 457 458 449 452 460 471 462 500 499 453 454 482 464 483 456 491 455 498 493 474 497 489 484 490 492 481 495  496485 494 486 488 487 ... DONE
+System time:
+   user  system elapsed 
+2040.56   51.08   73.33 
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Runs:  1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 26 25 27 28 29 32  3031 34 40 48 35 42 54 37 47 49 33 52  4153 56 51 55 39 44 45 43 59 38 50 61 46 36 66 72 67 74 79 80 81 83 86 85 73 64 65 88 57 82 77 60 69 62 84 87 91 93 78 68 58 76 71 75 63 99 104 120 70 98 117 111 115 113 97 118 105 92 116 106 101 109 94 114 112 100 96 90 108 119 103 110 125 123 95 107 131 89 130 152 138 150 147 144 136 148 129 145 143 126 137 149 102 140 122 133 132 124 141 128 157 135 146 142 155 151 163 127 162 184 121 170 134 182 175 179 177 168 180 161 181 178 176 172 173 154 139 160 165 158 164 187 169 167 189 156 183 174 195 216 153 194 211 159 212 213 205 214 202 193 207 192 166 200 197 209 171 204 219 190 210 206 186 199 208 188 201 221 196 227 215 248 225 244 226 237 185 246 203 234 224 191 198 243 245 236 239 231 240 251 232 238 220 242 222 218 229 241 253 228 233 259 276 247 280 257 258 217 278 256 275 277 269 223 263 271 250 283 254 261 252 264 272 270 266 235 230 273 268 274 260 265 308 285 291 312 249 310 279 289 307 288 301 315 309 286 290 282 303 267 298 255 296 300 295 284 305  306302 293 304 317 292 262 344 297 340 323 311 321 281 333 320 342 347 318 335 322 328 339 316 341 330 332 314 376 324 325 327 287 337 294 349 329 299 338 334 336 352 355 313 343 374 365 372 353 371 362 379 373 360 357 350 367 346 319 381 348 354 326 331 364 408 356 368 361 370 366 345 359 369 375 387 384 404 406 397 403 385 394 405 392 413 378 389 382 411 380 399 440 402 377 393 351 396 388 363 386 401 391 407 358 400 416 398 438 436 419 429 435 437 417 414 424 426 421 445 434 412 409 431 410 472 420 425 443 432 428 418 383 395 433 423 390 430 439 470 448 467 449 468 453 446 469 461 458 444 451 441 456 460 466 450 457 477 475 427 452 465 415 442 422 463 471 462 464 480 481 455 499 500 493 485 492 478 488 482 454 476 490 459 489 473 447 484 497 498 495 483 494 496 474 487 486 491 479 ... DONE
+System time:
+   user  system elapsed 
+1246.98   63.52   46.68 
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Runs:  1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 34 33 52 40 39 36 35 42 61 37 51 60 38 48 62 46 55 49 58 41 56 54 59 57 50 64 47 43 63 44 53 45 84 69 72 70 68 66 65 94 71 93 74 67 87 83 86 81  7392 90 78 91 89 95 80 88 76 79 85 82 96 75 77 101 116 102 98 104 105 97 125 100 103 126 106 123 115 113 121 110 127 99 118 124 119 120 112 107 111 122 128 114 108 117 109 134 130 129 148 136 157 133 135 145 138 137 142 132 153 147 159 150 160 140 155 156 139 158 154 151 149 144 146 152 166 131 143 189 161 165 180 167 177 162 168 141 170 164 179 174 169 191 182 185 172 171 187 176 192 184 183 190 188 181 163 178 186 198 175 212 199 221 200 209 173 193 196 197 202 194 206 201 223 214 224 204 203 219 208 211 216 222 220 217 215 213 195 218 231 244 230 210 253 241 207 205 234 232 225 255 238 228 229 233 246 251 240 256 235 236 226 248 243 254 245 262 227 247 249 252 263 276 250 242 239 237 273 260 285 264 257 287 267 266 278 261 283 270 258 265 268 272 288 286 280 277 275 281 259 284 294 279 295 282 271 274 308 269 305 292 319 289 298 317 299 296 315 293 302 290 297 310 320 300 304 307 318 316 291 313 309 326 312 314 327 311 303 337 324 340 301 347 351 334 306 330 352 331 329 321 325 322 349 328 336 342 332 339 341 323 350 348 343 345 346 358 335 344 359 338 356 362 333 353 384 366 372 369 357 363 383 379 354 374 361 360 355 371 368 381 373 364 375 382 380 377 390 391 376 370 394 401 367 385 378 388 389 416 395 398 365 386 415 404 411 392 387 405 400 406 414 403 393 396 407 413 408 426 409 412 410 402 433 417 422 420 423 399 448 427 421 424 397 418 447 430 443 419 435 432 446 428 437 436 439 425 440 445 438 455 441 454 444 431 465 442 434 458 449 480 452 459 429 453 450 479 456 462 467 464 475 451 478 460 471 469 457 472 470 468 476 463 477 487 497 481 486 466 474 491 490 473 484 488 482 485 461 499 494 492 495 489 483 496 500 498 493 ... DONE
+System time:
+   user  system elapsed 
+2293.14   58.87   82.20 
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Runs:  1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 32 31 62 48 51 34 59 49 53 57 52 56 45 61 55 37 50 33 38 64 39 47 44 58 42 43 36 40 63 41 60 54 35 46 81 83 85 88 91 89 87 80 66 69 77 94 65 84 76 93 79 74 70 68 72 90 73 86 82 96 95 75 71 67 92 112 113 121 117 119 78 98 120 101 123 126 106 109 108 102 115 111 125 105 100 104 116 97 114 127 118 99 107 103 124 128 122 144 145 153 130 151 155 149 158 140 143 110 138 141 147 152 136 132 137 157 134 159 133 148 129 131 139 150 154 135 160 146 156 176 177 187 185 181 162 175 190 179 142 172 164 189 184 183 168 169 173 191 171 180 170 163 182 165 192 167 178 166 186 219 161 208 188 209 194 213 207 222 196 204 221 211 174 201 205 217 200 195 212 203 223 224 216 214 215 198 199 202 251 197 218 193 240 226 220 241 210 239 245 228 254 236 243 206 249 253 233 232 237 244 256 235 227 246 255 283 247 229 230 231 248 250 258 225 234 273 277 242 286 271 238 285 281 275 268 265 260 272 252 276 267 288 269 259 264 278 287 261 279 262 315 257 280 305 303 263 309 313 270 318 282 290 266 317 300 304 284 307 299  308297 292 274 291 320 310 319 301 293 296 311 289 347 337 294 335 345 295 350 314 312 298 349 332 316 341 336 331 302 306 340 339 322 333 324 352 329 351 342 323 343 325 321 369 328 367 326 379 327 381 346 368 348 344 330 373 364 363 338 377 372 354 382 365 356 371 334 383 384 361 355 375 399 374 401 353 358 357 359 376 413 396 380 378 400 395 409 411 405 362 386 403 404 414 397 360 415 388 366 370 387 416 407 385 431 390 433 445 406 389 393 408 412 391 432 427 428 437 394 410 441 418 443 435 446 447 392 436 429 398 448 402 420 419 463 422 417 465 439 438 440 477 423 425 421 444 469 473 450 426 475 459 442 467 464 479 461 460 478 430 452 468 451 434 424 497 472 495 480 449 455 470 454 471 453 458 474 499 457 476 482 496 491 492 484 462 493 500 466 481 456 483 486 485 487 490 498 494 489 488 ... DONE
+System time:
+   user  system elapsed 
+2139.16   67.24   79.45 
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Runs:  1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 45 52 50 38 39 40 55 42 63 48 59 61 37 64 44 41 53 54 58 43 36 51 46 35 60 47 65 34  4962 77 56 57 71 82 84 72 91 95 70 87 74 86 85 73 76 96 93 68 75 90 67 80 79 78 83 97 88 69 92 81 109 94 66 114 127 116 106 89 123 119 104 107 125 117 105 128 108 99 120 102 111 112 122 100 101 129 103 113 141 124 118 115 146 126 110 98 155 136 138 148 121 139 157 140 137 149 134 143 159 144 145 160 151 161 133 173 135 154 152 158 132 130 187 180 168 153 172 189 171 169 147 131 175 156 176 166 150 178 142 170 192 190 183 184 181 212 205 164 186 191 162 221 200 185 203 204 188 201 163 165 167 207 177 208 193 179 174 219 215 224 222 196 202 210 244 213 218 216 232 217 235 198 220 195 233 199 236 197 182 225 206 254 240 211 194 253 237 245 256 276 247 250 228 223 264 248 267 239 252 209 231 249 242 227 229 230 272 251 238 214 286 257 243 279 234 296 308 277 226 285 255 280 269 241 268 271  281261 262 265 263 260 283 288 289 259 274 246 304 282 266 299 318 309 317 340 270 311 258 284 328 301 297 300 293 320 294 295 275 287 331 291 306 314 341 321 312 349 278 292 313 303 273 315 302 333 329 372 290 343 332 336 326 325 360 350 298 352 323 307 319 363 373 338 344 324 353 347 335 381 346 345 316 310 365 334 361 404 327 364 305 375 339 384 322 330 355 368 351 376 405 392 395 356 370 378 342 367 413 385 379 393 397 377 358 382 436 357 366 359 396 348 337 387 416 371 408 362 383 354 402 410 437 374 388 399 411 400 425 409 389 468 445 391 414 390 427 428 407 380 403 440 419 394 415 448 417 469 442 424  429434 398 423 406 369 443 457 441 477 386 500 446 459 432 460 435 472 447 451 412 480 420 426 431 439 449 474 421 401  466422 461 430 489 475 473 456 492 491 478 438 467 444 455 464 452 458 483 479 493 498 433 471 454 453 418 462 463 487 488 470 499 496 481 490 476 465 486 485 495 450 484 494 497 482 ... DONE
+System time:
+   user  system elapsed 
+1455.19   73.26   56.84 
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ...                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Runs:  1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 24 23 25 26 27 28 29 30 31 32 45 37 47 34 35 41 49 43 33 52 54 46 51 36 48 40 59 56 38 44 57 60 50 64 58 77 61 81 62 55  5367 42 66 84 79 39 73 69 65 80 72 63 91 76 89 75 68 90 82 109 96 87  11378 116 71 86 94 70 98 101 74 95 93 97 92 112 88 83 85 105 108 111 123 121 122 99 119 100 145 103 128 110 130 127 114 107 115 133 144 125 126 104 148 124 102 118 120 106 151 141 154 129 140 137 162 147 132 177 143 176 156 165 117 134 159 131 153 150 146 142 135 180 158 172 183 164 136 179 155 194 157 173 208 186 161 138 160 178 139 209 169 191 167 175 163 152 149 188 197 204 182 215 166 211 185 190 226 174 168 218 201 189 210 170 205 187 196 212 240 192 171 184 207 206 217 241 181 195 243 193 236 258 198 220 247 223 199 222 242 233 250 229 200 244 202 203 224 238 228 219 249 272 213 214 252 239 230 221 275 237 290 265 225 231 268 261 255 216 282 274 273 270 276 234 256 322 245 235 281 284 269 253 279 227 251 232 254 248 263 300 262 271 306 304 260 257 302 287 314 307 297 354 308 293 316 246 313 277 259 285 267 301 295 280 283 338 264 286 266 294 346 334 339 288 336 305 329 289 340 311 386 332 325 292 319 278 291 299 303 378 345 348 371 317 296 370 312 309 366 327 368 326 315 333 337 357 418 364 298 320 380 403 343 318 377 349 310 321 361 351 331 372 402 398 341 400 410 324 359 450 435 344 330 389 396 335 323 347 375 369 412 352 409 365 350 328 430 381 467 434 358  342353 393 482 373 432 367 428 383 401 362 391 499 407 363 442 376 404 379 441 462 355 444 382 356 421 466 425 399 413 405 464 374 385 384 390 360 415 460 423 436 473 474 494 439 414 453 457 397 476 498 433 431 411 394 437 445 496 416 392 455 387 447 408 406 492 485 395 388 429 468 489 446 417 426 465 469 477 443 448 422 471 463 438 479 427 487 500 478 420 419 424 440 497 449 461 495 454 470 480 475 458 459 451 456 472 452 493 490 491 488 483 481 486 484 ... DONE
+System time:
+   user  system elapsed 
+1473.29   89.13   65.96 
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Runs:  1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 44 38 37 35 48 34 36 57 50 63 45 60 61 51 53 64 43 33 39 49 40 54 42 55 47 62 52 41 82 56 58 76 92 80 67 69 59 66 89 96 46 68 87 74 124 77 71 75 93 79 95 65 70 114 73 84 81 128 86 94 85 88 100 72 108 112 83 156 98 78 121 97 118 146 91 90 99 101 127 132 111 160 107 102 109 119 106 188 105 140 126 129 144 116 125 130 113 117 103 150 120 159 164 110 178 123 153 115 176 104 220 122 192 133 158 162 148 131 155 208 139 141 149 143 145 161 196 142 182 252 151 185 210 191 137 180 134 147 135 154 138 172 194 224 163 173 165 136 190 171 187 284 181 179 152 242 240 212 157 223 169 175 193 228 217 204 256 195 177 170 226 167 168 166 211 205 186 316 174 197 214 201 219 255 203 183 222 189 225 184 207 244 260 213 274 272 243 199 237 348 227 198 209 236 249 202 288 233 287 258 218 206 235 257 254 200 215 251 246 276 245 216 221 239 292 304 229 269 241 306 275 380 230 268 281 265 234 231 320 259 319 290 238 278 289 286 308 248 283 277 267 250 273 301 271 232 412 247 338 336 253 324 310 270 307 266 297 351 318 291 321 299 262 352 309 300 340 313 305 280 315 279 261 322 333 339 298 263 282 370 264 356 368 329 285 342 331 444 383 347 303 302 323 353 354 372 371 341 365 350 330 384 345 312 296 294 332 337 314 293 415 311 400 402 295 476 355 363 388 373 374 397 335 361 385 416 334 362 403 379 386 404 317 377 447 343 364 346 434 344 369 327 405 349 382 366 326 432 325 418 387 395 420 394 435 367 376 406 393 396 417 409 411 381 328 419 448 429 357 358 450 401 464 436 426 467 359 427 479 437 398 452 466 360 425 482 408 428 451 378 496 449 375 441 480 413 458 438 433 389 499 392 414 457 460 473 443 390 469 483 399 430 391 468 484 424 489 459 492 461 470 481 498 445 490 440 446 462 475 421 465 500 410 407 493 423 456 472 422 431 477 491 478 453 442 497 455 494 439 488 463 454 474 485 487 486 495 471 ... DONE
+System time:
+   user  system elapsed 
+ 1750.9   116.9   137.9 
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Runs:  1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 53 45 56 40 61 58 49 46 59 34 37 64 43 50 62 41 39 51 90 48 54 85 44 36 38 47 52 42 72 57 55 81 63 33 93 35 60 96 75 77 83 94 122 91 82 88 70 76 78 104 79 67 89 125 69 66 117 74 68 128 73 120 95 71 86 80 108 109 107 87 84 113 65 123 92 99 136 115 112 114 140 139 118 111 126 154 103 145 110 105 102 157 121 155 149 100 131 124 106 147 144 101 160 119 172 127 97 135 152 98 116 146 141 171 179 150 137 133 176 167 159 186 181 177 134 203 158 211 189 142 143 182 129 153 204 156 187 168 192 132 138 148 163 151 221 178 184 169 213 200 130 164 236 199 191 235 173 208 190 224 166 175 174 165 180 195 161 214 170 243 253 209 218 201 185 219 240 162 188 205 227 212 223 197 268 267 285 245 196 231 232 183 222 210 216 217 202 259 275 229 194 198 233 207 256 300 206 246 244 241 193 272 254 242 299 291 250 307 251 255 220 237 228 264 277 288 226 317 239 339 215 323 234 263 248 249 296 260 265 273 276 261 304 332 349 238 278 286 274 331 309 371 230 283 225 308 258 252 282 287 336 403 271 269 270 306 318 341 355 320 293 262 328 284 314 295 292 266 363 297 319 247 280 381 305 281 302 350 340 310 338 364 303 327 346 325 352 290 387 315 257 368 316 435 301 279 335 382 373 294 347 396 342 298 357 324 329 313 360 372 395 334 351 370 367 413 337 400 378 419 359 348 312 289 405 384 374 379 330 322 311 366 356 389 369 467 326 345 414 344 428 427 398 421 411 333 391 361 401 388 402 404 383 380 392 432 451 362 399 445 446 343 321 410 406 416 437 358 433 377 464 354 459 443 499 478 436 390 431 483 375 430 469 376 420 460 453 423 434 393 442 353 424 415 386 394 365 491 438 412 477 492 463 475 496 465 426 468 448 418 409 485 422 407 425 495 452 466 408 447 455 444 462 474 456 397 385 441 457 470 439 494 450 497 476 458 440 500 454 480 498 484 472 473 479 487 429 417 471 488 486 489 482 490 461 449 493 481 ... DONE
+System time:
+   user  system elapsed 
+3929.33   82.02  152.40 
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Runs:  1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 60 54 49 52 55 61 59 51 50 44 53 47 34 56 43 41 58 64 63 37 45 48 39 62 46 38 57 36 33 42 35 40 81 83 91 92 87 86 66 96 79 88 84 75 82 73 80 76 69 71 77 90 89 85 94 68 78 93 95 74 65 70 72 67 124 115 128 123 113 98 119 118 111 116 108 122 97 105 107 121 126 101 112 103 109 100 120 99 102 110 106 104 114 117 156 127 125 143 148 147 140  130145 160 150 155 153 137 139 158 154 151 132 133 129 144 134 135 131 138 152 141 136 142 159 146 157 149 180 188 172 175 182 192 169 179 171 176 162 161 165 164 187 186 183 177 190 166 167 184 170 173 174 163 168 185 191 178 220 189 212 214 207 197 204 224 196 211 201 203 193 208 219 222 198 194 218 215 205 181 209 206 199 202 216 195 200 223 210 221 239 252 236 246 229 243 244 228 235 230 217 233 226 225 240 247 254 256 237 251 250 248 238 231 234 241 227 255 213 232 253 242 284 278 275 271 268 261 276 262 260 267 283 279 258 249 257 265 288 286 269 272 273 245 280 263 270 287 282 259 264 266 307 316 285 274 293 310 303 308 300 292 311 301 315 289 297 290 294 320 318 299 312 304 277 302 295 291 305 281 296 298 314 319 339 348 317 335 306 325 324 340 332 347 342 344 329 331 333 326 343 352 350 336 321 322 309 313 334 330 337 380 346 323 351 371 328 327 349 338 357 356 376 367 374 364 379 382 372 361 358 354 363 353 366 345 375 365 341 355 384 368 383 412 362 403 381 369 359 360 408 378 411 389 388 370 396 406 386 404 399 398 407 377 414 387 373 400 390 395 416 444 415 385 401 391 393 392 413 410 397 421 428 435 440 402 443 436 430 394 438 422 431 418 439 420 446 409 448 432 433 423 405 476 447 417 424 445 425 419 442 460 472 429 470 427 453 475 467 450 463 434 468 454 478 452 426 462 480 471 449 465 464 455 441 437 477 456 479 492 451 485 474 457 499 500 461 482 466 495 484 494 459 486 481 496 487 473 469 458 497 488 483 489 493 498 491 490 ... DONE
+System time:
+   user  system elapsed 
+1320.04   67.13   50.15 
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Compute NMF rank= 2  ... + measures ... OK
+Compute NMF rank= 3  ... + measures ... OK
+Compute NMF rank= 4  ... + measures ... OK
+Compute NMF rank= 5  ... + measures ... OK
+Compute NMF rank= 6  ... + measures ... OK
+Compute NMF rank= 7  ... + measures ... OK
+Compute NMF rank= 8  ... + measures ... OK
+Compute NMF rank= 9  ... + measures ... OK
+Compute NMF rank= 10  ... + measures ... OK
+Runs:  1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 41 48 55 53 57 47 36 61 40 35 54 39 50 64 56 58 37 60 42 62 49 63 34 51 52 38 45 46 43 44 33 59 80 73 85 67 68 87 89 69 93 71 79 72 84 86 81 74 88  9096 82 92 94 95 78 66 65 75 77 76 91 70 105 112 83 103 119 111 100 121 116 117 104 99 128 101 118 122 120 114 106 113 127 98 97 110 126 107 109 123 108 125 124 144 137 136 151 148 160 149 145 143 154 153 132 135 150 115 102 146 133 152 138 159 130 142 139 158 131 155 140 129 176 141 168 156 169 183 180 157 167 177 192 182 185 164 178 184 186 134 175 147 165 162 174 191 171 172 190 181 170 187 208 163 188 161 200 173 201 212 215 209 224 217 216 196 189 210 166 199 179 207 218 194 197 203 222 206 214 213 223 204 219 240 220 244 205 233 193 247 256 242 195 231 202 221 249 228 198 248 211 232 239 226 250 238 254 246 241 229 236 255 245 272 251 235 252 276 225 237 265 279 274 280 253 288 260 227 230 278 271 270 273 281 264 282 287 234 261 268 283 304 258 263 277 243 267 286 257 308 284 269 297 312 285 306 311 320 310 305 296 302 319 259 314 313 336 303 315 300 293 295 262 290 275 289 292 299 344 318 316 329 301 309 266 352 343 317 338 340 337 334 342 351 345 346 328 347 291 335 368 332 327 325 321 322 294 307 376 331 324 348 375 333 384 361 350 349 298 372 369 370 341 383 374 366 377 360 378 379 364 400 367 323 357 359 353 326 339 363 408 380 354 365 416 356 382 330 393 404 381 401 415 402 411 392 398 409 373 399 407 406 410 396 432 389 355 358 371 385 391 440 386 395 412 362 448 388 436 414 425 433 413 397 447 434 424 443 430 431 439 441 390 442 405 438 387 403 428 423 417 421 472 418 427 444 464 468 480 420 446 457 394 445 465 466 479 475 456 429 462 474 471 463 470 473 437 435 455 419 450 449 459 453 422 500 477 489 496 426 478 476 497 494 452 488 461 460 495 451 469 498 467 487 481 491 482 485 454 458 484 493 492 499 483 486 490 ... DONE
+System time:
+   user  system elapsed 
+2113.18   71.94   77.65 
+R> 
+R> 
+R> sessioninfo = sessionInfo()
+R> sessioninfo
+R version 3.1.1 (2014-07-10)
+Platform: x86_64-unknown-linux-gnu (64-bit)
+
+locale:
+ [1] LC_CTYPE=en_AU.UTF-8          LC_NUMERIC=C                  LC_TIME=en_AU.UTF-8           LC_COLLATE=en_AU.UTF-8        LC_MONETARY=en_AU.UTF-8       LC_MESSAGES=en_AU.UTF-8       LC_PAPER=en_AU.UTF-8         
+ [8] LC_NAME=en_AU.UTF-8           LC_ADDRESS=en_AU.UTF-8        LC_TELEPHONE=en_AU.UTF-8      LC_MEASUREMENT=en_AU.UTF-8    LC_IDENTIFICATION=en_AU.UTF-8
+
+attached base packages:
+[1] parallel  methods   splines   stats     graphics  grDevices utils     datasets  base     
+
+other attached packages:
+ [1] doParallel_1.0.8    iterators_1.0.7     foreach_1.4.2       ahaz_1.14           glmulti_1.0.7       rJava_0.9-6         glmnet_1.9-8        Matrix_1.1-4        NMF_0.20.5          Biobase_2.26.0      BiocGenerics_0.12.1
+[12] cluster_1.15.3      rngtools_1.2.4      pkgmaker_0.22       registry_0.2        survival_2.37-7    
+
+loaded via a namespace (and not attached):
+ [1] codetools_0.2-9    colorspace_1.2-4   compiler_3.1.1     digest_0.6.4       ggplot2_1.0.0      grid_3.1.1         gridBase_0.4-7     gtable_0.1.2       lattice_0.20-29    MASS_7.3-35        munsell_0.4.2      plyr_1.8.1        
+[13] proto_0.3-10       RColorBrewer_1.0-5 Rcpp_0.11.3        reshape2_1.4       scales_0.2.4       stringr_0.6.2      tools_3.1.1        xtable_1.7-4      
+R> 
+R> saveRDS(cv_results, file = "../data/14_SIS_NMF_CV_results.rds")
