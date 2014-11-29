@@ -8,4 +8,4 @@ all: 06_EDA.done 14_SIS_NMF_CV_results.rds
 	Rscript 06_EDA.R > runlogs/06_EDA.Rout && touch 06_EDA.done
 
 14_SIS_NMF_CV_results.rds: ../data/07_data_for_SIS.rda 14_SIS_NMF_CV.R
-	Rscript 14_SIS_NMF_CV.R > runlogs/14_SIS_NMF_CV.Rout
+	nice Rscript 14_SIS_NMF_CV.R > runlogs/14_SIS_NMF_CV.Rout
