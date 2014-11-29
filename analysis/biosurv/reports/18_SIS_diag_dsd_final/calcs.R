@@ -21,33 +21,33 @@ source("../../common/08_SIS_common_funcs.R")
 ######################################################################
 x = x.diag_dsd
 y = y.diag_dsd
-sigs = x.diag_dsd.msigdb
+sigs = x.diag_dsd.msigdb.merged
 samps = samps.diag_dsd
 tau = 0.72
 theta = 0.05
-x0 = 6.335
 seed = 1234567890
 nmf.nrun.rank = 50
 nmf.nrun.fit = 500
 nmf.rank = "auto"
 nmf.rankrange = 2:10
-nmf.rankrandcount = 10
+nmf.rankrandcount = 5
 sig.corr.threshold = 0.5
 
 
 ######################################################################
 # DERIVED VARIABLES
 ######################################################################
-xlin.diag_dsd = 2^(x.diag_dsd-x0)
-xlin.diag_dsd = (xlin.diag_dsd - apply(xlin.diag_dsd, 1, min)) / as.vector(diff(apply(xlin.diag_dsd, 1, range)))
-xlin.diag_rec = 2^(x.diag_rec-x0)
-xlin.diag_rec = (xlin.diag_rec - apply(xlin.diag_rec, 1, min)) / as.vector(diff(apply(xlin.diag_rec, 1, range)))
-xlin.recr_dsd = 2^(x.recr_dsd-x0)
-xlin.recr_dsd = (xlin.recr_dsd - apply(xlin.recr_dsd, 1, min)) / as.vector(diff(apply(xlin.recr_dsd, 1, range)))
-xlin.pdac_au = 2^(x.pdac_au-x0)
-xlin.pdac_au = (xlin.pdac_au - apply(xlin.pdac_au, 1, min)) / as.vector(diff(apply(xlin.pdac_au, 1, range)))
-xlin = 2^(x-x0)
-xlin = (xlin - apply(xlin, 1, min)) / as.vector(diff(apply(xlin, 1, range)))
+linearizeX = function(x)
+{
+	xlin = 2^x
+	(xlin - apply(xlin, 1, min)) / as.vector(diff(apply(xlin, 1, range)))
+}
+
+xlin.diag_dsd = linearizeX(x.diag_dsd)
+xlin.diag_rec = linearizeX(x.diag_rec)
+xlin.recr_dsd = linearizeX(x.recr_dsd)
+xlin.pdac_au = linearizeX(x.pdac_au)
+xlin = linearizeX(x)
 
 
 ######################################################################
@@ -109,6 +109,7 @@ if (nmf.rank == "auto")
 	nmf.rank = nmf.rank.auto
 	nmf.rank.wasauto = TRUE
 }
+
 
 ######################################################################
 # FACTORIZATION

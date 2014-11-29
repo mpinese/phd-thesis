@@ -6,6 +6,7 @@ library(survival)
 library(NMF)
 library(glmnet)
 library(glmulti)
+library(nnls)
 
 nmf.options(cores = 32, pbackend = "par", gc = 1, shared.memory = FALSE)
 
@@ -22,12 +23,11 @@ source("../common/08_SIS_common_funcs.R")
 ######################################################################
 tau = 0.72
 theta = 0.05
-x0 = 6.335
 seed = 1234567890
 nmf.nrun.rank = 50
 nmf.nrun.fit = 500
 nmf.rankrange = 2:10
-nmf.rankrandcount = 10
+nmf.rankrandcount = 5
 
 
 sis_nmf_fitpred = function(x, y, xtest, theta, tau, nmf.nrun.rank, nmf.nrun.fit, nmf.rankrange, nmf.rankrandcount, seed)
@@ -97,13 +97,15 @@ sis_nmf_fitpred = function(x, y, xtest, theta, tau, nmf.nrun.rank, nmf.nrun.fit,
 	######################################################################
 	# TRAIN X SCORING
 	######################################################################
-	xlin.scores = t(coef(xlin.scaled.sel.nmf))
+	xlin.scores = t(apply(xlin.scaled.sel, 2, function(xcol) nnls(basis(xlin.scaled.sel.nmf), xcol)$x))
+#	xlin.scores = t(coef(xlin.scaled.sel.nmf))
 	colnames(xlin.scores) = paste("mg", 1:ncol(xlin.scores), sep = ".")
 
 	######################################################################
 	# TEST X SCORING
 	######################################################################
-	xtestlin.scores = t(xtestlin.scaled.sel) %*% basis(xlin.scaled.sel.nmf)
+	xtestlin.scores = t(apply(xtestlin.scaled.sel, 2, function(xcol) nnls(basis(xlin.scaled.sel.nmf), xcol)$x))
+#	xtestlin.scores = t(xtestlin.scaled.sel) %*% basis(xlin.scaled.sel.nmf)
 	colnames(xtestlin.scores) = paste("mg", 1:ncol(xtestlin.scores), sep = ".")
 
 	######################################################################
@@ -112,7 +114,7 @@ sis_nmf_fitpred = function(x, y, xtest, theta, tau, nmf.nrun.rank, nmf.nrun.fit,
 	asreg.data <<- cbind(data.frame(time = y[,1], event = y[,2]), xlin.scores)
 	nobs.coxph <<- function(obj)	{ obj$nevent }
 	asreg.result = glmulti(Surv(time, event) ~ ., data = asreg.data, fitfunction = "coxph", level = 2, marginality = TRUE, crit = bic, plotty = FALSE, report = FALSE)
-	#rm(nobs.coxph)
+#	rm(nobs.coxph)
 	pred.bs.best = predict(asreg.result@objects[[1]], newdata = as.data.frame(xtestlin.scores))
 	pred.bs.average = as.vector(predict(asreg.result, newdata = as.data.frame(xtestlin.scores))$averages)
 
@@ -183,4 +185,5 @@ cv.diag_dsd = doCV(x.diag_dsd, y.diag_dsd,
 sessioninfo = sessionInfo()
 sessioninfo
 
-saveRDS(cv_results, file = "../data/14_SIS_NMF_CV_results.rds")
+saveRDS(cv.diag_dsd, file = "14_SIS_NMF_CV_results.rds")
+
