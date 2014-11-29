@@ -105,6 +105,8 @@ colnames(temp.pred.pairs) = paste("mg", 1:ncol(temp.pred.pairs), sep = ".")
 colnames(temp.pred.pairs)[ncol(temp.pred.pairs)] = "PCNA"
 temp.pred.pairs = cbind(temp.pred.pairs, qpure = samps.pdac_au$purity_qpure)
 pairs(temp.pred.pairs, pch = 16, cex = 1, col = ifelse(rownames(temp.pred.pairs) %in% colnames(xlin.diag_dsd.sel), rgb(0, 0, 0, 0.5), rgb(1, 0, 1, 0.5)))
+temp.pred.pairs.rescaled = t((t(temp.pred.pairs) - apply(temp.pred.pairs, 2, min, na.rm = TRUE)) / (apply(temp.pred.pairs, 2, function(x) diff(range(x, na.rm = TRUE)))))
+heatmap.2(temp.pred.pairs.rescaled, trace = "none", scale = "none", col = grey(seq(0, 1, 0.01)))
 @
 
 
@@ -163,10 +165,11 @@ abline(v = sum(abs(glmnet.coef.min)))
 @
 
 
-%\subsection{Prediction on 10-fold CV}
-%<<cv-load>>=
-%cv_preds = readRDS("../analysis/14_SIS_NMF_CV_results.rds")
-%@
+\subsection{Prediction on 10-fold CV}
+<<cv-load>>=
+cv_preds = readRDS("../../analysis/14_SIS_NMF_CV_results.rds")
+apply(cv_preds[,colnames(xlin.diag_dsd.sel)], 1, function(p1) coxph(y.diag_dsd ~ p1))
+@
 
 
 \subsection{Prediction on validation sets}
