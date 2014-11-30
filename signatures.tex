@@ -1,0 +1,109 @@
+\documentclass[dissertation.tex]{subfiles}
+\begin{document}
+
+\chapter{Signatures of Survival Processes in Pancreatic Cancer}
+\label{chap:signatures}
+
+Outline ideas:
+\begin{itemize}
+  \item Overall thesis for this work: That specific molecular processes control survival of resectable PC, and that these processes can be identified and detected using GEX data.
+  \item Introduction
+  \begin{itemize}
+    \item General background on outcome with PC, with focus on post-op.  Make the note of the wide range of survival times.  Segue into reasons for this variability...
+    \item Background on predictive CPVs in PC.  MSKCC.
+    \item What is known about molecular risk factors so far?
+    \begin{itemize}
+      \item There are some very specific cases, eg HER2
+      \item On more broad sigs, there are some (eg Collisson), but:
+      \begin{itemize}
+        \item Generated backwards, generally by unsupervised clustering
+        \item Cluster-based sigs don't appropriately capture smooth varying states, eg stroma content.
+      \end{itemize}
+    \item Wrap-up.  Range of survival in PC is high, and is \emph{not} well-explained by known effects.  This is probably a consequence of the ad-hoc approach used to identify processes.  Thesis: that distinct molecular processes are determining survival in PC.  Set to find these using modern techniques.  Allude to future -- that these processes may point to new therapeutic directions (or maybe keep this point for the conclusion)
+    \end{itemize}
+  \end{itemize}
+\end{itemize}
+
+\section{Introduction}
+
+* Already talked about: Poor survival in PC, wide range of times, insufficiency of CPV-only staging.
+
+\paragraph{Summary}Very little is known regarding the biological processes that control the survival of patients with \gls{PDAC}, the most common and aggressive form of pancreatic cancer.  As discussed in chapter \ref{chap:nomogram}, the wide range of relative patient survival times that is observed in practice is not well explained by extrinsic factors such as age at diagnosis, and perhaps instead reflects differences in the biological processes operating within each tumour.  Recent molecular profiling work has identified possible molecular subtypes within the previously homogenous group of \gls{PDAC}, but these subtypes have not achieved the maturity or clinical application of those in breast cancer, and their discovery and validation has been hampered by ad-hoc methodology, and the lack of large, well-curated cohorts of \gls{PDAC} samples.  The recently-compiled \gls{APGI} cohort contains the largest group of clinically annotated \gls{PDAC} samples, with accompanying \gls{GEX} and high-quality follow-up data, in the world.  It presents a unique opportunity to apply modern techniques for prognostic signature identification to the discovery of biological processes that drive the clinical course of pancreatic cancer.  These signatures may find application as prognostic tools in their own right, but more importantly can supply much-needed information on the fundamental biology of the one common cancer that has, to date, been almost entirely refractory to all the tools of modern molecular medicine.
+
+Extensive research into \gls{PDAC} has provided insight into the disease's genetic profile \cite{Biankin2012}, and a staggering range of potential biomarkers \cite{Harsha2009}
+
+Despite extensive research on \gls{PDAC}, very little is known about the molecular basis of the disease.  It is genetically uninteresting, with most tumours possessing a similar small set of conserved mutations \cite{Biankin2012}, the majority of which have been known for some time \cite{Hilgers1999}.  Some clinically-relevant genetic subtypes have been proposed, but all are present at low frequency, and in total account for only a small fraction of cases \cite{Chang2014}.  In spite of this apparent molecular homogeneity, the clinical course of \gls{PDAC} is varied: although it is universally aggressive when considered relative to other common malignancies, the range of survival times following diagnosis of \gls{PDAC} is poorly explained by clinical factors, suggesting that unknown processes are materially affecting outcome (chapter \ref{chap:nomogram}).
+
+In contrast to the few global attempts to understand the process and progress of \gls{PDAC}, targeted studies have produced a staggering wealth of potential biomarkers of the presence and course of the disease \cite{Harsha2009}.
+
+\section{Results}
+
+\mpfatal{Cohort description and subsetting: refer to previous chapter (nomogram)}
+\subsection{Two metagenes predict survival with resectable pancreatic cancer}
+\paragraph{Probe selection}
+\paragraph{Factorization}
+\paragraph{Identifying prognostic metagenes}
+\paragraph{Validation}
+\subsection{Prognostic metagenes implicate the \acrshort{EMT} and MYB in pancreatic cancer outcome}
+
+\section{Discussion}
+
+\section{Methods}
+\subsection{Cohort recruitment and ethics}
+\mpfatal{CPVs current as of 4 Nov 2014}
+
+\subsection{Sample collection, preparation, and gene expression microarrays}
+\mpfatal{}
+End with saved as \gls{IDAT} files.  241 of them (class 7 with CPVs only)
+
+\subsection{Data preprocessing}
+\paragraph{Microarray quality control and normalization}
+\gls{IDAT} files were read into Bioconductor \texttt{lumi} structures using the \texttt{lumidat} package.  Seven arrays were excluded on the basis of poor signal, due to fewer than 30\% of probes on these arrays having detection P-values of less than 0.01.  The remaining 234 microarrays represented a range of tumour types, and were normalized as one batch using the \texttt{lumi} package.  Normalization proceeded serially as: RMA-like background subtraction (\texttt{lumiB} method \texttt{"bgAdjust.affy"}), \gls{VST} (\texttt{lumiT} method \texttt{"vst"}), and quantile normalization (\texttt{lumiN} method \texttt{"quantile"}).
+
+\paragraph{Unsupervised probe selection}
+Probes were excluded if they met any of the following criteria: fewer than 10\% of samples with expression P-values of less than 0.01, a probe quality (from the \texttt{illuminaHumanv4PROBEQUALITY} field in Bioconductor package \texttt{illuminaHumanv4.db}) not equal to `perfect' or `good', missing gene annotation, or a standard deviation of normalized expression values across all samples of less than 0.03.  The choice of this latter threshold is expected to yield approximately a 5\% false probe rejection rate, based on an analysis of the variation between technical replicate samples.  In cases where multiple post-filter microarray probes mapped to the same gene, only the probe with the highest standard deviation, as evaluated across all samples that passed quality checks, was retained.  The effect of these combined filtering steps was to reduce the number of features under consideration from 47,273 probes to 13,000, one per gene.
+
+\paragraph{Sample selection}  From the full set of 234 tumour samples that passed quality checks, eight were from four samples that had each been arrayed twice, and two were from patients with multiple conflicting \gls{CPV} data.  The two with conflicting \gls{CPV} data were excluded from further study, and the eight replicated samples were averaged, after \gls{MDS} indicated that each replicate pair had very similar expression.
+
+\paragraph{Summary}
+The above preprocessing steps yielded matched \gls{CPV} and resected tumour \gls{GEX} data for 13,000 genes across 228 patients.
+
+\subsection{Outcome-associated gene selection}
+Genes that were associated with disease-specific survival were identified by \gls{SIS}-\gls{FAST}\cite{Gorst-Rasmussen2013}, with a \gls{CPSS} wrapper to reduce the false positive rate \cite{Shah2013}.  The inner \gls{SIS}-\gls{FAST} selectors from R package \texttt{ahaz} each provided 650 genes associated with time between diagnosis and death, and the outer \gls{CPSS} wrapper selected genes which were returned by at least 75\% of \gls{SIS}-\gls{FAST} runs.  193 genes passed this criterion and were selected for closer study.  
+In the terminology of \cite{Shah2013}, the parameters of this selection procedure were $\theta = 0.05$, $\tau = 0.72$, and therefore the expected bound on the number of false positive genes in the set of 193 was ten \cite[table 1]{Shah2013}, yielding a gene \gls{FDR} of approximately 0.05.
+
+\subsection{Rank estimation and metagene factorization}
+\label{subsec:signatures-nmf}
+The gene $\times$ patient expression matrix of outcome-associated genes was decomposed into metagenes by the \gls{SNMFL} procedure of \cite{Kim2007}, as implemented in R package \texttt{NMF}.  \gls{SNMFL} is a variant of \gls{NMF}, a class of procedures that decomposes a non-negative matrix $A$ into a product of non-negative matrices $W$ and $H$, $A \approx WH$.  $W$ and $H$ typically have rank much less than $A$, the effect of \gls{NMF} then being to effectively reduce a large gene $\times$ sample matrix $A$ into smaller matrices, the gene $\times$ metagene basis matrix $W$, and metagene $\times$ sample coefficient matrix $H$.
+
+As \gls{NMF} is a linear factorization, the \gls{VST}-transformed expression matrix $A$ was approximately linearized by elementwise exponentiation, $a_{i,j} \leftarrow 2^{a_{i,j}}$.  To reduce the influence of large variations in baseline expression on the factorization, each row (gene) of $A$ was then independently linearly scaled to lie between zero and one, $a_{i,j} \leftarrow (a_{i,j} - \min(a_{i,*})) \div (\max(a_{i,*}) - \min(a_{i,*}))$, where $a_{i,*}$ denotes row $i$ of $A$.
+
+Factorization rank was estimated following \cite{Frigyesi2008}: for test ranks ranging from 2 to 15, 10 \gls{SNMFL} decompositions were performed, each on a version of the transformed expression matrix in which rows (genes) had been independently permuted within each column (sample).  Approximation error for each decomposition was calculated as $\|A - W H\|_F$, and the reduction in approximation error with increasing rank was compared between factorizations of the original data, and those of the 10 permuted data matrices.  The highest rank for which the improvement in error achieved by adding that rank to the factorization on the original data, exceeded the improvement seen by adding that rank on the permuted data, taking into account permutation noise, was selected as the final factorization rank.  Specifically, let the improvement in approximation error that results in choosing a rank $i$ decomposition over a rank $i-1$ decomposition, on the unpermuted data, be $\Delta_i = \|A - W_{i-1} H_{i-1}\|_F - \|A - W_{i} H_{i}\|_F$.  Equivalently, define $\Delta^{*j}_i$ to be the improvement observed when rank $i$ is added to the factorization of $A^{*j}$, the $j$\textsuperscript{th} permutation of the data matrix: $\Delta^{*j}_i = \|A^{*j} - W^{*j}_{i-1} H^{*j}_{i-1}\|_F - \|A^{*j} - W^{*j}_{i} H^{*j}_{i}\|_F$.  Denote the mean and standard deviation of $\Delta^{*}_i$ across all 10 permutations of the data matrix, for each $i$, as $\overline{\Delta^{*}_i}$ and $\text{SD}(\Delta^{*}_i)$, respectively.  Then, the final selected rank $k$ was identified as $k = \argmax_i \Delta_i > \overline{\Delta^{*}_i} + 2 \text{SD}(\Delta^{*}_i)$.
+
+Following rank estimation, a final factorization of the data was performed using only the identified rank, and a larger number of random algorithm restarts, as described below.  Subsequent work used this final factorization.
+
+The \gls{SNMFL} algorithm requires parameters $\alpha$ and $\eta$ to control regularization; for all factorizations $\alpha = 0.01$, and $\eta = \max(A)$.\footnote{Note that this parameter $\alpha$ is denoted $\beta$ in the R \texttt{NMF} package; I use the symbol $\alpha$ here for consistency with \cite{Kim2007}}  The default convergence criteria of by the \texttt{NMF} package were used.
+
+\gls{SNMFL} may not necessarily find a global optimum factorization; for this work multiple random initializations of matrix $W$ were made from $\text{Uniform}(0, \max(A))$, the \gls{SNMFL} procedure was run to convergence, and the result with lowest approximation error was retained.  50 random restarts were used during rank estimation runs, and 500 for the final factorization; examination of approximation error distributions for these repeated runs indicated that these values were conservative, and factorizations were very robust to the choice of random start.
+
+\subsection{Estimating metagene coefficients on new data}
+The following procedure was used to estimate metagene expression scores (coefficients) from gene expression measurements of a cohort.  Measurements were subset to the 193 outcome-associated genes identified by \gls{CPSS}-\gls{SIS}-\gls{FAST}, and transformed to a linear scale if necessary.  Linear measurements were then scaled within genes to between zero and one, as for metagene factorization (section \ref{subsec:signatures-nmf}).  Genes for which no expression data were available (the genes being either filtered out in preprocessing or not measured at all) were assigned scaled expression values of zero.  These manipulations yielded a gene $\times$ sample matrix $A'$ with rows matching the gene $\times$ metagene basis matrix $W$ from \gls{SNMFL}.  The metagene $\times$ sample coefficient matrix $H'$ for the new cohort was then estimated by \gls{NNLS} implemented in R package \texttt{nnls}, solving for each column of $a'_{*,i}$ of $A'$ the optimization problem ${h'_{*,i}} = \argmin_x \| W x - a'_{*,i} \|_2$, where $h'_{*,i}$ denotes column $i$ of $H'$.
+
+For consistency, the above procedure was used to estimate metagene coefficients $H$ for the discovery \gls{APGI} cohort, as well as all validation cohorts.
+
+\subsection{Associating metagene expression with clinical variables}
+
+\subsection{Cross-validation of the metagene discovery process}
+
+\subsection{External validation of outcome-associated metagenes}
+
+\subsection{\acrshort{GSVA} scoring}
+The expression of gene sets from the \gls{MSigDB} \cite{Subramanian2005} were estimated on the \gls{APGI} cohort using a modification of the \gls{GSVA} method \cite{Hanzelmann2013}.  \gls{GSVA} with default settings was used to estimate expression scores for all \gls{MSigDB} gene sets in the full 13,000 $\times$ 228 \gls{VST}-scaled \gls{APGI} \gls{GEX} data matrix.  \gls{MSigDB} contains both undirected gene sets such as metabolic pathways, in which members of the set are not expected a-priori to move in concert, and directional signatures, with paired \texttt{*\_UP} and \texttt{*\_DN} components that would be expected to change in coordinated and opposite patterns.  Conventional analyses based on \gls{MSigDB} ignore this distinction, but for this work I combined paired directional signatures to yield an overall signed estimate of signature activity.  For undirected signatures, \gls{GSVA} activity estimates were simply calculated using parameter \texttt{abs.ranking=TRUE}.  In the case of paired signatures, \gls{GSVA} scores were estimated separately for the \texttt{*\_UP} and \texttt{*\_DN} sets using parameter \texttt{abs.ranking=FALSE}, and the signed combined activity \texttt{*\_SIGNED} was calculated as the \texttt{*\_DN} score subtracted from the \texttt{*\_UP} score.  This procedure resulted in summarised activity estimates for 8,138 gene sets, many of which were highly correlated.
+
+Gene sets with highly correlated activity scores were collapsed into compound summary sets as follows.  Pairwise Pearson correlation distances between all scores calculated as $d_{i,j} = \frac{1}{2}(1 - \text{cor}(s_i, s_j))$, and were used to cluster gene sets using R \texttt{hclust} and complete linkage.  R \texttt{cutree} identified clusters of highly similar gene sets, using a distance threshold of 0.02; gene set activities within each cluster were merged by taking median values across all samples, to form a new merged gene set activity estimate.  Following merging, 7,633 single and compound gene set activity estimates remained across 228 samples.
+
+\subsection{Metagene functional characterization}
+Kendall correlation coefficients were calculated between metagene coefficients and \gls{GSVA} gene set scores, on the \gls{APGI} expression dataset.  Absolute correlations of greater than 0.5 were deemed substantive and reported for further characterisation.
+
+
+\end{document}

@@ -19,10 +19,11 @@ opts_knit$set(progress = TRUE, verbose = TRUE)
 
 \section{Preparation}
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% LIBRARIES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 <<libs-load>>=
-######################################################################
-# LIBRARIES
-######################################################################
 options(java.parameters = "-Xmx4G")
 
 library(survival)
@@ -42,6 +43,111 @@ library(stargazer)
 load("image.rda")
 @
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% COHORT CHARACTERISTICS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Cohort characteristics}
+<<cohort-characteristics>>=
+cpvs.diag_dsd$Path.TumourLocation[cpvs.diag_dsd$Path.TumourLocation == ""] = NA
+cpvs.diag_dsd$Path.Nodes.Regional.Involved.Fraction = cpvs.diag_dsd$Path.Nodes.Regional.Involved / cpvs.diag_dsd$Path.Nodes.Regional.Total
+cpvs.diag_dsd$Treat.Surgery.ExcisionStatus.Coarse = ordered(ifelse(cpvs.diag_dsd$Treat.Surgery.ExcisionStatus == "R0", "Clear", "Involved"), levels = c("Clear", "Involved"))
+cpvs.diag_dsd$Path.Grade.Coarse = ordered(ifelse(cpvs.diag_dsd$Path.Grade %in% c("1", "2"), "1or2", "3or4"), levels = c("1or2", "3or4"))
+cpvs.diag_dsd$Path.TumourLocation.Coarse = factor(ifelse(cpvs.diag_dsd$Path.TumourLocation %in% c("Head", "Head (Uncinate)"), "Head", "Other"))
+
+summary(cpvs.diag_dsd)
+sort(apply(is.na(cpvs.diag_dsd), 2, sum))
+@
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% CONVENTIONAL PROGNOSTIC MODEL
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Conventional prognostic model}
+Transform the covariates by median centering where required.
+<<cox-covariate-prep>>=
+print(median(cpvs.diag_dsd$History.Diagnosis.AgeAtYears, na.rm = TRUE))
+cpvs.diag_dsd$History.Diagnosis.AgeAtYears.MedCent = cpvs.diag_dsd$History.Diagnosis.AgeAtYears - median(cpvs.diag_dsd$History.Diagnosis.AgeAtYears, na.rm = TRUE)
+print(median(cpvs.diag_dsd$Path.TumourSizeMm, na.rm = TRUE))
+cpvs.diag_dsd$Path.TumourSizeMm.MedCent = cpvs.diag_dsd$Path.TumourSizeMm - median(cpvs.diag_dsd$Path.TumourSizeMm, na.rm = TRUE)
+@
+
+\subsection{Covariate forms: deviance residuals}
+<<cox-covariate-forms>>=
+#	History.Smoking.PackYears + 		# Remove as it's mostly missing
+temp = coxph(Surv(Surv.EventTimeFromDiag.DSDeath, Surv.Event.DSDeath) ~ 
+	Patient.Gender + 
+	History.Diagnosis.AgeAtYears.MedCent + 
+	Treat.Surgery.ExcisionStatus.Coarse +
+	Path.Grade.Coarse + 
+	Path.TumourLocation.Coarse + 
+	Path.TumourSizeMm.MedCent + 
+	Path.Invasion.PN + 
+	Path.Invasion.VS + 
+	Path.Nodes.Regional.Involved.Fraction + 
+	Staging.pN, data = cpvs.diag_dsd)
+
+# scatter.smooth(cpvs.diag_dsd[names(resid(temp, "deviance")),]$History.Smoking.PackYears, resid(temp, "deviance"), xlab = "History.Smoking.PackYears", ylab = "Deviance residual", main = "Full fit")
+scatter.smooth(cpvs.diag_dsd[names(resid(temp, "deviance")),]$History.Diagnosis.AgeAtYears.MedCent, resid(temp, "deviance"), xlab = "History.Diagnosis.AgeAtYears.MedCent", ylab = "Deviance residual", main = "Full fit")
+scatter.smooth(cpvs.diag_dsd[names(resid(temp, "deviance")),]$Path.TumourSizeMm.MedCent, resid(temp, "deviance"), xlab = "Path.TumourSizeMm.MedCent", ylab = "Deviance residual", main = "Full fit")
+scatter.smooth(cpvs.diag_dsd[names(resid(temp, "deviance")),]$Path.Nodes.Regional.Involved.Fraction, resid(temp, "deviance"), xlab = "Path.Nodes.Regional.Involved.Fraction", ylab = "Deviance residual", main = "Full fit")
+temp = coxph(Surv(Surv.EventTimeFromDiag.DSDeath, Surv.Event.DSDeath) ~ History.Smoking.PackYears, data = cpvs.diag_dsd)
+scatter.smooth(cpvs.diag_dsd[names(resid(temp, "deviance")),]$History.Smoking.PackYears, resid(temp, "deviance"), xlab = "History.Smoking.PackYears", ylab = "Deviance residual", main = "Single variable fit: Pack Years")
+temp = coxph(Surv(Surv.EventTimeFromDiag.DSDeath, Surv.Event.DSDeath) ~ History.Diagnosis.AgeAtYears.MedCent, data = cpvs.diag_dsd)
+scatter.smooth(cpvs.diag_dsd[names(resid(temp, "deviance")),]$History.Diagnosis.AgeAtYears.MedCent, resid(temp, "deviance"), xlab = "History.Diagnosis.AgeAtYears.MedCent", ylab = "Deviance residual", main = "Single variable fit: Age at diagnosis")
+temp = coxph(Surv(Surv.EventTimeFromDiag.DSDeath, Surv.Event.DSDeath) ~ Path.TumourSizeMm.MedCent, data = cpvs.diag_dsd)
+scatter.smooth(cpvs.diag_dsd[names(resid(temp, "deviance")),]$Path.TumourSizeMm.MedCent, resid(temp, "deviance"), xlab = "Path.TumourSizeMm.MedCent", ylab = "Deviance residual", main = "Single variable fit: Tumour size")
+temp = coxph(Surv(Surv.EventTimeFromDiag.DSDeath, Surv.Event.DSDeath) ~ Path.Nodes.Regional.Involved.Fraction, data = cpvs.diag_dsd)
+scatter.smooth(cpvs.diag_dsd[names(resid(temp, "deviance")),]$Path.Nodes.Regional.Involved.Fraction, resid(temp, "deviance"), xlab = "Path.Nodes.Regional.Involved.Fraction", ylab = "Deviance residual", main = "Single variable fit: Node involvement fraction")
+@
+
+Evidence of nonlinearity for age of diagnosis -- very young diagnosis, or very old, is hazardous.  This makes sense.  Some indication of nonlinearity for size but it's weak.  All other predictor residuals are consistent with a linear effect.  Refit the model taking this into account.
+
+<<cpv-model-withsmoking>>=
+fit.cpv.withsmoking = coxph(Surv(Surv.EventTimeFromDiag.DSDeath, Surv.Event.DSDeath) ~ 
+	Patient.Gender + 
+	pspline(History.Diagnosis.AgeAtYears.MedCent, 3) + 
+	Path.Grade.Coarse + 
+	Path.TumourLocation.Coarse + 
+	pspline(Path.TumourSizeMm.MedCent, 3) + 
+	Path.Invasion.PN + 
+	Path.Invasion.VS + 
+	Path.Nodes.Regional.Involved.Fraction + 
+	Staging.pN +
+	History.Smoking.PackYears + 
+	Treat.Surgery.ExcisionStatus.Coarse,
+	data = cpvs.diag_dsd)
+summary(fit.cpv.withsmoking)
+anova(fit.cpv.withsmoking)
+@
+
+The problem with the above is that smoking status is poorly known, but it nonetheless is a significant predictor.  It may be possible to impute smoking from mutation profiles, but that would be complex and uncertain.  It's certainly unlikely to be usefully imputed just from the other CPVs.  So fit a working model that does not include smoking status, but keep in mind this omission when making conclusions.
+
+<<cpv-model-withoutsmoking>>=
+fit.cpv.withoutsmoking = coxph(Surv(Surv.EventTimeFromDiag.DSDeath, Surv.Event.DSDeath) ~ 
+	Patient.Gender + 
+	pspline(History.Diagnosis.AgeAtYears.MedCent, 3) + 
+	Path.Grade.Coarse + 
+	Path.TumourLocation.Coarse + 
+	pspline(Path.TumourSizeMm.MedCent, 3) + 
+	Path.Invasion.PN + 
+	Path.Invasion.VS + 
+	Path.Nodes.Regional.Involved.Fraction + 
+	Staging.pN +
+	Treat.Surgery.ExcisionStatus.Coarse,
+	data = cpvs.diag_dsd)
+summary(fit.cpv.withoutsmoking)
+anova(fit.cpv.withoutsmoking)
+@
+
+<<cpv-model-print-withoutsmoking-terms>>=
+termplot(fit.cpv.withoutsmoking, rug = TRUE, se = TRUE)
+@
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% MOLECULAR SIGNATURE IDENTIFICATION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Probe selection}
 <<probe-sel>>=
 table(cpss.sis$sel)
@@ -60,10 +166,10 @@ corPlot(x.sel.dcor, zlim = c(0, 1), pal = "GnBu", main = "Correlation Clusters o
 \section{Factorization}
 <<nmf-rank-plots>>=
 plot(nmf.runs.rank, nmf.runs.rank.random[[1]])
-for (i in nmf.runs.rank$fit)
-{ 
-	consensusmap(i)
-}
+# for (i in nmf.runs.rank$fit)
+# { 
+# 	consensusmap(i)
+# }
 plot(nmf.rankrange[-1], -temp.orig_resids.delta,
 	type = "o", col = "black", pch = 21, ylim = range(-c(temp.orig_resids.delta, temp.perm_resids.delta.mean)),
 	xlab = "Factorization Rank Added", ylab = "Improvement in Total Residual Error")
@@ -91,6 +197,9 @@ coefmap(nmf.final)
 @
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% SIGNATURE ESTIMATION AND COMPARISON
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 <<coef-calc>>=
 coefs.diag_dsd = apply(xlin.diag_dsd.sel, 2, function(xcol) nnls(basis(nmf.final), xcol)$x)
 coefs.diag_rec = apply(xlin.diag_rec.sel, 2, function(xcol) nnls(basis(nmf.final), xcol)$x)
@@ -103,13 +212,16 @@ coefs.pdac_au = apply(xlin.pdac_au.sel, 2, function(xcol) nnls(basis(nmf.final),
 temp.pred.pairs = t(rbind(coefs.pdac_au, metapcna.scores[colnames(coefs.pdac_au)]))
 colnames(temp.pred.pairs) = paste("mg", 1:ncol(temp.pred.pairs), sep = ".")
 colnames(temp.pred.pairs)[ncol(temp.pred.pairs)] = "PCNA"
-temp.pred.pairs = cbind(temp.pred.pairs, qpure = samps.pdac_au$purity_qpure)
+temp.pred.pairs = cbind(temp.pred.pairs, qpure = samps.pdac_au$purity_qpure, pkyrs = cpvs.pdac_au$History.Smoking.PackYears)
 pairs(temp.pred.pairs, pch = 16, cex = 1, col = ifelse(rownames(temp.pred.pairs) %in% colnames(xlin.diag_dsd.sel), rgb(0, 0, 0, 0.5), rgb(1, 0, 1, 0.5)))
 temp.pred.pairs.rescaled = t((t(temp.pred.pairs) - apply(temp.pred.pairs, 2, min, na.rm = TRUE)) / (apply(temp.pred.pairs, 2, function(x) diff(range(x, na.rm = TRUE)))))
 heatmap.2(temp.pred.pairs.rescaled, trace = "none", scale = "none", col = grey(seq(0, 1, 0.01)))
 @
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% SIGNATURE PROGNOSTIC PERFORMANCE: TRAINING SET, ALONE
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Prediction on training set}
 \paragraph{MTC P-values}
 <<nmf-pvals>>=
@@ -140,17 +252,17 @@ print(xtable(nmf.final.cpv.pvals, caption = "Resubstitution prediction, all test
 print(xtable(nmf.final.cpv.pvals[,!grepl("\\.(BY|p)$", colnames(nmf.final.cpv.pvals))], caption = "Resubstitution prediction, Holm MTC only"), scalebox = 0.7)
 @
 
-\paragraph{All-subsets regression}
-<<nmf-metagene-diagdsd-glmulti>>=
-print(asreg.result)
-coef(asreg.result)
-summary(asreg.result@objects[[1]])
-@
-<<nmf-metagene-diagdsd-glmulti-plots>>=
-plot(asreg.result, type = "p")
-plot(asreg.result, type = "s")
-plot(asreg.result, type = "w")
-@
+% \paragraph{All-subsets regression}
+% <<nmf-metagene-diagdsd-glmulti>>=
+% print(asreg.result)
+% coef(asreg.result)
+% summary(asreg.result@objects[[1]])
+% @
+% <<nmf-metagene-diagdsd-glmulti-plots>>=
+% plot(asreg.result, type = "p")
+% plot(asreg.result, type = "s")
+% plot(asreg.result, type = "w")
+% @
 
 \paragraph{LASSO}
 <<nmf-metagene-diagdsd-glmnet>>=
@@ -165,13 +277,115 @@ abline(v = sum(abs(glmnet.coef.min)))
 @
 
 
-\subsection{Prediction on 10-fold CV}
-<<cv-load>>=
-cv_preds = readRDS("../../analysis/14_SIS_NMF_CV_results.rds")
-apply(cv_preds[,colnames(xlin.diag_dsd.sel)], 1, function(p1) coxph(y.diag_dsd ~ p1))
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% SIGNATURE PROGNOSTIC PERFORMANCE: TRAINING SET, WITH CPVS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+<<cpvsig-model-withoutsmoking-resub>>=
+fit.cpvsig.withoutsmoking.resub = coxph(Surv(Surv.EventTimeFromDiag.DSDeath, Surv.Event.DSDeath) ~ 
+	Patient.Gender + 
+	pspline(History.Diagnosis.AgeAtYears.MedCent, 3) + 
+	Path.Grade.Coarse + 
+	Path.TumourLocation.Coarse + 
+	pspline(Path.TumourSizeMm.MedCent, 3) + 
+	Path.Invasion.PN + 
+	Path.Invasion.VS + 
+	Path.Nodes.Regional.Involved.Fraction + 
+	Staging.pN +
+	Treat.Surgery.ExcisionStatus.Coarse + 
+	t(coefs.diag_dsd),
+	data = cpvs.diag_dsd)
+anova(fit.cpv.withoutsmoking, fit.cpvsig.withoutsmoking.resub)
+@
+
+<<cpvsig-model-withsmoking-resub>>=
+fit.cpvsig.withsmoking.resub = coxph(Surv(Surv.EventTimeFromDiag.DSDeath, Surv.Event.DSDeath) ~ 
+	Patient.Gender + 
+	pspline(History.Diagnosis.AgeAtYears.MedCent, 3) + 
+	Path.Grade.Coarse + 
+	Path.TumourLocation.Coarse + 
+	pspline(Path.TumourSizeMm.MedCent, 3) + 
+	Path.Invasion.PN + 
+	Path.Invasion.VS + 
+	Path.Nodes.Regional.Involved.Fraction + 
+	Staging.pN +
+	History.Smoking.PackYears + 
+	Treat.Surgery.ExcisionStatus.Coarse +
+	t(coefs.diag_dsd),
+	data = cpvs.diag_dsd)
+anova(fit.cpv.withsmoking, fit.cpvsig.withsmoking.resub)
 @
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% SIGNATURE PROGNOSTIC PERFORMANCE: CROSS-VALIDATION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Prediction on 10-fold CV}
+<<cv-sig-load>>=
+cv_preds = readRDS("../../analysis/14_SIS_NMF_CV_results.rds")
+@
+
+<<cv-sig-test-alone>>=
+apply(cv_preds[,colnames(xlin.diag_dsd.sel)], 1, function(p1) coxph(y.diag_dsd ~ p1))
+@
+
+<<cpvsig-model-withoutsmoking-cv, comment=FALSE>>=
+# fit.cpvsig.withoutsmoking.cv_BSA = coxph(Surv(Surv.EventTimeFromDiag.DSDeath, Surv.Event.DSDeath) ~ 
+# 	Patient.Gender + 
+# 	pspline(History.Diagnosis.AgeAtYears.MedCent, 3) + 
+# 	Path.Grade.Coarse + 
+# 	Path.TumourLocation.Coarse + 
+# 	pspline(Path.TumourSizeMm.MedCent, 3) + 
+# 	Path.Invasion.PN + 
+# 	Path.Invasion.VS + 
+# 	Path.Nodes.Regional.Involved.Fraction + 
+# 	Staging.pN +
+# 	Treat.Surgery.ExcisionStatus.Coarse + 
+# 	cv_preds["bs.average",],
+# 	data = cpvs.diag_dsd)
+fit.cpvsig.withoutsmoking.cv_L1SE = coxph(Surv(Surv.EventTimeFromDiag.DSDeath, Surv.Event.DSDeath) ~ 
+	Patient.Gender + 
+	pspline(History.Diagnosis.AgeAtYears.MedCent, 3) + 
+	Path.Grade.Coarse + 
+	Path.TumourLocation.Coarse + 
+	pspline(Path.TumourSizeMm.MedCent, 3) + 
+	Path.Invasion.PN + 
+	Path.Invasion.VS + 
+	Path.Nodes.Regional.Involved.Fraction + 
+	Staging.pN +
+	Treat.Surgery.ExcisionStatus.Coarse + 
+	metapcna.scores[colnames(cv_preds)] + 
+	cv_preds["lasso.1se",],
+	data = cpvs.diag_dsd)
+# anova(fit.cpv.withoutsmoking, fit.cpvsig.withoutsmoking.cv_BSA)
+# anova(fit.cpv.withoutsmoking, fit.cpvsig.withoutsmoking.cv_L1SE)
+anova(fit.cpvsig.withoutsmoking.cv_L1SE)
+@
+
+<<cpvsig-model-withsmoking-cv, comment=FALSE>>=
+fit.cpvsig.withsmoking.cv_L1SE = coxph(Surv(Surv.EventTimeFromDiag.DSDeath, Surv.Event.DSDeath) ~ 
+	Patient.Gender + 
+	pspline(History.Diagnosis.AgeAtYears.MedCent, 3) + 
+	Path.Grade.Coarse + 
+	Path.TumourLocation.Coarse + 
+	pspline(Path.TumourSizeMm.MedCent, 3) + 
+	Path.Invasion.PN + 
+	Path.Invasion.VS + 
+	Path.Nodes.Regional.Involved.Fraction + 
+	Staging.pN +
+	History.Smoking.PackYears + 
+	Treat.Surgery.ExcisionStatus.Coarse + 
+	metapcna.scores[colnames(cv_preds)] + 
+	cv_preds["lasso.1se",],
+	data = cpvs.diag_dsd)
+# anova(fit.cpv.withoutsmoking, fit.cpvsig.withoutsmoking.cv_BSA)
+# anova(fit.cpv.withsmoking, fit.cpvsig.withsmoking.cv_L1SE)
+anova(fit.cpvsig.withsmoking.cv_L1SE)
+@
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% SIGNATURE PROGNOSTIC PERFORMANCE: EXTERNAL VALIDATION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Prediction on validation sets}
 <<val-load>>=
 load("../../data/15_validation.rda")
@@ -198,6 +412,9 @@ apply(GSE28735.coefs, 1, function(xc) coxph(Surv(time, event) ~ xc, data = GSE28
 @
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% SIGNATURE BIOLOGY
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{MSigDB score correlation thresholding}
 <<nmf-msigdb-cor-plots>>=
 temp.sel_cols = apply(abs(nmf.final.msigdb.corr) >= sig.corr.threshold, 2, any)
@@ -246,6 +463,9 @@ tables
 @
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% THE END
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Session information}
 <<sessioninfo>>=
 session_info
