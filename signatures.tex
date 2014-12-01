@@ -31,39 +31,67 @@ In this chapter I describe the application of \gls{NMF} for the \gls{GEX} deconv
 
 \section{Results}
 
-Survival-associated metagenes were identified by selecting the set of genes which had \gls{GEX} associated with outcome in the \gls{APGI} cohort, and then performing \gls{NMF} factorization to deconvolve the full matrix of gene expression signals into a small set of metagenes.  Metagenes were then tested for association with clinical course and other \glspl{CPV}, as well as known prognostic signatures, and their prognostic ability was validated by 10-fold cross-validation and testing in separate cohorts.  Those metagenes that were found to be prognostic were then correlated with biological process signatures to try to identify the metagenes' biological significance.
+Survival-associated metagenes were identified by selecting the set of genes which had \gls{GEX} associated with outcome in the \gls{APGI} cohort, and then performing \gls{NMF} factorization to deconvolve the full matrix of gene expression signals into a small set of metagenes.  Metagenes were then tested for association with clinical course and other \glspl{CPV}, as well as known prognostic signatures, and their prognostic ability was validated by 10-fold cross-validation and testing in separate cohorts.  Those metagenes that were found to be prognostic were then correlated with biological process signatures to associate the metagenes with biological processes.
 
 \subsection{Cohort characteristics and subsetting}
-The same homogeneous \gls{PDAC} subset of the \gls{APGI} cohort that was used in the work of chapter \ref{chap:nomogram} was employed for this analysis; selection criteria and cohort characteristics are given in that chapter.  \mpfatal{Add page number ref}
+The same homogeneous \gls{PDAC} subset of the \gls{APGI} cohort that was used in the work of chapter \ref{chap:nomogram} was employed for this analysis; see page \pageref{chap:nomogram} for case selection criteria and cohort characteristics.  \mpfatal{Add correct ref label}
 
 \subsection{Two metagenes predict survival with resectable pancreatic cancer}
 \paragraph{Probe selection}
-In order to focus the \gls{GEX} deconvolution method on finding outcome-associated metagenes, it was necessary to filter the full set of gene expression data to only contain those genes that were likely to be associated with patient survival.  This has traditionally been considered to be a very difficult problem, due to the huge number of candidate genes present and the relatively small number of patients available.
+In order to focus the \gls{GEX} deconvolution method on finding outcome-associated metagenes, it was necessary to filter the full set of gene expression data to only contain those genes that were likely to be associated with patient survival.  %This has traditionally been considered to be a very difficult problem, due to the huge number of candidate genes present and the relatively small number of patients available.
 
-However, recent results in variable selection theory have indicated that marginal screening procedures are sufficient for variable selection \cite{Fan2008}, including in censored regression situations (for example \cite{Gorst-Rasmussen2013}).  Unfortunately, although most of these procedures guarantee good variable selection properties in general, a specific issue remains: it is unknown exactly \emph{how many} variables need to be chosen in order to achieve a given false rejection or false discovery rate.  This is equivalent to the problem of deciding a selection threshold for the procedures, and the difficulty in choosing such a threshold is a serious impediment to the practical application of these methods.
+%However, recent results in variable selection theory have indicated that marginal screening procedures are sufficient for variable selection \cite{Fan2008}, including in censored regression situations (for example \cite{Gorst-Rasmussen2013}).  Unfortunately, although most of these procedures guarantee good variable selection properties in general, a specific issue remains: it is unknown exactly \emph{how many} variables need to be chosen in order to achieve a given false rejection or false discovery rate.  This is equivalent to the problem of deciding a selection threshold for the procedures, and the difficulty in choosing such a threshold is a serious impediment to the practical application of these methods.
 
-The emerging field of stability selection has provided some solutions to the practical issue with the marginal screening methods described above.  The concept is simple: repeat the genes selection method multiple times on perturbed variants of the original data, and select only those genes that are consistently chosen.  Recent work has produced the \gls{CPSS} algorithm, which provides bounds on the false detection rate of the variable selection procedure \cite{Shah2013}.
+%The emerging field of stability selection has provided some solutions to the practical issue with the marginal screening methods described above.  The concept is simple: repeat the genes selection method multiple times on perturbed variants of the original data, and select only those genes that are consistently chosen.  Recent work has produced the \gls{CPSS} algorithm, which provides bounds on the false detection rate of the variable selection procedure \cite{Shah2013}.
 
-A \gls{CPSS} wrapper around the core \gls{SIS}-\gls{FAST} variable selection method\cite{Gorst-Rasmussen2013} identified 193 genes (of 13,000 examined) that were associated with time from diagnosis to disease-specific death in the \gls{APGI} cohort, with an estimated \gls{FDR} of approximately 5\%.
+A \gls{CPSS} wrapper around the core \gls{SIS}-\gls{FAST} variable selection method \cite{Gorst-Rasmussen2013} identified 193 genes (of 13,000 examined) that were associated with time from diagnosis to disease-specific death in the \gls{APGI} cohort, with an estimated \gls{FDR} of approximately 5\%.
 
 \paragraph{Factorization}
-Central to the concept of \gls{GEX} deconvolution is the idea that the observed expression of a given gene in a sample is the sum of that gene's expression due to each of the biological processes operating in the cell.  By examining enough sufficiently diverse samples, it is hoped to estimate three elements: the number of basic processes at work in the cells, the level of activity of each process within each sample, and the degree to which the activity of a process increases the expression of a gene.  More concretely, let the concentration of a gene's transcripts be denoted by $a$, in arbitrary linear units, such as copies per cell.  Suppose that $r$ basic biological processes are operating in the cell, and that these are numbered $1, 2, \dots, r$.  Each process can have a level of activation ranging from zero to one, where zero is off, and one is completely on.  Also, the activation of each process can affect the concentration of the gene's transcripts to a different degree: activation of one process may lead to strong expression of the gene, whereas the level of activation of another process may have no influence on the gene's transcript levels at all.  Let the level of activation of process $i$ be $h_i$, and the influence of process $i$ on the expression levels of the gene be $w_i$.  Then, the basic model underpinning this work is:
-\begin{equation}
-  a = h_1 w_1 + h_2 w_2 + \dots + h_r w_r = \sum_{i=1}^r h_i w_i
-\end{equation}
-In words, the expression of a transcript is the sum of the level of activation of each process in the cell on that transcript, weighted by the activity of that process in the sample.
+%Central to the concept of \gls{GEX} deconvolution is the idea that the observed expression of a given gene in a sample is the sum of that gene's expression due to each of the biological processes operating in the cell.  By examining enough sufficiently diverse samples, it is hoped to estimate three elements: the number of basic processes at work in the cells, the level of activity of each process within each sample, and the degree to which the activity of a process increases the expression of a gene.  More concretely, let the concentration of a gene's transcripts be denoted by $a$, in arbitrary linear units, such as copies per cell.  Suppose that $r$ basic biological processes are operating in the cell, and that these are numbered $1, 2, \dots, r$.  Each process can have a level of activation ranging from zero to one, where zero is off, and one is completely on.  Also, the activation of each process can affect the concentration of the gene's transcripts to a different degree: activation of one process may lead to strong expression of the gene, whereas the level of activation of another process may have no influence on the gene's transcript levels at all.  Let the level of activation of process $i$ be $h_i$, and the influence of process $i$ on the expression levels of the gene be $w_i$.  Then, the basic model underpinning this work is:
+%\begin{equation}
+%  a = h_1 w_1 + h_2 w_2 + \dots + h_r w_r = \sum_{i=1}^r h_i w_i
+%\end{equation}
+%In words, the expression of a transcript is the sum of the level of activation of each process in the cell on that transcript, weighted by the activity of that process in the sample.
 
-For convenience, in the explanation above I have termed the $r$ processes that are active in each cell `biological processes'.  This is a simplification.  These components are generally termed `metagenes' in the factorization literature, and I will use this term predominantly from this point onwards.  Metagenes represent sets of genes that are closely coordinately transcribed, and therefore can, in a sense, be considered to act transcriptionally like a single unit.  Metagenes do not necessarily have to equate to what would more conventionally be considered to be `biological processes', such as cell motility or metabolism, but as likely targets of the same transcription factors, often do correlate with small aspects of cell biology.
+%For convenience, in the explanation above I have termed the $r$ processes that are active in each cell `biological processes'.  This is a simplification.  These components are generally termed `metagenes' in the factorization literature, and I will use this term predominantly from this point onwards.  Metagenes represent sets of genes that are closely coordinately transcribed, and therefore can, in a sense, be considered to act transcriptionally like a single unit.  Metagenes do not necessarily have to equate to what would more conventionally be considered to be `biological processes', such as cell motility or metabolism, but as likely targets of the same set of transcription factors, often do correlate with discrete aspects of cell function.
 
-It is straightforward to extend the model above to the more general case of multiple transcripts and multiple samples; the equation now becomes
-\begin{equation}
-  A = W H
-\end{equation}
-Here $A$ is a transcript $\times$ sample matrix of linear gene expression measurements, $W$ is a transcript $\times$ metagene activation matrix (termed \emph{basis} matrix in the subject literature), and $H$ is a metagene $\times$ sample activity matrix (\emph{coefficient} matrix in the literature).  Expression deconvolution now becomes a matrix factorization problem, for which a wide range of techniques are available.
+%It is straightforward to extend the model above to the more general case of multiple transcripts and multiple samples; the equation now becomes
+%\begin{equation}
+%  A = W H
+%\end{equation}
+%Here $A$ is a transcript $\times$ sample matrix of linear gene expression measurements, $W$ is a transcript $\times$ metagene activation matrix (termed the \emph{basis} matrix in the subject literature), and $H$ is a metagene $\times$ sample activity matrix (the \emph{coefficient} matrix in the literature).  Expression deconvolution now becomes a matrix factorization problem, for which a wide range of techniques are available.
 
+The expression of the 193 survival-associated genes across 228 patients was decomposed into metagenes by the \gls{SNMFL} \gls{NMF} algorithm.  The number of metagenes (factorization rank) was automatically estimated to be 6, being the first rank for which the improvement in estimation error achieved by adding the next rank, was less than that observed for permuted data (figure \ref{fig:sig_nmf_rank}).
 
+\begin{figure}
+\centering
+\includegraphics[width=.7\linewidth]{analysis/biosurv/reports/18_SIS_diag_dsd_final/figure/nmf-rank-plots-2}
+\caption{Automatic selection of factorization rank.  \acrshort{SNMFL} was performed for varying ranks on either unpermuted data (black line) or data permuted within samples (red lines), and the improvement in total residual approximation error $\|A - W H\|_2$ calculated.  The highest added rank for which the error improvement on unpermuted data exceeded that of permuted data plus two standard deviations (threshold shown by dotted red line) was the final selected rank (green line).}
+\label{fig:sig_nmf_rank}
+\end{figure}
+
+500 random restarts of rank 6 \gls{SNMFL} were performed on the survival-associated gene matrix to yield the final factorization.  The resultant clustering consensus matrix was highly stable (figure \ref{fig:nmf_consensus}), and the basis matrix $W$ was reasonably sparse (figure \ref{fig:nmf_basis}).  Low row L1 norm of the basis matrix is a desirable condition for this analysis, as it indicates that metagenes are largely distinct transcriptional modules, with little overlap in terms of shared transcripts with high loadings.  The desire for a small row L1 norm on $W$ was the motivating factor for the choice of \gls{SNMFL} for \gls{NMF} of these data.
+
+\begin{figure}
+\centering
+\includegraphics[width=.7\linewidth]{analysis/biosurv/reports/18_SIS_diag_dsd_final/figure/nmf-plots-1}
+\caption{Clustering consensus matrix for the final rank-6 clustering.  Colours indicate the stability of gene (in rows) and sample (in columns) clusters across random restarts of the factorization; at rank 6 this factorization was perfectly stable, with identical clusters observed in all 500 random restarts.}
+\label{fig:nmf_consensus}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=.7\linewidth]{analysis/biosurv/reports/18_SIS_diag_dsd_final/figure/nmf-plots-2}
+\label{fig:nmf_basis}
+\caption{Basis matrix of the final \acrshort{SNMFL} factorization.  Rows represent genes, and columns metagenes, with cell colours proportional to the loading of a given gene on a given metagene.  The loadings are sparse within rows, indicating that the metagenes are modular, each affecting the expression of largely distinct sets of target genes.}
+\end{figure}
 
 \paragraph{Identifying prognostic metagenes}
+The transcription patterns of genes associated with survival in the \gls{APGI} cohort could be decomposed into just six largely distinct metagenes.  I then set out to determine the influence of each of these metagenes individually on outcome and other clinical variables.  Coefficients for each of the six metagenes on each sample were recalculated by \gls{NNLS}, to ensure that the same methods were used in both training and validation arms of the study.  
+
+Multivariate Cox regression was performed to determine the influence of the six metagenes on three clinical intervals (time from diagnosis to recurrence, recurrence to disease-specific death, and diagnosis to disease-specific-death)
+
+
 \paragraph{Validation}
 \subsection{Prognostic metagenes implicate the \acrshort{EMT} and MYB in pancreatic cancer outcome}
 
@@ -90,7 +118,7 @@ Probes were excluded if they met any of the following criteria: fewer than 10\% 
 The above preprocessing steps yielded matched \gls{CPV} and resected tumour \gls{GEX} data for 13,000 genes across 228 patients.
 
 \subsection{Outcome-associated gene selection}
-Genes that were associated with disease-specific survival were identified by \gls{SIS}-\gls{FAST}\cite{Gorst-Rasmussen2013}, with a \gls{CPSS} wrapper to reduce the false positive rate \cite{Shah2013}.  The inner \gls{SIS}-\gls{FAST} selectors from R package \texttt{ahaz} each provided 650 genes associated with time between diagnosis and death, and the outer \gls{CPSS} wrapper selected genes which were returned by at least 75\% of \gls{SIS}-\gls{FAST} runs.  193 genes passed this criterion and were selected for closer study.  
+Genes that were associated with disease-specific survival were identified by \gls{SIS}-\gls{FAST} \cite{Gorst-Rasmussen2013}, with a \gls{CPSS} wrapper to reduce the false positive rate \cite{Shah2013}.  The inner \gls{SIS}-\gls{FAST} selectors from R package \texttt{ahaz} each provided 650 genes associated with time between diagnosis and death, and the outer \gls{CPSS} wrapper selected genes which were returned by at least 75\% of \gls{SIS}-\gls{FAST} runs.  193 genes passed this criterion and were selected for closer study.  
 In the terminology of \cite{Shah2013}, the parameters of this selection procedure were $\theta = 0.05$, $\tau = 0.72$, and therefore the expected bound on the number of false positive genes in the set of 193 was ten \cite[table 1]{Shah2013}, yielding a gene \gls{FDR} of approximately 0.05.
 
 \subsection{Rank estimation and metagene factorization}

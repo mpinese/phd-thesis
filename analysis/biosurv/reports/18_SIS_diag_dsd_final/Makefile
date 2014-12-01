@@ -19,6 +19,5 @@ clean:
 
 ultraclean: clean
 	rm -f *.pdf
-	rm -f *.rda
 	rm -rf cache/
 	rm -rf figure/
