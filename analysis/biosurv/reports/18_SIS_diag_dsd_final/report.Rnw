@@ -99,13 +99,18 @@ coefmap(nmf.final)
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% SIGNATURE ESTIMATION AND COMPARISON
+% SIGNATURE ESTIMATION
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 <<coef-calc>>=
 coefs.diag_dsd = apply(xlin.diag_dsd.sel, 2, function(xcol) nnls(basis(nmf.final), xcol)$x)
 coefs.diag_rec = apply(xlin.diag_rec.sel, 2, function(xcol) nnls(basis(nmf.final), xcol)$x)
 coefs.recr_dsd = apply(xlin.recr_dsd.sel, 2, function(xcol) nnls(basis(nmf.final), xcol)$x)
 coefs.pdac_au = apply(xlin.pdac_au.sel, 2, function(xcol) nnls(basis(nmf.final), xcol)$x)
+@
+
+
+<<basis-emit, echo=FALSE>>=
+print(xtable(basis(nmf.final)), file = "basis_table.tex", tabular.environment = "longtable", floating = FALSE)
 @
 
 
@@ -131,47 +136,31 @@ heatmap.2(temp.cors, trace = "none", Rowv = FALSE, Colv = FALSE, col = brewer.pa
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % SIGNATURE PROGNOSTIC PERFORMANCE: TRAINING SET, ALONE
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Prediction on training set}
-\paragraph{MTC P-values}
-<<nmf-pvals>>=
-nmf.final.cpv.pvals = data.frame(
-	surv.diag_rec.p = apply(coefs.diag_rec, 1, function(xc) pchisq(2*diff(coxph(y.diag_rec ~ xc)$loglik), df = 1, lower.tail = FALSE)),
-	surv.diag_rec.c = apply(coefs.diag_rec, 1, function(xc) coef(coxph(y.diag_rec ~ xc))),
-	surv.diag_dsd.p = apply(coefs.diag_dsd, 1, function(xc) pchisq(2*diff(coxph(y.diag_dsd ~ xc)$loglik), df = 1, lower.tail = FALSE)),
-	surv.diag_dsd.c = apply(coefs.diag_dsd, 1, function(xc) coef(coxph(y.diag_dsd ~ xc))),
-	surv.recr_dsd.p = apply(coefs.recr_dsd, 1, function(xc) pchisq(2*diff(coxph(y.recr_dsd ~ xc)$loglik), df = 1, lower.tail = FALSE)),
-	surv.recr_dsd.c = apply(coefs.recr_dsd, 1, function(xc) coef(coxph(y.recr_dsd ~ xc))),
-	pure.p = apply(coefs.pdac_au, 1, function(xc) cor.test(samps.pdac_au$purity_qpure, xc, method = "kendall")$p.value),
-	pure.s = apply(coefs.pdac_au, 1, function(xc) cor.test(samps.pdac_au$purity_qpure, xc, method = "kendall")$statistic)
-)
-temp.pvals = as.matrix(nmf.final.cpv.pvals[,grepl("\\.p$", colnames(nmf.final.cpv.pvals))])
-temp.pvals.FWER = matrix(p.adjust(as.vector(temp.pvals), "holm"), nrow = nrow(temp.pvals))
-colnames(temp.pvals.FWER) = paste(colnames(temp.pvals), "Holm", sep = ".")
-temp.pvals.BY = matrix(p.adjust(as.vector(temp.pvals), "BY"), nrow = nrow(temp.pvals))
-colnames(temp.pvals.BY) = paste(colnames(temp.pvals), "BY", sep = ".")
-nmf.final.cpv.pvals = cbind(nmf.final.cpv.pvals, temp.pvals.FWER, temp.pvals.BY)
-nmf.final.cpv.pvals = nmf.final.cpv.pvals[,order(colnames(nmf.final.cpv.pvals))]
+\subsection{LASSO on training set}
+<<nmf-metagene-glmnet>>=
+glmnet.fit.cv.diag_dsd = cv.glmnet(t(coefs.diag_dsd), y.diag_dsd, family = "cox", nfolds = 10)
+glmnet.fit.cv.diag_rec = cv.glmnet(t(coefs.diag_rec), y.diag_rec, family = "cox", nfolds = 10)
+glmnet.fit.cv.recr_dsd = cv.glmnet(t(coefs.recr_dsd), y.recr_dsd, family = "cox", nfolds = 10)
 @
 
-<<nmf-pvals-xtable-all, echo=FALSE, results='asis'>>=
-print(xtable(nmf.final.cpv.pvals, caption = "Resubstitution prediction, all tests"), scalebox = 0.4)
-@
+<<nmf-metagene-glmnet-plots>>=
+plot(glmnet.fit.cv.diag_dsd)
+plot(glmnet.fit.cv.diag_dsd$glmnet.fit, label = TRUE)
+abline(v = sum(abs(coef(glmnet.fit.cv.diag_dsd$glmnet.fit, s = glmnet.fit.cv.diag_dsd$lambda.1se))))
+#abline(v = sum(abs(coef(glmnet.fit.cv.diag_dsd$glmnet.fit, s = glmnet.fit.cv.diag_dsd$lambda.min))))
+coef(glmnet.fit.cv.diag_dsd$glmnet.fit, s = glmnet.fit.cv.diag_dsd$lambda.1se)
 
-<<nmf-pvals-xtable-holm, echo=FALSE, results='asis'>>=
-print(xtable(nmf.final.cpv.pvals[,!grepl("\\.(BY|p)$", colnames(nmf.final.cpv.pvals))], caption = "Resubstitution prediction, Holm MTC only"), scalebox = 0.7)
-@
+plot(glmnet.fit.cv.diag_rec)
+plot(glmnet.fit.cv.diag_rec$glmnet.fit, label = TRUE)
+abline(v = sum(abs(coef(glmnet.fit.cv.diag_rec$glmnet.fit, s = glmnet.fit.cv.diag_rec$lambda.1se))))
+#abline(v = sum(abs(coef(glmnet.fit.cv.diag_rec$glmnet.fit, s = glmnet.fit.cv.diag_rec$lambda.min))))
+coef(glmnet.fit.cv.diag_rec$glmnet.fit, s = glmnet.fit.cv.diag_rec$lambda.1se)
 
-
-\paragraph{LASSO}
-<<nmf-metagene-diagdsd-glmnet>>=
-glmnet.coef.1se
-glmnet.coef.min
-@
-<<nmf-metagene-diagdsd-glmnet-plots>>=
-plot(glmnet.fit.cv)
-plot(glmnet.fit.cv$glmnet.fit, label = TRUE)
-abline(v = sum(abs(glmnet.coef.1se)))
-abline(v = sum(abs(glmnet.coef.min)))
+plot(glmnet.fit.cv.recr_dsd)
+plot(glmnet.fit.cv.recr_dsd$glmnet.fit, label = TRUE)
+abline(v = sum(abs(coef(glmnet.fit.cv.recr_dsd$glmnet.fit, s = glmnet.fit.cv.recr_dsd$lambda.1se))))
+#abline(v = sum(abs(coef(glmnet.fit.cv.recr_dsd$glmnet.fit, s = glmnet.fit.cv.recr_dsd$lambda.min))))
+coef(glmnet.fit.cv.recr_dsd$glmnet.fit, s = glmnet.fit.cv.recr_dsd$lambda.1se)
 @
 
 
@@ -184,17 +173,7 @@ cv_preds = readRDS("../../analysis/14_SIS_NMF_CV_results.rds")
 @
 
 <<cv-sig-test-alone>>=
-apply(cv_preds[,colnames(xlin.diag_dsd.sel)], 1, function(p1) coxph(y.diag_dsd ~ p1))
-@
-
-
-<<cv-sig-pcna-purity>>=
-fit.sig.pcnapure.cv_L1SE = coxph(y.diag_dsd ~ 
-	samps.diag_dsd$purity_qpure + 
-	metapcna.scores[colnames(cv_preds)] + 
-	cv_preds["lasso.1se",])
-summary(fit.sig.pcnapure.cv_L1SE)
-anova(fit.sig.pcnapure.cv_L1SE)
+summary(coxph(y.diag_dsd ~ cv_preds["lasso.1se",]))
 @
 
 
@@ -223,18 +202,10 @@ GSE28735.pcna = apply(GSE28735.gex[match(metapcna.sig, GSE28735.feat$Gene.symbol
 @
 
 <<val-tests>>=
-apply(GSE21501.coefs, 1, function(xc) print(summary(coxph(Surv(time, event) ~ xc, data = GSE21501.samp))))
-
-temp = coxph(Surv(GSE21501.samp$time, GSE21501.samp$event) ~ GSE21501.pcna + GSE21501.coefs[1,] + GSE21501.coefs[2,] + GSE21501.coefs[3,] + GSE21501.coefs[4,] + GSE21501.coefs[5,] + GSE21501.coefs[6,])
+temp = coxph(Surv(GSE21501.samp$time, GSE21501.samp$event) ~ predict(glmnet.fit.cv.diag_dsd$glmnet.fit, newx = t(GSE21501.coefs), s = glmnet.fit.cv.recr_dsd$lambda.1se))
 summary(temp)
-anova(temp)
-
-
-apply(GSE28735.coefs, 1, function(xc) print(summary(coxph(Surv(time, event) ~ xc, data = GSE28735.samp))))
-
-temp = coxph(Surv(GSE28735.samp$time, GSE28735.samp$event) ~ GSE28735.pcna + GSE28735.coefs[1,] + GSE28735.coefs[2,] + GSE28735.coefs[3,] + GSE28735.coefs[4,] + GSE28735.coefs[5,] + GSE28735.coefs[6,])
+temp = coxph(Surv(GSE28735.samp$time, GSE28735.samp$event) ~ predict(glmnet.fit.cv.diag_dsd$glmnet.fit, newx = t(GSE28735.coefs), s = glmnet.fit.cv.recr_dsd$lambda.1se))
 summary(temp)
-anova(temp)
 @
 
 
@@ -277,7 +248,7 @@ tables = lapply(1:temp.nmeta, function(metagene_i) {
 				Metagenes = apply(all_cors[,sigs_to_report,drop=FALSE], 2, function(cors) {
 					sel = abs(cors) >= sig.corr.threshold
 					# A positive number implies that positive GSVA signal is associated with worse prognosis
-					paste(which(sel) * sign(cors[which(sel)]) * sign(nmf.final.cpv.pvals$surv.diag_dsd.c[metagene_i]), collapse = ",")
+					paste(which(sel) * sign(cors[which(sel)]), collapse = ",")
 				}))
 			table = table[order(-(table$Correlation)),]
 			rownames(table) <- NULL
