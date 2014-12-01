@@ -5,20 +5,18 @@ all: dissertation
 dissertation: dissertation.pdf
 
 dissertation.pdf: *.tex
-	mkdir -p build && \
-	cp dissertation.bib build && \
-	pdflatex --output-directory build -interaction=nonstopmode dissertation.tex && \
-	cd build && \
-	bibtex dissertation.aux && \
-	makeglossaries dissertation && \
-	cd .. && \
-	pdflatex --output-directory build -interaction=nonstopmode dissertation.tex && \
-	cd build && \
-	bibtex dissertation.aux && \
-	makeglossaries dissertation && \
-	cd .. && \
-	pdflatex --output-directory build -interaction=nonstopmode dissertation.tex && \
-	mv build/dissertation.pdf .
+	mkdir -p build
+	cp *.tex build
+	cp *.bib build
+	cd build
+	-pdflatex -interaction=nonstopmode dissertation.tex
+	bibtex dissertation.aux
+	makeglossaries dissertation
+	-pdflatex -interaction=nonstopmode dissertation.tex
+	bibtex dissertation.aux
+	makeglossaries dissertation
+	-pdflatex -interaction=nonstopmode dissertation.tex
+	mv dissertation.pdf ..
 
 clean:
 	rm -rf build
