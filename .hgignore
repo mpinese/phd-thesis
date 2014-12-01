@@ -2,7 +2,6 @@ syntax:glob
 
 *.fuse_hidden*
 
-build/*
 *.aux
 *.gz
 *.log
@@ -17,9 +16,9 @@ build/*
 *.xdy
 *.loa
 *.lox
-thesis.lof
-thesis.lot
-thesis.toc
+*.lof
+*.lot
+*.toc
 
 data/*
 analysis/biosurv/results/04_norm_gex.pdf

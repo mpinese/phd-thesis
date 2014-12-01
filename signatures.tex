@@ -36,7 +36,7 @@ Survival-associated metagenes were identified by selecting the set of genes whic
 \subsection{Cohort characteristics and subsetting}
 The same homogeneous \gls{PDAC} subset of the \gls{APGI} cohort that was used in the work of chapter \ref{chap:nomogram} was employed for this analysis; see page \pageref{chap:nomogram} for case selection criteria and cohort characteristics.  \mpfatal{Add correct ref label}
 
-\subsection{Two metagenes predict survival with resectable pancreatic cancer}
+\subsection{Two metagenes predict survival with resectable pancreatic cancer in multiple cohorts}
 \paragraph{Probe selection}
 In order to focus the \gls{GEX} deconvolution method on finding outcome-associated metagenes, it was necessary to filter the full set of gene expression data to only contain those genes that were likely to be associated with patient survival.  %This has traditionally been considered to be a very difficult problem, due to the huge number of candidate genes present and the relatively small number of patients available.
 
@@ -44,7 +44,7 @@ In order to focus the \gls{GEX} deconvolution method on finding outcome-associat
 
 %The emerging field of stability selection has provided some solutions to the practical issue with the marginal screening methods described above.  The concept is simple: repeat the genes selection method multiple times on perturbed variants of the original data, and select only those genes that are consistently chosen.  Recent work has produced the \gls{CPSS} algorithm, which provides bounds on the false detection rate of the variable selection procedure \cite{Shah2013}.
 
-A \gls{CPSS} wrapper around the core \gls{SIS}-\gls{FAST} variable selection method \cite{Gorst-Rasmussen2013} identified 193 genes (of 13,000 examined) that were associated with time from diagnosis to disease-specific death in the \gls{APGI} cohort, with an estimated \gls{FDR} of approximately 5\%.
+A \gls{CPSS} wrapper around the core \gls{SIS}-\gls{FAST} variable selection method \cite{Gorst-Rasmussen2013} identified 193 genes (of 13,000 considered) that were associated with time from diagnosis to disease-specific death in the \gls{APGI} cohort, with an estimated \gls{FDR} of approximately 5\%.
 
 \paragraph{Factorization}
 %Central to the concept of \gls{GEX} deconvolution is the idea that the observed expression of a given gene in a sample is the sum of that gene's expression due to each of the biological processes operating in the cell.  By examining enough sufficiently diverse samples, it is hoped to estimate three elements: the number of basic processes at work in the cells, the level of activity of each process within each sample, and the degree to which the activity of a process increases the expression of a gene.  More concretely, let the concentration of a gene's transcripts be denoted by $a$, in arbitrary linear units, such as copies per cell.  Suppose that $r$ basic biological processes are operating in the cell, and that these are numbered $1, 2, \dots, r$.  Each process can have a level of activation ranging from zero to one, where zero is off, and one is completely on.  Also, the activation of each process can affect the concentration of the gene's transcripts to a different degree: activation of one process may lead to strong expression of the gene, whereas the level of activation of another process may have no influence on the gene's transcript levels at all.  Let the level of activation of process $i$ be $h_i$, and the influence of process $i$ on the expression levels of the gene be $w_i$.  Then, the basic model underpinning this work is:
@@ -61,7 +61,7 @@ A \gls{CPSS} wrapper around the core \gls{SIS}-\gls{FAST} variable selection met
 %\end{equation}
 %Here $A$ is a transcript $\times$ sample matrix of linear gene expression measurements, $W$ is a transcript $\times$ metagene activation matrix (termed the \emph{basis} matrix in the subject literature), and $H$ is a metagene $\times$ sample activity matrix (the \emph{coefficient} matrix in the literature).  Expression deconvolution now becomes a matrix factorization problem, for which a wide range of techniques are available.
 
-The expression of the 193 survival-associated genes across 228 patients was decomposed into metagenes by the \gls{SNMFL} \gls{NMF} algorithm.  The number of metagenes (factorization rank) was automatically estimated to be 6, being the first rank for which the improvement in estimation error achieved by adding the next rank, was less than that observed for permuted data (figure \ref{fig:sig_nmf_rank}).
+The expression of the 193 survival-associated genes across 228 patients was decomposed into metagenes by the \gls{SNMFL} \gls{NMF} algorithm.  The number of metagenes (factorization rank) was automatically estimated to be 6, being the lowest rank for which the improvement in estimation error achieved by adding the next rank, was less than that observed for permuted data (figure \ref{fig:sig_nmf_rank}).
 
 \begin{figure}
 \centering
@@ -70,29 +70,37 @@ The expression of the 193 survival-associated genes across 228 patients was deco
 \label{fig:sig_nmf_rank}
 \end{figure}
 
-500 random restarts of rank 6 \gls{SNMFL} were performed on the survival-associated gene matrix to yield the final factorization.  The resultant clustering consensus matrix was highly stable (figure \ref{fig:nmf_consensus}), and the basis matrix $W$ was reasonably sparse (figure \ref{fig:nmf_basis}).  Low row L1 norm of the basis matrix is a desirable condition for this analysis, as it indicates that metagenes are largely distinct transcriptional modules, with little overlap in terms of shared transcripts with high loadings.  The desire for a small row L1 norm on $W$ was the motivating factor for the choice of \gls{SNMFL} for \gls{NMF} of these data.
+500 random restarts of rank 6 \gls{SNMFL} were then performed on the survival-associated gene matrix to yield the final factorization.  The resultant clustering consensus matrix was highly stable (figure \ref{fig:sig_nmf_consensus}), and the basis matrix $W$ was reasonably sparse (figure \ref{fig:sig_nmf_basis}).  Small row L1 norm of the basis matrix is a desirable condition for this analysis, as it indicates that metagenes are largely distinct transcriptional modules, with little overlap in terms of shared transcripts with high loadings; \gls{SNMFL} was selected for its penalty design, which favours solutions with small $W$ row L1 norm.  A table of values of the basis matrix $W$ is available as appendix \ref{app:sig_w_matrix} on page \pageref{app:sig_w_matrix}}
 
 \begin{figure}
 \centering
 \includegraphics[width=.7\linewidth]{analysis/biosurv/reports/18_SIS_diag_dsd_final/figure/nmf-plots-1}
 \caption{Clustering consensus matrix for the final rank-6 clustering.  Colours indicate the stability of gene (in rows) and sample (in columns) clusters across random restarts of the factorization; at rank 6 this factorization was perfectly stable, with identical clusters observed in all 500 random restarts.}
-\label{fig:nmf_consensus}
+\label{fig:sig_nmf_consensus}
 \end{figure}
 
 \begin{figure}
 \centering
 \includegraphics[width=.7\linewidth]{analysis/biosurv/reports/18_SIS_diag_dsd_final/figure/nmf-plots-2}
-\label{fig:nmf_basis}
-\caption{Basis matrix of the final \acrshort{SNMFL} factorization.  Rows represent genes, and columns metagenes, with cell colours proportional to the loading of a given gene on a given metagene.  The loadings are sparse within rows, indicating that the metagenes are modular, each affecting the expression of largely distinct sets of target genes.}
+\label{fig:sig_nmf_basis}
+\caption{Basis matrix of the final \acrshort{SNMFL} factorization.  Rows represent genes, and columns metagenes, with cell colours proportional to the loading of a given gene on a given metagene.  The loadings are sparse within rows, indicating that the metagenes are modular, each affecting the expression of largely distinct sets of target genes.  A table of values of this basis matrix is available as appendix \ref{app:sig_w_matrix} on page \pageref{app:sig_w_matrix}}
 \end{figure}
 
 \paragraph{Identifying prognostic metagenes}
-The transcription patterns of genes associated with survival in the \gls{APGI} cohort could be decomposed into just six largely distinct metagenes.  I then set out to determine the influence of each of these metagenes individually on outcome and other clinical variables.  Coefficients for each of the six metagenes on each sample were recalculated by \gls{NNLS}, to ensure that the same methods were used in both training and validation arms of the study.  
+The transcription patterns of genes associated with survival in the \gls{APGI} cohort could be decomposed into just six largely distinct metagenes.  To identify which of the six metagenes were ultimately predictive of patient survival, I performed \gls{LASSO} regression on the \gls{APGI} discovery cohort data, using \gls{NNLS}-estimated coefficients of each of the six metagenes as marginal predictors of outcome.  The \gls{LASSO} regularization parameter $\lambda$ was chosen by 10-fold cross-validation to be the highest value for which the mean test set partial likelihood deviance was within one standard error of the lowest mean value.  This resulted in a final model in which only two metagenes, MG3 and MG6, were selected as prognostic (figure \ref{fig:sig_resub_lasso_track}).
 
-Multivariate Cox regression was performed to determine the influence of the six metagenes on three clinical intervals (time from diagnosis to recurrence, recurrence to disease-specific death, and diagnosis to disease-specific-death)
+\begin{figure}
+\centering
+\includegraphics[width=.7\linewidth]{analysis/biosurv/reports/18_SIS_diag_dsd_final/figure/nmf-metagene-glmnet-plots-2}
+\label{fig:sig_resub_lasso_track}
+\caption{Coefficient vs penalty fit trajectories for the \acrshort{LASSO} model predicting disease-specific survival from metagene expression.  Each coloured line represents the model coefficient for a metagene as the model is smoothly varied from a null model (L1 norm = 0), to a full unpenalised Cox fit (L1 norm $\approx$ 14).  The vertical line indicates the optimal value of L1 norm as selected by 10-fold cross-validation; at this point in the trajectory only metagenes MG3 and MG6 make any contribution to prognosis estimates.}
+\end{figure}
 
+The final signature developed for predicting time from diagnosis to death for patients \gls{PDAC} therefore consists of distinct two metagenes: the protective MG3, and the hazardous MG6.  For external validation of the signature I combined observed coefficients for the two metagenes using their CV-selected \gls{LASSO} fit coefficients, as $\text{Risk score} = -0.4086 \times \text{MG3 coefficient} + 3.3022 \times \text{MG6 coefficient}$.  Full metagene scores for the 193 survival-associated genes (the $W$ matrix) are available as appendix \ref{app:sig_w_matrix} on page \pageref{app:sig_w_matrix}. \mpfatal{Put these scores in}
 
-\paragraph{Validation}
+\paragraph{Validation of the two-metagene signature}
+To ensure that the process for development of the two-metagene survival signature was stable, and that the signature itself was transferable to other cohorts, I performed cross- and external validation of the metagene survival signature.  10-fold cross-validation was performed on the full metagene discovery procedure, from supervised probe selection by \gls{CPSS}-\gls{SIS}-\gls{FAST} to final \gls{LASSO} coefficient estimation, including automatic \gls{NMF} rank estimation.  Cross-validated test set risk scores from the \gls{APGI} discovery cohort were significantly predictive of time from diagnosis to disease-specific death by Cox regression (LRT $P = 0.0029$).  The two-metagene survival signature described above also validated against the \gls{PDAC} expression cohort GSE28735 \cite{Zhang2013} (LRT $P = 0.0171$), demonstrating the robustness of the metagene signature to cohort and platform effects.
+
 \subsection{Prognostic metagenes implicate the \acrshort{EMT} and MYB in pancreatic cancer outcome}
 
 \section{Discussion}

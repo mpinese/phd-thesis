@@ -14,7 +14,11 @@
 \usepackage{amssymb}
 \usepackage{bm}
 \usepackage[draft,footnote,nomargin]{fixme}   % TODO: Remove draft flag for final!
-
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{appendix}
+\usepackage{longtable}
+ 
 \FXRegisterAuthor{mp}{amp}{MP}
 \FXRegisterAuthor{mjc}{amjc}{MJC}
 
@@ -92,5 +96,8 @@ Da abstract.
 
 \bibliographystyle{plain}
 \bibliography{dissertation}
+
+\newpage
+\subfile{appendices}
 
 \end{document}
