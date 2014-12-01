@@ -31,10 +31,38 @@ In this chapter I describe the application of \gls{NMF} for the \gls{GEX} deconv
 
 \section{Results}
 
-\mpfatal{Cohort description and subsetting: refer to previous chapter (nomogram)}
+Survival-associated metagenes were identified by selecting the set of genes which had \gls{GEX} associated with outcome in the \gls{APGI} cohort, and then performing \gls{NMF} factorization to deconvolve the full matrix of gene expression signals into a small set of metagenes.  Metagenes were then tested for association with clinical course and other \glspl{CPV}, as well as known prognostic signatures, and their prognostic ability was validated by 10-fold cross-validation and testing in separate cohorts.  Those metagenes that were found to be prognostic were then correlated with biological process signatures to try to identify the metagenes' biological significance.
+
+\subsection{Cohort characteristics and subsetting}
+The same homogeneous \gls{PDAC} subset of the \gls{APGI} cohort that was used in the work of chapter \ref{chap:nomogram} was employed for this analysis; selection criteria and cohort characteristics are given in that chapter.  \mpfatal{Add page number ref}
+
 \subsection{Two metagenes predict survival with resectable pancreatic cancer}
 \paragraph{Probe selection}
+In order to focus the \gls{GEX} deconvolution method on finding outcome-associated metagenes, it was necessary to filter the full set of gene expression data to only contain those genes that were likely to be associated with patient survival.  This has traditionally been considered to be a very difficult problem, due to the huge number of candidate genes present and the relatively small number of patients available.
+
+However, recent results in variable selection theory have indicated that marginal screening procedures are sufficient for variable selection \cite{Fan2008}, including in censored regression situations (for example \cite{Gorst-Rasmussen2013}).  Unfortunately, although most of these procedures guarantee good variable selection properties in general, a specific issue remains: it is unknown exactly \emph{how many} variables need to be chosen in order to achieve a given false rejection or false discovery rate.  This is equivalent to the problem of deciding a selection threshold for the procedures, and the difficulty in choosing such a threshold is a serious impediment to the practical application of these methods.
+
+The emerging field of stability selection has provided some solutions to the practical issue with the marginal screening methods described above.  The concept is simple: repeat the genes selection method multiple times on perturbed variants of the original data, and select only those genes that are consistently chosen.  Recent work has produced the \gls{CPSS} algorithm, which provides bounds on the false detection rate of the variable selection procedure \cite{Shah2013}.
+
+A \gls{CPSS} wrapper around the core \gls{SIS}-\gls{FAST} variable selection method\cite{Gorst-Rasmussen2013} identified 193 genes (of 13,000 examined) that were associated with time from diagnosis to disease-specific death in the \gls{APGI} cohort, with an estimated \gls{FDR} of approximately 5\%.
+
 \paragraph{Factorization}
+Central to the concept of \gls{GEX} deconvolution is the idea that the observed expression of a given gene in a sample is the sum of that gene's expression due to each of the biological processes operating in the cell.  By examining enough sufficiently diverse samples, it is hoped to estimate three elements: the number of basic processes at work in the cells, the level of activity of each process within each sample, and the degree to which the activity of a process increases the expression of a gene.  More concretely, let the concentration of a gene's transcripts be denoted by $a$, in arbitrary linear units, such as copies per cell.  Suppose that $r$ basic biological processes are operating in the cell, and that these are numbered $1, 2, \dots, r$.  Each process can have a level of activation ranging from zero to one, where zero is off, and one is completely on.  Also, the activation of each process can affect the concentration of the gene's transcripts to a different degree: activation of one process may lead to strong expression of the gene, whereas the level of activation of another process may have no influence on the gene's transcript levels at all.  Let the level of activation of process $i$ be $h_i$, and the influence of process $i$ on the expression levels of the gene be $w_i$.  Then, the basic model underpinning this work is:
+\begin{equation}
+  a = h_1 w_1 + h_2 w_2 + \dots + h_r w_r = \sum_{i=1}^r h_i w_i
+\end{equation}
+In words, the expression of a transcript is the sum of the level of activation of each process in the cell on that transcript, weighted by the activity of that process in the sample.
+
+For convenience, in the explanation above I have termed the $r$ processes that are active in each cell `biological processes'.  This is a simplification.  These components are generally termed `metagenes' in the factorization literature, and I will use this term predominantly from this point onwards.  Metagenes represent sets of genes that are closely coordinately transcribed, and therefore can, in a sense, be considered to act transcriptionally like a single unit.  Metagenes do not necessarily have to equate to what would more conventionally be considered to be `biological processes', such as cell motility or metabolism, but as likely targets of the same transcription factors, often do correlate with small aspects of cell biology.
+
+It is straightforward to extend the model above to the more general case of multiple transcripts and multiple samples; the equation now becomes
+\begin{equation}
+  A = W H
+\end{equation}
+Here $A$ is a transcript $\times$ sample matrix of linear gene expression measurements, $W$ is a transcript $\times$ metagene activation matrix (termed \emph{basis} matrix in the subject literature), and $H$ is a metagene $\times$ sample activity matrix (\emph{coefficient} matrix in the literature).  Expression deconvolution now becomes a matrix factorization problem, for which a wide range of techniques are available.
+
+
+
 \paragraph{Identifying prognostic metagenes}
 \paragraph{Validation}
 \subsection{Prognostic metagenes implicate the \acrshort{EMT} and MYB in pancreatic cancer outcome}
