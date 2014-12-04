@@ -65,6 +65,8 @@ sort(apply(is.na(cpvs.diag_dsd), 2, sum))
 <<probe-sel>>=
 table(cpss.sis$sel)
 mean(cpss.sis$sel)
+apply(cpss.sis.permuted, 2, sum)
+median(apply(cpss.sis.permuted, 2, sum))
 @
 
 
@@ -217,6 +219,49 @@ summary(temp)
 temp.sel_cols = apply(abs(nmf.final.msigdb.corr) >= sig.corr.threshold, 2, any)
 heatmap.2(nmf.final.msigdb.corr[, temp.sel_cols], trace = "none", scale = "none", useRaster = TRUE, col = brewer.pal(11, "PiYG"), symbreaks = TRUE)
 heatmap.2(nmf.final.msigdb.corr[, temp.sel_cols], trace = "none", scale = "none", useRaster = TRUE, col = brewer.pal(3, "PiYG"), breaks = c(-1, -sig.corr.threshold, sig.corr.threshold, 1))
+
+cpv.pvals = apply(coef(nmf.final), 1, function(mg) sapply(cpvs.diag_dsd, function(x) {
+        s = !is.na(mg) & !is.na(x)
+        x = x[s]
+        mg = mg[s]
+        if (any(c("numeric", "integer") %in% class(x)))
+        {
+                return(cor.test(x, mg, method = "pearson")$p.value)
+        }
+        else if (any(c("factor", "ordered", "logical") %in% class(x)) && length(unique(x)) > 1)
+        {
+                return(anova(lm(mg ~ x))[,"Pr(>F)"][1])
+        }
+        NA
+}))
+cpv.pvals = cpv.pvals[!apply(is.na(cpv.pvals), 1, all),]
+cpv.pvals = cpv.pvals[!grepl("^Surv\\.", rownames(cpv.pvals)),]
+cpv.pvals = cpv.pvals[!grepl("^Treat\\.", rownames(cpv.pvals)),]
+cpv.pvals = cpv.pvals[!grepl("^Path\\.Nodes", rownames(cpv.pvals)),]
+cpv.pvals = cpv.pvals[!grepl("^Staging\\.Version", rownames(cpv.pvals)),]
+cpv.pvals = cpv.pvals[!grepl("^History\\.Recurrence$", rownames(cpv.pvals)),]
+cpv.pvals = cpv.pvals[!grepl("^History\\.Status$", rownames(cpv.pvals)),]
+cpv.pvals = cpv.pvals[!grepl("^History\\.Death\\.Cause$", rownames(cpv.pvals)),]
+cpv.pvals = cpv.pvals[!grepl("^Path\\.Grade$", rownames(cpv.pvals)),]
+cpv.pvals = cpv.pvals[!grepl("^Path\\.TumourLocation$", rownames(cpv.pvals)),]
+
+temp = as.vector(cpv.pvals)
+temp = p.adjust(temp, "BH")
+cpv.qvals = matrix(temp, nrow = nrow(cpv.pvals))
+rownames(cpv.qvals) = rownames(cpv.pvals)
+colnames(cpv.qvals) = colnames(cpv.pvals)
+
+cpv.pvals
+cpv.qvals
+
+apply(coef(nmf.final), 1, function(c1) cor.test(c1, samps$purity_qpure, method = "kendall")$p.value)
+p.adjust(apply(coef(nmf.final), 1, function(c1) cor.test(c1, samps$purity_qpure, method = "kendall")$p.value), "BH")
+apply(coef(nmf.final), 1, function(c1) cor(c1, samps$purity_qpure, method = "kendall", na.rm = TRUE))
+
+#termplot(lm(coef(nmf.final)[6,] ~ cpvs.diag_dsd$Path.Grade.Coarse), se = TRUE, rug = TRUE)
+lm(coef(nmf.final)[6,] ~ cpvs.diag_dsd$Path.Grade.Coarse)
+summary(lm(coef(nmf.final)[6,] ~ cpvs.diag_dsd$Path.Grade.Coarse))
+anova(lm(coef(nmf.final)[6,] ~ cpvs.diag_dsd$Path.Grade.Coarse))
 @
 
 

@@ -1,38 +1,64 @@
 breakTies = function(s)
 {
-	while (any(duplicated(s[,1])))
+	if (!any(duplicated(s[,1])))
 	{
-		ts = sort(s[,1])
-		deltas = diff(ts)
-		deltas = deltas[deltas > diff(range(deltas))/1e4]
-		mindelta = min(deltas)
-
-		ties = duplicated(s[,1])
-		newtimes = s[,1]
-		newtimes[ties] = newtimes[ties] + (runif(sum(ties))-0.5)*mindelta
-		s = Surv(newtimes, s[,2])
+		return(s)
 	}
 
-	s
+	deltas = diff(sort(s[,1]))
+	mindelta = min(deltas[zapsmall(deltas) > 0])
+
+	newtimes = s[,1]
+	while (any(duplicated(newtimes)))
+	{
+		newtimes = s[,1] + (runif(length(newtimes))-0.5)*mindelta*duplicated(s[,1])
+	}
+
+	Surv(newtimes, s[,2])
 }
 
 
-ISIS.FAST = function(x, y, ...)
+SIS.FAST = function(x, y, gamma, scale = FALSE, ...)
 {
 	require(ahaz)
-	sel = rep(FALSE, nrow(x))
-	sel[ahazisis(breakTies(y), t(x), ...)$ISISind] = TRUE
-	sel
+	if (scale == TRUE)
+	{
+		xstd = (x - rowMeans(x)) / (apply(x, 1, sd))
+	}
+	else
+	{
+		xstd = x
+	}
+	fast_scores = ahaz(breakTies(y), t(xstd), univariate = TRUE)$d
+	abs(fast_scores) > gamma
 }
 
 
-SIS.FAST = function(x, y, ...)
-{
-	require(ahaz)
-	sel = rep(FALSE, nrow(x))
-	sel[ahazisis(breakTies(y), t(x), ..., do.isis = FALSE)$SISind] = TRUE
-	sel
-}
+# autoThresh = function(x, y, selfunc, Js, B, ...)
+# {
+# 	message("Searching for best selection threshold...")
+# 	p = nrow(x)
+# 	scores = sapply(Js, function(j) {
+# 		message(sprintf("  Testing %d", j))
+# 		obs = selfunc(x, y, n = j, ...)
+# 		boots = sapply(1:B, function(bi) {
+# 			samp = sample.int(ncol(x), replace = TRUE)
+# 			selfunc(x[,samp], y[samp,], n = j, ...)
+# 		})
+# 		overlap = obs & boots
+# 		noverlap = colSums(overlap)
+# 		EH0 = (j^2)/p
+# 		varH0 = (j^2*(p-j)^2)/(p^2*(p-1))
+
+# 		score = (mean(noverlap) - EH0) / sqrt(varH0/B)
+# 		score
+# 	})
+# 	best_score = which.max(scores)
+# 	plot(scores ~ Js, xlab = "Number of variables", ylab = "Selection score", type = "o")
+# 	abline(v = Js[best_score])
+# 	message(sprintf("Best score found for j = %d", Js[best_score]))
+# 	selfunc(x, y, n = Js[best_score])
+# }
 
 
 CPSS = function(x, y, selfunc, tau, B = 50, ...)

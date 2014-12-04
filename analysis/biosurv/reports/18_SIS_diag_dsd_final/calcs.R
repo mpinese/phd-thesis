@@ -1,13 +1,13 @@
 ######################################################################
 # LIBRARIES
 ######################################################################
-options(java.parameters = "-Xmx4G")
+options(java.parameters = "-Xmx4G", warn = 1)
 library(glmulti)
 library(glmnet)
 library(energy)
 library(NMF)
 
-nmf.options(cores = 32, pbackend = "par", gc = 1, shared.memory = TRUE)
+nmf.options(cores = 32, pbackend = "par", gc = 1, shared.memory = FALSE)
 
 
 ######################################################################
@@ -23,13 +23,14 @@ x = x.diag_dsd
 y = y.diag_dsd
 sigs = x.diag_dsd.msigdb.merged
 samps = samps.diag_dsd
-tau = 0.72
-theta = 0.05
+tau = 0.8
+gamma = 7
 seed = 1234567890
+nmf.beta = 0.01
 nmf.nrun.rank = 50
 nmf.nrun.fit = 500
 nmf.rank = "auto"
-nmf.rankrange = 2:10
+nmf.rankrange = 2:9
 nmf.rankrandcount = 5
 sig.corr.threshold = 0.5
 
@@ -53,8 +54,17 @@ xlin = linearizeX(x)
 ######################################################################
 # PROBE SELECTION
 ######################################################################
+x.std = (x - rowMeans(x)) / apply(x, 1, sd)
 set.seed(seed)
-cpss.sis = CPSS(x, y, SIS.FAST, tau, 50, nsis = floor(theta*nrow(x)))
+cpss.sis = CPSS(x.std, y, SIS.FAST, tau, 50, gamma = gamma, scale = FALSE)
+cpss.sis.permuted = simplify2array(mclapply(1:50, function(i) {
+	cat(i)
+	set.seed(seed + i)
+	CPSS(x.std, y[sample.int(nrow(y)),], SIS.FAST, tau, 50, gamma = gamma, scale = FALSE)$sel
+}, mc.cores = 32))
+sum(cpss.sis$sel)
+cpss.sis$qhat / nrow(x.std)
+median(apply(cpss.sis.permuted, 2, sum))
 
 x.sel = x[cpss.sis$sel,]
 xlin.sel = xlin[cpss.sis$sel,]
@@ -82,14 +92,16 @@ nmf.runs.rank = nmf(
 	rank = nmf.rankrange, 
 	method = "snmf/l", 
 	seed = seed, nrun = nmf.nrun.rank, 
-	.options = list(verbose = 1, track = FALSE, parallel = TRUE, keep.all = FALSE))
+	.options = list(verbose = 1, track = FALSE, parallel = TRUE, keep.all = FALSE),
+	beta = nmf.beta)
 nmf.runs.rank.random = lapply(1:nmf.rankrandcount, function(i) {
 	message(i)
 	nmf(x = randomize(xlin.sel), 
 		rank = nmf.rankrange, 
 		method = "snmf/l", 
 		seed = seed, nrun = nmf.nrun.rank, 
-		.options = list(verbose = 1, track = FALSE, parallel = TRUE, keep.all = FALSE))
+		.options = list(verbose = 1, track = FALSE, parallel = TRUE, keep.all = FALSE),
+		beta = nmf.beta)
 	})
 
 temp.orig_resids = sapply(nmf.runs.rank$fit, residuals)
@@ -99,6 +111,7 @@ temp.perm_resids.delta = apply(temp.perm_resids, 2, diff)
 temp.perm_resids.delta.mean = rowMeans(temp.perm_resids.delta)
 temp.perm_resids.delta.sd = apply(temp.perm_resids.delta, 1, sd)
 temp.perm_resids.delta.threshold = temp.perm_resids.delta.mean - 2*temp.perm_resids.delta.sd
+#temp.perm_resids.delta.threshold = temp.perm_resids.delta.mean*1.1
 temp.perm_resids.delta.above_threshold = temp.orig_resids.delta >= temp.perm_resids.delta.threshold
 if (all(temp.perm_resids.delta.above_threshold))			{ nmf.rank.auto = min(nmf.rankrange) 
 } else if (all(!(temp.perm_resids.delta.above_threshold)))	{ nmf.rank.auto = max(nmf.rankrange)
@@ -119,22 +132,14 @@ nmf.final = nmf(
 	rank = nmf.rank, 
 	method = "snmf/l", 
 	seed = seed, nrun = nmf.nrun.fit, 
-	.options = list(verbose = 0, track = FALSE, parallel = TRUE, keep.all = FALSE))
-
+	.options = list(verbose = 0, track = FALSE, parallel = TRUE, keep.all = FALSE),
+	beta = nmf.beta)
 
 ######################################################################
 # SIGNATURE-METAGENE CORRELATION
 ######################################################################
+cat("Correlation")
 nmf.final.msigdb.corr = cor(t(coef(nmf.final)), t(sigs), method = "kendall")
-
-
-######################################################################
-# ALL-SUBSETS REGRESSION
-######################################################################
-asreg.data = data.frame(time = y[,1], event = y[,2], mg = t(coef(nmf.final)))
-nobs.coxph = function(obj)	{ obj$nevent }
-asreg.result = glmulti(Surv(time, event) ~ ., data = asreg.data, fitfunction = "coxph", level = 2, marginality = TRUE, crit = bic, plotty = FALSE, report = FALSE)
-rm(nobs.coxph)
 
 
 ######################################################################
@@ -172,5 +177,6 @@ metapcna.scores = apply(x[rownames(x) %in% metapcna.sig,], 2, median)
 
 session_info = sessionInfo()
 save.image("image.rda")
+
 
 
