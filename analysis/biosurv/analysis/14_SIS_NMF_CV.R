@@ -1,7 +1,7 @@
 ######################################################################
 # LIBRARIES
 ######################################################################
-options(java.parameters = "-Xmx4G", echo = TRUE)
+options(java.parameters = "-Xmx4G", echo = TRUE, warn = 1)
 library(survival)
 library(NMF)
 library(glmnet)
@@ -21,13 +21,14 @@ source("../common/08_SIS_common_funcs.R")
 ######################################################################
 # HIGH LEVEL PARAMETERS
 ######################################################################
-tau = 0.72
-theta = 0.05
+tau = 0.9
+gamma = 7
 seed = 1234567890
 nmf.nrun.rank = 50
 nmf.nrun.fit = 500
-nmf.rankrange = 2:10
+nmf.rankrange = 2:9
 nmf.rankrandcount = 5
+nmf.beta = 0.01
 
 
 sis_nmf_fitpred = function(x, y, xtest, theta, tau, nmf.nrun.rank, nmf.nrun.fit, nmf.rankrange, nmf.rankrandcount, seed)
@@ -44,7 +45,7 @@ sis_nmf_fitpred = function(x, y, xtest, theta, tau, nmf.nrun.rank, nmf.nrun.fit,
 	# PROBE SELECTION
 	######################################################################
 	set.seed(seed)
-	cpss.sis = CPSS(x, y, SIS.FAST, tau, 50, nsis = floor(theta*nrow(x)))
+	cpss.sis = CPSS(x, y, SIS.FAST, tau, 50, gamma = gamma, scale = TRUE)
 
 	x.sel = x[cpss.sis$sel,]
 	xlin.sel = xlin[cpss.sis$sel,]
@@ -55,34 +56,36 @@ sis_nmf_fitpred = function(x, y, xtest, theta, tau, nmf.nrun.rank, nmf.nrun.fit,
 	# RANK ESTIMATION
 	######################################################################
 	message("Initial factorizations...")
-	temp.nmf.rank = nmf(
-		x = xlin.scaled.sel, 
-		rank = nmf.rankrange, 
-		method = "snmf/l", 
-		seed = seed, nrun = nmf.nrun.rank, 
-		.options = list(verbose = 1, track = FALSE, parallel = TRUE, keep.all = TRUE))
+	nmf.runs.rank = nmf(
+	        x = xlin.sel,
+        	rank = nmf.rankrange,
+	        method = "snmf/l",
+        	seed = seed, nrun = nmf.nrun.rank,
+	        .options = list(verbose = 1, track = FALSE, parallel = TRUE, keep.all = FALSE),
+        	beta = nmf.beta)
 	message("Random factorizations...")
-	temp.nmf.rank.random = lapply(1:nmf.rankrandcount, function(i) {
-		message(i)
-		nmf(x = randomize(xlin.scaled.sel), 
-			rank = nmf.rankrange, 
-			method = "snmf/l", 
-			seed = seed, nrun = nmf.nrun.rank, 
-			.options = list(verbose = 1, track = FALSE, parallel = TRUE, keep.all = TRUE))
-		})
-	temp.orig_resids = sapply(temp.nmf.rank$fit, residuals)
-	temp.perm_resids = sapply(temp.nmf.rank.random, function(rep) sapply(rep$fit, residuals))
-	temp.perm_resids_mean = rowMeans(temp.perm_resids)
-	temp.orig_resids.spline = splinefun(nmf.rankrange, temp.orig_resids, method = "natural")
-	temp.perm_resids.spline = apply(temp.perm_resids, 2, function(r) splinefun(nmf.rankrange, r, method = "natural"))
-	temp.perm_resids_mean.spline = splinefun(nmf.rankrange, temp.perm_resids_mean)
-	temp.orig_resids.d1 = temp.orig_resids.spline(nmf.rankrange, deriv = 1)
-	temp.perm_resids_mean.d1 = temp.perm_resids_mean.spline(nmf.rankrange, deriv = 1)
-	temp.perm_resids.d1 = sapply(temp.perm_resids.spline, function(x) x(nmf.rankrange, deriv = 1))
-	temp.perm_resids.d1.mean = rowMeans(temp.perm_resids.d1)
-	temp.perm_resids.d1.sd = apply(temp.perm_resids.d1, 1, sd)
-	nmf.rank = nmf.rankrange[min(which(temp.orig_resids.d1 >= temp.perm_resids.d1.mean - 2*temp.perm_resids.d1.sd))]
-	if (length(nmf.rank) == 0)	{ nmf.rank = max(nmf.rankrange) }
+	nmf.runs.rank.random = lapply(1:nmf.rankrandcount, function(i) {
+        	message(i)
+	        nmf(x = randomize(xlin.sel),  
+                	rank = nmf.rankrange, 
+        	        method = "snmf/l",  
+	                seed = seed, nrun = nmf.nrun.rank,
+                	.options = list(verbose = 1, track = FALSE, parallel = TRUE, keep.all = FALSE),
+        	        beta = nmf.beta)
+	        })
+
+	temp.orig_resids = sapply(nmf.runs.rank$fit, residuals)
+	temp.perm_resids = sapply(nmf.runs.rank.random, function(rep) sapply(rep$fit, residuals))
+	temp.orig_resids.delta = diff(temp.orig_resids)
+	temp.perm_resids.delta = apply(temp.perm_resids, 2, diff)
+	temp.perm_resids.delta.mean = rowMeans(temp.perm_resids.delta)
+	temp.perm_resids.delta.sd = apply(temp.perm_resids.delta, 1, sd)
+	temp.perm_resids.delta.threshold = temp.perm_resids.delta.mean - 2*temp.perm_resids.delta.sd
+	temp.perm_resids.delta.above_threshold = temp.orig_resids.delta >= temp.perm_resids.delta.threshold
+	if (all(temp.perm_resids.delta.above_threshold))                { nmf.rank.auto = min(nmf.rankrange)
+	} else if (all(!(temp.perm_resids.delta.above_threshold)))	{ nmf.rank.auto = max(nmf.rankrange)
+	} else                                                          { nmf.rank.auto = min(nmf.rankrange[temp.perm_resids.delta.above_threshold]) }
+        nmf.rank = nmf.rank.auto
 
 	######################################################################
 	# NMF FACTORIZATION
@@ -92,31 +95,20 @@ sis_nmf_fitpred = function(x, y, xtest, theta, tau, nmf.nrun.rank, nmf.nrun.fit,
 		rank = nmf.rank, 
 		method = "snmf/l", 
 		seed = seed, nrun = nmf.nrun.fit, 
-		.options = list(verbose = 2, track = FALSE, parallel = TRUE, keep.all = TRUE))
+		.options = list(verbose = 2, track = FALSE, parallel = TRUE, keep.all = TRUE),
+		beta = nmf.beta)
 
 	######################################################################
 	# TRAIN X SCORING
 	######################################################################
 	xlin.scores = t(apply(xlin.scaled.sel, 2, function(xcol) nnls(basis(xlin.scaled.sel.nmf), xcol)$x))
-#	xlin.scores = t(coef(xlin.scaled.sel.nmf))
 	colnames(xlin.scores) = paste("mg", 1:ncol(xlin.scores), sep = ".")
 
 	######################################################################
 	# TEST X SCORING
 	######################################################################
 	xtestlin.scores = t(apply(xtestlin.scaled.sel, 2, function(xcol) nnls(basis(xlin.scaled.sel.nmf), xcol)$x))
-#	xtestlin.scores = t(xtestlin.scaled.sel) %*% basis(xlin.scaled.sel.nmf)
 	colnames(xtestlin.scores) = paste("mg", 1:ncol(xtestlin.scores), sep = ".")
-
-	######################################################################
-	# BEST SUBSET SELECTION
-	######################################################################
-	asreg.data <<- cbind(data.frame(time = y[,1], event = y[,2]), xlin.scores)
-	nobs.coxph <<- function(obj)	{ obj$nevent }
-	asreg.result = glmulti(Surv(time, event) ~ ., data = asreg.data, fitfunction = "coxph", level = 2, marginality = TRUE, crit = bic, plotty = FALSE, report = FALSE)
-#	rm(nobs.coxph)
-	pred.bs.best = predict(asreg.result@objects[[1]], newdata = as.data.frame(xtestlin.scores))
-	pred.bs.average = as.vector(predict(asreg.result, newdata = as.data.frame(xtestlin.scores))$averages)
 
 	######################################################################
 	# LASSO
@@ -125,23 +117,9 @@ sis_nmf_fitpred = function(x, y, xtest, theta, tau, nmf.nrun.rank, nmf.nrun.fit,
 	pred.lasso.1se = as.vector(predict(glmnet.fit.cv$glmnet.fit, newx = xtestlin.scores, s = glmnet.fit.cv$lambda.1se, type = "link"))
 	pred.lasso.min = as.vector(predict(glmnet.fit.cv$glmnet.fit, newx = xtestlin.scores, s = glmnet.fit.cv$lambda.min, type = "link"))
 
-	######################################################################
-	# ADAPTIVE LASSO
-	######################################################################
-	adaglmnet.weights = 1/abs(coef(coxph(y ~ xlin.scores)))
-	adaglmnet.x = t(t(xlin.scores) * adaglmnet.weights)
-	adaglmnet.newx = t(t(xtestlin.scores) * adaglmnet.weights)
-	adaglmnet.fit.cv = cv.glmnet(x = adaglmnet.x, y = cbind(time = y[,1], status = y[,2]*1), family = "cox", nfolds = 10, standardize = FALSE)
-	pred.adalasso.1se = as.vector(predict(adaglmnet.fit.cv$glmnet.fit, newx = adaglmnet.newx, s = adaglmnet.fit.cv$lambda.1se))
-	pred.adalasso.min = as.vector(predict(adaglmnet.fit.cv$glmnet.fit, newx = adaglmnet.newx, s = adaglmnet.fit.cv$lambda.min))
-
 	as.matrix(cbind(
-		bs.best = pred.bs.best, 
-		bs.average = pred.bs.average, 
 		lasso.1se = pred.lasso.1se, 
-		lasso.min = pred.lasso.min, 
-		adalasso.1se = pred.adalasso.1se, 
-		adalasso.min = pred.adalasso.min), ncol = 6)
+		lasso.min = pred.lasso.min), ncol = 2)
 }
 
 
