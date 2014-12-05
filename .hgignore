@@ -24,12 +24,10 @@ data/*
 analysis/biosurv/results/04_norm_gex.pdf
 
 cache/*
-figure/*
 reports/*/*.rds
 reports/*/*.rda
 reports/*/*.tex
 
 syntax:regexp
-^[^/]*\.pdf$
 .*\.o[0-9]+$
 .*\.po[0-9]+$
