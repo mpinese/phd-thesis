@@ -4,22 +4,24 @@
 \documentclass[11pt,a4paper,final,twoside]{memoir}
 
 \usepackage{subfiles}
-\usepackage[hidelinks]{hyperref}
+%\usepackage[hidelinks]{hyperref}
 \usepackage[toc]{glossaries}
 \usepackage{pdfpages}
 \usepackage{listings}
-\usepackage{graphicx}
 \usepackage[]{algorithm2e}
 \usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage[table,xcdraw]{xcolor}
+%\usepackage{caption}
+%\usepackage{subcaption}
 \usepackage{bm}
 \usepackage[draft,footnote,nomargin]{fixme}   % TODO: Remove draft flag for final!
-\usepackage{caption}
-\usepackage{subcaption}
 \usepackage{appendix}
 \usepackage{longtable}
 \usepackage{tabularx}
 \usepackage{booktabs}
+\usepackage{cleveref}
  
 \FXRegisterAuthor{mp}{amp}{MP}
 \FXRegisterAuthor{mjc}{amjc}{MJC}
@@ -34,6 +36,7 @@
 \lstset{framextopmargin=50pt,frame=bottomline}
 
 %\OnehalfSpacing
+%\DoubleSpacing
 
 \include{glossary}
 \makeglossaries
@@ -66,6 +69,7 @@ Da abstract.
 \pagenumbering{gobble}
 \clearpage
 
+\pagestyle{plain}
 \pagenumbering{roman}
 
 \tableofcontents

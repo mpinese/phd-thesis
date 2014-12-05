@@ -220,7 +220,7 @@ temp.sel_cols = apply(abs(nmf.final.msigdb.corr) >= sig.corr.threshold, 2, any)
 heatmap.2(nmf.final.msigdb.corr[, temp.sel_cols], trace = "none", scale = "none", useRaster = TRUE, col = brewer.pal(11, "PiYG"), symbreaks = TRUE)
 heatmap.2(nmf.final.msigdb.corr[, temp.sel_cols], trace = "none", scale = "none", useRaster = TRUE, col = brewer.pal(3, "PiYG"), breaks = c(-1, -sig.corr.threshold, sig.corr.threshold, 1))
 
-cpv.pvals = apply(coef(nmf.final), 1, function(mg) sapply(cpvs.diag_dsd, function(x) {
+cpv.pvals = apply(coef(nmf.final), 1, function(mg) sapply(cbind(cpvs.diag_dsd, purity = samps$purity_qpure), function(x) {
         s = !is.na(mg) & !is.na(x)
         x = x[s]
         mg = mg[s]
@@ -246,17 +246,32 @@ cpv.pvals = cpv.pvals[!grepl("^Path\\.Grade$", rownames(cpv.pvals)),]
 cpv.pvals = cpv.pvals[!grepl("^Path\\.TumourLocation$", rownames(cpv.pvals)),]
 
 temp = as.vector(cpv.pvals)
-temp = p.adjust(temp, "BH")
+temp = p.adjust(temp, "holm")
 cpv.qvals = matrix(temp, nrow = nrow(cpv.pvals))
 rownames(cpv.qvals) = rownames(cpv.pvals)
 colnames(cpv.qvals) = colnames(cpv.pvals)
-
 cpv.pvals
 cpv.qvals
 
-apply(coef(nmf.final), 1, function(c1) cor.test(c1, samps$purity_qpure, method = "kendall")$p.value)
-p.adjust(apply(coef(nmf.final), 1, function(c1) cor.test(c1, samps$purity_qpure, method = "kendall")$p.value), "BH")
-apply(coef(nmf.final), 1, function(c1) cor(c1, samps$purity_qpure, method = "kendall", na.rm = TRUE))
+cpv.pvals = cpv.pvals[,c(1, 2, 5, 6)]
+temp = as.vector(cpv.pvals)
+temp = p.adjust(temp, "holm")
+cpv.qvals = matrix(temp, nrow = nrow(cpv.pvals))
+rownames(cpv.qvals) = rownames(cpv.pvals)
+colnames(cpv.qvals) = colnames(cpv.pvals)
+cpv.pvals
+cpv.qvals
+
+boxplot(coef(nmf.final)[6,] ~ cpvs.diag_dsd$Path.Grade.Coarse)
+# plot(coef(nmf.final)[1,] ~ samps$purity_qpure)
+# plot(coef(nmf.final)[2,] ~ samps$purity_qpure)
+# plot(coef(nmf.final)[3,] ~ samps$purity_qpure)
+# plot(coef(nmf.final)[4,] ~ samps$purity_qpure)
+# plot(coef(nmf.final)[5,] ~ samps$purity_qpure)
+# plot(coef(nmf.final)[6,] ~ samps$purity_qpure)
+
+apply(coef(nmf.final), 1, function(c1) cor.test(c1, samps$purity_qpure, method = "kendall"))
+p.adjust(apply(coef(nmf.final), 1, function(c1) cor.test(c1, samps$purity_qpure, method = "kendall")$p.value), "BY")
 
 #termplot(lm(coef(nmf.final)[6,] ~ cpvs.diag_dsd$Path.Grade.Coarse), se = TRUE, rug = TRUE)
 lm(coef(nmf.final)[6,] ~ cpvs.diag_dsd$Path.Grade.Coarse)
