@@ -18,7 +18,7 @@ Sitting between the regulatory function of transcription control, and the effect
 
 Historically, disease \gls{GEX} profiling studies have largely refrained from attempting to infer the state of a few molecular processes from the many hundreds of differentially-expressed genes identified; notable early exceptions are for example \mpfatal{PCA, ICA cites}.  A number of factors are likely to have contributed to this reluctance: deconvolution methods are numerically sensitive and require very large sets of high-quality measurements, early techniques were poorly-suited to the particular requirements of the \gls{GEX} deconvolution problem, and the signature databases that assist the assignation of a biological annotation to the output from a deconvolution calculation (for example, the \acrshort{MSigDB} \cite{Subramanian2005}) have only recently reached maturity.
 
-In addition to the general technical challenges of \gls{GEX} deconvolution, issues particular to pancreas cancer significantly complicate attempts to identify molecular processes at work within the tumours.  Pancreas cancer is challenging to sample, and mRNA in the tissue degrades rapidly once extracted, complicating sample collection.  Additionally, a feature of \gls{PDAC} is the presence of a dense desmoplastic stromal reaction throughout the tumour, that is formed by genetically normal patient stroma cells \cite{Mahadevan2007}.  The fraction of tumour cells that are stromal varies by more than 10-fold between tumours \cite{Biankin2012}, meaning that without careful correction, gene expression profiles are dominated by stromal cell fraction signals, and not true differential expression within a cell type.  Microdissection has been used to separate cancer cells from surrounding stroma in order to simplify analysis \cite{Collisson2011}, but current thought in the field is that the stroma in \gls{PDAC} is an essential and enabling, if not in itself neoplastic, component of the tumour \cite{Mahadevan2007}, and that the examination of cancer cell expression in isolation ignores the likely important interplay between the two major synergistic components of a tumour: transformed epithelial cells, and genetically normal stroma.
+In addition to the general technical challenges of \gls{GEX} deconvolution, issues particular to pancreas cancer significantly complicate attempts to identify molecular processes at work within the tumours.  Pancreas cancer is challenging to sample, and mRNA in the tissue degrades rapidly once extracted, complicating sample collection.  Additionally, a feature of \gls{PDAC} is the presence of a dense desmoplastic stromal reaction throughout the tumour, that is formed by genetically normal patient stroma cells \cite{Mahadevan2007}.  The fraction of tumour cells that are actually cancerous varies by more than 10-fold between tumours \cite{Biankin2012}, meaning that without careful correction, gene expression profiles are dominated by stromal cell fraction signals, and not true differential expression within a cell type.  Microdissection has been used to separate cancer cells from surrounding stroma in order to simplify analysis \cite{Collisson2011}, but current thought in the field is that the stroma in \gls{PDAC} is an essential and enabling, if not in itself neoplastic, component of the tumour \cite{Mahadevan2007}, and that the examination of cancer cell expression in isolation ignores the likely important interplay between the two major synergistic components of a tumour: transformed epithelial cells, and genetically normal stroma.
 
 Due to these challenges to \gls{GEX} deconvolution of \gls{PDAC}, to date only one study (by Collisson et al) has reported a breakdown of \gls{PDAC} \gls{GEX} into a small number of biological modules \cite{Collisson2011}.  This study examined microdissected cancer cells only, and found that the transformed epithelial cells of \gls{PDAC} could be placed into three major categories, based on their patterns of gene expression.  Tumours from these three categories followed distinct clinical courses, and cell lines exhibited category-specific sensitivity to therapeutic drugs.  As the first report to identify potential clinically relevant molecular subtypes within \gls{PDAC}, the Collisson study was a significant advance in the understanding of the molecular processes at play within what was previously considered a homogeneous disease.  However, it also possesses shortcomings that limit its clinical utility.
 
@@ -90,7 +90,13 @@ Correlations between metagene coefficients and \gls{MSigDB} scores revealed a pa
 \caption{Correlations between metagenes and \acrshort{MSigDB} signatures.  Metagene coefficients, and \acrshort{GSVA} \acrshort{MSigDB} signature scores, were calculated on the \acrshort{APGI} \acrshort{GEX} data.  Kendall's correlation coefficients were then calculated between the scores of each metagene and signature pair, and are plotted here.  Metagenes MG1 and MG5, MG2 and MG6, and MG3 and MG4, form complementary pairs in terms of their correlation patterns with \acrshort{MSigDB} signatures.\label{fig:sigs-nmf-corplots}}
 \end{figure}
 
-\gls{MSigDB} correlations, as well as comparisons to a general survival signature, revealed that the MG5-MG1 axis primarily reflected the proliferative state of cells.  MG1 coefficients were strongly correlated with scores of the general outcome predictor meta-PCNA (Kendall's $\tau = 0.757$, $n = 110$), a 130 gene signature of cell proliferation \cite{Venet2011}.  Supporting this finding, MG1 coefficients were also strongly associated with \gls{GSVA} estimates of the E2F1 response, and of a number of cell-cycle related \gls{MSigDB} sets (\cref{tab:sigs-msigdb-corrs-mg15}).  Coefficients for MG5, the complement to MG1, were positively correlated with \gls{GSVA} scores calculated from genes with promoter regions within $\pm 2\ \text{kb}$ of the STAT5A target motif \texttt{AWTTCYNGGAANY}, also indicating a possible link between the MG5-MG1 axis and immune activity.  Both MG5 and MG1 were weakly and oppositely correlated with tumour cancer cell fraction, as estimated by qPure \cite{Song2012}
+\gls{MSigDB} correlations, as well as comparisons to a general survival signature, revealed that the MG5-MG1 axis primarily reflected the proliferative state of cells.  Coefficients of the hazardous MG1 were strongly correlated with scores of the general outcome predictor meta-PCNA (Kendall's $\tau = 0.757$, $n = 110$), a 130 gene signature of cell proliferation \cite{Venet2011} (\cref{fig:sigs-mg1-pcna}).  Supporting this finding, MG1 coefficients were also strongly associated with \gls{GSVA} estimates of the E2F1 response, and of a number of cell-cycle related \gls{MSigDB} sets (\cref{tab:sigs-msigdb-corrs-mg15}).  Coefficients for the protective MG5 were significantly negatively correlated with qPure estimates of cancer cell fraction \cite{Song2012} (\cref{tab:sigs-mg-cpvs}), and positively correlated with the \gls{GSVA} score of genes with promoter regions within $\pm 2\ \text{kb}$ of the STAT5A target motif \texttt{AWTTCYNGGAANY}.  Taken together, these associations suggest that a high MG1 coefficient (equivalently, a low MG5 coefficient) is a marker of aggressive tumours with high proliferative activity, relatively low stromal content, and poor outcome.  Conversely, high a MG5 coefficient (low MG1) indicates a less aggressive tumour with higher stromal content, and possibly increased immune involvement.
+
+\begin{figure}
+\centering
+\includegraphics[width=.7\linewidth]{analysis/biosurv/reports/18_SIS_diag_dsd_final/figure/metagene-pairs-7}
+\caption{MG1 coefficients are closely associated with meta-PCNA signature score.  MG1 coefficients and meta-PCNA scores \cite{Venet2011} were evaluated on the \gls{APGI} training set; Kendall's $\tau = 0.757$, $n = 110$.\label{fig:sigs-nmf-corplots}}
+\end{figure}
 
 \begin{table}[ht]
 \caption{\acrshort{MSigDB} signatures substantially correlated to the MG5-MG1 axis.\label{tab:sigs-msigdb-corrs-mg15}}
@@ -261,46 +267,75 @@ Correlations between metagene coefficients and \gls{MSigDB} scores revealed a pa
 \end{tabularx}
 \end{table}
 
-The MG2-MG6 axis correlated with stromal content and tumour grade: conditions of high MG2 and low MG6 were associated with lower stromal content, lower grade, and longer survival.  The MG6 coefficient was associated with tumour microscopic pathological grade (Holm-corrected $P = 0.0288$, 150 tests performed), although this dependence was weak: on average, MG6 score was 0.0623 higher in grade 3 or 4 tumours over grade 1 or 2, with $R^2 = 0.122$.  Apart from this weak MG6-grade interaction, no other significant metagene-clinical variate correlations were found (\cref{tab:sigs-mg-cpvs}).  
-
-\cref{tab:sigs-msigdb-corrs-mg26}
+The MG2-MG6 axis correlated with stromal content and tumour grade: conditions of high MG2 and low MG6 were associated with lower stromal content, lower grade, and longer survival.  The MG6 coefficient correlated with tumour microscopic pathological grade (Holm-corrected $P = 0.0288$, 150 tests performed), although this dependence was weak: on average, MG6 score was 0.0623 higher in grade 3 or 4 tumours over grade 1 or 2, with $R^2 = 0.122$.  MG6 coefficients were strongly positively correlated with \gls{GSVA} scores for \gls{MSigDB} signatures related to \gls{ECM} interactions and remodelling, and MG2 anticorrelated with a signature of LEF1-mediated \gls{EMT} (\cref{tab:sigs-msigdb-corrs-mg26}), strongly implicating matrix remodelling and invasion as the molecular basis of MG2-MG6 axis score.  The protective MG2 metagene was also positively associated with tumour cancer cell fraction, the opposite of the situation observed for the MG5-MG1 axis, where high cancer cell fraction was associated with poorer outcome, through the hazardous MG5 metagene.  This reveals a potential context dependency in the influence of stromal content on survival, where high stromal content of a tumour may indicate either good or poor prognosis, depending on which underlying metagene is responsible.
 
 \begin{table}[h]
-\centering
-\caption{Association P-values between metagenes and \glspl{CPV}.  Numbers are Holm-corrected P-values, either from Kendall $\tau$ tests in the case of continuous or large ordinate clinical variates, or from ANOVA for categorical variates.  Only three interactions (highlighted) were signficant at a 5\% FWER level.  Tests were also performed for the non-survival associated metagenes MG3 and MG4, but all were non-significant, and are not reported here.\label{tab:sigs-mg-cpvs}}
-\begin{tabular}{@{}lllll@{}}
+\caption{Association P-values between metagenes and \glspl{CPV}.  P-values were either from Kendall $\tau$ tests in the case of continuous or large ordinate clinical variates, or from ANOVA for categorical variates.  Only three associatons were signficant at a 5\% FWER level by Holm's correction; these are highlighted.  Tests were also performed for the non-survival associated metagenes MG3 and MG4, and were taken into account for multiple testing correction, but their results are not reported here.\label{tab:sigs-mg-cpvs}}
+\center
+\begin{tabular}{@{}l@{\qquad}ll@{\qquad\quad}ll@{}}
 \toprule
-Variable                   & MG5                           & MG1   & MG2                           & MG6                           \\ \midrule
-Age at diagnosis           & 1.000                         & 1.000 & 1.000                         & 1.000                         \\
-Ethnicity                  & 1.000                         & 1.000 & 1.000                         & 1.000                         \\
-Gender                     & 1.000                         & 1.000 & 1.000                         & 1.000                         \\
-Histological subtype       & 1.000                         & 1.000 & 1.000                         & 1.000                         \\
-Pack years smoked          & 1.000                         & 1.000 & 1.000                         & 1.000                         \\
-Pathological grade         & 1.000                         & 0.972 & 0.860                         & \cellcolor[HTML]{C0C0C0}0.029 \\
-Perineural invasion        & 1.000                         & 1.000 & 1.000                         & 1.000                         \\
-Cancer cell fraction       & \cellcolor[HTML]{C0C0C0}0.002 & 1.000 & \cellcolor[HTML]{C0C0C0}0.002 & 1.000                         \\
-Recurrence site:           &                               &       &                               &                               \\
-\quad Bone                       & 1.000                         & 1.000 & 1.000                         & 1.000                         \\
-\quad Brain                      & 1.000                         & 1.000 & 1.000                         & 1.000                         \\
-\quad Liver                      & 1.000                         & 1.000 & 1.000                         & 1.000                         \\
-\quad Lung                       & 1.000                         & 1.000 & 1.000                         & 1.000                         \\
-\quad Lymph nodes                & 1.000                         & 1.000 & 1.000                         & 1.000                         \\
-\quad Mesentery                  & 1.000                         & 1.000 & 1.000                         & 1.000                         \\
-\quad Omentum                    & 1.000                         & 1.000 & 1.000                         & 1.000                         \\
-\quad Other                      & 1.000                         & 1.000 & 1.000                         & 1.000                         \\
-\quad Pancreatic bed             & 1.000                         & 1.000 & 1.000                         & 1.000                         \\
-\quad Pancreas remnant           & 1.000                         & 1.000 & 1.000                         & 1.000                         \\
-\quad Peritoneum                 & 1.000                         & 1.000 & 1.000                         & 1.000                         \\
-Staging: M                 & 1.000                         & 1.000 & 1.000                         & 1.000                         \\
-Staging: N                 & 1.000                         & 1.000 & 1.000                         & 1.000                         \\
-Staging: T                 & 1.000                         & 1.000 & 1.000                         & 1.000                         \\
-Staging: Overall stage     & 1.000                         & 1.000 & 1.000                         & 1.000                         \\
-Tumour location            & 1.000                         & 1.000 & 1.000                         & 1.000                         \\
-Tumour longest axis length & 1.000                         & 1.000 & 1.000                         & 1.000                         \\
-Vascular invasion          & 1.000                         & 1.000 & 1.000                         & 1.000                         \\ \bottomrule
+%                           & \multicolumn{2}{l}{MG5-MG1 axis}         & \multicolumn{2}{l}{MG2-MG6 axis}                                  \\
+Variable                   & MG5                             & MG1    & MG2                             & MG6                             \\ \midrule
+Age at diagnosis           & 0.7512                          & 0.8816 & 0.6816                          & 0.7516                          \\
+Ethnicity                  & 0.9939                          & 0.6228 & 0.7244                          & 0.0192                          \\
+Gender                     & 0.3733                          & 0.1384 & 0.0207                          & 0.0388                          \\
+Histological subtype       & 0.5660                          & 0.8934 & 0.5620                          & 0.0595                          \\
+Pack years smoked          & 0.5061                          & 0.3481 & 0.2604                          & 0.4738                          \\
+Pathological grade         & 0.0147                          & 0.0064 & 0.0057                          & \cellcolor[HTML]{C0C0C0}1.87E-4 \\
+Perineural invasion        & 0.0642                          & 0.3263 & 0.0645                          & 0.8348                          \\
+Cancer cell fraction       & \cellcolor[HTML]{C0C0C0}1.38E-5 & 0.0473 & \cellcolor[HTML]{C0C0C0}1.51E-5 & 0.1064                          \\
+Recurrence site            &                                 &        &                                 &                                 \\
+\quad Bone                 & 0.4605                          & 0.7822 & 0.8047                          & 0.0953                          \\
+\quad Brain                & 0.2810                          & 0.7745 & 0.0299                          & 0.3089                          \\
+\quad Liver                & 0.3725                          & 0.1294 & 0.0469                          & 0.4266                          \\
+\quad Lung                 & 0.0285                          & 0.4887 & 0.2979                          & 0.0897                          \\
+\quad Lymph nodes          & 0.3963                          & 0.3318 & 0.9865                          & 0.7819                          \\
+\quad Mesentery            & 0.4057                          & 0.5023 & 0.2771                          & 0.1203                          \\
+\quad Omentum              & 0.3392                          & 0.1208 & 0.2790                          & 0.0596                          \\
+\quad Other                & 0.0692                          & 0.6825 & 0.2960                          & 0.1711                          \\
+\quad Pancreatic bed       & 0.9389                          & 0.8693 & 0.3251                          & 0.9235                          \\
+\quad Pancreas remnant     & 0.6621                          & 0.5516 & 0.2399                          & 0.2693                          \\
+\quad Peritoneum           & 0.8085                          & 0.9581 & 0.0528                          & 0.0276                          \\
+Staging: M                 & 0.7803                          & 0.3965 & 0.3624                          & 0.2488                          \\
+Staging: N                 & 0.1124                          & 0.7312 & 0.1811                          & 0.5892                          \\
+Staging: T                 & 0.6051                          & 0.1377 & 0.5530                          & 0.4779                          \\
+Staging: Overall stage     & 0.1922                          & 0.0382 & 0.2195                          & 0.4592                          \\
+Tumour location            & 0.1092                          & 0.4698 & 0.2301                          & 0.1814                          \\
+Tumour longest axis length & 0.8154                          & 0.9408 & 0.1352                          & 0.4037                          \\
+Vascular invasion          & 0.7806                          & 0.6266 & 0.1746                          & 0.0862                          \\ \bottomrule
 \end{tabular}
+%\begin{tabular}{@{}lllllll@{}}
+%\toprule
+%Variable                   & MG5                             & MG1    & MG2                             & MG6                             & MG3    & MG4    \\ \midrule
+%Age at diagnosis           & 0.7512                          & 0.8816 & 0.6816                          & 0.7516                          & 0.4923 & 0.9147 \\
+%Ethnicity                  & 0.9939                          & 0.6228 & 0.7244                          & 0.0192                          & 0.1898 & 0.7660 \\
+%Gender                     & 0.3733                          & 0.1384 & 0.0207                          & 0.0388                          & 0.7273 & 0.1350 \\
+%Histological subtype       & 0.5660                          & 0.8934 & 0.5620                          & 0.0595                          & 0.2291 & 0.1040 \\
+%Pack years smoked          & 0.5061                          & 0.3481 & 0.2604                          & 0.4738                          & 0.7314 & 0.3219 \\
+%Pathological grade         & 0.0147                          & 0.0064 & 0.0057                          & \cellcolor[HTML]{C0C0C0}1.87E-4 & 0.3688 & 0.1295 \\
+%Perineural invasion        & 0.0642                          & 0.3263 & 0.0645                          & 0.8348                          & 0.8969 & 0.5097 \\
+%Cancer cell fraction       & \cellcolor[HTML]{C0C0C0}1.38E-5 & 0.0473 & \cellcolor[HTML]{C0C0C0}1.51E-5 & 0.1064                          & 0.0933 & 0.4633 \\
+%Recurrence site            &                                 &        &                                 &                                 &        &        \\
+%\quad Bone                 & 0.4605                          & 0.7822 & 0.8047                          & 0.0953                          & 0.9800 & 0.8543 \\
+%\quad Brain                & 0.2810                          & 0.7745 & 0.0299                          & 0.3089                          & 0.6350 & 0.9716 \\
+%\quad Liver                & 0.3725                          & 0.1294 & 0.0469                          & 0.4266                          & 0.0689 & 0.5475 \\
+%\quad Lung                 & 0.0285                          & 0.4887 & 0.2979                          & 0.0897                          & 0.5562 & 0.7486 \\
+%\quad Lymph nodes          & 0.3963                          & 0.3318 & 0.9865                          & 0.7819                          & 0.6365 & 0.0148 \\
+%\quad Mesentery            & 0.4057                          & 0.5023 & 0.2771                          & 0.1203                          & 0.7858 & 0.7074 \\
+%\quad Omentum              & 0.3392                          & 0.1208 & 0.2790                          & 0.0596                          & 0.9542 & 0.7849 \\
+%\quad Other                & 0.0692                          & 0.6825 & 0.2960                          & 0.1711                          & 0.7089 & 0.0036 \\
+%\quad Pancreatic bed       & 0.9389                          & 0.8693 & 0.3251                          & 0.9235                          & 0.6699 & 0.4752 \\
+%\quad Pancreas remnant     & 0.6621                          & 0.5516 & 0.2399                          & 0.2693                          & 0.0178 & 0.9146 \\
+%\quad Peritoneum           & 0.8085                          & 0.9581 & 0.0528                          & 0.0276                          & 0.6170 & 0.2811 \\
+%Staging: M                 & 0.7803                          & 0.3965 & 0.3624                          & 0.2488                          & 0.8589 & 0.1352 \\
+%Staging: N                 & 0.1124                          & 0.7312 & 0.1811                          & 0.5892                          & 0.6240 & 0.7514 \\
+%Staging: T                 & 0.6051                          & 0.1377 & 0.5530                          & 0.4779                          & 0.3490 & 0.0650 \\
+%Staging: Overall stage     & 0.1922                          & 0.0382 & 0.2195                          & 0.4592                          & 0.6024 & 0.0895 \\
+%Tumour location            & 0.1092                          & 0.4698 & 0.2301                          & 0.1814                          & 0.0712 & 0.5676 \\
+%Tumour longest axis length & 0.8154                          & 0.9408 & 0.1352                          & 0.4037                          & 0.7091 & 0.2151 \\
+%Vascular invasion          & 0.7806                          & 0.6266 & 0.1746                          & 0.0862                          & 0.9341 & 0.6312 \\ \bottomrule
+%\end{tabular}
 \end{table}
-
 
 \begin{table}[ht]
 \caption{\acrshort{MSigDB} signatures substantially correlated to the MG2-MG6 axis.\label{tab:sigs-msigdb-corrs-mg26}}
@@ -313,7 +348,7 @@ Vascular invasion          & 1.000                         & 1.000 & 1.000      
   c2 PID integrin 1 pathway & -0.50 & 0.54 \\ 
   c2 PID integrin 3 pathway & -0.48 & 0.55 \\ 
   c2 PID UPA UPAR pathway & -0.43 & 0.56 \\ 
-  c2 PID integrin5 pathway & -0.37 & 0.60.\\ 
+  c2 PID integrin5 pathway & -0.37 & 0.60 \\ 
   c2 KEGG ECM receptor interaction & -0.45 & 0.51 \\ 
   c4 GNF2 MMP1 & -0.43 & 0.53 \\ 
   c2 KEGG focal adhesion & -0.43 & 0.52 \\ 
@@ -329,13 +364,14 @@ Vascular invasion          & 1.000                         & 1.000 & 1.000      
   c3 TGANTCA v\$AP1 C & -0.28 & 0.59 \\ 
   c6 LEF1 up v1 signed & -0.53 & 0.33 \\ 
   c2 PID AVB3 integrin pathway & -0.32 & 0.52 \\ 
-  c3 V\$AP1 Q6 01 & -0.23 & 0.50.\\ 
+  c3 V\$AP1 Q6 01 & -0.23 & 0.50 \\ 
   c3 V\$AP1 Q6 & -0.16 & 0.54 \\ 
   c3 V\$AP1 Q4 & -0.14 & 0.54 \\ 
    \bottomrule
 \end{tabularx}
 \end{table}
 
+\subsection{The Collisson subgroups are the result of junk science and can't be properly validated, though I bloody well tried}
 
 \section{Discussion}
 
@@ -424,7 +460,7 @@ Vascular invasion          & Boolean \\
 The full metagene discovery pipeline, from survival-associated gene selection by \gls{CPSS}-\gls{SIS}-\gls{FAST}, through automatic rank estimation, \gls{NMF} factorization, and \gls{LASSO} model fitting, was applied to training sets in a 10-fold cross-validation loop.  Test set metagene coefficients for each fold were calculated from that fold's fitted \gls{NMF} $W$ matrix as described in \cref{subsec:sigs-metagene-est}, and test set coefficients were applied to the fitted \gls{LASSO} model for that fold, to yield test set linear predictors.  Linear predictors from each test set were combined to form a test vector containing a cross-validated prediction for each patient in the \gls{APGI} cohort, each patient's prediction having been made from data that did not include that patient.  Overall prognostic ability was assessed by comparing a Cox proportional hazards model predicting time from diagnosis to disease specific death using the cross-validated test vector as the sole covariate, to an intercept-only model, using a likelihood ratio test.
 
 \subsection{External validation of outcome-associated metagenes}
-Gene expression data for accessions GSE21501 and GSE28735 were downloaded as processed series matrix data from the \gls{NCBI} \gls{GEO}.  Survival times, censoring indicators, clinical covariates (for GSE21501), and probe expression estimates were extracted from the series matrix files.  Probes were annotated with gene symbols using the associated GPL annotation files, and probes with no gene annotation were discarded.  If multiple probes mapped to the same gene symbol, only the probe with the highest standard deviation across all samples in a data set was retained.  Finally, only probes with a standard deviation within the top 20\superscript{th} percentile within a data set were kept for metagene scoring.
+Gene expression data for accessions GSE21501 and GSE28735 were downloaded as processed series matrix data from the \gls{NCBI} \gls{GEO}.  Survival times, censoring indicators, clinical covariates (for GSE21501), and probe expression estimates were extracted from the series matrix files.  Probes were annotated with gene symbols using the associated GPL annotation files, and probes with no gene annotation were discarded.  If multiple probes mapped to the same gene symbol, only the probe with the highest standard deviation across all samples in a data set was retained.  Finally, only probes with a standard deviation within the top 20\textsuperscript{th} percentile within a data set were kept for metagene scoring.
 
 For each validation data set, metagene coefficients were calculated as described in \cref{subsec:sigs-metagene-est}.  Metagene coefficients were then combined to form per-sample risk predictions using the \gls{LASSO} fit produced on the \gls{APGI} discovery data.  The \gls{APGI} survival signature was tested within each data set using likelihood ratio tests comparing a Cox model using signature risk predictions as the sole covariate, with an intercept-only Cox model.
 
