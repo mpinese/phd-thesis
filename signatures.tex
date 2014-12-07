@@ -95,7 +95,7 @@ Correlations between metagene coefficients and \gls{MSigDB} scores revealed a pa
 \begin{figure}
 \centering
 \includegraphics[width=.7\linewidth]{analysis/biosurv/reports/18_SIS_diag_dsd_final/figure/metagene-pairs-7}
-\caption{MG1 coefficients are closely associated with meta-PCNA signature score.  MG1 coefficients and meta-PCNA scores \cite{Venet2011} were evaluated on the \gls{APGI} training set; Kendall's $\tau = 0.757$, $n = 110$.\label{fig:sigs-nmf-corplots}}
+\caption{MG1 coefficients are closely associated with meta-PCNA signature score.  MG1 coefficients and meta-PCNA \cite{Venet2011} scores were as evaluated on the \gls{APGI} training set; Kendall's $\tau = 0.757$, $n = 110$.\label{fig:sigs-nmf-corplots}}
 \end{figure}
 
 \begin{table}[ht]
@@ -270,7 +270,7 @@ Correlations between metagene coefficients and \gls{MSigDB} scores revealed a pa
 The MG2-MG6 axis correlated with stromal content and tumour grade: conditions of high MG2 and low MG6 were associated with lower stromal content, lower grade, and longer survival.  The MG6 coefficient correlated with tumour microscopic pathological grade (Holm-corrected $P = 0.0288$, 150 tests performed), although this dependence was weak: on average, MG6 score was 0.0623 higher in grade 3 or 4 tumours over grade 1 or 2, with $R^2 = 0.122$.  MG6 coefficients were strongly positively correlated with \gls{GSVA} scores for \gls{MSigDB} signatures related to \gls{ECM} interactions and remodelling, and MG2 anticorrelated with a signature of LEF1-mediated \gls{EMT} (\cref{tab:sigs-msigdb-corrs-mg26}), strongly implicating matrix remodelling and invasion as the molecular basis of MG2-MG6 axis score.  The protective MG2 metagene was also positively associated with tumour cancer cell fraction, the opposite of the situation observed for the MG5-MG1 axis, where high cancer cell fraction was associated with poorer outcome, through the hazardous MG5 metagene.  This reveals a potential context dependency in the influence of stromal content on survival, where high stromal content of a tumour may indicate either good or poor prognosis, depending on which underlying metagene is responsible.
 
 \begin{table}[h]
-\caption{Association P-values between metagenes and \glspl{CPV}.  P-values were either from Kendall $\tau$ tests in the case of continuous or large ordinate clinical variates, or from ANOVA for categorical variates.  Only three associatons were signficant at a 5\% FWER level by Holm's correction; these are highlighted.  Tests were also performed for the non-survival associated metagenes MG3 and MG4, and were taken into account for multiple testing correction, but their results are not reported here.\label{tab:sigs-mg-cpvs}}
+\caption{Association P-values between metagenes and \glspl{CPV}.  P-values were either from Kendall $\tau$ tests in the case of continuous or large ordinate clinical variates, or from ANOVA for categorical variates.  Only three associations were signficant at a 5\% FWER level by Holm's correction; these are highlighted.  Tests were also performed for the non-survival associated metagenes MG3 and MG4, and were taken into account for multiple testing correction, but their results are not reported here.\label{tab:sigs-mg-cpvs}}
 \center
 \begin{tabular}{@{}l@{\qquad}ll@{\qquad\quad}ll@{}}
 \toprule
@@ -433,18 +433,18 @@ Histological subtype       & Factor  \\
 Pack years smoked          & Ordinal \\
 Pathological grade         & Boolean \\
 Perineural invasion        & Boolean \\
-Recurrence site:           &         \\
-\quad Peritoneum                 & Boolean \\
+Recurrence found in:           &         \\
+\quad Bone                       & Boolean \\
+\quad Brain                      & Boolean \\
+\quad Liver                      & Boolean \\
+\quad Lung                       & Boolean \\
+\quad Lymph nodes                & Boolean \\
+\quad Mesentery                  & Boolean \\
+\quad Omentum                    & Boolean \\
+\quad Other                      & Boolean \\
 \quad Pancreas remnant           & Boolean \\
 \quad Pancreatic bed             & Boolean \\
-\quad Other                      & Boolean \\
-\quad Omentum                    & Boolean \\
-\quad Mesentery                  & Boolean \\
-\quad Lymph nodes                & Boolean \\
-\quad Lung                       & Boolean \\
-\quad Liver                      & Boolean \\
-\quad Brain                      & Boolean \\
-\quad Bone                       & Boolean \\
+\quad Peritoneum                 & Boolean \\
 Staging: M                 & Boolean \\
 Staging: N                 & Boolean \\
 Staging: T                 & Factor  \\
