@@ -132,6 +132,44 @@ heatmap.2(temp.pred.pairs.rescaled2[apply(!is.na(temp.pred.pairs.rescaled2), 1, 
 temp.cors = apply(temp.pred.pairs[,colnames(temp.pred.pairs) != "pkyrs"], 2, function(x) apply(temp.pred.pairs[,colnames(temp.pred.pairs) != "pkyrs"], 2, function(y) { sel = !(is.na(x) | is.na(y)); cor(x[sel], y[sel], method = "kendall") } ))
 #diag(temp.cors) = NA
 heatmap.2(temp.cors, trace = "none", Rowv = FALSE, Colv = FALSE, col = brewer.pal(11, "PiYG"), dendrogram = "none", scale = "none")
+
+plot(temp.pred.pairs[,"mg.1"] ~ temp.pred.pairs[,"PCNA"], col = ifelse(rownames(temp.pred.pairs) %in% colnames(xlin.diag_dsd.sel), rgb(0, 0, 0, 1), rgb(0, 0, 0, 0)), xlab = "Meta-PCNA Score", ylab = "MG1 Coefficient")
+plot(temp.pred.pairs[,"mg.5"], temp.pred.pairs[,"mg.1"], xlab = "MG5 Coefficient (protective)", ylab = "MG1 Coefficient (hazardous)")
+plot(temp.pred.pairs[,"mg.2"], temp.pred.pairs[,"mg.6"], xlab = "MG2 Coefficient (protective)", ylab = "MG6 Coefficient")
+#scatter.smooth(temp.pred.pairs[,"mg.5"], temp.pred.pairs[,"mg.1"], xlab = "MG5 Coefficient (protective)", ylab = "MG1 Coefficient (hazardous)", span = 1/4, lpars = list(lwd = 2, col = rgb(0, 0, 0, 0.5)))
+#scatter.smooth(temp.pred.pairs[,"mg.2"], temp.pred.pairs[,"mg.6"], xlab = "MG2 Coefficient (protective)", ylab = "MG6 Coefficient", span = 1/4, lpars = list(lwd = 2, col = rgb(0, 0, 1, 0.5)))
+#smoothScatter(temp.pred.pairs[,"mg.5"], temp.pred.pairs[,"mg.1"], xlab = "MG5 Coefficient (protective)", ylab = "MG1 Coefficient (hazardous)")
+#smoothScatter(temp.pred.pairs[,"mg.2"], temp.pred.pairs[,"mg.6"], xlab = "MG2 Coefficient (protective)", ylab = "MG6 Coefficient")
+
+temp.coefs.pdcor = apply(coefs.diag_dsd, 1, function(x1) apply(coefs.diag_dsd, 1, function(x2) dcov.test(x1, x2, R = 9999)$p.value))
+temp.coefs.pfisher = apply(coefs.diag_dsd, 1, function(x1) apply(coefs.diag_dsd, 1, function(x2) fisher.test(x1 > median(x1), x2 > median(x2))$p.value))
+diag(temp.coefs.pdcor) = NA
+temp.coefs.pdcor[lower.tri(temp.coefs.pdcor)] = NA
+diag(temp.coefs.pfisher) = NA
+temp.coefs.pfisher[lower.tri(temp.coefs.pfisher)] = NA
+temp.coefs.pdcor.holm = matrix(p.adjust(temp.coefs.pdcor, "holm"), nrow = nrow(temp.coefs.pdcor))
+temp.coefs.pfisher.holm = matrix(p.adjust(temp.coefs.pfisher, "holm"), nrow = nrow(temp.coefs.pfisher))
+temp.coefs.pdcor.holm
+temp.coefs.pfisher.holm
+
+dcov.test(coefs.diag_dsd[5,], coefs.diag_dsd[1,], R = 19999)
+dcov.test(coefs.diag_dsd[2,], coefs.diag_dsd[6,], R = 19999)
+cor.test(coefs.diag_dsd[5,], coefs.diag_dsd[1,], method = "kendall")
+cor.test(coefs.diag_dsd[2,], coefs.diag_dsd[6,], method = "kendall")
+
+temp.axis1 = coefs.diag_dsd[1,] - coefs.diag_dsd[5,]
+temp.axis2 = coefs.diag_dsd[6,] - coefs.diag_dsd[2,]
+dcov.test(temp.axis1, temp.axis2, R = 19999)
+cor.test(temp.axis1, temp.axis2, method = "kendall")
+plot(temp.axis2 ~ temp.axis1, xlab = "Axis 1 activity", ylab = "Axis 2 activity")
+
+coxph(y.diag_dsd ~ temp.axis1 * temp.axis2)
+temp = cv.glmnet(cbind(temp.axis1, temp.axis2, temp.axis1*temp.axis2), y.diag_dsd, family = "cox", nfolds = 10)
+plot(temp)
+plot(temp$glmnet.fit, label = TRUE)
+abline(v = sum(abs(coef(temp$glmnet.fit, s = temp$lambda.1se))))
+abline(v = sum(abs(coef(temp$glmnet.fit, s = temp$lambda.min))))
+coef(temp$glmnet.fit, s = temp$lambda.1se)
 @
 
 
@@ -169,14 +207,14 @@ coef(glmnet.fit.cv.recr_dsd$glmnet.fit, s = glmnet.fit.cv.recr_dsd$lambda.1se)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % SIGNATURE PROGNOSTIC PERFORMANCE: CROSS-VALIDATION
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Prediction on 10-fold CV}
-<<cv-sig-load>>=
-cv_preds = readRDS("../../analysis/14_SIS_NMF_CV_results.rds")
-@
+% \subsection{Prediction on 10-fold CV}
+% <<cv-sig-load>>=
+% cv_preds = readRDS("../../analysis/14_SIS_NMF_CV_results.rds")
+% @
 
-<<cv-sig-test-alone>>=
-summary(coxph(y.diag_dsd ~ cv_preds["lasso.1se",]))
-@
+% <<cv-sig-test-alone>>=
+% summary(coxph(y.diag_dsd ~ cv_preds["lasso.1se",]))
+% @
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -199,16 +237,109 @@ GSE28735.lingex.for_basis[is.na(GSE28735.lingex.for_basis)] = 0
 GSE21501.coefs = apply(GSE21501.lingex.for_basis, 2, function(xcol) nnls(val.basis, xcol)$x)
 GSE28735.coefs = apply(GSE28735.lingex.for_basis, 2, function(xcol) nnls(val.basis, xcol)$x)
 
+GSE21501.axis1 = GSE21501.coefs[1,] - GSE21501.coefs[5,]
+GSE21501.axis2 = GSE21501.coefs[6,] - GSE21501.coefs[2,]
+GSE28735.axis1 = GSE28735.coefs[1,] - GSE28735.coefs[5,]
+GSE28735.axis2 = GSE28735.coefs[6,] - GSE28735.coefs[2,]
+
+GSE21501.score = 1.354*GSE21501.axis1 + 1.548*GSE21501.axis2
+GSE28735.score = 1.354*GSE28735.axis1 + 1.548*GSE28735.axis2
+
 GSE21501.pcna = apply(GSE21501.gex[match(metapcna.sig, GSE21501.feat$Gene.symbol),], 2, median, na.rm = TRUE)
 GSE28735.pcna = apply(GSE28735.gex[match(metapcna.sig, GSE28735.feat$Gene.symbol),], 2, median, na.rm = TRUE)
 @
 
 <<val-tests>>=
-temp = coxph(Surv(GSE21501.samp$time, GSE21501.samp$event) ~ predict(glmnet.fit.cv.diag_dsd$glmnet.fit, newx = t(GSE21501.coefs), s = glmnet.fit.cv.recr_dsd$lambda.1se))
+temp = coxph(Surv(GSE21501.samp$time, GSE21501.samp$event) ~ GSE21501.score)
 summary(temp)
-temp = coxph(Surv(GSE28735.samp$time, GSE28735.samp$event) ~ predict(glmnet.fit.cv.diag_dsd$glmnet.fit, newx = t(GSE28735.coefs), s = glmnet.fit.cv.recr_dsd$lambda.1se))
+temp = coxph(Surv(GSE28735.samp$time, GSE28735.samp$event) ~ GSE28735.score)
 summary(temp)
+
+anova(coxph(Surv(GSE21501.samp$time, GSE21501.samp$event) ~ GSE21501.axis1 + GSE21501.axis2))
+anova(coxph(Surv(GSE28735.samp$time, GSE28735.samp$event) ~ GSE28735.axis1 + GSE28735.axis2))
 @
+
+
+<<val-tcga-load>>=
+load("../../data/validation/tcga-clin-gex.20141118.rda")
+@
+
+<<val-tcga-calc>>=
+doValForSingleCancer = function(cancer_id)
+{
+	# nevents, ntotal, score_p, anova_pcna, anova_score, anova_axis1, anova_axis2
+	message(cancer_id)
+	cancer_data = data.merged[[cancer_id]]
+	if (!"illuminahiseq_rnaseqv2" %in% names(cancer_data$gex))	{ return(c(0, 0, NA, NA, NA, NA, NA)) }
+
+	gex = cancer_data$gex$illuminahiseq_rnaseqv2
+	clin = cancer_data$clin
+
+	days_to_death = clin$days_to_death
+	days_to_death[days_to_death == "[Not Applicable]"] = NA
+	days_to_death = as.numeric(as.character(days_to_death))
+
+	days_to_initial_pathologic_diagnosis = clin$days_to_initial_pathologic_diagnosis
+	days_to_initial_pathologic_diagnosis[days_to_initial_pathologic_diagnosis == "[Not Applicable]"] = NA
+	days_to_initial_pathologic_diagnosis = as.numeric(as.character(days_to_initial_pathologic_diagnosis))
+
+	days_to_last_followup = clin$days_to_last_followup
+	days_to_last_followup[days_to_last_followup == "[Not Applicable]"] = NA
+	days_to_last_followup = as.numeric(as.character(days_to_last_followup))
+
+	time_event = days_to_death - days_to_initial_pathologic_diagnosis
+	time_lfu = days_to_last_followup - days_to_initial_pathologic_diagnosis
+	time_obs = time_event
+	time_obs[is.na(time_obs)] = time_lfu[is.na(time_obs)]
+	time_obs[!is.na(time_obs) & !is.na(time_lfu)] = pmin(time_obs[!is.na(time_obs) & !is.na(time_lfu)], time_lfu[!is.na(time_obs) & !is.na(time_lfu)])
+	event = (time_event <= time_lfu & !is.na(time_event) & !is.na(time_lfu)) | (!is.na(time_event) & is.na(time_lfu))
+
+	y = Surv(time_obs, event)
+
+	gex = gex[!grepl("^\\?\\|", rownames(gex)),]
+	rownames(gex) = gsub("\\|.*", "", rownames(gex))
+
+	pcna = apply(log2(gex[rownames(gex) %in% metapcna.sig,] + 1), 2, median)
+
+	gex.axes = gex[match(rownames(val.basis), rownames(gex)),]
+	gex.axes[apply(is.na(gex.axes), 1, all),] = 0
+	gex.axes = gex.axes - apply(gex.axes, 1, min, na.rm = TRUE)
+	gex.axes = gex.axes / apply(gex.axes, 1, max, na.rm = TRUE)
+	gex.axes[is.na(gex.axes)] = 0
+
+	coefs = apply(gex.axes, 2, function(xcol) nnls(val.basis, xcol)$x)
+
+	axis1 = coefs[1,] - coefs[5,]
+	axis2 = coefs[6,] - coefs[2,]
+	score = 1.354*axis1 + 1.548*axis2
+
+	valid = !is.na(score) & !is.na(pcna) & !is.na(y[,1]) & !is.na(y[,2])
+	axis1 = axis1[valid]
+	axis2 = axis2[valid]
+	score = score[valid]
+	pcna = pcna[valid]
+	y = y[valid,]
+
+	nevents = sum(y[,2])
+	ntotal = nrow(y)
+
+	score_p = pchisq(2*diff(coxph(y ~ score)$loglik), 1, lower.tail = FALSE)
+	anova_pcna = anova(coxph(y ~ pcna + score))[,"Pr(>|Chi|)"][2]
+	anova_score = anova(coxph(y ~ pcna + score))[,"Pr(>|Chi|)"][3]
+	anova_axis1 = anova(coxph(y ~ axis1 + axis2))[,"Pr(>|Chi|)"][2]
+	anova_axis2 = anova(coxph(y ~ axis1 + axis2))[,"Pr(>|Chi|)"][3]
+
+	c(nevents, ntotal, score_p, anova_pcna, anova_score, anova_axis1, anova_axis2)
+}
+
+
+val_pvals = sapply(names(data.merged), doValForSingleCancer)
+rownames(val_pvals) = c("nevents", "ntotal", "p.score", "p.anova.pcna", "p.anova.pcna_score", "p.anova.axis1", "p.anova.axis1_axis2")
+val_pvals = as.data.frame(t(val_pvals))
+
+val_pvals[val_pvals$nevents >= 50 | rownames(val_pvals) == "paad",]
+@
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -220,7 +351,7 @@ temp.sel_cols = apply(abs(nmf.final.msigdb.corr) >= sig.corr.threshold, 2, any)
 heatmap.2(nmf.final.msigdb.corr[, temp.sel_cols], trace = "none", scale = "none", useRaster = TRUE, col = brewer.pal(11, "PiYG"), symbreaks = TRUE)
 heatmap.2(nmf.final.msigdb.corr[, temp.sel_cols], trace = "none", scale = "none", useRaster = TRUE, col = brewer.pal(3, "PiYG"), breaks = c(-1, -sig.corr.threshold, sig.corr.threshold, 1))
 
-cpv.pvals = apply(coef(nmf.final), 1, function(mg) sapply(cbind(cpvs.diag_dsd, purity = samps$purity_qpure), function(x) {
+cpv.pvals = apply(coef(nmf.final), 1, function(mg) sapply(cbind(cpvs.diag_dsd, purity = samps.diag_dsd$purity_qpure), function(x) {
         s = !is.na(mg) & !is.na(x)
         x = x[s]
         mg = mg[s]
@@ -250,30 +381,12 @@ temp = p.adjust(temp, "holm")
 cpv.qvals = matrix(temp, nrow = nrow(cpv.pvals))
 rownames(cpv.qvals) = rownames(cpv.pvals)
 colnames(cpv.qvals) = colnames(cpv.pvals)
+
 cpv.pvals
 cpv.qvals
-
-cpv.pvals = cpv.pvals[,c(1, 2, 5, 6)]
-temp = as.vector(cpv.pvals)
-temp = p.adjust(temp, "holm")
-cpv.qvals = matrix(temp, nrow = nrow(cpv.pvals))
-rownames(cpv.qvals) = rownames(cpv.pvals)
-colnames(cpv.qvals) = colnames(cpv.pvals)
-cpv.pvals
-cpv.qvals
-
-boxplot(coef(nmf.final)[6,] ~ cpvs.diag_dsd$Path.Grade.Coarse)
-# plot(coef(nmf.final)[1,] ~ samps$purity_qpure)
-# plot(coef(nmf.final)[2,] ~ samps$purity_qpure)
-# plot(coef(nmf.final)[3,] ~ samps$purity_qpure)
-# plot(coef(nmf.final)[4,] ~ samps$purity_qpure)
-# plot(coef(nmf.final)[5,] ~ samps$purity_qpure)
-# plot(coef(nmf.final)[6,] ~ samps$purity_qpure)
 
 apply(coef(nmf.final), 1, function(c1) cor.test(c1, samps$purity_qpure, method = "kendall"))
-p.adjust(apply(coef(nmf.final), 1, function(c1) cor.test(c1, samps$purity_qpure, method = "kendall")$p.value), "BY")
 
-#termplot(lm(coef(nmf.final)[6,] ~ cpvs.diag_dsd$Path.Grade.Coarse), se = TRUE, rug = TRUE)
 lm(coef(nmf.final)[6,] ~ cpvs.diag_dsd$Path.Grade.Coarse)
 summary(lm(coef(nmf.final)[6,] ~ cpvs.diag_dsd$Path.Grade.Coarse))
 anova(lm(coef(nmf.final)[6,] ~ cpvs.diag_dsd$Path.Grade.Coarse))

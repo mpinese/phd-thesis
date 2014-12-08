@@ -1,7 +1,7 @@
 \documentclass[dissertation.tex]{subfiles}
 \begin{document}
 
-\chapter{Signatures of Survival Processes in Pancreatic Cancer}
+\chapter{Signatures of Survival Processes in Pancreas Cancer}
 \label{chap:signatures}
 
 \mpfatal{TODO: put the thesis somewhere: That specific molecular processes control survival of resectable PC, and that these processes can be identified and detected using GEX data.}
@@ -12,7 +12,7 @@
 
 \vspace{1cm}
 
-Despite extensive research, \gls{PDAC} remains a poorly-understood disease.  Recent genomic profiling has revealed the genetic alterations that accompany the disease \cite{Biankin2012}, and a huge number of prognostic factors are known \cite{Harsha2009}, but these findings have shed little light on the fundamental disease processes at work in individual tumours.  This is a consequence of genetic and biomarker data being poorly-suited for understanding the biological state of a cell: although genetic alterations are central to the etiology of cancer, they give incomplete information on the pathways and systems actually active in a given tumour, and biomarkers supply non-causal readouts of cell state that are difficult to trace back to underlying biological processes.
+Despite extensive research, \gls{PDAC} remains a poorly-understood disease.  Recent genomic profiling has revealed the genetic alterations that accompany the cancer \cite{Biankin2012}, and a huge number of prognostic factors are known \cite{Harsha2009}, but these findings have shed little light on the fundamental disease processes at work in individual tumours.  This is a consequence of genetic and biomarker data being poorly-suited for understanding the biological state of a cell: although genetic alterations are central to the etiology of cancer, they give incomplete information on the pathways and systems actually active in a given tumour, and biomarkers supply non-causal readouts of cell state that are difficult to trace back to underlying biological processes.
 
 Sitting between the regulatory function of transcription control, and the effector function of protein expression, \gls{GEX} data integrate information from all aspects of cell condition, including genetic alterations, signalling pathway activity, and metabolic status.  As such, it is unsurprising that \gls{GEX} data are superior indicators of cell state, better than all other high-throughput measurement methods, such as protein expression or genetic alterations \cite{Ray2014}.  However, the involvement of \gls{GEX} with so many biological inputs is also a weakness: typical differential expression studies will identify many hundreds of transcripts that vary between disease states, and the deconvolution of this complex set of hundreds of effects back to a small number of causative molecular processes remains challenging.
 
@@ -24,7 +24,7 @@ Due to these challenges to \gls{GEX} deconvolution of \gls{PDAC}, to date only o
 
 Two main issues complicate the interpretation of the Collisson classes: microdissected cancer cells were used, and therefore stromal effects would be severely attenuated; and the deconvolution technique employed was tuned to achieve sample clustering, rather than \gls{GEX} deconvolution.  Consequently, although the Collisson classes could be a fundamental advance in the understanding of \gls{PDAC}, they necessarily do not consider the full context of the disease, and potentially have artifically identified subgroups when in reality a smooth continuum of disease types may exist.  Additionally, although the Collisson tumour subgroups were observed to follow different clinical courses, they were not explicitly generated for this purpose. \mpfatal{Tidy up this last sentence}
 
-A substantial gap remains in our molecular understanding of \gls{PDAC}: little is known about the core molecular processes at work within both the cancer and stroma of different tumours, and almost nothing on those processes that may control patient survival following diagnosis.  Such a gap in knowledge is not merely of academic interest: a better understanding of the processes affecting patient survival can lead directly to improved methods for staging, may stratify patients for customised therapies, and even suggest targets for therapeutics capable of transforming a poor-prognosis cancer into a good-prognosis one.  The primary obstacle for the identification of these survival-associated processes in \gls{PDAC} is one of data: a large, high-quality dataset of \gls{GEX} measurements and associated well-curated \glspl{CPV} is needed.  The \gls{APGI} cohort addresses this data problem for the identification of fundamental survival processes in \gls{PDAC}.  As the largest cohort of \gls{PDAC} samples, with accompanying \gls{GEX} and curated \glspl{CPV}, in the world, it can provide the data quality and cohort size required by modern \gls{GEX} deconvolution techniques.
+A substantial gap remains in our molecular understanding of \gls{PDAC}: little is known about the core molecular processes at work within both the cancer and stroma of different tumours, and almost nothing on those processes that control patient survival following diagnosis.  Such a gap in knowledge is not merely of academic interest: a better understanding of the processes affecting patient survival can lead directly to improved methods for staging, may stratify patients for customised therapies, and even suggest targets for therapeutics capable of transforming a poor-prognosis cancer into a good-prognosis one.  The primary obstacle for the identification of these survival-associated processes in \gls{PDAC} is one of data: a large, high-quality dataset of \gls{GEX} measurements and associated well-curated \glspl{CPV} is needed.  The \gls{APGI} cohort addresses this data problem for the identification of fundamental survival processes in \gls{PDAC}.  As the largest cohort of \gls{PDAC} samples, with accompanying \gls{GEX} and curated \glspl{CPV}, in the world, it can provide the data quality and cohort size required by modern \gls{GEX} deconvolution techniques.
 
 In this chapter I describe the application of \gls{NMF} for the \gls{GEX} deconvolution of genes associated with outcome.  The metagenes thus identified represent orthogonal coordinately-expressed sets of genes which I then map to biological annotations, identifying the fundamental processes that may be involved in controlling the clinical course of a patient's pancreas cancer.  The results of this work are directly applicable as signatures of survival time following diagnosis of \gls{PDAC}, identify discrete biological processes that appear to determine outcome with pancreas cancer, and highlight fertile future avenues for research into this poorly-understood disease.
 
@@ -36,7 +36,7 @@ Survival-associated metagenes were identified by selecting the set of genes whic
 \subsection{Cohort characteristics and subsetting}
 The same homogeneous \gls{PDAC} subset of the \gls{APGI} cohort that was used in the work of \cref{chap:nomogram} was employed for this analysis; see \cref{subsec:nomo-results-cohort} on page~\pageref{subsec:nomo-results-cohort} for case selection criteria and cohort characteristics.
 
-\subsection{Three metagenes predict survival with resectable pancreatic cancer in multiple cohorts}
+\subsection{Two axes predict survival with resectable pancreatic cancer in multiple cohorts}
 \paragraph{Probe selection}
 In order to focus the \gls{GEX} deconvolution method on finding outcome-associated metagenes, it was necessary to filter the full set of gene expression data to only contain those genes that were likely to be associated with patient survival.
 
@@ -74,10 +74,43 @@ The transcription patterns of genes associated with survival in the \gls{APGI} c
 \caption{Coefficient vs penalty fit trajectories for the \acrshort{LASSO} model predicting disease-specific survival from metagene expression.  Each line represents the model coefficient for a metagene as the model is smoothly varied from a null model (L1 norm = 0), to a full unpenalised Cox fit (L1 norm $\approx$ 16).  The vertical line indicates the optimal value of L1 norm as selected by 10-fold cross-validation; at this point in the trajectory only metagenes MG1, MG2, and MG5 contribute to prognosis estimates.\label{fig:sigs-resub-lasso-track}}
 \end{figure}
 
-The final signature developed for predicting time from diagnosis to death for patients \gls{PDAC} therefore consists of three distinct metagenes: the protective MG2 and MG5, and the hazardous MG1.  For external validation of the signature I combined observed coefficients for the three metagenes using their CV-selected \gls{APGI} cohort \gls{LASSO} fit coefficients, as $\text{Risk score} = 0.8238 \times \text{MG1 coefficient} - 3.2195 \times \text{MG2 coefficient} - 2.3208 \times \text{MG5 coefficient}$.  Full metagene scores for the 361 survival-associated genes (the $W$ matrix) are available as \cref{app:sigs-w-matrix} on \cpagerefrange{app:sigs-w-matrix}{app:sigs-w-matrix-end}.
+\paragraph{Prognostic metagenes define two axes of cell state}
+Further investigation of the three prognostic metagenes revealed that they were associated: \gls{APGI} patient coefficients for MG1 and MG5, and MG2 and MG6 (the latter not selected by the \gls{LASSO}), were mutually exclusive (\cref{fig:sigs-coef-mutualexclusion}, Kendall's $\tau$ test $P < 1 \times 10^{-6}$ for each pair).  This suggested that both metagenes in each pair captured the signal of a single axis of cell state, one representing the degree of activation of the axis, and the other deactivation.  For subsequent work I therefore combined the signals of the metagenes within each axis, to give axis activity summaries: $\text{Axis A1 activity} = \text{MG1 coefficient} - \text{MG5 coefficient}$; $\text{Axis A2 activity} = \text{MG6 coefficient} - \text{MG2 coefficient}$.  Activations of axes A1 and A2 were uncorrelated, indicating that these were orthogonal processes operating in the \gls{APGI} cohort tumours (\cref{sigs-axis-pairs}, Kendall's $\tau$ test $P = 0.21$).
 
-\paragraph{Validation of the three-metagene signature}
-To ensure that the process for development of the three-metagene survival signature was reproducible, and that the signature itself was transferable to other cohorts, I performed cross- and external validation of the metagene survival signature.  10-fold cross-validation was performed on the full metagene discovery procedure, from supervised probe selection by \gls{CPSS}-\gls{SIS}-\gls{FAST} to final \gls{LASSO} coefficient estimation, including automatic \gls{NMF} rank estimation.  Cross-validated test set risk scores from the \gls{APGI} discovery cohort were significantly predictive of time from diagnosis to disease-specific death by Cox regression (LRT $P = $\mpfatal{Update with new data}).  The three-metagene survival signature described above also validated against the \gls{PDAC} expression cohort GSE28735 \cite{Zhang2013} (LRT $P = 0.0139$), demonstrating the robustness of the metagene signature to cohort and platform effects.  \mpfatal{Talk about GSE21501 here}
+\begin{figure}
+\centering
+\includegraphics[width=.45\linewidth]{analysis/biosurv/reports/18_SIS_diag_dsd_final/figure/metagene-pairs-8}
+\includegraphics[width=.45\linewidth]{analysis/biosurv/reports/18_SIS_diag_dsd_final/figure/metagene-pairs-9}
+\caption{Prognostic metagenes form two axes of cell state.  Metagene pairs MG1 and MG5, and MG2 and MG6, displayed mutually exclusive coefficient patterns in the \gls{APGI} cohort, and could be combined to form just two axes of cell state.\label{fig:sigs-coef-mutualexclusion}}
+\end{figure}
+ 
+\begin{figure}
+\centering
+\includegraphics[width=.7\linewidth]{analysis/biosurv/reports/18_SIS_diag_dsd_final/figure/metagene-pairs-10}
+\caption{Prognostic axes are uncorrelated.  Activity estimates of axes defined by highly correlated mutually exclusive metagene pairs (Axis A1 = MG1 - MG5, axis A2 = MG6 - MG2) were uncorrelated (Kendall $\tau$ test $P = 0.21$), indicating that these axis signals encoded orthogonal outcome-associated processes within tumours.\label{fig:sigs-axis-pairs}}
+\end{figure}
+
+A \gls{LASSO} fit was performed on the \gls{APGI} diagnosis to disease specific death times, using axis A1 and A2 activities, and their interaction, as predictors.  10-fold \gls{CV} identified both A1 and A2 activity, but not their interaction, as useful predictors of outcome.  A final diagnosis to disease-specific death risk score was defined on the basis of the \gls{LASSO} fit coefficients, as $\text{Risk score} = 1.354 \times \text{A1 activity} + 1.548 \times \text{A2 activity}$.
+
+\paragraph{Validation of the two-axis signature}
+External validation confirmed that the two-axis survival signature was prognostic in other cohorts, including in cancers other than \gls{PDAC}.  The two-axis risk score was significantly prognostic in \gls{PDAC} cohorts GSE28735 \cite{Zhang2013} (LRT $P = 0.0149$) and \gls{TCGA} paad (LRT $P = 0.0156$), but not in GSE21501 \cite{Stratford2010} (LRT $P = 0.115$).  When assessed against all \gls{TCGA} cancers for which at least 50 patients had both an event and complete RNASeq data, the two-axis risk score was also significantly prognostic for head and neck squamous cell carcinoma, kidney renal clear cell carcinoma, lower grade glioma, and lung adenocarcinoma, at a 5\% \gls{FWER} (\cref{tab:sigs-validation-tcga}).
+
+\begin{table}[h]
+\caption{The two-axis risk score is prognostic in a range of \acrshort{TCGA} cancers.  P-values are from likelihood ratio tests .  Shaded cells are significant at a 5\% \gls{FWER} following Holm's correction. \label{tab:sigs-validation-tcga}}
+\begin{tabular}{@{}lllll@{}}
+\toprule
+Cancer                                & Number of events & Number of patients & P-value: Risk Score              & P-value: Improvement over meta-PCNA \\ \midrule
+Glioblastoma multiforme               & 54               & 143                & 0.2287                           & 0.1587                              \\
+Head and neck squamous cell carcinoma & 124              & 367                & \cellcolor[HTML]{C0C0C0}8.08E-3  & 0.0108                              \\
+Clear cell kidney carcinoma           & 153              & 497                & \cellcolor[HTML]{C0C0C0}2.03E-12 & \cellcolor[HTML]{C0C0C0}2.89E-3     \\
+Lower grade glioma                    & 53               & 272                & \cellcolor[HTML]{C0C0C0}1.49E-5  & \cellcolor[HTML]{C0C0C0}7.85E-3     \\
+Lung adenocarcinoma                   & 106              & 431                & \cellcolor[HTML]{C0C0C0}8.34E-6  & \cellcolor[HTML]{C0C0C0}1.04E-4     \\
+Lung squamous cell carcinoma          & 117              & 395                & 0.9624                           & 0.4110                              \\
+Ovarian serous cystadenocarcinoma     & 115              & 251                & 0.0238                           & 0.0178                              \\ \bottomrule
+\end{tabular}
+\end{table}
+
+
 
 \subsection{Prognostic metagenes define two axes of cell state and survival}
 To link metagene expression with potential underlying biology, metagene coefficients on the \gls{APGI} discovery cohort were compared to clinical variates, scores of a general prognostic signature, and scores for signatures from the \gls{MSigDB} \cite{Subramanian2005}.
@@ -456,10 +489,8 @@ Vascular invasion          & Boolean \\
 \end{tabular}
 \end{table}
 
-\subsection{Cross-validation of the metagene discovery process}
-The full metagene discovery pipeline, from survival-associated gene selection by \gls{CPSS}-\gls{SIS}-\gls{FAST}, through automatic rank estimation, \gls{NMF} factorization, and \gls{LASSO} model fitting, was applied to training sets in a 10-fold cross-validation loop.  Test set metagene coefficients for each fold were calculated from that fold's fitted \gls{NMF} $W$ matrix as described in \cref{subsec:sigs-metagene-est}, and test set coefficients were applied to the fitted \gls{LASSO} model for that fold, to yield test set linear predictors.  Linear predictors from each test set were combined to form a test vector containing a cross-validated prediction for each patient in the \gls{APGI} cohort, each patient's prediction having been made from data that did not include that patient.  Overall prognostic ability was assessed by comparing a Cox proportional hazards model predicting time from diagnosis to disease specific death using the cross-validated test vector as the sole covariate, to an intercept-only model, using a likelihood ratio test.
-
 \subsection{External validation of outcome-associated metagenes}
+\mpfatal{Add TCGA methods}
 Gene expression data for accessions GSE21501 and GSE28735 were downloaded as processed series matrix data from the \gls{NCBI} \gls{GEO}.  Survival times, censoring indicators, clinical covariates (for GSE21501), and probe expression estimates were extracted from the series matrix files.  Probes were annotated with gene symbols using the associated GPL annotation files, and probes with no gene annotation were discarded.  If multiple probes mapped to the same gene symbol, only the probe with the highest standard deviation across all samples in a data set was retained.  Finally, only probes with a standard deviation within the top 20\textsuperscript{th} percentile within a data set were kept for metagene scoring.
 
 For each validation data set, metagene coefficients were calculated as described in \cref{subsec:sigs-metagene-est}.  Metagene coefficients were then combined to form per-sample risk predictions using the \gls{LASSO} fit produced on the \gls{APGI} discovery data.  The \gls{APGI} survival signature was tested within each data set using likelihood ratio tests comparing a Cox model using signature risk predictions as the sole covariate, with an intercept-only Cox model.
