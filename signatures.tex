@@ -31,7 +31,7 @@ In this chapter I describe the application of \gls{NMF} for the \gls{GEX} deconv
 
 \section{Results}
 
-Survival-associated metagenes were identified by selecting the set of genes which had \gls{GEX} associated with outcome in the \gls{APGI} cohort, and then performing \gls{NMF} factorization to deconvolve the full matrix of gene expression signals into a small set of metagenes.  Metagenes were then tested for association with clinical course and other \glspl{CPV}, as well as known general prognostic signatures, and their prognostic ability was validated by 10-fold cross-validation and testing in separate cohorts.  Those metagenes that were found to be prognostic were then correlated with biological process signatures to associate the metagenes with biological processes.
+Survival-associated metagenes were identified by selecting the set of genes which had \gls{GEX} associated with outcome in the \gls{APGI} cohort, and then performing \gls{NMF} factorization to deconvolve the full matrix of gene expression signals into a small set of metagenes.  Metagenes were found to fall into patterns defining two axes of outcome-associated cell state.  These prognostic axes were then tested for association with clinical course and other \glspl{CPV}, as well as known general prognostic signatures, and their prognostic ability was validated in a range of cancers by testing in separate cohorts.  The two prognostic axes were then correlated with biological process signatures to associate axis scores with the activity of biological processes.
 
 \subsection{Cohort characteristics and subsetting}
 The same homogeneous \gls{PDAC} subset of the \gls{APGI} cohort that was used in the work of \cref{chap:nomogram} was employed for this analysis; see \cref{subsec:nomo-results-cohort} on page~\pageref{subsec:nomo-results-cohort} for case selection criteria and cohort characteristics.
@@ -42,7 +42,7 @@ In order to focus the \gls{GEX} deconvolution method on finding outcome-associat
 
 A \gls{CPSS} wrapper around the core \gls{SIS}-\gls{FAST} variable selection method \cite{Gorst-Rasmussen2013} identified 361 genes (of 13,000 considered) that were associated with time from diagnosis to disease-specific death in the \gls{APGI} cohort.  50 variable selection runs on permuted data gave a median number of selected genes of 87.5, resulting in an estimated \gls{FDR} for the selection procedure of approximately 25\%.  This relatively high \gls{FDR} was a consequence of the lenient selection parameters used, in an attempt to ensure that even genes for which expression was only weakly prognostic, were included.
 
-\paragraph{Factorization}
+\paragraph{Prognostic genes factorized into six metagenes}
 The expression of the 361 survival-associated genes across 228 patients was decomposed into metagenes by the \gls{SNMFL} \gls{NMF} algorithm.  The number of metagenes (factorization rank) was automatically estimated to be 6, being the lowest rank for which the improvement in estimation error achieved by adding the next rank, was less than that observed for permuted data (\cref{fig:sigs-nmf-rank}).
 
 \begin{figure}
@@ -51,7 +51,7 @@ The expression of the 361 survival-associated genes across 228 patients was deco
 \caption{Automatic selection of factorization rank.  \acrshort{SNMFL} was performed for varying ranks on either unpermuted data (black line) or data permuted within samples (red lines), and the improvement in total residual approximation error $\|A - W H\|_F$ calculated.  The highest added rank for which the error improvement on unpermuted data exceeded that of permuted data plus two standard deviations (threshold shown by dotted red line) was the final selected rank (green line).\label{fig:sigs-nmf-rank}}
 \end{figure}
 
-500 random restarts of rank 6 \gls{SNMFL} were then performed on the survival-associated gene matrix to yield the final factorization.  The resultant clustering consensus matrix was stable (\cref{fig:sigs-nmf-consensus}), and the basis matrix $W$ was reasonably sparse (\cref{fig:sigs-nmf-basis}).  Small row L1 norm of the basis matrix is a desirable condition for this analysis, as it indicates that metagenes are largely distinct transcriptional modules, with little overlap in terms of shared transcripts with high loadings; \gls{SNMFL} was selected against alternative \gls{NMF} algorithms for its design, which favours solutions with small $W$ row L1 norm.  A table of values of the basis matrix $W$ is available as \cref{app:sigs-w-matrix} on \cpagerefrange{app:sigs-w-matrix}{app:sigs-w-matrix-end}.
+500 random restarts of rank 6 \gls{SNMFL} were then performed on the survival-associated gene matrix to yield the final factorization.  The resultant clustering consensus matrix was stable (\cref{fig:sigs-nmf-consensus}), and the basis matrix $W$ was reasonably sparse (\cref{fig:sigs-nmf-basis}).  Small row L1 norm of the basis matrix is a desirable condition for this analysis, as it indicates that metagenes are largely distinct transcriptional modules, with little overlap in terms of shared transcripts with high loadings; \gls{SNMFL} was selected against alternative \gls{NMF} algorithms as its design favours solutions with small $W$ row L1 norm.  A table of values of the basis matrix $W$ is available as \cref{app:sigs-w-matrix} on \cpagerefrange{app:sigs-w-matrix}{app:sigs-w-matrix-end}.
 
 \begin{figure}
 \centering
@@ -65,17 +65,17 @@ The expression of the 361 survival-associated genes across 228 patients was deco
 \caption{Basis matrix $W$ of the final \acrshort{SNMFL} factorization.  Rows represent genes, and columns metagenes, with cell colours proportional to the loading of a given gene on a given metagene.  The loadings are sparse within rows, indicating that the metagenes are modular, each affecting the expression of largely distinct sets of target genes.  A table of values of this basis matrix is available as \cref{app:sigs-w-matrix} on \cpagerefrange{app:sigs-w-matrix}{app:sigs-w-matrix-end}.\label{fig:sigs-nmf-basis}}
 \end{figure}
 
-\paragraph{Identifying prognostic metagenes}
+\paragraph{Three metagenes together formed a prognostic model}
 The transcription patterns of genes associated with survival in the \gls{APGI} cohort could be decomposed into just six largely distinct metagenes.  Due to the presence of false positives in the 361 screened input genes, some of the metagenes will have no strong association with outcome.  To identify which of the six metagenes were ultimately predictive of patient survival, I performed \gls{LASSO} regression on the \gls{APGI} discovery cohort data, using \gls{NNLS}-estimated coefficients of each of the six metagenes as marginal predictors of outcome.  The \gls{LASSO} regularization parameter $\lambda$ was chosen by 10-fold cross-validation to be the highest value for which the mean test set partial likelihood deviance was within one standard error of the lowest mean value.  This resulted in a final model in which three metagenes, MG1, MG2, and MG5, were selected as prognostic (\cref{fig:sigs-resub-lasso-track}).
 
 \begin{figure}
 \centering
 \includegraphics[width=.7\linewidth]{analysis/biosurv/reports/18_SIS_diag_dsd_final/figure/nmf-metagene-glmnet-plots-2}
-\caption{Coefficient vs penalty fit trajectories for the \acrshort{LASSO} model predicting disease-specific survival from metagene expression.  Each line represents the model coefficient for a metagene as the model is smoothly varied from a null model (L1 norm = 0), to a full unpenalised Cox fit (L1 norm $\approx$ 16).  The vertical line indicates the optimal value of L1 norm as selected by 10-fold cross-validation; at this point in the trajectory only metagenes MG1, MG2, and MG5 contribute to prognosis estimates.\label{fig:sigs-resub-lasso-track}}
+\caption{Coefficient vs penalty fit trajectories for the \acrshort{LASSO} model predicting disease-specific survival from metagene expression.  Each line represents the model coefficient for a metagene as the model is smoothly varied from a null model (L1 norm = 0), to a full unpenalised Cox fit (L1 norm $\approx$ 16).  The vertical line indicates the optimal value of L1 norm as selected by the 1SE criterion on 10-fold cross-validation; at this point in the trajectory only metagenes MG1, MG2, and MG5 contribute to prognosis estimates.\label{fig:sigs-resub-lasso-track}}
 \end{figure}
 
 \paragraph{Prognostic metagenes define two axes of cell state}
-Further investigation of the three prognostic metagenes revealed that they were associated: \gls{APGI} patient coefficients for MG1 and MG5, and MG2 and MG6 (the latter not selected by the \gls{LASSO}), were mutually exclusive (\cref{fig:sigs-coef-mutualexclusion}, Kendall's $\tau$ test $P < 1 \times 10^{-6}$ for each pair).  This suggested that both metagenes in each pair captured the signal of a single axis of cell state, one representing the degree of activation of the axis, and the other deactivation.  For subsequent work I therefore combined the signals of the metagenes within each axis, to give axis activity summaries: $\text{Axis A1 activity} = \text{MG1 coefficient} - \text{MG5 coefficient}$; $\text{Axis A2 activity} = \text{MG6 coefficient} - \text{MG2 coefficient}$.  Activations of axes A1 and A2 were uncorrelated, indicating that these were orthogonal processes operating in the \gls{APGI} cohort tumours (\cref{sigs-axis-pairs}, Kendall's $\tau$ test $P = 0.21$).
+Further investigation of the three prognostic metagenes revealed that they were associated: \gls{APGI} patient coefficients for pairs MG1 and MG5, and MG2 and MG6 (the latter not selected by the \gls{LASSO}), were mutually exclusive (\cref{fig:sigs-coef-mutualexclusion}, Kendall's $\tau$ test $P < 1 \times 10^{-6}$ for each pair).  This suggested that both metagenes in each pair captured the signal of a single axis of cell behaviour, with one measuring activation of the axis, and the other deactivation.  For subsequent work I therefore combined the signals of the metagenes within each axis, to give axis activity summaries: $\text{Axis A1 activity} = \text{MG1 coefficient} - \text{MG5 coefficient}$; $\text{Axis A2 activity} = \text{MG6 coefficient} - \text{MG2 coefficient}$.  Activation values for axes A1 and A2 were uncorrelated, indicating that these axes were orthogonal processes operating in the \gls{APGI} cohort tumours (\cref{sigs-axis-pairs}, Kendall's $\tau$ test $P = 0.21$).
 
 \begin{figure}
 \centering
@@ -83,37 +83,42 @@ Further investigation of the three prognostic metagenes revealed that they were 
 \includegraphics[width=.45\linewidth]{analysis/biosurv/reports/18_SIS_diag_dsd_final/figure/metagene-pairs-9}
 \caption{Prognostic metagenes form two axes of cell state.  Metagene pairs MG1 and MG5, and MG2 and MG6, displayed mutually exclusive coefficient patterns in the \gls{APGI} cohort, and could be combined to form just two axes of cell state.\label{fig:sigs-coef-mutualexclusion}}
 \end{figure}
- 
+
 \begin{figure}
 \centering
 \includegraphics[width=.7\linewidth]{analysis/biosurv/reports/18_SIS_diag_dsd_final/figure/metagene-pairs-10}
 \caption{Prognostic axes are uncorrelated.  Activity estimates of axes defined by highly correlated mutually exclusive metagene pairs (Axis A1 = MG1 - MG5, axis A2 = MG6 - MG2) were uncorrelated (Kendall $\tau$ test $P = 0.21$), indicating that these axis signals encoded orthogonal outcome-associated processes within tumours.\label{fig:sigs-axis-pairs}}
 \end{figure}
 
-A \gls{LASSO} fit was performed on the \gls{APGI} diagnosis to disease specific death times, using axis A1 and A2 activities, and their interaction, as predictors.  10-fold \gls{CV} identified both A1 and A2 activity, but not their interaction, as useful predictors of outcome.  A final diagnosis to disease-specific death risk score was defined on the basis of the \gls{LASSO} fit coefficients, as $\text{Risk score} = 1.354 \times \text{A1 activity} + 1.548 \times \text{A2 activity}$.
+A repeat of the previous \gls{LASSO} fit with 10-fold \gls{CV}, this time using predictors of A1 activity, A2 activity, and the A1:A2 interaction, identified both A1 and A2, but not their interaction, as useful predictors of outcome.  A final diagnosis to disease-specific death risk score then was defined on the basis of the \gls{LASSO} fit coefficients, as $\text{Risk score} = 1.354 \times \text{A1 activity} + 1.548 \times \text{A2 activity}$.
 
 \paragraph{Validation of the two-axis signature}
-External validation confirmed that the two-axis survival signature was prognostic in other cohorts, including in cancers other than \gls{PDAC}.  The two-axis risk score was significantly prognostic in \gls{PDAC} cohorts GSE28735 \cite{Zhang2013} (LRT $P = 0.0149$) and \gls{TCGA} paad (LRT $P = 0.0156$), but not in GSE21501 \cite{Stratford2010} (LRT $P = 0.115$).  When assessed against all \gls{TCGA} cancers for which at least 50 patients had both an event and complete RNASeq data, the two-axis risk score was also significantly prognostic for head and neck squamous cell carcinoma, kidney renal clear cell carcinoma, lower grade glioma, and lung adenocarcinoma, at a 5\% \gls{FWER} (\cref{tab:sigs-validation-tcga}).
+External validation confirmed that the two-axis survival signature was prognostic in other cohorts, including in cancers other than \gls{PDAC}.  The two-axis risk score was significantly prognostic in \gls{PDAC} cohorts GSE28735 \cite{Zhang2013} (LRT $P = 0.0149$) and \gls{TCGA} paad (LRT $P = 0.0156$), but not in GSE21501 \cite{Stratford2010} (LRT $P = 0.115$).  When assessed against all \gls{TCGA} cancers for which at least 50 patients had both an event and complete RNASeq data, the two-axis risk score was also significantly prognostic for head and neck squamous cell carcinoma, kidney renal clear cell carcinoma, lower grade glioma, and lung adenocarcinoma, at a 5\% \gls{FWER} (\cref{tab:sigs-validation-tcga}, column a).
+
+Meta-PCNA is a 130-gene signature of cell proliferation that has been found to be generally prognostic in a number of cancer cohorts \cite{Venet2011}.  To exclude the possibility that my two-axis risk score simply recapitulated the known meta-PCNA signature, I examined whether the two-axis score contributed additional prognostic information to meta-PCNA in the large \gls{TCGA} cohorts.  In \gls{TCGA} kidney renal clear cell carcinoma, lower grade glioma, and lung adenocarcinoma, there was significant evidence that the two-axis score provided prognostic information beyond that given by meta-PCNA, at a 5\% \gls{FWER} (\cref{tab:sigs-validation-tcga}, column b).
 
 \begin{table}[h]
-\caption{The two-axis risk score is prognostic in a range of \acrshort{TCGA} cancers.  P-values are from likelihood ratio tests .  Shaded cells are significant at a 5\% \gls{FWER} following Holm's correction. \label{tab:sigs-validation-tcga}}
+\caption{The two-axis risk score is prognostic in a range of \acrshort{TCGA} cancers.  P-values are from likelihood ratio tests either comparing a Cox model with two-axis risk score as a linear predictor, to a null model (a); or a Cox model with two-axis risk score and meta-PCNA as linear predictors, against one with meta-PCNA alone (b).  Shaded cells are significant at a 5\% \gls{FWER} following Holm's correction.  \acrshort{TCGA} study codes: \emph{glm}: glioblastoma multiforme; \emph{hnsc}: head and neck squamous cell carcinoma; \emph{kirc}: clear cell kidney carcinoma; \emph{lgg}: lower grade glioma; \emph{luad}: lung adenocarcinoma; \emph{lusc}: lung squamous cell carcinoma; \emph{ov}: ovarian serous cystadenocarcinoma.\label{tab:sigs-validation-tcga}}
+\center
 \begin{tabular}{@{}lllll@{}}
 \toprule
-Cancer                                & Number of events & Number of patients & P-value: Risk Score              & P-value: Improvement over meta-PCNA \\ \midrule
-Glioblastoma multiforme               & 54               & 143                & 0.2287                           & 0.1587                              \\
-Head and neck squamous cell carcinoma & 124              & 367                & \cellcolor[HTML]{C0C0C0}8.08E-3  & 0.0108                              \\
-Clear cell kidney carcinoma           & 153              & 497                & \cellcolor[HTML]{C0C0C0}2.03E-12 & \cellcolor[HTML]{C0C0C0}2.89E-3     \\
-Lower grade glioma                    & 53               & 272                & \cellcolor[HTML]{C0C0C0}1.49E-5  & \cellcolor[HTML]{C0C0C0}7.85E-3     \\
-Lung adenocarcinoma                   & 106              & 431                & \cellcolor[HTML]{C0C0C0}8.34E-6  & \cellcolor[HTML]{C0C0C0}1.04E-4     \\
-Lung squamous cell carcinoma          & 117              & 395                & 0.9624                           & 0.4110                              \\
-Ovarian serous cystadenocarcinoma     & 115              & 251                & 0.0238                           & 0.0178                              \\ \bottomrule
+TCGA study & Number of & Number of & Risk score  & Improvement \\
+           & events    & patients  & P-value (a) & P-value (b) \\ \midrule
+gbm    & 54   & 143    & 0.2287                           & 0.1587                           \\
+hnsc   & 124  & 367    & \cellcolor[HTML]{C0C0C0}8.08E-3  & 0.0108                           \\
+kirc   & 153  & 497    & \cellcolor[HTML]{C0C0C0}2.03E-12 & \cellcolor[HTML]{C0C0C0}2.89E-3  \\
+lgg    & 53   & 272    & \cellcolor[HTML]{C0C0C0}1.49E-5  & \cellcolor[HTML]{C0C0C0}7.85E-3  \\
+luad   & 106  & 431    & \cellcolor[HTML]{C0C0C0}8.34E-6  & \cellcolor[HTML]{C0C0C0}1.04E-4  \\
+lusc   & 117  & 395    & 0.9624                           & 0.4110                           \\
+ov     & 115  & 251    & 0.0238                           & 0.0178                           \\ \bottomrule
 \end{tabular}
 \end{table}
 
 
+\subsection{Prognostic axes link outcome to TODO}
+To link the two prognostic axes with potential underlying biology, axis activities on the \gls{APGI} discovery cohort were compared to clinical variates, meta-PCNA, and scores for signatures from the \gls{MSigDB} \cite{Subramanian2005}.
 
-\subsection{Prognostic metagenes define two axes of cell state and survival}
-To link metagene expression with potential underlying biology, metagene coefficients on the \gls{APGI} discovery cohort were compared to clinical variates, scores of a general prognostic signature, and scores for signatures from the \gls{MSigDB} \cite{Subramanian2005}.
+
 
 Correlations between metagene coefficients and \gls{MSigDB} scores revealed a parity in the metagenes: MG1 and MG5, MG2 and MG6, and MG3 and MG4, formed complementary pairs in terms of their correlation with \gls{MSigDB} signatures (\cref{fig:sigs-nmf-corplots}).  This parity reflects mutual exclusivity interactions between metagene coefficients, and suggests that the six metagenes encode only three underlying biological states.  The three prognostic metagenes were therefore combined into two prognostic axes: MG2-MG6, and MG5-MG1.
 
@@ -128,7 +133,7 @@ Correlations between metagene coefficients and \gls{MSigDB} scores revealed a pa
 \begin{figure}
 \centering
 \includegraphics[width=.7\linewidth]{analysis/biosurv/reports/18_SIS_diag_dsd_final/figure/metagene-pairs-7}
-\caption{MG1 coefficients are closely associated with meta-PCNA signature score.  MG1 coefficients and meta-PCNA \cite{Venet2011} scores were as evaluated on the \gls{APGI} training set; Kendall's $\tau = 0.757$, $n = 110$.\label{fig:sigs-nmf-corplots}}
+\caption{MG1 coefficients are closely associated with meta-PCNA signature score.  MG1 coefficients and meta-PCNA \cite{Venet2011} scores were as evaluated on the \gls{APGI} training set; Kendall's $\tau = 0.757$, $n = 110$.\label{fig:sigs-mg1-pcna}}
 \end{figure}
 
 \begin{table}[ht]
@@ -410,12 +415,12 @@ Vascular invasion          & 0.7806                          & 0.6266 & 0.1746  
 
 \section{Methods}
 \subsection{Cohort recruitment and ethics}
-The \gls{APGI} cohort was used for metagene discovery; see \cref{subsec:nomo-methods-cohort} on page~\pageref{subsec:nomo-methods-cohort} for recruitment and ethics details of this cohort.
+\mpfatal{TODO: Cohort recruitment and ethics}
 
 \subsection{Sample collection, preparation, and gene expression microarrays}
-See \cref{subsec:nomo-methods-gex} on \cpageref{subsec:nomo-methods-gex} for details on sample processing for the \gls{APGI} discovery cohort.
+\mpfatal{TODO: Sample collection, preparation, and gene expression microarrays}
 
-\subsection{Data preprocessing}\mpfatal{Move this to the nomogram chapter}
+\subsection{Data preprocessing}
 \paragraph{Microarray quality control and normalization}
 \gls{IDAT} files were read into Bioconductor \texttt{lumi} structures using the \texttt{lumidat} package.  Seven arrays were excluded on the basis of poor signal, due to fewer than 30\% of probes on these arrays having detection P-values of less than 0.01.  The remaining 234 microarrays represented a range of tumour types, and were normalized as one batch using the \texttt{lumi} package.  Normalization proceeded serially as: RMA-like background subtraction (\texttt{lumiB} method \texttt{"bgAdjust.affy"}), \gls{VST} (\texttt{lumiT} method \texttt{"vst"}), and quantile normalization (\texttt{lumiN} method \texttt{"quantile"}).
 
