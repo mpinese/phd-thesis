@@ -30,6 +30,8 @@ library(energy)
 library(NMF)
 library(nnls)
 
+library(bnlearn)
+
 library(glmulti)
 library(glmnet)
 
@@ -499,6 +501,31 @@ summary(lm(axis_coefs.diag_dsd[,2] ~ emt.scores))
 anova(lm(axis_coefs.diag_dsd[,1] ~ samps$purity_qpure + emt.scores))
 anova(lm(axis_coefs.diag_dsd[,2] ~ samps$purity_qpure + emt.scores))
 @
+
+
+% <<biology-network>>=
+% data.bnlearnC = data.frame(
+% 	axis1 = axis_coefs.diag_dsd[,1], 
+% 	axis2 = axis_coefs.diag_dsd[,2], 
+% 	qpure = samps$purity_qpure, 
+% 	pcna = metapcna.scores,
+% 	emt = emt.scores)
+% temp.sel = apply(!is.na(data.bnlearnC), 1, all)
+% data.bnlearnC = data.bnlearnC[temp.sel,]
+
+% data.bnlearnD = discretize(data.bnlearnC, method = "quantile")
+% data.bnlearnD$grade = cpvs.diag_dsd$Path.Grade.Coarse[temp.sel]
+
+% pdf("~/temp.pdf")
+% plot(inter.iamb(data.bnlearnD))
+
+% data.dag = si.hiton.pc(data.bnlearnC)
+% plot(data.dag)
+% bn.cv(data.bnlearnC, bn = "si.hiton.pc")
+% boot.strength(data.bnlearnC, algorithm = "si.hiton.pc")
+% data.dagd = cextend(data.dag)
+% strength.plot(data.dagd, arc.strength(data.dagd, data.bnlearnC, criterion = "cor"))
+% @
 
 
 <<nmf-msigdb-cor-tables-generate>>=
