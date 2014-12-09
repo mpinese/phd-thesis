@@ -700,6 +700,8 @@
     \hlstd{xcol)}\hlopt{$}\hlstd{x)}
 \hlstd{coefs.pdac_au} \hlkwb{=} \hlkwd{apply}\hlstd{(xlin.pdac_au.sel,} \hlnum{2}\hlstd{,} \hlkwa{function}\hlstd{(}\hlkwc{xcol}\hlstd{)} \hlkwd{nnls}\hlstd{(}\hlkwd{basis}\hlstd{(nmf.final),}
     \hlstd{xcol)}\hlopt{$}\hlstd{x)}
+\hlstd{axis_coefs.diag_dsd} \hlkwb{=} \hlkwd{as.matrix}\hlstd{(}\hlkwd{cbind}\hlstd{(}\hlkwc{axis1} \hlstd{= coefs.diag_dsd[}\hlnum{1}\hlstd{, ]} \hlopt{-} \hlstd{coefs.diag_dsd[}\hlnum{5}\hlstd{,}
+    \hlstd{],} \hlkwc{axis2} \hlstd{= coefs.diag_dsd[}\hlnum{6}\hlstd{, ]} \hlopt{-} \hlstd{coefs.diag_dsd[}\hlnum{2}\hlstd{, ]))}
 \end{alltt}
 \end{kframe}
 \end{knitrout}
@@ -1031,8 +1033,6 @@
     \hlkwc{nfolds} \hlstd{=} \hlnum{10}\hlstd{)}
 \hlstd{glmnet.fit.cv.recr_dsd} \hlkwb{=} \hlkwd{cv.glmnet}\hlstd{(}\hlkwd{t}\hlstd{(coefs.recr_dsd), y.recr_dsd,} \hlkwc{family} \hlstd{=} \hlstr{"cox"}\hlstd{,}
     \hlkwc{nfolds} \hlstd{=} \hlnum{10}\hlstd{)}
-\hlstd{axis_coefs.diag_dsd} \hlkwb{=} \hlkwd{as.matrix}\hlstd{(}\hlkwd{cbind}\hlstd{(}\hlkwc{axis1} \hlstd{= coefs.diag_dsd[}\hlnum{1}\hlstd{, ]} \hlopt{-} \hlstd{coefs.diag_dsd[}\hlnum{5}\hlstd{,}
-    \hlstd{],} \hlkwc{axis2} \hlstd{= coefs.diag_dsd[}\hlnum{6}\hlstd{, ]} \hlopt{-} \hlstd{coefs.diag_dsd[}\hlnum{2}\hlstd{, ]))}
 \end{alltt}
 \end{kframe}
 \end{knitrout}
@@ -1832,6 +1832,35 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % SIGNATURE BIOLOGY
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{sig.emt_groger_pos} \hlkwb{=} \hlkwd{c}\hlstd{(}\hlstr{"ADAM12"}\hlstd{,} \hlstr{"COL1A1"}\hlstd{,} \hlstr{"COL3A1"}\hlstd{,} \hlstr{"COL5A1"}\hlstd{,} \hlstr{"COL6A1"}\hlstd{,} \hlstr{"COL6A3"}\hlstd{,}
+    \hlstr{"CTGF"}\hlstd{,} \hlstr{"CYP1B1"}\hlstd{,} \hlstr{"DLC1"}\hlstd{,} \hlstr{"FBLN1"}\hlstd{,} \hlstr{"FBLN5"}\hlstd{,} \hlstr{"FGF2"}\hlstd{,} \hlstr{"FGFR1"}\hlstd{,} \hlstr{"FN1"}\hlstd{,} \hlstr{"HAS2"}\hlstd{,}
+    \hlstr{"LAMC2"}\hlstd{,} \hlstr{"LUM"}\hlstd{,} \hlstr{"MMP2"}\hlstd{,} \hlstr{"MYL9"}\hlstd{,} \hlstr{"NID2"}\hlstd{,} \hlstr{"NR2F1"}\hlstd{,} \hlstr{"NRP1"}\hlstd{,} \hlstr{"PLAT"}\hlstd{,} \hlstr{"PPAP2B"}\hlstd{,}
+    \hlstr{"PRKCA"}\hlstd{,} \hlstr{"RECK"}\hlstd{,} \hlstr{"SERPINE1"}\hlstd{,} \hlstr{"SERPINE2"}\hlstd{,} \hlstr{"SPOCK1"}\hlstd{,} \hlstr{"TGM2"}\hlstd{,} \hlstr{"TNFAIP6"}\hlstd{,} \hlstr{"TPM1"}\hlstd{,}
+    \hlstr{"VCAN"}\hlstd{,} \hlstr{"WNT5A"}\hlstd{,} \hlstr{"CDKN2C"}\hlstd{,} \hlstr{"MAP1B"}\hlstd{,} \hlstr{"RGS4"}\hlstd{,} \hlstr{"IGFBP3"}\hlstd{,} \hlstr{"IL1R1"}\hlstd{,} \hlstr{"LTBP1"}\hlstd{,}
+    \hlstr{"MME"}\hlstd{,} \hlstr{"PMP22"}\hlstd{,} \hlstr{"PTGER2"}\hlstd{,} \hlstr{"PTX3"}\hlstd{,} \hlstr{"SRGN"}\hlstd{,} \hlstr{"SULF"}\hlstd{,} \hlstr{"SYNE1"}\hlstd{,} \hlstr{"FSTL1"}\hlstd{,} \hlstr{"LTBP2"}\hlstd{,}
+    \hlstr{"VIM"}\hlstd{,} \hlstr{"ZEB1"}\hlstd{,} \hlstr{"DCN"}\hlstd{,} \hlstr{"LOX"}\hlstd{,} \hlstr{"TFPI"}\hlstd{,} \hlstr{"ABCA1"}\hlstd{,} \hlstr{"GALNT10"}\hlstd{,} \hlstr{"SLC22A4"}\hlstd{,} \hlstr{"C5orf13"}\hlstd{,}
+    \hlstr{"SYT11"}\hlstd{,} \hlstr{"TMEM158"}\hlstd{)}
+\hlstd{sig.emt_groger_neg} \hlkwb{=} \hlkwd{c}\hlstd{(}\hlstr{"CD24"}\hlstd{,} \hlstr{"CXCL16"}\hlstd{,} \hlstr{"DSG3"}\hlstd{,} \hlstr{"ELF3"}\hlstd{,} \hlstr{"EPCAM"}\hlstd{,} \hlstr{"EPHA1"}\hlstd{,} \hlstr{"JUP"}\hlstd{,}
+    \hlstr{"MPZL2"}\hlstd{,} \hlstr{"OVOL2"}\hlstd{,} \hlstr{"PLXNB1"}\hlstd{,} \hlstr{"S100P"}\hlstd{,} \hlstr{"SLC7A5"}\hlstd{,} \hlstr{"SYK"}\hlstd{,} \hlstr{"FGFR3"}\hlstd{,} \hlstr{"ABLIM1"}\hlstd{,}
+    \hlstr{"ADRB2"}\hlstd{,} \hlstr{"ALDH1A3"}\hlstd{,} \hlstr{"ANK3"}\hlstd{,} \hlstr{"BIK"}\hlstd{,} \hlstr{"CA2"}\hlstd{,} \hlstr{"CTSL2"}\hlstd{,} \hlstr{"FGFR2"}\hlstd{,} \hlstr{"ZHX2"}\hlstd{,} \hlstr{"ZNF165"}\hlstd{,}
+    \hlstr{"SERPINB1"}\hlstd{,} \hlstr{"SLPI"}\hlstd{,} \hlstr{"TMEM30B"}\hlstd{,} \hlstr{"TPD52L1"}\hlstd{,} \hlstr{"IFI30"}\hlstd{,} \hlstr{"IL18"}\hlstd{,} \hlstr{"KLK7"}\hlstd{,} \hlstr{"KRT15"}\hlstd{,}
+    \hlstr{"KRT17"}\hlstd{,} \hlstr{"LSR"}\hlstd{,} \hlstr{"MAP7"}\hlstd{,} \hlstr{"MBP"}\hlstd{,} \hlstr{"OCLN"}\hlstd{,} \hlstr{"PKP2"}\hlstd{,} \hlstr{"PPL"}\hlstd{,} \hlstr{"PRSS8"}\hlstd{,} \hlstr{"RAPGEF5"}\hlstd{,}
+    \hlstr{"SPINT1"}\hlstd{,} \hlstr{"PRRG4"}\hlstd{,} \hlstr{"GPX3"}\hlstd{,} \hlstr{"SLC27A2"}\hlstd{,} \hlstr{"SMPDL3B"}\hlstd{,} \hlstr{"SORL1"}\hlstd{,} \hlstr{"ST6GALNAC2"}\hlstd{,}
+    \hlstr{"RHOD"}\hlstd{,} \hlstr{"AGR2"}\hlstd{,} \hlstr{"C10orf10"}\hlstd{,} \hlstr{"CDS1"}\hlstd{,} \hlstr{"FAM169A"}\hlstd{,} \hlstr{"FXYD3"}\hlstd{,} \hlstr{"KLK10"}\hlstd{,} \hlstr{"LAD1"}\hlstd{,}
+    \hlstr{"MTUS1"}\hlstd{,} \hlstr{"PLS1"}\hlstd{)}
+\hlstd{x.medcent} \hlkwb{=} \hlstd{x} \hlopt{-} \hlkwd{apply}\hlstd{(x,} \hlnum{1}\hlstd{, median)}
+\hlstd{emt.scores.pos} \hlkwb{=} \hlkwd{apply}\hlstd{(x.medcent[}\hlkwd{rownames}\hlstd{(x.medcent)} \hlopt{%in%} \hlstd{sig.emt_groger_pos,}
+    \hlstd{],} \hlnum{2}\hlstd{, median)}
+\hlstd{emt.scores.neg} \hlkwb{=} \hlkwd{apply}\hlstd{(x.medcent[}\hlkwd{rownames}\hlstd{(x.medcent)} \hlopt{%in%} \hlstd{sig.emt_groger_neg,}
+    \hlstd{],} \hlnum{2}\hlstd{, median)}
+\hlstd{emt.scores} \hlkwb{=} \hlstd{emt.scores.pos} \hlopt{-} \hlstd{emt.scores.neg}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
 \subsection{MSigDB score correlation thresholding}
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
@@ -2208,6 +2237,120 @@
 ## Residual standard error: 0.195 on 108 degrees of freedom
 ## Multiple R-squared:  0.0303,	Adjusted R-squared:  0.0214 
 ## F-statistic: 3.38 on 1 and 108 DF,  p-value: 0.0688
+\end{verbatim}
+\begin{alltt}
+\hlkwd{plot}\hlstd{(axis_coefs.diag_dsd[,} \hlnum{1}\hlstd{]} \hlopt{~} \hlstd{emt.scores,} \hlkwc{xlab} \hlstd{=} \hlstr{"meta-EMT score"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"A1 signal"}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+{\centering \includegraphics[width=\maxwidth]{figure/nmf-msigdb-cor-plots-9} 
+
+}
+
+
+\begin{kframe}\begin{alltt}
+\hlkwd{plot}\hlstd{(axis_coefs.diag_dsd[,} \hlnum{2}\hlstd{]} \hlopt{~} \hlstd{emt.scores,} \hlkwc{xlab} \hlstd{=} \hlstr{"meta-EMT score"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"A2 signal"}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+{\centering \includegraphics[width=\maxwidth]{figure/nmf-msigdb-cor-plots-10} 
+
+}
+
+
+\begin{kframe}\begin{alltt}
+\hlkwd{cor.test}\hlstd{(axis_coefs.diag_dsd[,} \hlnum{1}\hlstd{], emt.scores,} \hlkwc{method} \hlstd{=} \hlstr{"kendall"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## 
+## 	Kendall's rank correlation tau
+## 
+## data:  axis_coefs.diag_dsd[, 1] and emt.scores
+## z = -3.371, p-value = 0.0007492
+## alternative hypothesis: true tau is not equal to 0
+## sample estimates:
+##     tau 
+## -0.2177
+\end{verbatim}
+\begin{alltt}
+\hlkwd{cor.test}\hlstd{(axis_coefs.diag_dsd[,} \hlnum{2}\hlstd{], emt.scores,} \hlkwc{method} \hlstd{=} \hlstr{"kendall"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## 
+## 	Kendall's rank correlation tau
+## 
+## data:  axis_coefs.diag_dsd[, 2] and emt.scores
+## z = 8.795, p-value < 2.2e-16
+## alternative hypothesis: true tau is not equal to 0
+## sample estimates:
+##   tau 
+## 0.568
+\end{verbatim}
+\begin{alltt}
+\hlkwd{summary}\hlstd{(}\hlkwd{lm}\hlstd{(axis_coefs.diag_dsd[,} \hlnum{1}\hlstd{]} \hlopt{~} \hlstd{emt.scores))}
+\end{alltt}
+\begin{verbatim}
+## 
+## Call:
+## lm(formula = axis_coefs.diag_dsd[, 1] ~ emt.scores)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -0.3487 -0.1156 -0.0137  0.1312  0.4365 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(>|t|)
+## (Intercept)  -0.0129     0.0172   -0.75  0.45511
+## emt.scores   -0.1289     0.0351   -3.68  0.00037
+## 
+## Residual standard error: 0.18 on 108 degrees of freedom
+## Multiple R-squared:  0.111,	Adjusted R-squared:  0.103 
+## F-statistic: 13.5 on 1 and 108 DF,  p-value: 0.000372
+\end{verbatim}
+\begin{alltt}
+\hlkwd{summary}\hlstd{(}\hlkwd{lm}\hlstd{(axis_coefs.diag_dsd[,} \hlnum{2}\hlstd{]} \hlopt{~} \hlstd{emt.scores))}
+\end{alltt}
+\begin{verbatim}
+## 
+## Call:
+## lm(formula = axis_coefs.diag_dsd[, 2] ~ emt.scores)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -0.2545 -0.0977 -0.0088  0.0914  0.4166 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(>|t|)
+## (Intercept) -0.00235    0.01255   -0.19     0.85
+## emt.scores   0.30063    0.02560   11.74   <2e-16
+## 
+## Residual standard error: 0.132 on 108 degrees of freedom
+## Multiple R-squared:  0.561,	Adjusted R-squared:  0.557 
+## F-statistic:  138 on 1 and 108 DF,  p-value: <2e-16
+\end{verbatim}
+\begin{alltt}
+\hlkwd{anova}\hlstd{(}\hlkwd{lm}\hlstd{(axis_coefs.diag_dsd[,} \hlnum{1}\hlstd{]} \hlopt{~} \hlstd{samps}\hlopt{$}\hlstd{purity_qpure} \hlopt{+} \hlstd{emt.scores))}
+\end{alltt}
+\begin{verbatim}
+## Analysis of Variance Table
+## 
+## Response: axis_coefs.diag_dsd[, 1]
+##                    Df Sum Sq Mean Sq F value  Pr(>F)
+## samps$purity_qpure  1  0.453   0.453   15.20 0.00021
+## emt.scores          1  0.039   0.039    1.32 0.25381
+## Residuals          75  2.236   0.030
+\end{verbatim}
+\begin{alltt}
+\hlkwd{anova}\hlstd{(}\hlkwd{lm}\hlstd{(axis_coefs.diag_dsd[,} \hlnum{2}\hlstd{]} \hlopt{~} \hlstd{samps}\hlopt{$}\hlstd{purity_qpure} \hlopt{+} \hlstd{emt.scores))}
+\end{alltt}
+\begin{verbatim}
+## Analysis of Variance Table
+## 
+## Response: axis_coefs.diag_dsd[, 2]
+##                    Df Sum Sq Mean Sq F value  Pr(>F)
+## samps$purity_qpure  1  0.518   0.518    28.4 1.0e-06
+## emt.scores          1  1.513   1.513    82.9 9.4e-14
+## Residuals          75  1.369   0.018
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
