@@ -150,8 +150,8 @@ ov     & 115  & 251    & 0.0238                           & 0.0178              
 \end{figure}
 
 
-\subsection{\acrshort{PARSE} identifies proliferation and \acrshort{ECM} remodelling as fundamental processes controlling survival in \acrshort{PDAC}}
-To link the two prognostic axes that form the \gls{PARSE} score with potential underlying biology, axis activities on the \gls{APGI} discovery cohort were compared to clinical variates, meta-PCNA, and scores for signatures from the \gls{MSigDB} \cite{Subramanian2005}.
+\subsection{\acrshort{PARSE} identifies proliferation and \acrshort{EMT} as fundamental processes controlling survival in \acrshort{PDAC}}
+To link the two prognostic axes that form the \gls{PARSE} score with potential underlying biology, axis activities on the \gls{APGI} discovery cohort were compared to clinical variates, known survival signatures, and scores for signatures from the \gls{MSigDB} \cite{Subramanian2005}.
 
 \gls{MSigDB} correlations, as well as comparisons to a general proliferative signature, revealed that the \gls{PARSE} axis A1 (MG1 $-$ MG5) primarily reflected the proliferative state of cells.  A1 signal was very strongly correlated with meta-PCNA \cite{Venet2011} score (Kendall's $\tau = 0.663$, $n = 110$, \fref{fig:sigs-axis1-pcna}), a relationship supported by its close association to cell cycle-related \gls{MSigDB} signatures (\Aref{app:sigs-msigdb-corrs-axis1} on \pref{app:sigs-msigdb-corrs-axis1}).  A1 signal was also significantly positively correlated with qPure \cite{Song2012} estimates of cancer cell fraction in the tumour (Kendall's $\tau = 0.284$, $n = 110$, \tref{tab:sigs-mg-cpvs}), although this association was weak (linear model $R^2 = 0.155$).
 
@@ -199,9 +199,25 @@ Tumour longest axis length & 0.844                         & 0.171              
 
 Among the clinical variables tested, \gls{PARSE} axis A2 (MG6 $-$ MG2) correlated with stromal content and tumour grade: conditions of high A2 signal were associated with higher stromal content, higher grade, and shorter survival.  A2 signal was positively correlated with tumour microscopic pathological grade (Holm-corrected $P = 0.0067$, 50 tests performed), although this dependence was weak: on average, A2 signal was $0.1103$ higher in grade 3 or 4 tumours over grade 1 or 2, with $R^2 = 0.119$.   A2 signal was also negatively associated with tumour cancer cell fraction, the opposite of the positive relationship observed for axis A1, despite signal in both axes being positively associated with poor prognosis.  This reveals a potential context dependency in the influence of stromal content on survival, where high stromal content of a tumour may indicate either good or poor prognosis, depending on which underlying axis is responsible.
 
-\gls{MSigDB} associations implicated \gls{ECM} processes, \gls{EMT}, and possibly inflammation, in A2 activation.  A2 signals were strongly positively correlated with \gls{GSVA} scores for \gls{MSigDB} signatures related to \gls{ECM} interactions and remodelling, and a signature of LEF1-mediated \gls{EMT}, strongly implicating matrix remodelling and invasion as the molecular basis of axis A2 (\Aref{app:sigs-msigdb-corrs-axis2} on \pref{app:sigs-msigdb-corrs-axis2}).  A potential link between A2 and inflammation was also indicated by a strong positive association between A2 signal and \gls{MSigDB} GNF2\_PTX3 \gls{GSVA} score (Kendall's $\tau = 0.593$, \Aref{app:sigs-msigdb-corrs-axis2} on \pref{app:sigs-msigdb-corrs-axis2}), a proxy for expression of the acute phase response protein pentraxin 3.
+A number of \gls{MSigDB} signatures were associated with A2 signals, among them integrins, \gls{ECM} processes, and a signature for LEF1-mediated \gls{EMT} (\Aref{app:sigs-msigdb-corrs-axis2} on \pref{app:sigs-msigdb-corrs-axis2}).  Prompted by the strong positive correlation between A2 and the LEF1 overexpression signature, I investigated the association between A2 signal and score for a general signature of \gls{EMT}, meta-EMT \cite{Groger2012}.  meta-EMT and A2 signals were strongly positively correlated (Kendall's $\tau = 0.568$, $n = 110$, linear model $R^2 = 0.557$, \ref{fig:sigs-axis2-emt}), even when cancer cell fraction was taken into account (LRT $P = 9.4 \times 10^{-14}$), strongly indicating that A2 signal predominantly encodes \gls{EMT} activity.  A potential link between A2 and inflammation may also be present: A2 signal was strongly positively correlated with the \gls{GSVA} score for \gls{MSigDB} GNF2\_PTX3 (Kendall's $\tau = 0.593$, \Aref{app:sigs-msigdb-corrs-axis2} on \pref{app:sigs-msigdb-corrs-axis2}), a proxy for expression of the acute phase response protein pentraxin 3.
+
+\begin{figure}
+\centering
+\includegraphics[width=.7\linewidth]{analysis/biosurv/reports/18_SIS_diag_dsd_final/figure/nmf-msigdb-cor-plots-10}
+\caption[A2 signal is closely associated with meta-EMT score]{Axis A2 signal is closely associated with meta-ECM signature score.  A2 signal and meta-ECM \cite{Groger2012} scores were as evaluated on the \acrshort{APGI} training set; Kendall's $\tau = 0.568$, $n = 110$, linear model $R^2 = 0.557$.}\label{fig:sigs-axis2-emt}
+\end{figure}
+
+\mpfatal{TODO: Consider comparing A1 and A2 vs meta-PCNA and meta-ECM in TCGA -- are A1/A2 better than the metas?  Model complexity is the same so therefore can just compare partials -- woo}
 
 \section{Discussion}
+
+At the molecular level, the phenomenon of cancer has long been recognised as being a composite of many processes \cite{Hanahan2011}, however the relative importance of each process to a particular disease has been largely uncertain.  In pancreas cancer, a huge number of individual biomarkers are known \cite{Harsha2009}, and some attempts have been made to stratify cancers into molecular subtypes \cite{Collisson2011}, but no studies have provided a comprehensive analysis of which basic hallmarks of cancer are actually important in controlling patient outcome.  This work fills that gap in knowledge, and is the first to exhaustively identify proliferation and the \gls{EMT} as the major molecular processes that determine survival of patients with pancreas cancer.
+
+Discussion points:
+  PARSE = meta-PCNA + meta-ECM (+ immune + stroma?).
+  Context-dependency of stroma signal
+  GSE21501 -- why didn't it validate?
+  Relevance to future work.
 
 \section{Methods}
 \subsection{Cohort recruitment and ethics}
@@ -258,6 +274,9 @@ For each validation data set, metagene coefficients, axis activities, and \gls{P
 The expression of gene sets from the \gls{MSigDB} \cite{Subramanian2005} were estimated on the \gls{APGI} cohort using a modification of the \gls{GSVA} method \cite{Hanzelmann2013}.  \gls{GSVA} with default settings was used to estimate expression scores for all \gls{MSigDB} gene sets in the full 13,000 $\times$ 228 \gls{VST}-scaled \gls{APGI} \gls{GEX} data matrix.  \gls{MSigDB} contains both undirected gene sets such as metabolic pathways, in which members of the set are not expected a-priori to move in concert, and directional signatures, with paired \texttt{*\_UP} and \texttt{*\_DN} components that would be expected to change in coordinated and opposite patterns.  Conventional analyses based on \gls{MSigDB} ignore this distinction, but for this work I combined paired directional signatures to yield an overall signed estimate of signature activity.  For undirected signatures, \gls{GSVA} activity estimates were simply calculated using parameter \texttt{abs.ranking=TRUE}.  In the case of paired signatures, \gls{GSVA} scores were estimated separately for the \texttt{*\_UP} and \texttt{*\_DN} sets using parameter \texttt{abs.ranking=FALSE}, and the signed combined activity \texttt{*\_SIGNED} was calculated as the \texttt{*\_DN} score subtracted from the \texttt{*\_UP} score.  This procedure resulted in summarised activity estimates for 8,138 gene sets, many of which were highly correlated.
 
 Gene sets with highly correlated activity scores were collapsed into compound summary sets as follows.  Pairwise Pearson correlation distances between all scores were calculated as $d_{i,j} = \frac{1}{2}(1 - \text{cor}(s_i, s_j))$, and were used to cluster gene sets using R \texttt{hclust} and complete linkage.  R \texttt{cutree} identified clusters of highly similar gene sets, using a distance threshold of 0.02; gene set activities within each cluster were merged by taking median values across all samples, to form a new merged gene set activity estimate.  Following merging, 7,633 single and compound gene set activity estimates remained across 228 samples.
+
+\subsection{meta-PCNA and meta-ECM score calculation}
+Scores for the meta-PCNA signature were calculated from \gls{GEX} data as described in \cite{Venet2011}.  To estimate meta-ECM scores, log-scale \gls{GEX} data were median centered, and then median values across samples were calculated for all genes in the two lists of \cite{Groger2012} Table S3, to yield EMT-overexpressed, and EMT-underexpressed, gene list median expression estimates per sample.  The meta-ECM score was then calculated as the EMT-overexpressed median value, less the EMT-underexpressed median value.
 
 \subsection{Prognostic axis functional characterization}
 \paragraph{Clinical variate comparisons}
