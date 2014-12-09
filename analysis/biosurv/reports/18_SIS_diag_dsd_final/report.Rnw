@@ -12,6 +12,7 @@ opts_chunk$set(
 	fig.align = 'center', dev = 'pdf', fig.width = 6, fig.height = 6, dev.args = list(pointsize = 8), 
 	tidy = TRUE, width.cutoff = 60, formatR.arrow = TRUE, cache = FALSE)
 opts_knit$set(progress = TRUE, verbose = TRUE)
+options(warn = 1)
 @
 
 \title{SIS NMF Final: Diagnosis to DSD}
@@ -181,6 +182,7 @@ coef(temp$glmnet.fit, s = temp$lambda.1se)
 glmnet.fit.cv.diag_dsd = cv.glmnet(t(coefs.diag_dsd), y.diag_dsd, family = "cox", nfolds = 10)
 glmnet.fit.cv.diag_rec = cv.glmnet(t(coefs.diag_rec), y.diag_rec, family = "cox", nfolds = 10)
 glmnet.fit.cv.recr_dsd = cv.glmnet(t(coefs.recr_dsd), y.recr_dsd, family = "cox", nfolds = 10)
+axis_coefs.diag_dsd = as.matrix(cbind(axis1 = coefs.diag_dsd[1,] - coefs.diag_dsd[5,], axis2 = coefs.diag_dsd[6,] - coefs.diag_dsd[2,]))
 @
 
 <<nmf-metagene-glmnet-plots>>=
@@ -341,17 +343,91 @@ val_pvals[val_pvals$nevents >= 50 | rownames(val_pvals) == "paad",]
 @
 
 
+<<km-curves>>=
+plot_km_axes = function(axis1, axis2, y, mc = FALSE, ...)
+{
+	t1 = t2 = 0
+	if (mc == TRUE)
+	{
+		t1 = median(axis1, na.rm = TRUE)
+		t2 = median(axis2, na.rm = TRUE)
+	}
+
+	class = paste(c("L", "H")[I(axis1 >= t1)+1], c("L", "H")[I(axis2 >= t2)+1], sep = "")
+	class = ordered(class, levels = c("LL", "LH", "HL", "HH"))
+	fit = survfit(y ~ class)
+	print(fit)
+	print(survdiff(y ~ class))
+	pval = pchisq(survdiff(y ~ class)$chisq, 3, lower.tail = FALSE)
+	pal = brewer.pal(4, "Set2")
+	names(pal) = c("LL", "LH", "HL", "HH")
+	plot(axis2 ~ axis1, xlab = "A1 activity", ylab = "A2 activity", col = pal[class], pch = 16, cex = 1.5, ...)
+	abline(h = t2)
+	abline(v = t1)
+	plot(fit, col = pal, lwd = 2, xlab = "Time from diagnosis (days)", ylab = "Fraction surviving", sub = sprintf("P = %.3g", pval), ...)
+}
+
+plot_km_axes_tcga = function(code, mc)
+{
+	if ("illuminahiseq_rnaseqv2" %in% names(data.merged[[code]]$gex))
+	{
+		temp.gex = data.merged[[code]]$gex$illuminahiseq_rnaseqv2
+		temp.gex = temp.gex[!grepl("^\\?\\|", rownames(temp.gex)),]
+		rownames(temp.gex) = gsub("\\|.*", "", rownames(temp.gex))
+		temp.gex.axes = temp.gex[match(rownames(val.basis), rownames(temp.gex)),]
+		temp.gex.axes[apply(is.na(temp.gex.axes), 1, all),] = 0
+		temp.gex.axes = temp.gex.axes - apply(temp.gex.axes, 1, min, na.rm = TRUE)
+		temp.gex.axes = temp.gex.axes / apply(temp.gex.axes, 1, max, na.rm = TRUE)
+		temp.gex.axes[is.na(temp.gex.axes)] = 0
+		temp.coefs = apply(temp.gex.axes, 2, function(xcol) nnls(val.basis, xcol)$x)
+		temp.axis1 = temp.coefs[1,] - temp.coefs[5,]
+		temp.axis2 = temp.coefs[6,] - temp.coefs[2,]
+
+		temp.clin = data.merged[[code]]$clin
+		temp.days_to_death = temp.clin$days_to_death
+		temp.days_to_death[temp.days_to_death == "[Not Applicable]"] = NA
+		temp.days_to_death = as.numeric(as.character(temp.days_to_death))
+		temp.days_to_initial_pathologic_diagnosis = temp.clin$days_to_initial_pathologic_diagnosis
+		temp.days_to_initial_pathologic_diagnosis[temp.days_to_initial_pathologic_diagnosis == "[Not Applicable]"] = NA
+		temp.days_to_initial_pathologic_diagnosis = as.numeric(as.character(temp.days_to_initial_pathologic_diagnosis))
+		temp.days_to_last_followup = temp.clin$days_to_last_followup
+		temp.days_to_last_followup[temp.days_to_last_followup == "[Not Applicable]"] = NA
+		temp.days_to_last_followup = as.numeric(as.character(temp.days_to_last_followup))
+		temp.time_event = temp.days_to_death - temp.days_to_initial_pathologic_diagnosis
+		temp.time_lfu = temp.days_to_last_followup - temp.days_to_initial_pathologic_diagnosis
+		temp.time_obs = temp.time_event
+		temp.time_obs[is.na(temp.time_obs)] = temp.time_lfu[is.na(temp.time_obs)]
+		temp.time_obs[!is.na(temp.time_obs) & !is.na(temp.time_lfu)] = pmin(temp.time_obs[!is.na(temp.time_obs) & !is.na(temp.time_lfu)], temp.time_lfu[!is.na(temp.time_obs) & !is.na(temp.time_lfu)])
+		temp.event = (temp.time_event <= temp.time_lfu & !is.na(temp.time_event) & !is.na(temp.time_lfu)) | (!is.na(temp.time_event) & is.na(temp.time_lfu))
+		temp.y = Surv(temp.time_obs, temp.event)
+
+		plot_km_axes(temp.axis1, temp.axis2, temp.y, mc = FALSE, main = code)
+	}
+}
+
+plot_km_axes(axis_coefs.diag_dsd[,1], axis_coefs.diag_dsd[,2], y.diag_dsd, mc = FALSE, main = "APGI")
+plot_km_axes(GSE21501.axis1, GSE21501.axis2, Surv(GSE21501.samp$time, GSE21501.samp$event), mc = FALSE, main = "GSE21501")
+plot_km_axes(GSE28735.axis1, GSE28735.axis2, Surv(GSE28735.samp$time, GSE28735.samp$event), mc = FALSE, main = "GSE28735")
+plot_km_axes_tcga("hnsc", mc = FALSE)
+plot_km_axes_tcga("kirc", mc = FALSE)
+plot_km_axes_tcga("lgg", mc = FALSE)
+plot_km_axes_tcga("luad", mc = FALSE)
+plot_km_axes_tcga("paad", mc = FALSE)
+@
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % SIGNATURE BIOLOGY
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{MSigDB score correlation thresholding}
 <<nmf-msigdb-cor-plots>>=
-temp.sel_cols = apply(abs(nmf.final.msigdb.corr) >= sig.corr.threshold, 2, any)
-heatmap.2(nmf.final.msigdb.corr[, temp.sel_cols], trace = "none", scale = "none", useRaster = TRUE, col = brewer.pal(11, "PiYG"), symbreaks = TRUE)
-heatmap.2(nmf.final.msigdb.corr[, temp.sel_cols], trace = "none", scale = "none", useRaster = TRUE, col = brewer.pal(3, "PiYG"), breaks = c(-1, -sig.corr.threshold, sig.corr.threshold, 1))
+axis_coefs.msigdb.corr = cor(axis_coefs.diag_dsd, t(sigs), method = "kendall")
 
-cpv.pvals = apply(coef(nmf.final), 1, function(mg) sapply(cbind(cpvs.diag_dsd, purity = samps.diag_dsd$purity_qpure), function(x) {
+temp.sel_cols = apply(abs(axis_coefs.msigdb.corr) >= sig.corr.threshold, 2, any)
+heatmap.2(axis_coefs.msigdb.corr[, temp.sel_cols], trace = "none", scale = "none", useRaster = TRUE, col = brewer.pal(11, "PiYG"), symbreaks = TRUE)
+heatmap.2(axis_coefs.msigdb.corr[, temp.sel_cols], trace = "none", scale = "none", useRaster = TRUE, col = brewer.pal(3, "PiYG"), breaks = c(-1, -sig.corr.threshold, sig.corr.threshold, 1))
+
+cpv.pvals = apply(axis_coefs.diag_dsd, 2, function(mg) sapply(cbind(cpvs.diag_dsd, purity = samps.diag_dsd$purity_qpure), function(x) {
         s = !is.na(mg) & !is.na(x)
         x = x[s]
         mg = mg[s]
@@ -385,22 +461,36 @@ colnames(cpv.qvals) = colnames(cpv.pvals)
 cpv.pvals
 cpv.qvals
 
-apply(coef(nmf.final), 1, function(c1) cor.test(c1, samps$purity_qpure, method = "kendall"))
+boxplot(axis_coefs.diag_dsd[,1] ~ cpvs.diag_dsd$Path.Grade.Coarse, xlab = "Pathological grade", ylab = "A1 signal")
+boxplot(axis_coefs.diag_dsd[,2] ~ cpvs.diag_dsd$Path.Grade.Coarse, xlab = "Pathological grade", ylab = "A2 signal")
+lm(axis_coefs.diag_dsd[,2] ~ cpvs.diag_dsd$Path.Grade.Coarse)
+summary(lm(axis_coefs.diag_dsd[,2] ~ cpvs.diag_dsd$Path.Grade.Coarse))
+anova(lm(axis_coefs.diag_dsd[,2] ~ cpvs.diag_dsd$Path.Grade.Coarse))
 
-lm(coef(nmf.final)[6,] ~ cpvs.diag_dsd$Path.Grade.Coarse)
-summary(lm(coef(nmf.final)[6,] ~ cpvs.diag_dsd$Path.Grade.Coarse))
-anova(lm(coef(nmf.final)[6,] ~ cpvs.diag_dsd$Path.Grade.Coarse))
+plot(axis_coefs.diag_dsd[,1] ~ samps$purity_qpure, xlab = "qPure estimate", ylab = "A1 signal")
+plot(axis_coefs.diag_dsd[,2] ~ samps$purity_qpure, xlab = "qPure estimate", ylab = "A2 signal")
+cor.test(axis_coefs.diag_dsd[,1], samps$purity_qpure, method = "kendall")
+cor.test(axis_coefs.diag_dsd[,2], samps$purity_qpure, method = "kendall")
+summary(lm(axis_coefs.diag_dsd[,1] ~ samps$purity_qpure))
+summary(lm(axis_coefs.diag_dsd[,2] ~ samps$purity_qpure))
+
+plot(axis_coefs.diag_dsd[,1] ~ metapcna.scores, xlab = "meta-PCNA score", ylab = "A1 signal")
+plot(axis_coefs.diag_dsd[,2] ~ metapcna.scores, xlab = "meta-PCNA score", ylab = "A2 signal")
+cor.test(axis_coefs.diag_dsd[,1], metapcna.scores, method = "kendall")
+cor.test(axis_coefs.diag_dsd[,2], metapcna.scores, method = "kendall")
+summary(lm(axis_coefs.diag_dsd[,1] ~ metapcna.scores))
+summary(lm(axis_coefs.diag_dsd[,2] ~ metapcna.scores))
 @
 
 
 <<nmf-msigdb-cor-tables-generate>>=
-temp.sig_id = colnames(nmf.final.msigdb.corr)
+temp.sig_id = colnames(axis_coefs.msigdb.corr)
 temp.sig_class = gsub("\\..*", "", temp.sig_id)
 temp.nsigs = length(temp.sig_id)
-temp.nmeta = nrow(nmf.final.msigdb.corr)
+temp.nmeta = nrow(axis_coefs.msigdb.corr)
 tables = lapply(1:temp.nmeta, function(metagene_i) {
 	tapply(1:temp.nsigs, temp.sig_class, function(sig_class_is) {
-		all_cors = nmf.final.msigdb.corr[, sig_class_is]
+		all_cors = axis_coefs.msigdb.corr[, sig_class_is]
 		this_cors = all_cors[metagene_i, ]
 		this_ids = temp.sig_id[sig_class_is]
 
@@ -430,6 +520,11 @@ tables = lapply(1:temp.nmeta, function(metagene_i) {
 	}, simplify = FALSE)
 })
 tables
+
+for (subtable_index in 1:length(tables))
+{
+	write.csv(do.call(rbind, tables[[subtable_index]]), file = sprintf("A%d_corrs.csv", subtable_index))
+}
 @
 
 

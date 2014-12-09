@@ -8,7 +8,7 @@
 
 \section{Introduction}
 
-\paragraph{Summary}Very little is known regarding the biological processes that control the survival of patients with \gls{PDAC}, the most common and aggressive form of pancreas cancer.  As discussed in \cref{chap:nomogram}, the wide range of relative patient survival times that is observed in practice is not well explained by extrinsic factors such as age at diagnosis, and perhaps instead reflects differences in the biological processes operating within each tumour.  Recent molecular profiling work has identified possible molecular subtypes within the previously homogenous group of \gls{PDAC}, but these subtypes have not achieved the maturity or clinical application of those in breast cancer, and their discovery and validation has been hampered by ad-hoc methodology, and the lack of large, well-curated cohorts of \gls{PDAC} samples.  The recently-compiled \gls{APGI} cohort contains the largest group of clinically annotated \gls{PDAC} samples, with accompanying \gls{GEX} and high-quality follow-up data, in the world.  It presents a unique opportunity to apply modern techniques for prognostic signature identification to the discovery of biological processes that drive the clinical course of pancreas cancer.  These signatures may find application as prognostic tools in their own right, but more importantly can supply much-needed information on the fundamental biology of the one common cancer that has, to date, been almost entirely refractory to all the tools of modern molecular medicine.
+\paragraph{Summary}Very little is known regarding the biological processes that control the survival of patients with \gls{PDAC}, the most common and aggressive form of pancreas cancer.  As discussed in \Cref{chap:nomogram}, the wide range of relative patient survival times that is observed in practice is not well explained by extrinsic factors such as age at diagnosis, and perhaps instead reflects differences in the biological processes operating within each tumour.  Recent molecular profiling work has identified possible molecular subtypes within the previously homogenous group of \gls{PDAC}, but these subtypes have not achieved the maturity or clinical application of those in breast cancer, and their discovery and validation has been hampered by ad-hoc methodology, and the lack of large, well-curated cohorts of \gls{PDAC} samples.  The recently-compiled \gls{APGI} cohort contains the largest group of clinically annotated \gls{PDAC} samples, with accompanying \gls{GEX} and high-quality follow-up data, in the world.  It presents a unique opportunity to apply modern techniques for prognostic signature identification to the discovery of biological processes that drive the clinical course of pancreas cancer.  These signatures may find application as prognostic tools in their own right, but more importantly can supply much-needed information on the fundamental biology of the one common cancer that has, to date, been almost entirely refractory to all the tools of modern molecular medicine.
 
 \vspace{1cm}
 
@@ -16,13 +16,13 @@ Despite extensive research, \gls{PDAC} remains a poorly-understood disease.  Rec
 
 Sitting between the regulatory function of transcription control, and the effector function of protein expression, \gls{GEX} data integrate information from all aspects of cell condition, including genetic alterations, signalling pathway activity, and metabolic status.  As such, it is unsurprising that \gls{GEX} data are superior indicators of cell state, better than all other high-throughput measurement methods, such as protein expression or genetic alterations \cite{Ray2014}.  However, the involvement of \gls{GEX} with so many biological inputs is also a weakness: typical differential expression studies will identify many hundreds of transcripts that vary between disease states, and the deconvolution of this complex set of hundreds of effects back to a small number of causative molecular processes remains challenging.
 
-Historically, disease \gls{GEX} profiling studies have largely refrained from attempting to infer the state of a few molecular processes from the many hundreds of differentially-expressed genes identified; notable early exceptions are for example \mpfatal{PCA, ICA cites}.  A number of factors are likely to have contributed to this reluctance: deconvolution methods are numerically sensitive and require very large sets of high-quality measurements, early techniques were poorly-suited to the particular requirements of the \gls{GEX} deconvolution problem, and the signature databases that assist the assignation of a biological annotation to the output from a deconvolution calculation (for example, the \acrshort{MSigDB} \cite{Subramanian2005}) have only recently reached maturity.
+Historically, disease \gls{GEX} profiling studies have largely refrained from attempting to infer the state of a few molecular processes from the many hundreds of differentially-expressed genes identified; notable early exceptions are for example \cite{Alter2000,Lee2003}.  A number of factors are likely to have contributed to this reluctance: deconvolution methods are numerically sensitive and require very large sets of high-quality measurements, early techniques were poorly-suited to the particular requirements of the \gls{GEX} deconvolution problem, and the signature databases that assist the assignation of a biological annotation to the output from a deconvolution calculation (for example, the \acrshort{MSigDB} \cite{Subramanian2005}) have only recently reached maturity.
 
 In addition to the general technical challenges of \gls{GEX} deconvolution, issues particular to pancreas cancer significantly complicate attempts to identify molecular processes at work within the tumours.  Pancreas cancer is challenging to sample, and mRNA in the tissue degrades rapidly once extracted, complicating sample collection.  Additionally, a feature of \gls{PDAC} is the presence of a dense desmoplastic stromal reaction throughout the tumour, that is formed by genetically normal patient stroma cells \cite{Mahadevan2007}.  The fraction of tumour cells that are actually cancerous varies by more than 10-fold between tumours \cite{Biankin2012}, meaning that without careful correction, gene expression profiles are dominated by stromal cell fraction signals, and not true differential expression within a cell type.  Microdissection has been used to separate cancer cells from surrounding stroma in order to simplify analysis \cite{Collisson2011}, but current thought in the field is that the stroma in \gls{PDAC} is an essential and enabling, if not in itself neoplastic, component of the tumour \cite{Mahadevan2007}, and that the examination of cancer cell expression in isolation ignores the likely important interplay between the two major synergistic components of a tumour: transformed epithelial cells, and genetically normal stroma.
 
 Due to these challenges to \gls{GEX} deconvolution of \gls{PDAC}, to date only one study (by Collisson et al) has reported a breakdown of \gls{PDAC} \gls{GEX} into a small number of biological modules \cite{Collisson2011}.  This study examined microdissected cancer cells only, and found that the transformed epithelial cells of \gls{PDAC} could be placed into three major categories, based on their patterns of gene expression.  Tumours from these three categories followed distinct clinical courses, and cell lines exhibited category-specific sensitivity to therapeutic drugs.  As the first report to identify potential clinically relevant molecular subtypes within \gls{PDAC}, the Collisson study was a significant advance in the understanding of the molecular processes at play within what was previously considered a homogeneous disease.  However, it also possesses shortcomings that limit its clinical utility.
 
-Two main issues complicate the interpretation of the Collisson classes: microdissected cancer cells were used, and therefore stromal effects would be severely attenuated; and the deconvolution technique employed was tuned to achieve sample clustering, rather than \gls{GEX} deconvolution.  Consequently, although the Collisson classes could be a fundamental advance in the understanding of \gls{PDAC}, they necessarily do not consider the full context of the disease, and potentially have artifically identified subgroups when in reality a smooth continuum of disease types may exist.  Additionally, although the Collisson tumour subgroups were observed to follow different clinical courses, they were not explicitly generated for this purpose. \mpfatal{Tidy up this last sentence}
+Two main issues complicate the interpretation of the Collisson classes: microdissected cancer cells were used, and therefore stromal effects would be severely attenuated; and the deconvolution technique employed was tuned to achieve sample clustering, rather than \gls{GEX} deconvolution.  Consequently, although the Collisson classes could be a fundamental advance in the understanding of \gls{PDAC}, they necessarily do not consider the full context of the disease, and potentially have artifically identified subgroups when in reality a smooth continuum of disease types may exist.  Additionally, although the Collisson tumour subgroups were observed to follow different clinical courses, they were not explicitly generated to stratify patients by outcome, and so may not have captured the full biology underlying differential survival in \gls{PDAC}.
 
 A substantial gap remains in our molecular understanding of \gls{PDAC}: little is known about the core molecular processes at work within both the cancer and stroma of different tumours, and almost nothing on those processes that control patient survival following diagnosis.  Such a gap in knowledge is not merely of academic interest: a better understanding of the processes affecting patient survival can lead directly to improved methods for staging, may stratify patients for customised therapies, and even suggest targets for therapeutics capable of transforming a poor-prognosis cancer into a good-prognosis one.  The primary obstacle for the identification of these survival-associated processes in \gls{PDAC} is one of data: a large, high-quality dataset of \gls{GEX} measurements and associated well-curated \glspl{CPV} is needed.  The \gls{APGI} cohort addresses this data problem for the identification of fundamental survival processes in \gls{PDAC}.  As the largest cohort of \gls{PDAC} samples, with accompanying \gls{GEX} and curated \glspl{CPV}, in the world, it can provide the data quality and cohort size required by modern \gls{GEX} deconvolution techniques.
 
@@ -34,72 +34,75 @@ In this chapter I describe the application of \gls{NMF} for the \gls{GEX} deconv
 Survival-associated metagenes were identified by selecting the set of genes which had \gls{GEX} associated with outcome in the \gls{APGI} cohort, and then performing \gls{NMF} factorization to deconvolve the full matrix of gene expression signals into a small set of metagenes.  Metagenes were found to fall into patterns defining two axes of outcome-associated cell state.  These prognostic axes were then tested for association with clinical course and other \glspl{CPV}, as well as known general prognostic signatures, and their prognostic ability was validated in a range of cancers by testing in separate cohorts.  The two prognostic axes were then correlated with biological process signatures to associate axis scores with the activity of biological processes.
 
 \subsection{Cohort characteristics and subsetting}
-The same homogeneous \gls{PDAC} subset of the \gls{APGI} cohort that was used in the work of \cref{chap:nomogram} was employed for this analysis; see \cref{subsec:nomo-results-cohort} on page~\pageref{subsec:nomo-results-cohort} for case selection criteria and cohort characteristics.
+\mpfatal{TODO: Cohort characteristics and subsetting}
 
 \subsection{Two axes predict survival with resectable pancreatic cancer in multiple cohorts}
 \paragraph{Probe selection}
 In order to focus the \gls{GEX} deconvolution method on finding outcome-associated metagenes, it was necessary to filter the full set of gene expression data to only contain those genes that were likely to be associated with patient survival.
 
-A \gls{CPSS} wrapper around the core \gls{SIS}-\gls{FAST} variable selection method \cite{Gorst-Rasmussen2013} identified 361 genes (of 13,000 considered) that were associated with time from diagnosis to disease-specific death in the \gls{APGI} cohort.  50 variable selection runs on permuted data gave a median number of selected genes of 87.5, resulting in an estimated \gls{FDR} for the selection procedure of approximately 25\%.  This relatively high \gls{FDR} was a consequence of the lenient selection parameters used, in an attempt to ensure that even genes for which expression was only weakly prognostic, were included.
+A \gls{CPSS} wrapper around the core \gls{SIS}-\gls{FAST} variable selection method identified 361 genes (of 13,000 considered) that were associated with time from diagnosis to \gls{DSD} in the \gls{APGI} cohort.  50 variable selection runs on permuted data gave a median number of selected genes of 87.5, resulting in an estimated \gls{FDR} for the selection procedure of approximately 25\%.  This relatively high \gls{FDR} was a consequence of the lenient selection parameters used, in an attempt to ensure that even genes for which expression was only weakly prognostic, were included.
 
 \paragraph{Prognostic genes factorized into six metagenes}
-The expression of the 361 survival-associated genes across 228 patients was decomposed into metagenes by the \gls{SNMFL} \gls{NMF} algorithm.  The number of metagenes (factorization rank) was automatically estimated to be 6, being the lowest rank for which the improvement in estimation error achieved by adding the next rank, was less than that observed for permuted data (\cref{fig:sigs-nmf-rank}).
+The expression of the 361 survival-associated genes across 228 patients was decomposed into metagenes by the \gls{SNMFL} \gls{NMF} algorithm.  The number of metagenes (factorization rank) was automatically estimated to be 6, being the lowest rank for which the improvement in estimation error achieved by adding the next rank, was less than that observed for permuted data (\fref{fig:sigs-nmf-rank}).
 
 \begin{figure}
 \centering
 \includegraphics[width=.7\linewidth]{analysis/biosurv/reports/18_SIS_diag_dsd_final/figure/nmf-rank-plots-2}
-\caption{Automatic selection of factorization rank.  \acrshort{SNMFL} was performed for varying ranks on either unpermuted data (black line) or data permuted within samples (red lines), and the improvement in total residual approximation error $\|A - W H\|_F$ calculated.  The highest added rank for which the error improvement on unpermuted data exceeded that of permuted data plus two standard deviations (threshold shown by dotted red line) was the final selected rank (green line).\label{fig:sigs-nmf-rank}}
+\caption[Automatic selection of \acrshort{NMF} factorization rank]{Automatic selection of factorization rank.  \acrshort{SNMFL} was performed for varying ranks on either unpermuted data (black line) or data permuted within samples (red lines), and the improvement in total residual approximation error $\|A - W H\|_F$ calculated.  The highest added rank for which the error improvement on unpermuted data exceeded that of permuted data plus two standard deviations (threshold shown by dotted red line) was the final selected rank (green line).}\label{fig:sigs-nmf-rank}
 \end{figure}
 
-500 random restarts of rank 6 \gls{SNMFL} were then performed on the survival-associated gene matrix to yield the final factorization.  The resultant clustering consensus matrix was stable (\cref{fig:sigs-nmf-consensus}), and the basis matrix $W$ was reasonably sparse (\cref{fig:sigs-nmf-basis}).  Small row L1 norm of the basis matrix is a desirable condition for this analysis, as it indicates that metagenes are largely distinct transcriptional modules, with little overlap in terms of shared transcripts with high loadings; \gls{SNMFL} was selected against alternative \gls{NMF} algorithms as its design favours solutions with small $W$ row L1 norm.  A table of values of the basis matrix $W$ is available as \cref{app:sigs-w-matrix} on \cpagerefrange{app:sigs-w-matrix}{app:sigs-w-matrix-end}.
+500 random restarts of rank 6 \gls{SNMFL} were then performed on the survival-associated gene matrix to yield the final factorization.  The resultant clustering consensus matrix was stable (\fref{fig:sigs-nmf-consensus}), and the basis matrix $W$ was reasonably sparse (\fref{fig:sigs-nmf-basis}).  Small row L1 norm of the basis matrix is a desirable condition for this analysis, as it indicates that metagenes are largely distinct transcriptional modules, with little overlap in terms of shared transcripts with high loadings; \gls{SNMFL} was selected against alternative \gls{NMF} algorithms as its design favours solutions with small $W$ row L1 norm.  A table of values of the basis matrix $W$ is available as \Aref{app:sigs-w-matrix} on \pref{app:sigs-w-matrix}.
 
 \begin{figure}
 \centering
 \includegraphics[width=.7\linewidth]{analysis/biosurv/reports/18_SIS_diag_dsd_final/figure/nmf-plots-1}
-\caption{Clustering consensus matrix for the final rank-6 clustering.  Colours indicate the stability of gene (in rows) and sample (in columns) clusters across random restarts of the factorization; at rank 6 this factorization was largely stable, with identical clusters assigned in all 500 random restarts to the majority of genes and samples.\label{fig:sigs-nmf-consensus}}
+\caption[Consensus matrix for the final rank-6 clustering]{Clustering consensus matrix for the final rank-6 clustering.  Colours indicate the stability of gene (in rows) and sample (in columns) clusters across random restarts of the factorization; at rank 6 this factorization was largely stable, with identical clusters assigned in all 500 random restarts to the majority of genes and samples.}\label{fig:sigs-nmf-consensus}
 \end{figure}
 
 \begin{figure}
 \centering
 \includegraphics[width=.7\linewidth]{analysis/biosurv/reports/18_SIS_diag_dsd_final/figure/nmf-plots-2}
-\caption{Basis matrix $W$ of the final \acrshort{SNMFL} factorization.  Rows represent genes, and columns metagenes, with cell colours proportional to the loading of a given gene on a given metagene.  The loadings are sparse within rows, indicating that the metagenes are modular, each affecting the expression of largely distinct sets of target genes.  A table of values of this basis matrix is available as \cref{app:sigs-w-matrix} on \cpagerefrange{app:sigs-w-matrix}{app:sigs-w-matrix-end}.\label{fig:sigs-nmf-basis}}
+\caption[Basis matrix $W$ of the final \acrshort{SNMFL} factorization]{Basis matrix $W$ of the final \acrshort{SNMFL} factorization.  Rows represent genes, and columns metagenes, with cell colours proportional to the loading of a given gene on a given metagene.  The loadings are sparse within rows, indicating that the metagenes are modular, each affecting the expression of largely distinct sets of target genes.  A table of values of this basis matrix is available as \Aref{app:sigs-w-matrix} on \pref{app:sigs-w-matrix}.}\label{fig:sigs-nmf-basis}
 \end{figure}
 
 \paragraph{Three metagenes together formed a prognostic model}
-The transcription patterns of genes associated with survival in the \gls{APGI} cohort could be decomposed into just six largely distinct metagenes.  Due to the presence of false positives in the 361 screened input genes, some of the metagenes will have no strong association with outcome.  To identify which of the six metagenes were ultimately predictive of patient survival, I performed \gls{LASSO} regression on the \gls{APGI} discovery cohort data, using \gls{NNLS}-estimated coefficients of each of the six metagenes as marginal predictors of outcome.  The \gls{LASSO} regularization parameter $\lambda$ was chosen by 10-fold cross-validation to be the highest value for which the mean test set partial likelihood deviance was within one standard error of the lowest mean value.  This resulted in a final model in which three metagenes, MG1, MG2, and MG5, were selected as prognostic (\cref{fig:sigs-resub-lasso-track}).
+The transcription patterns of genes associated with survival in the \gls{APGI} cohort could be decomposed into just six largely distinct metagenes.  Due to the presence of false positives in the 361 screened input genes, some of the metagenes will have no strong association with outcome.  To identify which of the six metagenes were ultimately predictive of patient survival, I performed \gls{LASSO} regression on the \gls{APGI} discovery cohort data, using \gls{NNLS}-estimated coefficients of each of the six metagenes as marginal predictors of outcome.  The \gls{LASSO} regularization parameter $\lambda$ was chosen by 10-fold cross-validation to be the highest value for which the mean test set partial likelihood deviance was within one standard error of the lowest mean value.  This resulted in a final model in which three metagenes, MG1, MG2, and MG5, were selected as prognostic (\fref{fig:sigs-resub-lasso-track}).
 
 \begin{figure}
 \centering
 \includegraphics[width=.7\linewidth]{analysis/biosurv/reports/18_SIS_diag_dsd_final/figure/nmf-metagene-glmnet-plots-2}
-\caption{Coefficient vs penalty fit trajectories for the \acrshort{LASSO} model predicting disease-specific survival from metagene expression.  Each line represents the model coefficient for a metagene as the model is smoothly varied from a null model (L1 norm = 0), to a full unpenalised Cox fit (L1 norm $\approx$ 16).  The vertical line indicates the optimal value of L1 norm as selected by the 1SE criterion on 10-fold cross-validation; at this point in the trajectory only metagenes MG1, MG2, and MG5 contribute to prognosis estimates.\label{fig:sigs-resub-lasso-track}}
+\caption[Fir trajectory of the \gls{LASSO} predicting \acrshort{DSS} from metagene coefficients]{Coefficient vs penalty fit trajectories for the \acrshort{LASSO} model predicting \gls{DSS} from metagene expression.  Each line represents the model coefficient for a metagene as the model is smoothly varied from a null model (L1 norm = 0), to a full unpenalised Cox fit (L1 norm $\approx$ 16).  The vertical line indicates the optimal value of L1 norm as selected by the 1SE criterion on 10-fold cross-validation; at this point in the trajectory only metagenes MG1, MG2, and MG5 contribute to prognosis estimates.}\label{fig:sigs-resub-lasso-track}
 \end{figure}
 
-\paragraph{Prognostic metagenes define two axes of cell state}
-Further investigation of the three prognostic metagenes revealed that they were associated: \gls{APGI} patient coefficients for pairs MG1 and MG5, and MG2 and MG6 (the latter not selected by the \gls{LASSO}), were mutually exclusive (\cref{fig:sigs-coef-mutualexclusion}, Kendall's $\tau$ test $P < 1 \times 10^{-6}$ for each pair).  This suggested that both metagenes in each pair captured the signal of a single axis of cell behaviour, with one measuring activation of the axis, and the other deactivation.  For subsequent work I therefore combined the signals of the metagenes within each axis, to give axis activity summaries: $\text{Axis A1 activity} = \text{MG1 coefficient} - \text{MG5 coefficient}$; $\text{Axis A2 activity} = \text{MG6 coefficient} - \text{MG2 coefficient}$.  Activation values for axes A1 and A2 were uncorrelated, indicating that these axes were orthogonal processes operating in the \gls{APGI} cohort tumours (\cref{sigs-axis-pairs}, Kendall's $\tau$ test $P = 0.21$).
+\paragraph{Prognostic metagenes define two axes of cell transcription}
+Further investigation of the three prognostic metagenes revealed that they were associated: \gls{APGI} patient coefficients for pairs MG1 and MG5, and MG2 and MG6 (the latter not selected by the \gls{LASSO}), were mutually exclusive (\fref{fig:sigs-coef-mutualexclusion}, Kendall's $\tau$ test $P < 1 \times 10^{-6}$ for each pair).  This suggested that both metagenes in each pair captured the signal of a single axis of cell behaviour, with one measuring activation of the axis, and the other deactivation.  For subsequent work I therefore combined the signals of the metagenes within each axis, to give axis activity summaries: $\text{Axis A1 activity} = \text{MG1 coefficient} - \text{MG5 coefficient}$; $\text{Axis A2 activity} = \text{MG6 coefficient} - \text{MG2 coefficient}$.  Activation values for axes A1 and A2 were uncorrelated, indicating that these axes were orthogonal processes operating in the \gls{APGI} cohort tumours (\fref{fig:sigs-axis-pairs}, Kendall's $\tau$ test $P = 0.21$).
 
 \begin{figure}
 \centering
 \includegraphics[width=.45\linewidth]{analysis/biosurv/reports/18_SIS_diag_dsd_final/figure/metagene-pairs-8}
 \includegraphics[width=.45\linewidth]{analysis/biosurv/reports/18_SIS_diag_dsd_final/figure/metagene-pairs-9}
-\caption{Prognostic metagenes form two axes of cell state.  Metagene pairs MG1 and MG5, and MG2 and MG6, displayed mutually exclusive coefficient patterns in the \gls{APGI} cohort, and could be combined to form just two axes of cell state.\label{fig:sigs-coef-mutualexclusion}}
+\caption[Prognostic metagenes form two axes of cell state]{Prognostic metagenes form two axes of cell state.  Metagene pairs MG1 and MG5, and MG2 and MG6, displayed mutually exclusive coefficient patterns in the \acrshort{APGI} cohort, and could be combined to form just two axes of cell state.}\label{fig:sigs-coef-mutualexclusion}
 \end{figure}
 
 \begin{figure}
 \centering
 \includegraphics[width=.7\linewidth]{analysis/biosurv/reports/18_SIS_diag_dsd_final/figure/metagene-pairs-10}
-\caption{Prognostic axes are uncorrelated.  Activity estimates of axes defined by highly correlated mutually exclusive metagene pairs (Axis A1 = MG1 - MG5, axis A2 = MG6 - MG2) were uncorrelated (Kendall $\tau$ test $P = 0.21$), indicating that these axis signals encoded orthogonal outcome-associated processes within tumours.\label{fig:sigs-axis-pairs}}
+\caption[Prognostic axes are uncorrelated]{Prognostic axis signals are uncorrelated.  Activity estimates of axes defined by highly correlated mutually exclusive metagene pairs (Axis A1 = MG1 - MG5, axis A2 = MG6 - MG2) were uncorrelated (Kendall $\tau$ test $P = 0.21$), indicating that these axis signals encoded orthogonal outcome-associated processes within tumours.}\label{fig:sigs-axis-pairs}
 \end{figure}
 
-A repeat of the previous \gls{LASSO} fit with 10-fold \gls{CV}, this time using predictors of A1 activity, A2 activity, and the A1:A2 interaction, identified both A1 and A2, but not their interaction, as useful predictors of outcome.  A final diagnosis to disease-specific death risk score then was defined on the basis of the \gls{LASSO} fit coefficients, as $\text{Risk score} = 1.354 \times \text{A1 activity} + 1.548 \times \text{A2 activity}$.
+\paragraph{The \acrshort{PARSE} score}
+A repeat of the previous \gls{LASSO} fit with 10-fold \gls{CV}, this time using predictors of A1 activity, A2 activity, and the A1:A2 interaction, identified both A1 and A2, but not their interaction, as useful predictors of outcome.  Coefficients from the \gls{LASSO} fit were used to define a new risk score, the \gls{PARSE}, as $\text{PARSE score} = 1.354 \times \text{A1 activity} + 1.548 \times \text{A2 activity}$.
 
-\paragraph{Validation of the two-axis signature}
-External validation confirmed that the two-axis survival signature was prognostic in other cohorts, including in cancers other than \gls{PDAC}.  The two-axis risk score was significantly prognostic in \gls{PDAC} cohorts GSE28735 \cite{Zhang2013} (LRT $P = 0.0149$) and \gls{TCGA} paad (LRT $P = 0.0156$), but not in GSE21501 \cite{Stratford2010} (LRT $P = 0.115$).  When assessed against all \gls{TCGA} cancers for which at least 50 patients had both an event and complete RNASeq data, the two-axis risk score was also significantly prognostic for head and neck squamous cell carcinoma, kidney renal clear cell carcinoma, lower grade glioma, and lung adenocarcinoma, at a 5\% \gls{FWER} (\cref{tab:sigs-validation-tcga}, column a).
+Exact calculation of the \gls{PARSE} score requires the solution of a number of \gls{NNLS} problems, which presents a possible barrier to use.  An approximation to \gls{PARSE} can be derived by relaxing the non-negative constraint; this approximation requires only a linear combination of gene expression estimates, and is detailed in \Aref{app:sigs-parse-approx} on page \pref{app:sigs-parse-approx}.
 
-Meta-PCNA is a 130-gene signature of cell proliferation that has been found to be generally prognostic in a number of cancer cohorts \cite{Venet2011}.  To exclude the possibility that my two-axis risk score simply recapitulated the known meta-PCNA signature, I examined whether the two-axis score contributed additional prognostic information to meta-PCNA in the large \gls{TCGA} cohorts.  In \gls{TCGA} kidney renal clear cell carcinoma, lower grade glioma, and lung adenocarcinoma, there was significant evidence that the two-axis score provided prognostic information beyond that given by meta-PCNA, at a 5\% \gls{FWER} (\cref{tab:sigs-validation-tcga}, column b).
+\paragraph{Validation of the \acrshort{PARSE} score}
+External validation confirmed that the \gls{PARSE} score was prognostic in other cohorts, including in cancers other than \gls{PDAC}.  \Gls{PARSE} score was significantly prognostic in \gls{PDAC} cohorts GSE28735 \cite{Zhang2013} (LRT $P = 0.0149$) and \gls{TCGA} paad (LRT $P = 0.0156$), but not in GSE21501 \cite{Stratford2010} (LRT $P = 0.115$).  When assessed against all \gls{TCGA} cancers for which at least 50 patients had both an event and complete RNASeq data, the \gls{PARSE} score was also significantly prognostic for head and neck squamous cell carcinoma, kidney renal clear cell carcinoma, lower grade glioma, and lung adenocarcinoma, at a 5\% \gls{FWER} (\tref{tab:sigs-validation-tcga}, column a).  This significant result reflected the ability of \acrshort{PARSE} score to stratify patients into risk groups in a range of solid tumours, as illustrated in figure \fref{fig:sigs-km}.
+
+Meta-PCNA is a 130-gene signature of cell proliferation that has been found to be generally prognostic in a number of cancer cohorts \cite{Venet2011}.  To exclude the possibility that \gls{PARSE} score simply recapitulated the known meta-PCNA signature, I examined whether \gls{PARSE} contributed additional prognostic information to meta-PCNA in the large \gls{TCGA} cohorts.  In \gls{TCGA} kidney renal clear cell carcinoma, lower grade glioma, and lung adenocarcinoma, there was significant evidence that the \gls{PARSE} score provided prognostic information beyond that given by meta-PCNA, at a 5\% \gls{FWER} (\tref{tab:sigs-validation-tcga}, column b).
 
 \begin{table}[h]
-\caption{The two-axis risk score is prognostic in a range of \acrshort{TCGA} cancers.  P-values are from likelihood ratio tests either comparing a Cox model with two-axis risk score as a linear predictor, to a null model (a); or a Cox model with two-axis risk score and meta-PCNA as linear predictors, against one with meta-PCNA alone (b).  Shaded cells are significant at a 5\% \gls{FWER} following Holm's correction.  \acrshort{TCGA} study codes: \emph{glm}: glioblastoma multiforme; \emph{hnsc}: head and neck squamous cell carcinoma; \emph{kirc}: clear cell kidney carcinoma; \emph{lgg}: lower grade glioma; \emph{luad}: lung adenocarcinoma; \emph{lusc}: lung squamous cell carcinoma; \emph{ov}: ovarian serous cystadenocarcinoma.\label{tab:sigs-validation-tcga}}
-\center
+\centering
+\caption[\acrshort{PARSE} score is prognostic in a range of \acrshort{TCGA} cancers]{The \acrshort{PARSE} score is prognostic in a range of \acrshort{TCGA} cancers.  P-values are from likelihood ratio tests either comparing a Cox model with \acrshort{PARSE} score as a linear predictor, to a null model (a); or a Cox model with \acrshort{PARSE} and meta-PCNA scores as linear predictors, against one with meta-PCNA alone (b).  Shaded cells are significant at a 5\% \acrshort{FWER} following Holm's correction.  \acrshort{TCGA} study codes: \emph{glm}: glioblastoma multiforme; \emph{hnsc}: head and neck squamous cell carcinoma; \emph{kirc}: clear cell kidney carcinoma; \emph{lgg}: lower grade glioma; \emph{luad}: lung adenocarcinoma; \emph{lusc}: lung squamous cell carcinoma; \emph{ov}: ovarian serous cystadenocarcinoma.}\label{tab:sigs-validation-tcga}
 \begin{tabular}{@{}lllll@{}}
 \toprule
 TCGA study & Number of & Number of & Risk score  & Improvement \\
@@ -114,302 +117,89 @@ ov     & 115  & 251    & 0.0238                           & 0.0178              
 \end{tabular}
 \end{table}
 
+\clearpage
+\begin{figure}[!h]
+  \centering
 
-\subsection{Prognostic axes link outcome to TODO}
-To link the two prognostic axes with potential underlying biology, axis activities on the \gls{APGI} discovery cohort were compared to clinical variates, meta-PCNA, and scores for signatures from the \gls{MSigDB} \cite{Subramanian2005}.
+  \subbottom[\acrshort{APGI} cohort]{
+    \includegraphics[width=.5\textwidth]{analysis/biosurv/reports/18_SIS_diag_dsd_final/figure/km-curves-1}
+    \includegraphics[width=.5\textwidth]{analysis/biosurv/reports/18_SIS_diag_dsd_final/figure/km-curves-2}
+    \label{figs:sigs-km-apgi}}
+
+  \subbottom[\acrshort{TCGA} kirc cohort]{
+    \includegraphics[width=.5\textwidth]{analysis/biosurv/reports/18_SIS_diag_dsd_final/figure/km-curves-9}
+    \includegraphics[width=.5\textwidth]{analysis/biosurv/reports/18_SIS_diag_dsd_final/figure/km-curves-10}
+    \label{figs:sigs-km-kirc}}
+  \caption[Survival subgroups defined by \acrshort{PARSE} score axes in different tumours]{\acrshort{PARSE} score axes define patient subgroups with differing outcome in a range of solid tumours.  Activities for axes A1 and A2 of the \acrshort{PARSE} score were calculated on the labelled cohorts, and patients split into four subgroups based on the sign of A1 and A2 activities (left panels).  The four subgroups thus defined displayed significantly differing clinical courses (right panels).  (continued...)}\label{fig:sigs-km}
+\end{figure}
+
+\begin{figure}[!h]
+  \centering
+
+  \contsubbottom[\acrshort{TCGA} lgg cohort]{
+    \includegraphics[width=.5\textwidth]{analysis/biosurv/reports/18_SIS_diag_dsd_final/figure/km-curves-11}
+    \includegraphics[width=.5\textwidth]{analysis/biosurv/reports/18_SIS_diag_dsd_final/figure/km-curves-12}
+    \label{figs:sigs-km-lgg}}
+
+  \contsubbottom[\acrshort{TCGA} luad cohort]{
+    \includegraphics[width=.5\textwidth]{analysis/biosurv/reports/18_SIS_diag_dsd_final/figure/km-curves-13}
+    \includegraphics[width=.5\textwidth]{analysis/biosurv/reports/18_SIS_diag_dsd_final/figure/km-curves-14}
+    \label{figs:sigs-km-luad}}
+    
+  \contcaption{(Concluded). \acrshort{PARSE} score axes define patient subgroups with differing outcome in a range of solid tumours.  Activities for axes A1 and A2 of the \acrshort{PARSE} score were calculated on the labelled cohorts, and patients split into four subgroups based on the sign of A1 and A2 activities (left panels).  The four subgroups thus defined displayed significantly differing clinical courses (right panels).}
+\end{figure}
 
 
+\subsection{\acrshort{PARSE} identifies proliferation and \acrshort{ECM} remodelling as fundamental processes controlling survival in \acrshort{PDAC}}
+To link the two prognostic axes that form the \gls{PARSE} score with potential underlying biology, axis activities on the \gls{APGI} discovery cohort were compared to clinical variates, meta-PCNA, and scores for signatures from the \gls{MSigDB} \cite{Subramanian2005}.
 
-Correlations between metagene coefficients and \gls{MSigDB} scores revealed a parity in the metagenes: MG1 and MG5, MG2 and MG6, and MG3 and MG4, formed complementary pairs in terms of their correlation with \gls{MSigDB} signatures (\cref{fig:sigs-nmf-corplots}).  This parity reflects mutual exclusivity interactions between metagene coefficients, and suggests that the six metagenes encode only three underlying biological states.  The three prognostic metagenes were therefore combined into two prognostic axes: MG2-MG6, and MG5-MG1.
+\gls{MSigDB} correlations, as well as comparisons to a general proliferative signature, revealed that the \gls{PARSE} axis A1 (MG1 $-$ MG5) primarily reflected the proliferative state of cells.  A1 signal was very strongly correlated to meta-PCNA \cite{Venet2011} score (Kendall's $\tau = 0.663$, $n = 110$, \fref{fig:sigs-axis1-pcna}), a relationship supported by its close association to cell cycle-related \gls{MSigDB} signatures (\Aref{app:sigs-msigdb-corrs-axis1} on \pref{app:sigs-msigdb-corrs-axis1}).  A1 signal was also significantly positively correlated with qPure \cite{Song2012} estimates of cancer cell fraction in the tumour (Kendall's $\tau = 0.284$, $n = 110$, \tref{tab:sigs-mg-cpvs}), although this association was weak (linear model $R^2 = 0.155$).
 
 \begin{figure}
 \centering
-\includegraphics[width=.7\linewidth]{analysis/biosurv/reports/18_SIS_diag_dsd_final/figure/nmf-msigdb-cor-plots-1}
-\caption{Correlations between metagenes and \acrshort{MSigDB} signatures.  Metagene coefficients, and \acrshort{GSVA} \acrshort{MSigDB} signature scores, were calculated on the \acrshort{APGI} \acrshort{GEX} data.  Kendall's correlation coefficients were then calculated between the scores of each metagene and signature pair, and are plotted here.  Metagenes MG1 and MG5, MG2 and MG6, and MG3 and MG4, form complementary pairs in terms of their correlation patterns with \acrshort{MSigDB} signatures.\label{fig:sigs-nmf-corplots}}
+\includegraphics[width=.7\linewidth]{analysis/biosurv/reports/18_SIS_diag_dsd_final/figure/nmf-msigdb-cor-plots-7}
+\caption[A1 signal is closely associated with meta-PCNA score]{Axis A1 signal is closely associated with meta-PCNA signature score.  A1 signal and meta-PCNA \cite{Venet2011} scores were as evaluated on the \acrshort{APGI} training set; Kendall's $\tau = 0.663$, $n = 110$, linear model $R^2 = 0.740$.}\label{fig:sigs-axis1-pcna}
 \end{figure}
-
-\gls{MSigDB} correlations, as well as comparisons to a general survival signature, revealed that the MG5-MG1 axis primarily reflected the proliferative state of cells.  Coefficients of the hazardous MG1 were strongly correlated with scores of the general outcome predictor meta-PCNA (Kendall's $\tau = 0.757$, $n = 110$), a 130 gene signature of cell proliferation \cite{Venet2011} (\cref{fig:sigs-mg1-pcna}).  Supporting this finding, MG1 coefficients were also strongly associated with \gls{GSVA} estimates of the E2F1 response, and of a number of cell-cycle related \gls{MSigDB} sets (\cref{tab:sigs-msigdb-corrs-mg15}).  Coefficients for the protective MG5 were significantly negatively correlated with qPure estimates of cancer cell fraction \cite{Song2012} (\cref{tab:sigs-mg-cpvs}), and positively correlated with the \gls{GSVA} score of genes with promoter regions within $\pm 2\ \text{kb}$ of the STAT5A target motif \texttt{AWTTCYNGGAANY}.  Taken together, these associations suggest that a high MG1 coefficient (equivalently, a low MG5 coefficient) is a marker of aggressive tumours with high proliferative activity, relatively low stromal content, and poor outcome.  Conversely, high a MG5 coefficient (low MG1) indicates a less aggressive tumour with higher stromal content, and possibly increased immune involvement.
-
-\begin{figure}
-\centering
-\includegraphics[width=.7\linewidth]{analysis/biosurv/reports/18_SIS_diag_dsd_final/figure/metagene-pairs-7}
-\caption{MG1 coefficients are closely associated with meta-PCNA signature score.  MG1 coefficients and meta-PCNA \cite{Venet2011} scores were as evaluated on the \gls{APGI} training set; Kendall's $\tau = 0.757$, $n = 110$.\label{fig:sigs-mg1-pcna}}
-\end{figure}
-
-\begin{table}[ht]
-\caption{\acrshort{MSigDB} signatures substantially correlated to the MG5-MG1 axis.\label{tab:sigs-msigdb-corrs-mg15}}
-\centering
-\begin{tabularx}{\textwidth}{ @{} X l l @{} }
-  \toprule
-   & \multicolumn{2}{c}{Correlation} \\
-  MSigDB Signature & MG1 & MG5 \\ 
-  \midrule
-  c2 REACTOME G\textsubscript{S}$\alpha$ signalling events & -0.36 & 0.55 \\ 
-  c5 Phosphoric diester hydrolase activity & -0.35 & 0.52 \\ 
-  c3 V\$STAT5A 01 & -0.31 & 0.52 \\ 
-  ... & ... & ... \\
-%  c5 3 5 CYCLIC NUCLEOTIDE PHOSPHODIESTERASE ACTIVITY, & -0.23 & 0.52 \\ 
-%  c5 CYCLIC NUCLEOTIDE PHOSPHODIESTERASE ACTIVITY & & \\
-%  c6 SINGH KRAS DEPENDENCY SIGNATURE  & 0.20.& -0.51 \\ 
-%  c3 SGCGSSAAA V\$E2F1DP2 01 & 0.51 & -0.21 \\ 
-%  c2 REACTOME INTERACTIONS OF VPR WITH HOST CELLULAR PROTEINS & 0.52 & -0.21 \\ 
-%  c5 DNA REPLICATION & 0.53 & -0.21 \\ 
-%  c2 REACTOME NEP NS2 INTERACTS WITH THE CELLULAR EXPORT MACHINERY & 0.53 & -0.25 \\ 
-%  c2 REACTOME TRANSPORT OF RIBONUCLEOPROTEINS INTO THE HOST NUCLEUS, & & \\
-%  c2 REACTOME REGULATION OF GLUCOKINASE BY GLUCOKINASE REGULATORY PROTEIN & & \\
-%  c2 REACTOME TRANSPORT OF MATURE MRNA DERIVED FROM AN INTRONLESS TRANSCRIPT & 0.52 & -0.27 \\ 
-%  c6 AKT UP V1 SIGNED & 0.26 & -0.52 \\ 
-%  c2 PID ATM PATHWAY & 0.52 & -0.27 \\ 
-%  c2 REACTOME ANTIVIRAL MECHANISM BY IFN STIMULATED GENES & 0.54 & -0.26 \\ 
-%  c2 REACTOME METABOLISM OF NON CODING RNA & 0.51 & -0.30 \\ 
-%  c3 V\$E2F Q3 01, & 0.52 & -0.30 \\ 
-%  c3 V\$E2F1 Q4 01 & & \\
-%  c2 REACTOME PROCESSIVE SYNTHESIS ON THE LAGGING STRAND & 0.52 & -0.29 \\ 
-%  c3 V\$E2F Q4 01 & 0.54 & -0.29 \\ 
-%  c2 REACTOME HIV INFECTION, & 0.54 & -0.29 \\ 
-%  c2 REACTOME HOST INTERACTIONS OF HIV FACTORS & & \\
-%  c3 V\$E2F Q6 01 & 0.53 & -0.31 \\ 
-%  c4 MORF PCNA & 0.51 & -0.33 \\ 
-%  c5 DNA POLYMERASE ACTIVITY, & 0.52 & -0.33 \\ 
-%  c5 DNA DIRECTED DNA POLYMERASE ACTIVITY & & \\
-%  c2 REACTOME REPAIR SYNTHESIS FOR GAP FILLING BY DNA POL IN TC NER & 0.51 & -0.34 \\ 
-%  c2 KEGG OOCYTE MEIOSIS & 0.55 & -0.31 \\ 
-%  c2 REACTOME HIV LIFE CYCLE, & 0.51 & -0.35 \\ 
-%  c2 REACTOME LATE PHASE OF HIV LIFE CYCLE & & \\
-%  c6 E2F1 UP V1 SIGNED & 0.53 & -0.34 \\ 
-%  c4 GNF2 MSH6 & 0.52 & -0.34 \\ 
-%  c2 REACTOME APOPTOSIS & 0.51 & -0.35 \\ 
-%  c5 INTERPHASE, & 0.52 & -0.35 \\ 
-%  c5 INTERPHASE OF MITOTIC CELL CYCLE & & \\
-%  c5 REGULATION OF CELL CYCLE & 0.55 & -0.32 \\ 
-%  c5 MICROTUBULE CYTOSKELETON ORGANIZATION AND BIOGENESIS & 0.53 & -0.35 \\ 
-%  c2 REACTOME REGULATION OF MRNA STABILITY BY PROTEINS THAT BIND AU RICH ELEMENTS & 0.52 & -0.37 \\ 
-%  c2 REACTOME DNA REPAIR & 0.52 & -0.37 \\ 
-%  c2 REACTOME ORC1 REMOVAL FROM CHROMATIN, & 0.57 & -0.31 \\ 
-%  c2 REACTOME M G1 TRANSITION, & & \\
-%  c2 REACTOME ASSEMBLY OF THE PRE REPLICATIVE COMPLEX & & \\
-%  c2 REACTOME CHROMOSOME MAINTENANCE, & 0.53 & -0.36 \\ 
-%  c2 REACTOME TELOMERE MAINTENANCE & & \\
-%  c2 REACTOME LAGGING STRAND SYNTHESIS, & 0.56 & -0.33 \\ 
-%  c2 REACTOME EXTENSION OF TELOMERES & & \\
-%  c5 RESPONSE TO ENDOGENOUS STIMULUS, & 0.51 & -0.39 \\ 
-%  c5 RESPONSE TO DNA DAMAGE STIMULUS & & 
-%  c2 REACTOME CYCLIN E ASSOCIATED EVENTS DURING G1 S TRANSITION, & 0.56 & -0.34 \\ 
-%  c2 REACTOME REGULATION OF MITOTIC CELL CYCLE, & & \\
-%  c2 REACTOME APC C CDH1 MEDIATED DEGRADATION OF CDC20 AND OTHER APC C CDH1 TARGETED PROTEINS IN LATE MITOSIS EARLY G1, & & \\
-%  c2 REACTOME APC C CDC20 MEDIATED DEGRADATION OF MITOTIC PROTEINS, & & \\
-%  c2 REACTOME SCFSKP2 MEDIATED DEGRADATION OF P27 P21 & & \\
-%  c2 REACTOME UNWINDING OF DNA & 0.59 & -0.31 \\ 
-%  c5 CHROMOSOMEPERICENTRIC REGION, & 0.53 & -0.38 \\ 
-%  c5 KINETOCHORE & & \\
-%  c5 CHROMOSOMAL PART, & 0.57 & -0.33 \\ 
-%  c5 CHROMOSOME & & \\
-%  c5 MITOTIC SISTER CHROMATID SEGREGATION, & 0.52 & -0.39 \\ 
-%  c5 SISTER CHROMATID SEGREGATION & & \\
-%  c2 PID AURORA B PATHWAY & 0.59 & -0.33 \\ 
-%  c4 MORF CCNF & 0.54 & -0.38 \\ 
-%  c5 DNA METABOLIC PROCESS & 0.57 & -0.36 \\ 
-%  c3 SCGGAAGY V\$ELK1 02 & 0.41 & -0.52 \\ 
-%  c4 MORF DNMT1 & 0.51 & -0.42 \\ 
-%  c2 REACTOME POL SWITCHING & 0.54 & -0.39 \\ 
-%  c4 GNF2 MSH2 & 0.58 & -0.35 \\ 
-%  c4 MORF UNG & 0.52 & -0.42 \\ 
-%  c2 KEGG DNA REPLICATION, & 0.61 & -0.32 \\ 
-%  c2 REACTOME DNA STRAND ELONGATION & & \\
-%  c2 PID BARD1PATHWAY & 0.57 & -0.37 \\ 
-%  c5 CHROMOSOME SEGREGATION & 0.51 & -0.43 \\ 
-%  c2 PID AURORA A PATHWAY & 0.58 & -0.36 \\ 
-%  c2 REACTOME G2 M DNA DAMAGE CHECKPOINT & 0.59 & -0.35 \\ 
-%  c5 SPINDLE MICROTUBULE & 0.56 & -0.38 \\ 
-%  c4 GNF2 PA2G4, & 0.53 & -0.41 \\ 
-%  c4 GNF2 RAN & & \\
-%  c3 V\$ELK1 02 & 0.45 & -0.50.\\ 
-%  c4 GNF2 MCM5 & 0.57 & -0.39 \\ 
-%  c2 PID ATR PATHWAY & 0.61 & -0.35 \\ 
-%  c4 MORF BUB1 & 0.56 & -0.42 \\ 
-%  c5 CELL CYCLE CHECKPOINT GO 0000075 & 0.63 & -0.35 \\ 
-%  c2 REACTOME KINESINS & 0.60.& -0.38 \\ 
-%  c4 MORF BUB3, & 0.51 & -0.47 \\ 
-%  c4 MORF RAD23A & & \\
-%  c4 MORF RFC4, & 0.53 & -0.46 \\ 
-%  c4 MORF RRM1 & & \\
-%  c5 MITOTIC SPINDLE ORGANIZATION AND BIOGENESIS, & 0.62 & -0.37 \\ 
-%  c5 SPINDLE ORGANIZATION AND BIOGENESIS & & \\
-%  c2 PID FOXM1PATHWAY & 0.61 & -0.38 \\ 
-%  c2 REACTOME E2F ENABLED INHIBITION OF PRE REPLICATION COMPLEX FORMATION & 0.57 & -0.43 \\ 
-%  c2 REACTOME METABOLISM OF NUCLEOTIDES & 0.46 & -0.54 \\ 
-%  c5 MITOTIC CELL CYCLE CHECKPOINT & 0.62 & -0.39 \\ 
-%  c4 MORF ESPL1 & 0.60.& -0.41 \\ 
-%  c5 CELL CYCLE GO 0007049 & 0.65 & -0.36 \\ 
-%  c4 MORF FEN1 & 0.62 & -0.39 \\ 
-%  c2 REACTOME E2F MEDIATED REGULATION OF DNA REPLICATION & 0.62 & -0.40 \\ 
-%  c2 REACTOME CELL CYCLE CHECKPOINTS, & 0.65 & -0.37 \\ 
-%  c2 REACTOME G1 S TRANSITION, & & \\
-%  c2 REACTOME SYNTHESIS OF DNA, & & \\
-%  c2 REACTOME MITOTIC G1 G1 S PHASES, & & \\
-%  c2 REACTOME MITOTIC M M G1 PHASES, & & \\
-%  c2 REACTOME DNA REPLICATION, & & \\
-%  c2 REACTOME S PHASE
-%  c5 SPINDLE POLE & 0.58 & -0.45 \\ 
-%  c2 REACTOME G1 S SPECIFIC TRANSCRIPTION & 0.58 & -0.45 \\ 
-%  c2 PID PLK1 PATHWAY & 0.57 & -0.46 \\ 
-%  c5 ORGANELLE PART, & 0.54 & -0.49 \\ 
-%  c5 INTRACELLULAR ORGANELLE PART & & \\
-%  c2 REACTOME MITOTIC PROMETAPHASE & 0.64 & -0.40.\\ 
-%  c2 REACTOME CYCLIN A B1 ASSOCIATED EVENTS DURING G2 M TRANSITION & 0.61 & -0.43 \\ 
-%  c2 REACTOME ACTIVATION OF THE PRE REPLICATIVE COMPLEX, & 0.68 & -0.36 \\ 
-%  c2 REACTOME ACTIVATION OF ATR IN RESPONSE TO REPLICATION STRESS, & & \\
-%  c2 REACTOME G2 M CHECKPOINTS & & \\
-%  c2 KEGG CELL CYCLE & 0.66 & -0.40 \\ 
-%  c6 CSR LATE UP V1 SIGNED & 0.56 & -0.50 \\ 
-%  c2 KAMMINGA EZH2 TARGETS, & 0.65 & -0.42 \\ 
-%  c4 GNF2 FEN1, & & \\
-%  c4 GNF2 RRM1, & & \\
-%  c4 GNF2 SMC4L1 & & \\
-%  c5 SPINDLE & 0.65 & -0.42 \\ 
-%  c4 MORF BUB1B & 0.65 & -0.43 \\ 
-%  c2 REACTOME CELL CYCLE, & 0.68 & -0.41 \\ 
-%  c2 REACTOME CELL CYCLE MITOTIC & & \\
-%  c5 CELL CYCLE PROCESS, & 0.68 & -0.45 \\ 
-%  c5 MITOTIC CELL CYCLE, & & \\ 
-%  c5 CELL CYCLE PHASE & & \\
-%  c2 EGUCHI CELL CYCLE RB1 TARGETS, & 0.70.& -0.43 \\ 
-%  c2 ROSTY CERVICAL CANCER PROLIFERATION CLUSTER, & & \\
-%  c4 GNF2 BUB1, & & \\
-%  c4 GNF2 ESPL1, & & \\
-%  c4 GNF2 PCNA, & & \\
-%  c4 GNF2 RRM2, & & \\
-%  c4 GNF2 BUB1B, & & \\
-%  c4 GNF2 MCM4
-%  c5 REGULATION OF MITOSIS & 0.65 & -0.50 \\ 
-%  c4 GNF2 RFC3, & 0.70 & -0.45 \\ 
-%  c4 GNF2 RFC4, & & \\
-%  c4 GNF2 SMC2L1, & & \\
-%  c4 GNF2 CKS1B, & & \\
-%  c4 GNF2 CKS2, & & \\
-%  c4 GNF2 TTK & & \\
-%  c2 AMUNDSON GAMMA RADIATION RESPONSE, & 0.71 & -0.44 \\ 
-%  c4 GNF2 CDC20, & & \\
-%  c4 GNF2 CDC2, & & \\
-%  c4 GNF2 CENPE, & & \\
-%  c4 GNF2 CENPF, & & \\
-%  c4 GNF2 CCNA2, & & \\
-%  c4 GNF2 CCNB2, & & \\
-%  c4 GNF2 H2AFX, & & \\
-%  c4 GNF2 HMMR, & & \\
-%  c4 GNF2 MKI67 & & \\
-  c5 M phase, & 0.68 & -0.50 \\ 
-  c5 Mitosis, & & \\
-  c5 M phase of mitotic cell cycle & & \\
-   \bottomrule
-\end{tabularx}
-\end{table}
-
-The MG2-MG6 axis correlated with stromal content and tumour grade: conditions of high MG2 and low MG6 were associated with lower stromal content, lower grade, and longer survival.  The MG6 coefficient correlated with tumour microscopic pathological grade (Holm-corrected $P = 0.0288$, 150 tests performed), although this dependence was weak: on average, MG6 score was 0.0623 higher in grade 3 or 4 tumours over grade 1 or 2, with $R^2 = 0.122$.  MG6 coefficients were strongly positively correlated with \gls{GSVA} scores for \gls{MSigDB} signatures related to \gls{ECM} interactions and remodelling, and MG2 anticorrelated with a signature of LEF1-mediated \gls{EMT} (\cref{tab:sigs-msigdb-corrs-mg26}), strongly implicating matrix remodelling and invasion as the molecular basis of MG2-MG6 axis score.  The protective MG2 metagene was also positively associated with tumour cancer cell fraction, the opposite of the situation observed for the MG5-MG1 axis, where high cancer cell fraction was associated with poorer outcome, through the hazardous MG5 metagene.  This reveals a potential context dependency in the influence of stromal content on survival, where high stromal content of a tumour may indicate either good or poor prognosis, depending on which underlying metagene is responsible.
 
 \begin{table}[h]
-\caption{Association P-values between metagenes and \glspl{CPV}.  P-values were either from Kendall $\tau$ tests in the case of continuous or large ordinate clinical variates, or from ANOVA for categorical variates.  Only three associations were signficant at a 5\% FWER level by Holm's correction; these are highlighted.  Tests were also performed for the non-survival associated metagenes MG3 and MG4, and were taken into account for multiple testing correction, but their results are not reported here.\label{tab:sigs-mg-cpvs}}
-\center
-\begin{tabular}{@{}l@{\qquad}ll@{\qquad\quad}ll@{}}
-\toprule
-%                           & \multicolumn{2}{l}{MG5-MG1 axis}         & \multicolumn{2}{l}{MG2-MG6 axis}                                  \\
-Variable                   & MG5                             & MG1    & MG2                             & MG6                             \\ \midrule
-Age at diagnosis           & 0.7512                          & 0.8816 & 0.6816                          & 0.7516                          \\
-Ethnicity                  & 0.9939                          & 0.6228 & 0.7244                          & 0.0192                          \\
-Gender                     & 0.3733                          & 0.1384 & 0.0207                          & 0.0388                          \\
-Histological subtype       & 0.5660                          & 0.8934 & 0.5620                          & 0.0595                          \\
-Pack years smoked          & 0.5061                          & 0.3481 & 0.2604                          & 0.4738                          \\
-Pathological grade         & 0.0147                          & 0.0064 & 0.0057                          & \cellcolor[HTML]{C0C0C0}1.87E-4 \\
-Perineural invasion        & 0.0642                          & 0.3263 & 0.0645                          & 0.8348                          \\
-Cancer cell fraction       & \cellcolor[HTML]{C0C0C0}1.38E-5 & 0.0473 & \cellcolor[HTML]{C0C0C0}1.51E-5 & 0.1064                          \\
-Recurrence site            &                                 &        &                                 &                                 \\
-\quad Bone                 & 0.4605                          & 0.7822 & 0.8047                          & 0.0953                          \\
-\quad Brain                & 0.2810                          & 0.7745 & 0.0299                          & 0.3089                          \\
-\quad Liver                & 0.3725                          & 0.1294 & 0.0469                          & 0.4266                          \\
-\quad Lung                 & 0.0285                          & 0.4887 & 0.2979                          & 0.0897                          \\
-\quad Lymph nodes          & 0.3963                          & 0.3318 & 0.9865                          & 0.7819                          \\
-\quad Mesentery            & 0.4057                          & 0.5023 & 0.2771                          & 0.1203                          \\
-\quad Omentum              & 0.3392                          & 0.1208 & 0.2790                          & 0.0596                          \\
-\quad Other                & 0.0692                          & 0.6825 & 0.2960                          & 0.1711                          \\
-\quad Pancreatic bed       & 0.9389                          & 0.8693 & 0.3251                          & 0.9235                          \\
-\quad Pancreas remnant     & 0.6621                          & 0.5516 & 0.2399                          & 0.2693                          \\
-\quad Peritoneum           & 0.8085                          & 0.9581 & 0.0528                          & 0.0276                          \\
-Staging: M                 & 0.7803                          & 0.3965 & 0.3624                          & 0.2488                          \\
-Staging: N                 & 0.1124                          & 0.7312 & 0.1811                          & 0.5892                          \\
-Staging: T                 & 0.6051                          & 0.1377 & 0.5530                          & 0.4779                          \\
-Staging: Overall stage     & 0.1922                          & 0.0382 & 0.2195                          & 0.4592                          \\
-Tumour location            & 0.1092                          & 0.4698 & 0.2301                          & 0.1814                          \\
-Tumour longest axis length & 0.8154                          & 0.9408 & 0.1352                          & 0.4037                          \\
-Vascular invasion          & 0.7806                          & 0.6266 & 0.1746                          & 0.0862                          \\ \bottomrule
-\end{tabular}
-%\begin{tabular}{@{}lllllll@{}}
-%\toprule
-%Variable                   & MG5                             & MG1    & MG2                             & MG6                             & MG3    & MG4    \\ \midrule
-%Age at diagnosis           & 0.7512                          & 0.8816 & 0.6816                          & 0.7516                          & 0.4923 & 0.9147 \\
-%Ethnicity                  & 0.9939                          & 0.6228 & 0.7244                          & 0.0192                          & 0.1898 & 0.7660 \\
-%Gender                     & 0.3733                          & 0.1384 & 0.0207                          & 0.0388                          & 0.7273 & 0.1350 \\
-%Histological subtype       & 0.5660                          & 0.8934 & 0.5620                          & 0.0595                          & 0.2291 & 0.1040 \\
-%Pack years smoked          & 0.5061                          & 0.3481 & 0.2604                          & 0.4738                          & 0.7314 & 0.3219 \\
-%Pathological grade         & 0.0147                          & 0.0064 & 0.0057                          & \cellcolor[HTML]{C0C0C0}1.87E-4 & 0.3688 & 0.1295 \\
-%Perineural invasion        & 0.0642                          & 0.3263 & 0.0645                          & 0.8348                          & 0.8969 & 0.5097 \\
-%Cancer cell fraction       & \cellcolor[HTML]{C0C0C0}1.38E-5 & 0.0473 & \cellcolor[HTML]{C0C0C0}1.51E-5 & 0.1064                          & 0.0933 & 0.4633 \\
-%Recurrence site            &                                 &        &                                 &                                 &        &        \\
-%\quad Bone                 & 0.4605                          & 0.7822 & 0.8047                          & 0.0953                          & 0.9800 & 0.8543 \\
-%\quad Brain                & 0.2810                          & 0.7745 & 0.0299                          & 0.3089                          & 0.6350 & 0.9716 \\
-%\quad Liver                & 0.3725                          & 0.1294 & 0.0469                          & 0.4266                          & 0.0689 & 0.5475 \\
-%\quad Lung                 & 0.0285                          & 0.4887 & 0.2979                          & 0.0897                          & 0.5562 & 0.7486 \\
-%\quad Lymph nodes          & 0.3963                          & 0.3318 & 0.9865                          & 0.7819                          & 0.6365 & 0.0148 \\
-%\quad Mesentery            & 0.4057                          & 0.5023 & 0.2771                          & 0.1203                          & 0.7858 & 0.7074 \\
-%\quad Omentum              & 0.3392                          & 0.1208 & 0.2790                          & 0.0596                          & 0.9542 & 0.7849 \\
-%\quad Other                & 0.0692                          & 0.6825 & 0.2960                          & 0.1711                          & 0.7089 & 0.0036 \\
-%\quad Pancreatic bed       & 0.9389                          & 0.8693 & 0.3251                          & 0.9235                          & 0.6699 & 0.4752 \\
-%\quad Pancreas remnant     & 0.6621                          & 0.5516 & 0.2399                          & 0.2693                          & 0.0178 & 0.9146 \\
-%\quad Peritoneum           & 0.8085                          & 0.9581 & 0.0528                          & 0.0276                          & 0.6170 & 0.2811 \\
-%Staging: M                 & 0.7803                          & 0.3965 & 0.3624                          & 0.2488                          & 0.8589 & 0.1352 \\
-%Staging: N                 & 0.1124                          & 0.7312 & 0.1811                          & 0.5892                          & 0.6240 & 0.7514 \\
-%Staging: T                 & 0.6051                          & 0.1377 & 0.5530                          & 0.4779                          & 0.3490 & 0.0650 \\
-%Staging: Overall stage     & 0.1922                          & 0.0382 & 0.2195                          & 0.4592                          & 0.6024 & 0.0895 \\
-%Tumour location            & 0.1092                          & 0.4698 & 0.2301                          & 0.1814                          & 0.0712 & 0.5676 \\
-%Tumour longest axis length & 0.8154                          & 0.9408 & 0.1352                          & 0.4037                          & 0.7091 & 0.2151 \\
-%Vascular invasion          & 0.7806                          & 0.6266 & 0.1746                          & 0.0862                          & 0.9341 & 0.6312 \\ \bottomrule
-%\end{tabular}
-\end{table}
-
-\begin{table}[ht]
-\caption{\acrshort{MSigDB} signatures substantially correlated to the MG2-MG6 axis.\label{tab:sigs-msigdb-corrs-mg26}}
 \centering
-\begin{tabularx}{\textwidth}{ @{} X l l @{} }
-  \toprule
-   & \multicolumn{2}{c}{Correlation} \\
-  MSigDB Signature & MG2 & MG6 \\ 
-  \midrule
-  c2 PID integrin 1 pathway & -0.50 & 0.54 \\ 
-  c2 PID integrin 3 pathway & -0.48 & 0.55 \\ 
-  c2 PID UPA UPAR pathway & -0.43 & 0.56 \\ 
-  c2 PID integrin5 pathway & -0.37 & 0.60 \\ 
-  c2 KEGG ECM receptor interaction & -0.45 & 0.51 \\ 
-  c4 GNF2 MMP1 & -0.43 & 0.53 \\ 
-  c2 KEGG focal adhesion & -0.43 & 0.52 \\ 
-  c2 REACTOME extracellular matrix organization, & -0.42 & 0.53 \\ 
-  c2 REACTOME collagen formation & & \\
-  c2 Farmer breast cancer cluster 5, & -0.43 & 0.51 \\ 
-  c2 Anastassiou cancer mesenchymal transition signature, & & \\
-  c4 GNF2 CDH11 & & \\
-  c5 Axon guidance & -0.42 & 0.51 \\ 
-  c2 PID syndecan 1 pathway & -0.37 & 0.55 \\ 
-  c5 Collagen & -0.37 & 0.51 \\ 
-  c6 Cordenonsi YAP conserved signature & -0.53 & 0.34 \\ 
-  c3 TGANTCA v\$AP1 C & -0.28 & 0.59 \\ 
-  c6 LEF1 up v1 signed & -0.53 & 0.33 \\ 
-  c2 PID AVB3 integrin pathway & -0.32 & 0.52 \\ 
-  c3 V\$AP1 Q6 01 & -0.23 & 0.50 \\ 
-  c3 V\$AP1 Q6 & -0.16 & 0.54 \\ 
-  c3 V\$AP1 Q4 & -0.14 & 0.54 \\ 
-   \bottomrule
-\end{tabularx}
+\caption[Association P-values between metagenes and \acrshortpl{CPV}]{Association P-values between metagenes and \acrshortpl{CPV}.  P-values were either from Kendall $\tau$ tests, in the case of continuous or large ordinate clinical variates, or from ANOVA, in the case of categorical variates.  Only three associations were signficant at a 5\% FWER level by Holm's correction; these are highlighted.}\label{tab:sigs-mg-cpvs}
+\begin{tabular}{@{}lll@{}}
+Variable                   & Axis 1                        & Axis 2                        \\ \midrule
+Age at diagnosis           & 0.925                         & 0.666                         \\
+Ethnicity                  & 0.771                         & 0.113                         \\
+Gender                     & 0.158                         & 0.010                         \\
+Histological subtype       & 0.697                         & 0.157                         \\
+Invasion                   &                               &                               \\
+\quad Perineural           & 0.095                         & 0.225                         \\
+\quad Vascular             & 0.650                         & 0.071                         \\
+Pack years smoked          & 0.356                         & 0.275                         \\
+Pathological grade         & 2.39$\times 10^{-3}$          & \cellcolor[HTML]{C0C0C0}1.30$\times 10^{-4}$ \\
+Cancer cell fraction       & \cellcolor[HTML]{C0C0C0}2.13$\times 10^{-4}$ & \cellcolor[HTML]{C0C0C0}4.11$\times 10^{-4}$ \\
+Recurrence site            &                               &                               \\
+\quad Bone                 & 0.789                         & 0.413                         \\
+\quad Brain                & 0.430                         & 0.062                         \\
+\quad Liver                & 0.160                         & 0.105                         \\
+\quad Lung                 & 0.390                         & 0.713                         \\
+\quad Lymph nodes          & 0.933                         & 0.870                         \\
+\quad Mesentery            & 0.933                         & 0.121                         \\
+\quad Omentum              & 0.139                         & 0.082                         \\
+\quad Other                & 0.193                         & 0.161                         \\
+\quad Pancreatic bed       & 0.887                         & 0.530                         \\
+\quad Pancreas remnant     & 0.534                         & 0.184                         \\
+\quad Peritoneum           & 0.916                         & 0.015                         \\
+Staging: M                 & 0.441                         & 0.425                         \\
+Staging: N                 & 0.252                         & 0.263                         \\
+Staging: T                 & 0.264                         & 0.427                         \\
+Staging: Overall stage     & 0.061                         & 0.236                         \\
+Tumour location            & 0.177                         & 0.139                         \\
+Tumour longest axis length & 0.844                         & 0.171                         \\ \bottomrule
+\end{tabular}
 \end{table}
 
-\subsection{The Collisson subgroups are the result of junk science and can't be properly validated, though I bloody well tried}
+Among the clinical variables tested, \gls{PARSE} axis A2 (MG6 $-$ MG2) correlated with stromal content and tumour grade: conditions of high A2 signal were associated with higher stromal content, higher grade, and shorter survival.  A2 signal was positively correlated with tumour microscopic pathological grade (Holm-corrected $P = 0.0067$, 50 tests performed), although this dependence was weak: on average, A2 signal was $0.1103$ higher in grade 3 or 4 tumours over grade 1 or 2, with $R^2 = 0.119$.   A2 signal was also negatively associated with tumour cancer cell fraction, the opposite of the positive relationship observed for axis A1, despite signal in both axes being positively associated with poor prognosis.  This reveals a potential context dependency in the influence of stromal content on survival, where high stromal content of a tumour may indicate either good or poor prognosis, depending on which underlying axis is responsible.
+
+\gls{MSigDB} associations implicated \gls{ECM} processes, \gls{EMT}, and possibly inflammation, in A2 activation.  A2 signals were also strongly positively correlated with \gls{GSVA} scores for \gls{MSigDB} signatures related to \gls{ECM} interactions and remodelling, and a signature of LEF1-mediated \gls{EMT} (\Aref{app:sigs-msigdb-corrs-axis2} on \pref{app:sigs-msigdb-corrs-axis2}), strongly implicating matrix remodelling and invasion as the molecular basis of axis A2.  A potential link between A2 and inflammation was also indicated by a strong positive association between A2 signal and \gls{MSigDB} GNF2\_PTX3 \gls{GSVA} score (Kendall's $\tau = 0.593$, \Aref{app:sigs-msigdb-corrs-axis2} on \pref{app:sigs-msigdb-corrs-axis2}), a proxy for expression of the acute phase response protein pentraxin 3.
 
 \section{Discussion}
 
@@ -433,7 +223,7 @@ Probes were excluded if they met any of the following criteria: fewer than 10\% 
 The above preprocessing steps yielded matched \gls{CPV} and resected tumour \gls{GEX} data for 13,000 genes across 228 patients.
 
 \subsection{Outcome-associated gene selection}
-Genes that were associated with disease-specific survival were identified by \gls{SIS}-\gls{FAST} \cite{Gorst-Rasmussen2013}, with a \gls{CPSS} wrapper to reduce the false positive rate \cite{Shah2013}.  \gls{FAST} statistics for time from diagnosis to disease-specific death were calculated using R package \texttt{ahaz} on standardized log-scale expression values; genes which had an absolute statistic value exceeding 7 were selected by the inner \gls{SIS}-\gls{FAST} procedure.  The outer \gls{CPSS} wrapper selected genes which were returned by at least 80\% of 100 complementary paired \gls{SIS}-\gls{FAST} runs.  Gene selection \gls{FDR} was estimated by permutation: 50 repeats of the full gene selection procedure were performed on data in which patients had been randomly shuffled, and the \gls{FDR} was estimated as the median number of genes selected in permuted runs, divided by the number of genes selected by the unpermuted procedure.
+Genes that were associated with \gls{DSS} were identified by \gls{SIS}-\gls{FAST} \cite{Gorst-Rasmussen2013}, with a \gls{CPSS} wrapper to reduce the false positive rate \cite{Shah2013}.  \gls{FAST} statistics for time from diagnosis to \gls{DSD} were calculated using R package \texttt{ahaz} on standardized log-scale expression values; genes which had an absolute statistic value exceeding 7 were selected by the inner \gls{SIS}-\gls{FAST} procedure.  The outer \gls{CPSS} wrapper selected genes which were returned by at least 80\% of 100 complementary paired \gls{SIS}-\gls{FAST} runs.  Gene selection \gls{FDR} was estimated by permutation: 50 repeats of the full gene selection procedure were performed on data in which patients had been randomly shuffled, and the \gls{FDR} was estimated as the median number of genes selected in permuted runs, divided by the number of genes selected by the unpermuted procedure.
 
 \subsection{Rank estimation and metagene factorization}
 \label{subsec:sigs-nmf}
@@ -450,17 +240,32 @@ The \gls{SNMFL} algorithm requires parameters $\alpha$ and $\eta$ to control reg
 \gls{SNMFL} may not necessarily find a global optimum factorization; to address this, multiple random initializations of matrix $W$ were made from $\text{Uniform}(0, \max(A))$, the \gls{SNMFL} procedure was run to convergence, and the result with lowest approximation error was retained.  50 random restarts were used during rank estimation runs, and 500 for the final factorization; examination of approximation error distributions for these repeated runs indicated that these values were conservative, and factorizations were robust to the choice of random start.
 
 \subsection{Estimating metagene coefficients on new data}
-\label{subsec:sigs-metagene-est}
-The following procedure was used to estimate metagene expression scores (coefficients) from gene expression measurements of a cohort.  Measurements were subset to the 361 outcome-associated genes identified by \gls{CPSS}-\gls{SIS}-\gls{FAST}, and transformed to a linear scale if necessary.  Linear measurements were then scaled within genes to between zero and one, as was performed for metagene factorization (\cref{subsec:signatures-nmf}).  Genes for which no expression data were available (the genes being either filtered out in preprocessing or not measured at all) were assigned scaled expression values of zero.  These manipulations yielded a gene $\times$ sample matrix $A'$ with rows matching the gene $\times$ metagene basis matrix $W$ from \gls{SNMFL}.  The metagene $\times$ sample coefficient matrix $H'$ for the new cohort was then estimated by \gls{NNLS} implemented in R package \texttt{nnls}, solving for each column of $a'_{*,i}$ of $A'$ the optimization problem ${h'_{*,i}} = \argmin_x \| W x - a'_{*,i} \|_2$, where $h'_{*,i}$ denotes column $i$ of $H'$.
+The following procedure was used to estimate metagene expression scores (coefficients) from gene expression measurements of a cohort.  Measurements were subset to the 361 outcome-associated genes identified by \gls{CPSS}-\gls{SIS}-\gls{FAST}, and transformed to a linear scale if necessary.  Linear measurements were then scaled within genes to between zero and one, as was performed for metagene factorization.  Genes for which no expression data were available (the genes being either filtered out in preprocessing or not measured at all) were assigned scaled expression values of zero.  These manipulations yielded a gene $\times$ sample matrix $A'$ with rows matching the gene $\times$ metagene basis matrix $W$ from \gls{SNMFL}.  The metagene $\times$ sample coefficient matrix $H'$ for the new cohort was then estimated by \gls{NNLS} implemented in R package \texttt{nnls}, solving for each column of $a'_{*,i}$ of $A'$ the optimization problem ${h'_{*,i}} = \argmin_x \| W x - a'_{*,i} \|_2$, where $h'_{*,i}$ denotes column $i$ of $H'$.
 
 For consistency, the above procedure was used to estimate metagene coefficients $H$ for the discovery \gls{APGI} cohort, as well as all validation cohorts.
 
-\subsection{Associating metagene expression with clinical variables}
-Metagene coefficients evaluated on the \gls{APGI} data were tested for association with a restricted set of the available \gls{APGI} \glspl{CPV}, as outlined in \cref{tab:sigs-clinvar-table}.  Numeric variables were tested for assocation with each metagene by Kendall's $\tau$ test; factor and boolean variables using ANOVA with the \gls{CPV} as the explanatory variable.  150 tests in total were performed (25 variables, 6 metagenes), and P-values were corrected together using the Holm-Bonferroni procedure \cite{Holm1979}.  Corrected P-values of less than 0.05 were considered significant.
+\subsection{Calculation of the \acrshort{PARSE} score on new data}
+Given metagene coefficients estimated as above, axis activity scores were calculated as $\text{Axis A1 activity} = \text{MG1 coefficient} - \text{MG5 coefficient}$; $\text{Axis A2 activity} = \text{MG6 coefficient} - \text{MG2 coefficient}$.  \gls{PARSE} scores were then made by combining axis activity estimates, as $\text{PARSE score} = 1.354 \times \text{A1 activity} + 1.548 \times \text{A2 activity}$.
+
+\subsection{External validation of outcome-associated metagenes}
+Gene expression data for accessions GSE21501 and GSE28735 were downloaded as processed series matrix data from the \gls{NCBI} \gls{GEO}.  Survival times, censoring indicators, clinical covariates (for GSE21501), and probe expression estimates were extracted from the series matrix files.  Probes were annotated with gene symbols using the associated GPL annotation files, and probes with no gene annotation were discarded.  If multiple probes mapped to the same gene symbol, only the probe with the highest standard deviation across all samples in a data set was retained.  Finally, only probes with a standard deviation within the top 20\textsuperscript{th} percentile within a data set were kept for metagene scoring.
+
+Gene expression and outcome data for all \gls{TCGA} cancers were downloaded from the public \gls{TCGA} open-access repository at \url{https://tcga-data.nci.nih.gov/tcgafiles/ftp_auth/distro_ftpusers/anonymous/tumor/}, on 18 November 2014.  RNASeq Version 2 Level 3 expression estimates (on an approximately linear scale) from Illumina HiSeq machines only were used, without further processing.  Expression estimates were scaled within genes to between 0 and 1 separately within each \gls{TCGA} cancer type.  For reasons of statistical power, only \gls{TCGA} cancers for which at least 50 patients had both complete RNASeq expression data, and an event, were considered in validation.  Cohort paad was included despite it not meeting this criterion, to allow validation against another \gls{PDAC} cohort.
+
+For each validation data set, metagene coefficients, axis activities, and \gls{PARSE} scores, were calculated as described above.  Prognostic performance of the \gls{PARSE} score was tested within each validation data set using likelihood ratio tests comparing a Cox model using \gls{PARSE} score as the sole linear covariate, with an intercept-only Cox model.
+
+\subsection{\acrshort{GSVA} scoring}
+The expression of gene sets from the \gls{MSigDB} \cite{Subramanian2005} were estimated on the \gls{APGI} cohort using a modification of the \gls{GSVA} method \cite{Hanzelmann2013}.  \gls{GSVA} with default settings was used to estimate expression scores for all \gls{MSigDB} gene sets in the full 13,000 $\times$ 228 \gls{VST}-scaled \gls{APGI} \gls{GEX} data matrix.  \gls{MSigDB} contains both undirected gene sets such as metabolic pathways, in which members of the set are not expected a-priori to move in concert, and directional signatures, with paired \texttt{*\_UP} and \texttt{*\_DN} components that would be expected to change in coordinated and opposite patterns.  Conventional analyses based on \gls{MSigDB} ignore this distinction, but for this work I combined paired directional signatures to yield an overall signed estimate of signature activity.  For undirected signatures, \gls{GSVA} activity estimates were simply calculated using parameter \texttt{abs.ranking=TRUE}.  In the case of paired signatures, \gls{GSVA} scores were estimated separately for the \texttt{*\_UP} and \texttt{*\_DN} sets using parameter \texttt{abs.ranking=FALSE}, and the signed combined activity \texttt{*\_SIGNED} was calculated as the \texttt{*\_DN} score subtracted from the \texttt{*\_UP} score.  This procedure resulted in summarised activity estimates for 8,138 gene sets, many of which were highly correlated.
+
+Gene sets with highly correlated activity scores were collapsed into compound summary sets as follows.  Pairwise Pearson correlation distances between all scores were calculated as $d_{i,j} = \frac{1}{2}(1 - \text{cor}(s_i, s_j))$, and were used to cluster gene sets using R \texttt{hclust} and complete linkage.  R \texttt{cutree} identified clusters of highly similar gene sets, using a distance threshold of 0.02; gene set activities within each cluster were merged by taking median values across all samples, to form a new merged gene set activity estimate.  Following merging, 7,633 single and compound gene set activity estimates remained across 228 samples.
+
+\subsection{Prognostic axis functional characterization}
+\paragraph{Clinical variate comparisons}
+Prognostic axis activities calculated on the \gls{APGI} data were tested for association with a restricted set of the available \gls{APGI} \glspl{CPV}, as outlined in \tref{tab:sigs-clinvar-table}.  Numeric variables were tested for assocation with each axis by Kendall's $\tau$ test; factor and boolean variables using ANOVA with the \gls{CPV} as the explanatory variable.  50 tests in total were performed (25 variables, 2 axes), and P-values were corrected together using the Holm-Bonferroni procedure \cite{Holm1979}.  Corrected P-values of less than 0.05 were considered significant.
 
 \begin{table}[h]
 \centering
-\caption{\acrshortpl{CPV} tested for association with each metagene's coefficients. \label{tab:sigs-clinvar-table}}
+\caption{\acrshortpl{CPV} tested for association with prognostic axis signals.}\label{tab:sigs-clinvar-table}
 \begin{tabular}{@{}ll@{}}
 \toprule
 Clinical variate           & Type    \\ \midrule
@@ -468,9 +273,11 @@ Age at diagnosis           & Ordinal \\
 Ethnicity                  & Factor  \\
 Gender                     & Boolean \\
 Histological subtype       & Factor  \\
+Invasion:                  &         \\
+\quad Perineural           & Boolean \\
+\quad Vascular             & Boolean \\
 Pack years smoked          & Ordinal \\
 Pathological grade         & Boolean \\
-Perineural invasion        & Boolean \\
 Recurrence found in:           &         \\
 \quad Bone                       & Boolean \\
 \quad Brain                      & Boolean \\
@@ -489,24 +296,12 @@ Staging: T                 & Factor  \\
 Staging: Overall stage     & Factor  \\
 Tumour location            & Boolean \\
 Tumour longest axis length & Ordinal \\
-Vascular invasion          & Boolean \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\subsection{External validation of outcome-associated metagenes}
-\mpfatal{Add TCGA methods}
-Gene expression data for accessions GSE21501 and GSE28735 were downloaded as processed series matrix data from the \gls{NCBI} \gls{GEO}.  Survival times, censoring indicators, clinical covariates (for GSE21501), and probe expression estimates were extracted from the series matrix files.  Probes were annotated with gene symbols using the associated GPL annotation files, and probes with no gene annotation were discarded.  If multiple probes mapped to the same gene symbol, only the probe with the highest standard deviation across all samples in a data set was retained.  Finally, only probes with a standard deviation within the top 20\textsuperscript{th} percentile within a data set were kept for metagene scoring.
-
-For each validation data set, metagene coefficients were calculated as described in \cref{subsec:sigs-metagene-est}.  Metagene coefficients were then combined to form per-sample risk predictions using the \gls{LASSO} fit produced on the \gls{APGI} discovery data.  The \gls{APGI} survival signature was tested within each data set using likelihood ratio tests comparing a Cox model using signature risk predictions as the sole covariate, with an intercept-only Cox model.
-
-\subsection{\acrshort{GSVA} scoring}
-The expression of gene sets from the \gls{MSigDB} \cite{Subramanian2005} were estimated on the \gls{APGI} cohort using a modification of the \gls{GSVA} method \cite{Hanzelmann2013}.  \gls{GSVA} with default settings was used to estimate expression scores for all \gls{MSigDB} gene sets in the full 13,000 $\times$ 228 \gls{VST}-scaled \gls{APGI} \gls{GEX} data matrix.  \gls{MSigDB} contains both undirected gene sets such as metabolic pathways, in which members of the set are not expected a-priori to move in concert, and directional signatures, with paired \texttt{*\_UP} and \texttt{*\_DN} components that would be expected to change in coordinated and opposite patterns.  Conventional analyses based on \gls{MSigDB} ignore this distinction, but for this work I combined paired directional signatures to yield an overall signed estimate of signature activity.  For undirected signatures, \gls{GSVA} activity estimates were simply calculated using parameter \texttt{abs.ranking=TRUE}.  In the case of paired signatures, \gls{GSVA} scores were estimated separately for the \texttt{*\_UP} and \texttt{*\_DN} sets using parameter \texttt{abs.ranking=FALSE}, and the signed combined activity \texttt{*\_SIGNED} was calculated as the \texttt{*\_DN} score subtracted from the \texttt{*\_UP} score.  This procedure resulted in summarised activity estimates for 8,138 gene sets, many of which were highly correlated.
-
-Gene sets with highly correlated activity scores were collapsed into compound summary sets as follows.  Pairwise Pearson correlation distances between all scores were calculated as $d_{i,j} = \frac{1}{2}(1 - \text{cor}(s_i, s_j))$, and were used to cluster gene sets using R \texttt{hclust} and complete linkage.  R \texttt{cutree} identified clusters of highly similar gene sets, using a distance threshold of 0.02; gene set activities within each cluster were merged by taking median values across all samples, to form a new merged gene set activity estimate.  Following merging, 7,633 single and compound gene set activity estimates remained across 228 samples.
-
-\subsection{Metagene functional characterization}
-Kendall correlation coefficients were calculated between metagene coefficients and \gls{GSVA} gene set scores, on the \gls{APGI} expression dataset.  Absolute correlations of greater than 0.5 were deemed substantive and reported for further characterisation.
+\paragraph{\acrshort{MSigDB} signature score comparisons}
+Kendall correlation coefficients were calculated between axis activity estimates and \gls{GSVA} gene set scores, on the \gls{APGI} expression dataset.  Absolute correlations of greater than 0.5 were deemed substantive and reported for further characterisation.
 
 
 \end{document}

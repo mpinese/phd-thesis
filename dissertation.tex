@@ -1,34 +1,41 @@
 %% PREAMBLE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%\documentclass[11pt,a4paper,draft,oneside]{memoir}
-\documentclass[11pt,a4paper,final,twoside]{memoir}
+\documentclass[11pt,a4paper,final,oneside]{memoir}
+%\documentclass[11pt,a4paper,final,twoside]{memoir}
 
 \usepackage{subfiles}
-\usepackage[table,xcdraw]{xcolor}
-\usepackage[toc]{glossaries}
-\usepackage{pdfpages}
-\usepackage{listings}
-\usepackage[]{algorithm2e}
-\usepackage{amsmath}
-\usepackage{amssymb}
-\usepackage{graphicx}
-\usepackage{bm}
+
+% FIXME
 \usepackage[draft,footnote,nomargin]{fixme}   % TODO: Remove draft flag for final!
-\usepackage{appendix}
-\usepackage{longtable}
-\usepackage{tabularx}
-\usepackage{booktabs}
-%\usepackage{fancyhdr}
-\usepackage{cleveref}
- 
 \FXRegisterAuthor{mp}{amp}{MP}
 \FXRegisterAuthor{mjc}{amjc}{MJC}
 
-\include{macros}
+\usepackage[table,xcdraw]{xcolor}
 
-%\usepackage{tikz}
-%\usepackage{pgfplots}
-%\usetikzlibrary{arrows,automata,positioning}
+% ALGORITHMS
+\usepackage{listings}
+\usepackage{algorithm2e}
+
+% MATHS
+\usepackage{amsmath}
+\let\equation\gather
+\let\endequation\endgather
+\usepackage{amssymb}
+\usepackage{bm}
+
+% SUBFIGURES
+\newsubfloat{figure}
+
+% GRAPHICS
+\usepackage{pdfpages}
+\usepackage{graphicx}
+
+% CROSS-REFERENCING ETC
+\usepackage[colorlinks=true,hidelinks,plainpages=false,pdfpagelabels]{hyperref}
+\usepackage[toc,noredefwarn]{glossaries}
+
+
+\input{macros}
 
 \lstset{basicstyle=\footnotesize\ttfamily,breaklines=true}
 \lstset{framextopmargin=50pt,frame=bottomline}
@@ -36,9 +43,8 @@
 %\OnehalfSpacing
 %\DoubleSpacing
 
-\include{glossary}
+\input{glossary}
 \makeglossaries
-
 
 \begin{document}
 \pagestyle{empty}
@@ -52,7 +58,6 @@
 \maketitle
 
 \includepdf[pages={1},lastpage=1]{resources/originalitystatement_1.pdf}
-
 
 \frontmatter
 
@@ -94,14 +99,14 @@ Da abstract.
 \subfile{comparative}
 \subfile{conclusion}
 
+\input{appendices}
+
 \backmatter
 
 \printglossary
 
+\renewcommand{\bibname}{References}
 \bibliographystyle{plain}
 \bibliography{dissertation}
-
-\newpage
-\subfile{appendices}
 
 \end{document}
