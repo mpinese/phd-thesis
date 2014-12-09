@@ -109,6 +109,7 @@ coefs.diag_dsd = apply(xlin.diag_dsd.sel, 2, function(xcol) nnls(basis(nmf.final
 coefs.diag_rec = apply(xlin.diag_rec.sel, 2, function(xcol) nnls(basis(nmf.final), xcol)$x)
 coefs.recr_dsd = apply(xlin.recr_dsd.sel, 2, function(xcol) nnls(basis(nmf.final), xcol)$x)
 coefs.pdac_au = apply(xlin.pdac_au.sel, 2, function(xcol) nnls(basis(nmf.final), xcol)$x)
+axis_coefs.diag_dsd = as.matrix(cbind(axis1 = coefs.diag_dsd[1,] - coefs.diag_dsd[5,], axis2 = coefs.diag_dsd[6,] - coefs.diag_dsd[2,]))
 @
 
 
@@ -182,7 +183,6 @@ coef(temp$glmnet.fit, s = temp$lambda.1se)
 glmnet.fit.cv.diag_dsd = cv.glmnet(t(coefs.diag_dsd), y.diag_dsd, family = "cox", nfolds = 10)
 glmnet.fit.cv.diag_rec = cv.glmnet(t(coefs.diag_rec), y.diag_rec, family = "cox", nfolds = 10)
 glmnet.fit.cv.recr_dsd = cv.glmnet(t(coefs.recr_dsd), y.recr_dsd, family = "cox", nfolds = 10)
-axis_coefs.diag_dsd = as.matrix(cbind(axis1 = coefs.diag_dsd[1,] - coefs.diag_dsd[5,], axis2 = coefs.diag_dsd[6,] - coefs.diag_dsd[2,]))
 @
 
 <<nmf-metagene-glmnet-plots>>=
@@ -419,6 +419,15 @@ plot_km_axes_tcga("paad", mc = FALSE)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % SIGNATURE BIOLOGY
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+<<calc-emt-score>>=
+sig.emt_groger_pos = c("ADAM12", "COL1A1", "COL3A1", "COL5A1", "COL6A1", "COL6A3", "CTGF", "CYP1B1", "DLC1", "FBLN1", "FBLN5", "FGF2", "FGFR1", "FN1", "HAS2", "LAMC2", "LUM", "MMP2", "MYL9", "NID2", "NR2F1", "NRP1", "PLAT", "PPAP2B", "PRKCA", "RECK", "SERPINE1", "SERPINE2", "SPOCK1", "TGM2", "TNFAIP6", "TPM1", "VCAN", "WNT5A", "CDKN2C", "MAP1B", "RGS4", "IGFBP3", "IL1R1", "LTBP1", "MME", "PMP22", "PTGER2", "PTX3", "SRGN", "SULF", "SYNE1", "FSTL1", "LTBP2", "VIM", "ZEB1", "DCN", "LOX", "TFPI", "ABCA1", "GALNT10", "SLC22A4", "C5orf13", "SYT11", "TMEM158")
+sig.emt_groger_neg = c("CD24","CXCL16","DSG3","ELF3","EPCAM","EPHA1","JUP","MPZL2","OVOL2","PLXNB1","S100P","SLC7A5","SYK","FGFR3","ABLIM1","ADRB2","ALDH1A3","ANK3","BIK","CA2","CTSL2","FGFR2","ZHX2","ZNF165","SERPINB1","SLPI","TMEM30B","TPD52L1","IFI30","IL18","KLK7","KRT15","KRT17","LSR","MAP7","MBP","OCLN","PKP2","PPL","PRSS8","RAPGEF5","SPINT1","PRRG4","GPX3","SLC27A2","SMPDL3B","SORL1","ST6GALNAC2","RHOD","AGR2","C10orf10","CDS1","FAM169A","FXYD3","KLK10","LAD1","MTUS1","PLS1")
+x.medcent = x - apply(x, 1, median)
+emt.scores.pos = apply(x.medcent[rownames(x.medcent) %in% sig.emt_groger_pos,], 2, median)
+emt.scores.neg = apply(x.medcent[rownames(x.medcent) %in% sig.emt_groger_neg,], 2, median)
+emt.scores = emt.scores.pos - emt.scores.neg
+@
+
 \subsection{MSigDB score correlation thresholding}
 <<nmf-msigdb-cor-plots>>=
 axis_coefs.msigdb.corr = cor(axis_coefs.diag_dsd, t(sigs), method = "kendall")
@@ -480,6 +489,15 @@ cor.test(axis_coefs.diag_dsd[,1], metapcna.scores, method = "kendall")
 cor.test(axis_coefs.diag_dsd[,2], metapcna.scores, method = "kendall")
 summary(lm(axis_coefs.diag_dsd[,1] ~ metapcna.scores))
 summary(lm(axis_coefs.diag_dsd[,2] ~ metapcna.scores))
+
+plot(axis_coefs.diag_dsd[,1] ~ emt.scores, xlab = "meta-EMT score", ylab = "A1 signal")
+plot(axis_coefs.diag_dsd[,2] ~ emt.scores, xlab = "meta-EMT score", ylab = "A2 signal")
+cor.test(axis_coefs.diag_dsd[,1], emt.scores, method = "kendall")
+cor.test(axis_coefs.diag_dsd[,2], emt.scores, method = "kendall")
+summary(lm(axis_coefs.diag_dsd[,1] ~ emt.scores))
+summary(lm(axis_coefs.diag_dsd[,2] ~ emt.scores))
+anova(lm(axis_coefs.diag_dsd[,1] ~ samps$purity_qpure + emt.scores))
+anova(lm(axis_coefs.diag_dsd[,2] ~ samps$purity_qpure + emt.scores))
 @
 
 

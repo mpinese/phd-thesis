@@ -93,10 +93,10 @@ Further investigation of the three prognostic metagenes revealed that they were 
 \paragraph{The \acrshort{PARSE} score}
 A repeat of the previous \gls{LASSO} fit with 10-fold \gls{CV}, this time using predictors of A1 activity, A2 activity, and the A1:A2 interaction, identified both A1 and A2, but not their interaction, as useful predictors of outcome.  Coefficients from the \gls{LASSO} fit were used to define a new risk score, the \gls{PARSE}, as $\text{PARSE score} = 1.354 \times \text{A1 activity} + 1.548 \times \text{A2 activity}$.
 
-Exact calculation of the \gls{PARSE} score requires the solution of a number of \gls{NNLS} problems, which presents a possible barrier to use.  An approximation to \gls{PARSE} can be derived by relaxing the non-negative constraint; this approximation requires only a linear combination of gene expression estimates, and is detailed in \Aref{app:sigs-parse-approx} on page \pref{app:sigs-parse-approx}.
+Exact calculation of the \gls{PARSE} score requires the solution of a number of \gls{NNLS} problems, which presents a potential barrier to use.  An approximation to \gls{PARSE} can be derived by relaxing the non-negative constraint; this approximation requires only a linear combination of gene expression estimates, and is detailed in \Aref{app:sigs-parse-approx} on \pref{app:sigs-parse-approx}.
 
 \paragraph{Validation of the \acrshort{PARSE} score}
-External validation confirmed that the \gls{PARSE} score was prognostic in other cohorts, including in cancers other than \gls{PDAC}.  \Gls{PARSE} score was significantly prognostic in \gls{PDAC} cohorts GSE28735 \cite{Zhang2013} (LRT $P = 0.0149$) and \gls{TCGA} paad (LRT $P = 0.0156$), but not in GSE21501 \cite{Stratford2010} (LRT $P = 0.115$).  When assessed against all \gls{TCGA} cancers for which at least 50 patients had both an event and complete RNASeq data, the \gls{PARSE} score was also significantly prognostic for head and neck squamous cell carcinoma, kidney renal clear cell carcinoma, lower grade glioma, and lung adenocarcinoma, at a 5\% \gls{FWER} (\tref{tab:sigs-validation-tcga}, column a).  This significant result reflected the ability of \acrshort{PARSE} score to stratify patients into risk groups in a range of solid tumours, as illustrated in figure \fref{fig:sigs-km}.
+External validation confirmed that the \gls{PARSE} score was prognostic in other cohorts, including in cancers other than \gls{PDAC}.  \Gls{PARSE} score was significantly prognostic in \gls{PDAC} cohorts GSE28735 \cite{Zhang2013} (LRT $P = 0.0149$) and \gls{TCGA} paad (LRT $P = 0.0156$), but not in GSE21501 \cite{Stratford2010} (LRT $P = 0.115$).  When assessed against all \gls{TCGA} cancers for which at least 50 patients had both an event and complete RNASeq data, the \gls{PARSE} score was also significantly prognostic for head and neck squamous cell carcinoma, kidney renal clear cell carcinoma, lower grade glioma, and lung adenocarcinoma, at a 5\% \gls{FWER} (\tref{tab:sigs-validation-tcga}, column a).  This significant result reflected the ability of \acrshort{PARSE} score to stratify patients into risk groups in a range of solid tumours, as illustrated in \fref{fig:sigs-km}.
 
 Meta-PCNA is a 130-gene signature of cell proliferation that has been found to be generally prognostic in a number of cancer cohorts \cite{Venet2011}.  To exclude the possibility that \gls{PARSE} score simply recapitulated the known meta-PCNA signature, I examined whether \gls{PARSE} contributed additional prognostic information to meta-PCNA in the large \gls{TCGA} cohorts.  In \gls{TCGA} kidney renal clear cell carcinoma, lower grade glioma, and lung adenocarcinoma, there was significant evidence that the \gls{PARSE} score provided prognostic information beyond that given by meta-PCNA, at a 5\% \gls{FWER} (\tref{tab:sigs-validation-tcga}, column b).
 
@@ -153,7 +153,7 @@ ov     & 115  & 251    & 0.0238                           & 0.0178              
 \subsection{\acrshort{PARSE} identifies proliferation and \acrshort{ECM} remodelling as fundamental processes controlling survival in \acrshort{PDAC}}
 To link the two prognostic axes that form the \gls{PARSE} score with potential underlying biology, axis activities on the \gls{APGI} discovery cohort were compared to clinical variates, meta-PCNA, and scores for signatures from the \gls{MSigDB} \cite{Subramanian2005}.
 
-\gls{MSigDB} correlations, as well as comparisons to a general proliferative signature, revealed that the \gls{PARSE} axis A1 (MG1 $-$ MG5) primarily reflected the proliferative state of cells.  A1 signal was very strongly correlated to meta-PCNA \cite{Venet2011} score (Kendall's $\tau = 0.663$, $n = 110$, \fref{fig:sigs-axis1-pcna}), a relationship supported by its close association to cell cycle-related \gls{MSigDB} signatures (\Aref{app:sigs-msigdb-corrs-axis1} on \pref{app:sigs-msigdb-corrs-axis1}).  A1 signal was also significantly positively correlated with qPure \cite{Song2012} estimates of cancer cell fraction in the tumour (Kendall's $\tau = 0.284$, $n = 110$, \tref{tab:sigs-mg-cpvs}), although this association was weak (linear model $R^2 = 0.155$).
+\gls{MSigDB} correlations, as well as comparisons to a general proliferative signature, revealed that the \gls{PARSE} axis A1 (MG1 $-$ MG5) primarily reflected the proliferative state of cells.  A1 signal was very strongly correlated with meta-PCNA \cite{Venet2011} score (Kendall's $\tau = 0.663$, $n = 110$, \fref{fig:sigs-axis1-pcna}), a relationship supported by its close association to cell cycle-related \gls{MSigDB} signatures (\Aref{app:sigs-msigdb-corrs-axis1} on \pref{app:sigs-msigdb-corrs-axis1}).  A1 signal was also significantly positively correlated with qPure \cite{Song2012} estimates of cancer cell fraction in the tumour (Kendall's $\tau = 0.284$, $n = 110$, \tref{tab:sigs-mg-cpvs}), although this association was weak (linear model $R^2 = 0.155$).
 
 \begin{figure}
 \centering
@@ -199,7 +199,7 @@ Tumour longest axis length & 0.844                         & 0.171              
 
 Among the clinical variables tested, \gls{PARSE} axis A2 (MG6 $-$ MG2) correlated with stromal content and tumour grade: conditions of high A2 signal were associated with higher stromal content, higher grade, and shorter survival.  A2 signal was positively correlated with tumour microscopic pathological grade (Holm-corrected $P = 0.0067$, 50 tests performed), although this dependence was weak: on average, A2 signal was $0.1103$ higher in grade 3 or 4 tumours over grade 1 or 2, with $R^2 = 0.119$.   A2 signal was also negatively associated with tumour cancer cell fraction, the opposite of the positive relationship observed for axis A1, despite signal in both axes being positively associated with poor prognosis.  This reveals a potential context dependency in the influence of stromal content on survival, where high stromal content of a tumour may indicate either good or poor prognosis, depending on which underlying axis is responsible.
 
-\gls{MSigDB} associations implicated \gls{ECM} processes, \gls{EMT}, and possibly inflammation, in A2 activation.  A2 signals were also strongly positively correlated with \gls{GSVA} scores for \gls{MSigDB} signatures related to \gls{ECM} interactions and remodelling, and a signature of LEF1-mediated \gls{EMT} (\Aref{app:sigs-msigdb-corrs-axis2} on \pref{app:sigs-msigdb-corrs-axis2}), strongly implicating matrix remodelling and invasion as the molecular basis of axis A2.  A potential link between A2 and inflammation was also indicated by a strong positive association between A2 signal and \gls{MSigDB} GNF2\_PTX3 \gls{GSVA} score (Kendall's $\tau = 0.593$, \Aref{app:sigs-msigdb-corrs-axis2} on \pref{app:sigs-msigdb-corrs-axis2}), a proxy for expression of the acute phase response protein pentraxin 3.
+\gls{MSigDB} associations implicated \gls{ECM} processes, \gls{EMT}, and possibly inflammation, in A2 activation.  A2 signals were strongly positively correlated with \gls{GSVA} scores for \gls{MSigDB} signatures related to \gls{ECM} interactions and remodelling, and a signature of LEF1-mediated \gls{EMT}, strongly implicating matrix remodelling and invasion as the molecular basis of axis A2 (\Aref{app:sigs-msigdb-corrs-axis2} on \pref{app:sigs-msigdb-corrs-axis2}).  A potential link between A2 and inflammation was also indicated by a strong positive association between A2 signal and \gls{MSigDB} GNF2\_PTX3 \gls{GSVA} score (Kendall's $\tau = 0.593$, \Aref{app:sigs-msigdb-corrs-axis2} on \pref{app:sigs-msigdb-corrs-axis2}), a proxy for expression of the acute phase response protein pentraxin 3.
 
 \section{Discussion}
 
@@ -301,7 +301,22 @@ Tumour longest axis length & Ordinal \\
 \end{table}
 
 \paragraph{\acrshort{MSigDB} signature score comparisons}
-Kendall correlation coefficients were calculated between axis activity estimates and \gls{GSVA} gene set scores, on the \gls{APGI} expression dataset.  Absolute correlations of greater than 0.5 were deemed substantive and reported for further characterisation.
+Kendall correlation coefficients were calculated between axis activity estimates and \gls{GSVA} scores for \gls{MSigDB} gene sets, on the \gls{APGI} expression dataset.  A subset of the full \gls{MSigDB} was used, as outlined in \tref{sigs-msigdb-subset}.  Absolute correlations of greater than 0.5 were deemed substantive and reported for further characterisation.
 
+\begin{table}[h]
+\centering
+\caption[Subset of \acrshort{MSigDB} signatures tested for association with axis activities]{The subset of \acrshort{MSigDB} signatures tested for association with axis activities.  Within each \gls{MSigDB} class, only those matching the indicated inclusion pattern were tested.  * represents a wildcard; --- matches nothing.}\label{sigs-msigdb-subset}
+\begin{tabular}{@{}ll@{}}
+\toprule
+MSigDB class & Signature name inclusion pattern   \\ \midrule
+c1           & ---                                \\
+c2           & KEGG\_*, PID\_*, REACTOME\_*       \\
+c3           & *                                  \\
+c4           & GNF2\_*, MORF\_*                   \\
+c5           & *                                  \\
+c6           & *                                  \\
+c7           & *                                  \\ \bottomrule
+\end{tabular}
+\end{table}
 
 \end{document}
