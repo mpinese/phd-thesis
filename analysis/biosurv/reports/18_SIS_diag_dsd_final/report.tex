@@ -82,6 +82,11 @@
 {\ttfamily\noindent\itshape\color{messagecolor}{\#\# Loading required package: methods\\\#\# Loading required package: pkgmaker\\\#\# Loading required package: registry\\\#\# Loading required package: rngtools\\\#\# Loading required package: cluster\\\#\# NMF - BioConductor layer [OK] | Shared memory capabilities [OK] | Cores 7/8}}\begin{alltt}
 \hlkwd{library}\hlstd{(nnls)}
 
+\hlkwd{library}\hlstd{(bnlearn)}
+\end{alltt}
+
+
+{\ttfamily\noindent\itshape\color{messagecolor}{\#\# \\\#\# Attaching package: 'bnlearn'\\\#\# \\\#\# The following object is masked from 'package:NMF':\\\#\# \\\#\#\ \ \ \  compare}}\begin{alltt}
 \hlkwd{library}\hlstd{(glmulti)}
 \end{alltt}
 
@@ -707,8 +712,47 @@
 \end{knitrout}
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% METAGENE BASIS SAVING, PARSE APPROXIMATION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{library}\hlstd{(MASS)}
+\hlstd{W_plus} \hlkwb{=} \hlkwd{ginv}\hlstd{(}\hlkwd{basis}\hlstd{(nmf.final))}
+
+\hlstd{A1} \hlkwb{=} \hlstd{W_plus[}\hlnum{1}\hlstd{, ]} \hlopt{-} \hlstd{W_plus[}\hlnum{5}\hlstd{, ]}
+\hlstd{A2} \hlkwb{=} \hlstd{W_plus[}\hlnum{6}\hlstd{, ]} \hlopt{-} \hlstd{W_plus[}\hlnum{2}\hlstd{, ]}
+\hlstd{PARSE_approx} \hlkwb{=} \hlkwd{matrix}\hlstd{(}\hlnum{1.354} \hlopt{*} \hlstd{A1} \hlopt{+} \hlnum{1.548} \hlopt{*} \hlstd{A2,} \hlkwc{ncol} \hlstd{=} \hlnum{1}\hlstd{)}
+
+\hlkwd{rownames}\hlstd{(PARSE_approx)} \hlkwb{=} \hlkwd{rownames}\hlstd{(}\hlkwd{basis}\hlstd{(nmf.final))}
+
+\hlstd{PARSE_approx_scores} \hlkwb{=} \hlkwd{t}\hlstd{(xlin.diag_dsd.sel)} \hlopt{%*%} \hlstd{PARSE_approx}
+\hlstd{PARSE_exact_scores} \hlkwb{=} \hlnum{1.354} \hlopt{*} \hlstd{(coefs.diag_dsd[}\hlnum{1}\hlstd{, ]} \hlopt{-} \hlstd{coefs.diag_dsd[}\hlnum{5}\hlstd{, ])} \hlopt{+} \hlnum{1.548} \hlopt{*}
+    \hlstd{(coefs.diag_dsd[}\hlnum{6}\hlstd{, ]} \hlopt{-} \hlstd{coefs.diag_dsd[}\hlnum{2}\hlstd{, ])}
+
+\hlkwd{plot}\hlstd{(PARSE_exact_scores, PARSE_approx_scores,} \hlkwc{xlab} \hlstd{=} \hlstr{"Exact PARSE score"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Approximate PARSE score"}\hlstd{)}
+\hlkwd{abline}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{1}\hlstd{,} \hlkwc{col} \hlstd{=} \hlkwd{rgb}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0.25}\hlstd{))}
+\end{alltt}
+\end{kframe}
+
+{\centering \includegraphics[width=\maxwidth]{figure/approx-calc-1} 
+
+}
+
+
+
+\end{knitrout}
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% METAGENE PAIRING, AXES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
@@ -2356,6 +2400,31 @@
 \end{knitrout}
 
 
+% <<biology-network>>=
+% data.bnlearnC = data.frame(
+% 	axis1 = axis_coefs.diag_dsd[,1], 
+% 	axis2 = axis_coefs.diag_dsd[,2], 
+% 	qpure = samps$purity_qpure, 
+% 	pcna = metapcna.scores,
+% 	emt = emt.scores)
+% temp.sel = apply(!is.na(data.bnlearnC), 1, all)
+% data.bnlearnC = data.bnlearnC[temp.sel,]
+
+% data.bnlearnD = discretize(data.bnlearnC, method = "quantile")
+% data.bnlearnD$grade = cpvs.diag_dsd$Path.Grade.Coarse[temp.sel]
+
+% pdf("~/temp.pdf")
+% plot(inter.iamb(data.bnlearnD))
+
+% data.dag = si.hiton.pc(data.bnlearnC)
+% plot(data.dag)
+% bn.cv(data.bnlearnC, bn = "si.hiton.pc")
+% boot.strength(data.bnlearnC, algorithm = "si.hiton.pc")
+% data.dagd = cextend(data.dag)
+% strength.plot(data.dagd, arc.strength(data.dagd, data.bnlearnC, criterion = "cor"))
+% @
+
+
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
@@ -3292,14 +3361,15 @@
 ## [8] datasets  base     
 ## 
 ## other attached packages:
-##  [1] stargazer_5.1       xtable_1.7-4        gplots_2.14.2      
-##  [4] RColorBrewer_1.0-5  glmnet_1.9-8        Matrix_1.1-4       
-##  [7] glmulti_1.0.7       rJava_0.9-6         nnls_1.4           
-## [10] NMF_0.20.5          synchronicity_1.1.4 bigmemory_4.4.6    
-## [13] BH_1.54.0-5         bigmemory.sri_0.1.3 Biobase_2.26.0     
-## [16] BiocGenerics_0.12.1 cluster_1.15.3      rngtools_1.2.4     
-## [19] pkgmaker_0.22       registry_0.2        energy_1.6.2       
-## [22] survival_2.37-7     knitr_1.8          
+##  [1] MASS_7.3-35         stargazer_5.1       xtable_1.7-4       
+##  [4] gplots_2.14.2       RColorBrewer_1.0-5  glmnet_1.9-8       
+##  [7] Matrix_1.1-4        glmulti_1.0.7       rJava_0.9-6        
+## [10] bnlearn_3.6         nnls_1.4            NMF_0.20.5         
+## [13] synchronicity_1.1.4 bigmemory_4.4.6     BH_1.54.0-5        
+## [16] bigmemory.sri_0.1.3 Biobase_2.26.0      BiocGenerics_0.12.1
+## [19] cluster_1.15.3      rngtools_1.2.4      pkgmaker_0.22      
+## [22] registry_0.2        energy_1.6.2        survival_2.37-7    
+## [25] knitr_1.8          
 ## 
 ## loaded via a namespace (and not attached):
 ##  [1] bitops_1.0-6       boot_1.3-13        caTools_1.17.1    
@@ -3309,9 +3379,9 @@
 ## [13] grid_3.1.1         gridBase_0.4-7     gtable_0.1.2      
 ## [16] gtools_3.4.1       highr_0.4          iterators_1.0.7   
 ## [19] KernSmooth_2.23-13 labeling_0.3       lattice_0.20-29   
-## [22] MASS_7.3-35        munsell_0.4.2      plyr_1.8.1        
-## [25] proto_0.3-10       Rcpp_0.11.3        reshape2_1.4      
-## [28] scales_0.2.4       stringr_0.6.2      tools_3.1.1
+## [22] munsell_0.4.2      plyr_1.8.1         proto_0.3-10      
+## [25] Rcpp_0.11.3        reshape2_1.4       scales_0.2.4      
+## [28] stringr_0.6.2      tools_3.1.1
 \end{verbatim}
 \end{kframe}
 \end{knitrout}

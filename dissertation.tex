@@ -5,6 +5,9 @@
 
 \usepackage{subfiles}
 
+% VERSIONING
+\usepackage{mVersion}
+
 % FIXME
 \usepackage[draft,footnote,nomargin]{fixme}   % TODO: Remove draft flag for final!
 \FXRegisterAuthor{mp}{amp}{MP}
@@ -51,9 +54,11 @@
 
 \listoffixmes
 
+\increaseBuild
+
 \title{Mah Dissertat'n}
 \author{Mark Pinese}
-\date{\today}
+\date{\today \quad Build \version}
 
 \maketitle
 
@@ -93,11 +98,11 @@ Da abstract.
 \mainmatter
 \openright
 
-\subfile{introduction}
-\subfile{nomogram}
+%\subfile{introduction}
+%\subfile{nomogram}
 \subfile{signatures}
-\subfile{comparative}
-\subfile{conclusion}
+%\subfile{comparative}
+%\subfile{conclusion}
 
 \input{appendices}
 
