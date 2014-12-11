@@ -115,10 +115,45 @@ axis_coefs.diag_dsd = as.matrix(cbind(axis1 = coefs.diag_dsd[1,] - coefs.diag_ds
 @
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% METAGENE BASIS SAVING, PARSE APPROXIMATION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 <<basis-emit, echo=FALSE>>=
-print(xtable(basis(nmf.final)), file = "basis_table.tex", tabular.environment = "longtable", floating = FALSE)
+temp = basis(nmf.final)
+temp = temp[order(rownames(temp)),]
+colnames(temp) = paste("MG", 1:6, sep = "")
+print(xtable(temp, digits = 4), file = "basis_table.tex", tabular.environment = "longtable", floating = FALSE)
 @
 
+<<approx-calc>>=
+library(MASS)
+W_plus = ginv(basis(nmf.final))
+
+A1 = W_plus[1,] - W_plus[5,]
+A2 = W_plus[6,] - W_plus[2,]
+PARSE_approx = matrix(1.354*A1 + 1.548*A2, ncol = 1)
+
+rownames(PARSE_approx) = rownames(basis(nmf.final))
+
+PARSE_approx_scores = t(xlin.diag_dsd.sel) %*% PARSE_approx
+PARSE_exact_scores = 1.354*(coefs.diag_dsd[1,] - coefs.diag_dsd[5,]) + 1.548*(coefs.diag_dsd[6,] - coefs.diag_dsd[2,])
+
+plot(PARSE_exact_scores, PARSE_approx_scores, xlab = "Exact PARSE score", ylab = "Approximate PARSE score")
+abline(0, 1, col = rgb(0, 0, 0, 0.25))
+@
+
+<<approx-emit, echo=FALSE>>=
+temp = PARSE_approx
+temp = temp[order(rownames(temp)),,drop=FALSE]
+colnames(temp) = c("Value")
+print(xtable(temp, digits = 5), file = "approx_table.tex", tabular.environment = "longtable", floating = FALSE)
+@
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% METAGENE PAIRING, AXES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 <<metagene-pairs>>=
 temp.pred.pairs = t(rbind(coefs.pdac_au, metapcna.scores[colnames(coefs.pdac_au)]))
