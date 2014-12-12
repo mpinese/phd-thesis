@@ -145,11 +145,10 @@ c7.GSE1460\_INTRATHYMIC\_T\_PROGENITOR\_VS\_THYMIC\_STROMAL\_CELL\_SIGNED       
 \label{app:sigs-parse-approx}
 Exact calculation of \gls{PARSE} score requires the solution of a number of \gls{NNLS} problems, which complicates application.  The \gls{NNLS} solutions can be approximated with conventional least squares solutions, ultimately transforming the calculation of an approximate \gls{PARSE} score into a simple weighted sum of gene expression measurements.
 
-Recall that \gls{NMF} finds factorizations of the form $A = W H$, with all elements of $A$, $W$, and $H$, being non-negative.  In the reverse problem of \gls{PARSE} calculation, $A$ and $\widehat{W}$ are supplied, and $H$ is to be estimated.  I propose an approximation that removes the requirement that $H$ be non-negative, $\widehat{H} = \widehat{W}^+ A$, where $\widehat{W}^+$ is the Moore-Penrose pseudoinverse of $\widehat{W}$.  By combining this approximation with the linear combination of metagene coefficients that forms the \gls{PARSE} score, we can approximate \gls{PARSE} as a simple weighted sum of gene expression measurements:
+Recall that \gls{NMF} finds factorizations of the form $A = W H$, with all elements of $A$, $W$, and $H$, being non-negative.  In the reverse problem of \gls{PARSE} calculation, $A$ and $\widehat{W}$ are supplied, and $H$ is to be estimated.  I propose an approximation that removes the requirement that $H$ be non-negative, $H \approx \widehat{W}^+ A$, where $\widehat{W}^+$ is the Moore-Penrose pseudoinverse of $\widehat{W}$.  By combining this approximation with the linear combination of metagene coefficients that forms the \gls{PARSE} score, we can approximate \gls{PARSE} as a simple weighted sum of gene expression measurements:
 \begin{align}
   P &= L H \\
-    &\approx L \widehat{H} \\
-    &= L \widehat{W}^+ A \\
+    &\approx L \widehat{W}^+ A \\
     &= k A
 \end{align}
 where $P$ is the vector of \gls{PARSE} score values, $L$ is the metagene loadings for the \gls{PARSE} score, $L = \irow{1.354&-1.548&0&0&-1.354&1.548}$, and $k$ is a row vector of gene loadings for calculation of an approximate \gls{PARSE} score.  Approximation of $P$ by $k A$ appears excellent; when tested on \gls{APGI} gene expression measurements, the approximation closely matched the more laborious exact \gls{NNLS} solution (\fref{fig:app-parse-approx-matching}).
@@ -162,7 +161,7 @@ where $P$ is the vector of \gls{PARSE} score values, $L$ is the metagene loading
 
 To use the approximation in practice, perform the following steps:
 \begin{enumerate}
-  \item Prepare a linear gene $\times$ sample matrix $A$, in which values for each row (gene) have been scaled to encompass the range $0$ to $1$.
+  \item Prepare a gene $\times$ sample matrix of linear expression estimates $A$, in which values for each row (gene) have been scaled to encompass the range $0$ to $1$.
   \item Subset $A$ to only the genes present in the $k$ table (below), and arrange rows of $A$ so that they exactly match the order of rows of $k$.  If genes present in $k$ are missing from $A$, insert all-zero rows for these genes into $A$.
   \item Calculate approximate \gls{PARSE} scores $P$ as $P = k A$.  This is equivalent to, for each column (sample) of $A$, multiplying each entry of the column of $A$ with the corresponding entry of $k$, and summing the results.
 \end{enumerate}
