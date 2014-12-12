@@ -4,12 +4,11 @@
 \chapter{Signatures of Survival Processes in Pancreas Cancer}
 \label{chap:signatures}
 
+\emph{Thesis: Specific molecular processes control survival of patients with resectable \acrlong{PDAC}, and  these processes can be identified using \acrlong{GEX} data.}
+
 \paragraph{Summary}Very little is known regarding the biological processes that control the survival of patients with \gls{PDAC}, the most common and aggressive form of pancreas cancer.  As discussed in \Cref{chap:nomogram}, the wide range of relative patient survival times that is observed in practice is not well explained by extrinsic factors such as age at diagnosis, and perhaps instead reflects differences in the biological processes operating within each tumour.  Recent molecular profiling work \cite{Collisson2011} has identified possible molecular subtypes within the previously homogenous group of \gls{PDAC}, but these subtypes have not achieved the maturity or clinical application of those in breast cancer, and their discovery and validation has been hampered by ad-hoc methodology, and the lack of large, well-curated cohorts of \gls{PDAC} samples.  The recently-compiled \gls{APGI} cohort contains the largest group of clinically annotated \gls{PDAC} samples, with accompanying \gls{GEX} and high-quality follow-up data, in the world.  It presents a unique opportunity to apply modern techniques for prognostic signature identification to the discovery of biological processes that drive the clinical course of pancreas cancer.  These signatures may find application as prognostic tools in their own right, but more importantly can supply much-needed information on the fundamental biology of the one common cancer that has, to date, been almost entirely refractory to all the tools of modern molecular medicine.
 
-\mpfatal{TODO: put the thesis somewhere: That specific molecular processes control survival of resectable PC, and that these processes can be identified and detected using GEX data.}
-
 \section{Introduction}
-
 Despite extensive research, \gls{PDAC} remains a poorly-understood disease.  Recent genomic profiling has revealed the genetic alterations that accompany the cancer \cite{Biankin2012}, and a huge number of prognostic factors are known \cite{Harsha2009} (refer to \cref{chap:intro} for further discussion on both points), but these findings have shed little light on the fundamental disease processes at work in individual tumours.  This is a consequence of genetic and biomarker data being poorly-suited for understanding the biological state of a cell: although genetic alterations are central to the etiology of cancer, they give incomplete information on the pathways and systems actually active in a given tumour, and biomarkers supply non-causal readouts of cell state that are difficult to trace back to underlying biological processes.
 
 Sitting between the regulatory function of transcription control, and the effector function of protein expression, \gls{GEX} data integrate information from all aspects of cell condition, including genetic alterations, signalling pathway activity, and metabolic status.  As such, it is unsurprising that \gls{GEX} data are superior indicators of cell state, better than all other high-throughput measurement methods, such as protein expression or genetic alterations \cite{Ray2014}.  However, the involvement of \gls{GEX} with so many biological inputs is also a weakness: typical differential expression studies will identify many hundreds of transcripts that vary between disease states, and the deconvolution of this complex set of hundreds of effects back to a small number of causative molecular processes remains challenging.
@@ -60,7 +59,47 @@ Survival-associated metagenes were identified by selecting the set of genes whic
 \subsection{Cohort characteristics and subsetting}
 228 unique patients from the \gls{APGI} cohort had both \gls{GEX} and follow-up data; for the discovery of metagenes specifically associated with \gls{PDAC} survival these were subset to patients with histologically confirmed \gls{PDAC}, who did not suffer perioperative mortality, and were treated within Australia.  This subsetting produced a homogeneous 110-patient \gls{APGI} discovery cohort, which was used for all metagene discovery work.
 
-\mpfatal{TODO: complete}
+General characteristics of both the full \gls{APGI} cohort, and the 110-patient \gls{PDAC} \gls{APGI} discovery cohort, are summarised in \tref{tab:sigs-cohort-characteristics}.
+
+
+\begin{table}[h]
+\centering
+\caption[Characteristics of the \gls{APGI} patient cohorts]{Characteristics of the full \gls{APGI} patient cohort, and the homogenous \gls{PDAC}-only subset used for signature discovery.  Ordinal variables are shown as median, with quartiles in parentheses.  Categorical variables for which percentages do not add up to 100\% indicate the presence of minor unlisted categories.  Abbreviations: AAC - ampullary adenocarcinoma; IPMN - intraductal papillary mucinous neoplasm; PNET - pancreatic neuroendocrine tumour; PR - Puerto Rico}\label{tab:sigs-cohort-characteristics}
+\begin{tabular}{@{}llll@{}}
+\toprule
+Characteristic             &                          & Full \gls{APGI} & Discovery \\ \midrule
+Number of patients         &                          & 228                      & 110                                                    \\
+Gender                     & Male                     & 54.8\%                   & 54.6\%                                                 \\
+Ethnicity                  & Caucasian                & 92.3\%                   & 95.4\%                                                 \\
+                           & Asian                    & 6.4\%                    & 4.6\%                                                  \\
+                           & African                  & 0.9\%                    & 0\%                                                    \\
+Treatment country          & Australia                & 86.0\%                   & 100\%                                                  \\
+                           & USA / PR        & 12.7\%                   & 0\%                                                    \\
+Age at diagnosis           & (years)                  & 68 (60 - 75)               & 67 (61 - 73)                                             \\
+Procedure                  & Whipple                  & 63.2\%                   & 71.8\%                                                 \\
+Excision margin status     & R0                       & 76.8\%                   & 62.7\%                                                 \\
+                           & R1                       & 20.6\%                   & 22.7\%                                                 \\
+                           & R2                       & 2.6\%                    & 14.6\%                                                 \\
+Histological type          & \gls{PDAC}             & 61.8\%                   & 100\%                                                  \\
+                           & AAC & 11.0\%                   & 0\%                                                    \\
+                           & IPMN                     & 5.7\%                    & 0\%                                                    \\
+                           & PNET                     & 5.7\%                    & 0\%                                                    \\
+Histological grade         & 1                        & 12.0\%                   & 7.3\%                                                  \\
+                           & 2                        & 55.8\%                   & 64.6\%                                                 \\
+                           & 3                        & 30.1\%                   & 27.3\%                                                 \\
+                           & 4                        & 2.1\%                    & 0.8\%                                                  \\
+Location                   & Head                     & 64.0\%                   & 84.6\%                                                 \\
+                           & Ampulla                  & 11.4\%                   & 0\%                                                    \\
+                           & Tail                     & 11.0\%                   & 8.2\%                                                  \\
+                           & Body                     & 5.7\%                    & 6.4\%                                                  \\
+Length                & (mm)                     & 33.0 (24.5 - 45.0)       & 35.0 (28.0 - 45.0)                                     \\
+Invasion                   & Perineural               & 70.3\%                   & 88.1\%                                                 \\
+                           & Vascular                 & 62.4\%                   & 67.9\%                                                 \\
+Node involvement           &                          & 69.3\%                   & 77.1\%                                                 \\
+Disease-specific death     &                          & 52.6\%                   & 63.6\%                                                 \\
+Length of follow-up & (days)                         & 614 (366 - 888)          & 632 (402 - 912)                                       
+\end{tabular}
+\end{table}
 
 \subsection{Two axes predict survival with resectable pancreatic cancer in multiple cancers}
 \paragraph{Probe selection}
@@ -186,7 +225,7 @@ To link the two prognostic axes that form the \gls{PARSE} score with potential u
 \begin{figure}
 \centering
 \includegraphics[width=.7\linewidth]{analysis/biosurv/reports/18_SIS_diag_dsd_final/figure/nmf-msigdb-cor-plots-7}
-\caption[A1 signal is closely associated with meta-PCNA score]{Axis A1 signal is closely associated with meta-PCNA signature score.  A1 signal and meta-PCNA \cite{Venet2011} scores were as evaluated on the \acrshort{APGI} training set; Kendall's $\tau = 0.663$, $n = 110$, linear model $R^2 = 0.740$.}\label{fig:sigs-axis1-pcna}
+\caption[A1 signal is closely associated with meta-PCNA score]{Axis A1 signal is closely associated with the meta-PCNA signature.  A1 signal and meta-PCNA \cite{Venet2011} scores were as evaluated on the \acrshort{APGI} training set; Kendall's $\tau = 0.663$, $n = 110$, linear model $R^2 = 0.740$.}\label{fig:sigs-axis1-pcna}
 \end{figure}
 
 \begin{table}[h]
@@ -232,20 +271,22 @@ A number of \gls{MSigDB} signatures were associated with A2 signals, among them 
 \begin{figure}
 \centering
 \includegraphics[width=.7\linewidth]{analysis/biosurv/reports/18_SIS_diag_dsd_final/figure/nmf-msigdb-cor-plots-10}
-\caption[A2 signal is closely associated with meta-EMT score]{Axis A2 signal is closely associated with meta-ECM signature score.  A2 signal and meta-ECM \cite{Groger2012} scores were as evaluated on the \acrshort{APGI} training set; Kendall's $\tau = 0.568$, $n = 110$, linear model $R^2 = 0.557$.}\label{fig:sigs-axis2-emt}
+\caption[A2 signal is closely associated with meta-EMT score]{Axis A2 signal is closely associated with a signature of the \gls{EMT}.  A2 signal and meta-EMT \cite{Groger2012} scores were as evaluated on the \acrshort{APGI} training set; Kendall's $\tau = 0.568$, $n = 110$, linear model $R^2 = 0.557$.}\label{fig:sigs-axis2-emt}
 \end{figure}
 
 \mpfatal{TODO: Consider comparing A1 and A2 vs meta-PCNA and meta-ECM in TCGA -- are A1/A2 better than the metas?  Model complexity is the same so therefore can just compare partials -- woo}
 
 \section{Discussion}
+At the molecular level, the phenomenon of cancer has long been recognised as a composite of many processes \cite{Hanahan2011}, however the relative importance of each process to a particular type of cancer has been largely uncertain.  In pancreas cancer, a huge number of individual biomarkers are known \cite{Harsha2009}, and some attempts have been made to stratify cancers into empirical molecular subtypes \cite{Collisson2011}, but no studies have provided a comprehensive analysis of which basic hallmarks of cancer are actually important in determining patient outcome.  This work fills that gap in knowledge, and is the first to exhaustively identify proliferation and the \gls{EMT} as the major molecular processes that control survival of patients with pancreas cancer.
 
-At the molecular level, the phenomenon of cancer has long been recognised as being a composite of many processes \cite{Hanahan2011}, however the relative importance of each process to a particular disease has been largely uncertain.  In pancreas cancer, a huge number of individual biomarkers are known \cite{Harsha2009}, and some attempts have been made to stratify cancers into molecular subtypes \cite{Collisson2011}, but no studies have provided a comprehensive analysis of which basic hallmarks of cancer are actually important in controlling patient outcome.  This work fills that gap in knowledge, and is the first to exhaustively identify proliferation and the \gls{EMT} as the major molecular processes that determine survival of patients with pancreas cancer.
-
-Discussion points:
-  PARSE = meta-PCNA + meta-ECM (+ immune + stroma?).
-  Context-dependency of stroma signal
-  GSE21501 -- why didn't it validate?
-  Relevance to future work.
+\begin{itemize}
+  \item PARSE = meta-PCNA + meta-EMT (+ immune + stroma?).
+  \item Context-dependency of stroma signal
+  \item The folly of clustering
+  \item GSE21501 -- why didn't it validate?
+  \item Broader implications of pan-cancer survival signature
+  \item Relevance to future work.
+\end{itemize}
 
 \section{Methods}
 \subsection{Cohort recruitment and ethics}
