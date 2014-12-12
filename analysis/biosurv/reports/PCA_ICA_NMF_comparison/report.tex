@@ -102,14 +102,65 @@
 \hlstd{col} \hlkwb{=} \hlstd{pal[xyc[,} \hlnum{3}\hlstd{]]}
 \hlstd{pch} \hlkwb{=} \hlstd{syms[xyc[,} \hlnum{3}\hlstd{]]}
 
-\hlkwd{plot}\hlstd{(xy[subset,} \hlnum{1}\hlstd{], xy[subset,} \hlnum{2}\hlstd{],} \hlkwc{col} \hlstd{=} \hlstr{"black"}\hlstd{,} \hlkwc{pch} \hlstd{= pch[subset],} \hlkwc{xlab} \hlstd{=} \hlstr{"Gene 1"}\hlstd{,}
-    \hlkwc{ylab} \hlstd{=} \hlstr{"Gene 2"}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{1}\hlstd{),} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{1}\hlstd{))}
+\hlkwd{plot}\hlstd{(}\hlnum{0} \hlopt{~} \hlnum{0}\hlstd{,} \hlkwc{type} \hlstd{=} \hlstr{"n"}\hlstd{,} \hlkwc{xlab} \hlstd{=} \hlstr{"Gene 1"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Gene 2"}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{1}\hlstd{),} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,}
+    \hlnum{1}\hlstd{),} \hlkwc{xaxt} \hlstd{=} \hlstr{"n"}\hlstd{,} \hlkwc{yaxt} \hlstd{=} \hlstr{"n"}\hlstd{)}
+\hlcom{# arrows( x0 = c(0, 0), y0 = c(0, 0), x1 = c(0.5, 1), y1 = c(1, 0.45), col =}
+\hlcom{# 'lightgrey', lwd = 5)}
+\hlkwd{points}\hlstd{(xy[subset,} \hlnum{1}\hlstd{], xy[subset,} \hlnum{2}\hlstd{],} \hlkwc{col} \hlstd{=} \hlstr{"black"}\hlstd{,} \hlkwc{pch} \hlstd{= pch[subset])}
 \hlkwd{legend}\hlstd{(}\hlstr{"topright"}\hlstd{,} \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"State A"}\hlstd{,} \hlstr{"State B"}\hlstd{,} \hlstr{"Transition State"}\hlstd{),} \hlkwc{pch} \hlstd{= syms[}\hlkwd{c}\hlstd{(}\hlnum{3}\hlstd{,}
     \hlnum{1}\hlstd{,} \hlnum{2}\hlstd{)],} \hlkwc{inset} \hlstd{=} \hlnum{0.05}\hlstd{)}
 \end{alltt}
 \end{kframe}
 
 {\centering \includegraphics[width=\maxwidth]{figure/plots-1} 
+
+}
+
+
+\begin{kframe}\begin{alltt}
+\hlkwd{plot}\hlstd{(xy[subset,} \hlnum{1}\hlstd{], xy[subset,} \hlnum{2}\hlstd{],} \hlkwc{col} \hlstd{=} \hlkwd{rgb}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0.5}\hlstd{),} \hlkwc{pch} \hlstd{= pch[subset],}
+    \hlkwc{xlab} \hlstd{=} \hlstr{"Gene 1"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Gene 2"}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{1}\hlstd{),} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{1}\hlstd{),} \hlkwc{xaxt} \hlstd{=} \hlstr{"n"}\hlstd{,}
+    \hlkwc{yaxt} \hlstd{=} \hlstr{"n"}\hlstd{)}
+\hlstd{temp} \hlkwb{=} \hlstd{fit.pca}\hlopt{$}\hlstd{rotation}
+\hlstd{temp} \hlkwb{=} \hlkwd{t}\hlstd{(}\hlkwd{t}\hlstd{(temp)}\hlopt{/}\hlkwd{sqrt}\hlstd{(}\hlkwd{colSums}\hlstd{(temp}\hlopt{^}\hlnum{2}\hlstd{))}\hlopt{/}\hlnum{2}\hlstd{)}
+\hlkwd{arrows}\hlstd{(}\hlkwc{x0} \hlstd{=} \hlkwd{rep}\hlstd{(}\hlkwd{mean}\hlstd{(xy[,} \hlnum{1}\hlstd{],} \hlnum{2}\hlstd{)),} \hlkwc{y0} \hlstd{=} \hlkwd{rep}\hlstd{(}\hlkwd{mean}\hlstd{(xy[,} \hlnum{2}\hlstd{],} \hlnum{2}\hlstd{)),} \hlkwc{x1} \hlstd{= temp[}\hlnum{1}\hlstd{,}
+    \hlstd{]} \hlopt{+} \hlkwd{mean}\hlstd{(xy[,} \hlnum{1}\hlstd{]),} \hlkwc{y1} \hlstd{= temp[}\hlnum{2}\hlstd{, ]} \hlopt{+} \hlkwd{mean}\hlstd{(xy[,} \hlnum{2}\hlstd{]),} \hlkwc{col} \hlstd{=} \hlstr{"black"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{5}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+{\centering \includegraphics[width=\maxwidth]{figure/plots-2} 
+
+}
+
+
+\begin{kframe}\begin{alltt}
+\hlkwd{plot}\hlstd{(xy[subset,} \hlnum{1}\hlstd{], xy[subset,} \hlnum{2}\hlstd{],} \hlkwc{col} \hlstd{=} \hlkwd{rgb}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0.5}\hlstd{),} \hlkwc{pch} \hlstd{= pch[subset],}
+    \hlkwc{xlab} \hlstd{=} \hlstr{"Gene 1"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Gene 2"}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{1}\hlstd{),} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{1}\hlstd{),} \hlkwc{xaxt} \hlstd{=} \hlstr{"n"}\hlstd{,}
+    \hlkwc{yaxt} \hlstd{=} \hlstr{"n"}\hlstd{)}
+\hlstd{temp} \hlkwb{=} \hlstd{fit.ica}\hlopt{$}\hlstd{A}
+\hlstd{temp} \hlkwb{=} \hlkwd{t}\hlstd{(}\hlkwd{t}\hlstd{(temp)}\hlopt{/}\hlkwd{sqrt}\hlstd{(}\hlkwd{colSums}\hlstd{(temp}\hlopt{^}\hlnum{2}\hlstd{))}\hlopt{/}\hlnum{2}\hlstd{)}
+\hlkwd{arrows}\hlstd{(}\hlkwc{x0} \hlstd{=} \hlkwd{rep}\hlstd{(}\hlkwd{mean}\hlstd{(xy[,} \hlnum{1}\hlstd{],} \hlnum{2}\hlstd{)),} \hlkwc{y0} \hlstd{=} \hlkwd{rep}\hlstd{(}\hlkwd{mean}\hlstd{(xy[,} \hlnum{2}\hlstd{],} \hlnum{2}\hlstd{)),} \hlkwc{x1} \hlstd{= temp[}\hlnum{1}\hlstd{,}
+    \hlstd{]} \hlopt{+} \hlkwd{mean}\hlstd{(xy[,} \hlnum{1}\hlstd{]),} \hlkwc{y1} \hlstd{= temp[}\hlnum{2}\hlstd{, ]} \hlopt{+} \hlkwd{mean}\hlstd{(xy[,} \hlnum{2}\hlstd{]),} \hlkwc{col} \hlstd{=} \hlstr{"black"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{5}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+{\centering \includegraphics[width=\maxwidth]{figure/plots-3} 
+
+}
+
+
+\begin{kframe}\begin{alltt}
+\hlkwd{plot}\hlstd{(xy[subset,} \hlnum{1}\hlstd{], xy[subset,} \hlnum{2}\hlstd{],} \hlkwc{col} \hlstd{=} \hlkwd{rgb}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0.5}\hlstd{),} \hlkwc{pch} \hlstd{= pch[subset],}
+    \hlkwc{xlab} \hlstd{=} \hlstr{"Gene 1"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Gene 2"}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{1}\hlstd{),} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{1}\hlstd{),} \hlkwc{xaxt} \hlstd{=} \hlstr{"n"}\hlstd{,}
+    \hlkwc{yaxt} \hlstd{=} \hlstr{"n"}\hlstd{)}
+\hlstd{temp} \hlkwb{=} \hlkwd{basis}\hlstd{(fit.nmf)}
+\hlstd{temp} \hlkwb{=} \hlkwd{t}\hlstd{(}\hlkwd{t}\hlstd{(temp)}\hlopt{/}\hlkwd{sqrt}\hlstd{(}\hlkwd{colSums}\hlstd{(temp}\hlopt{^}\hlnum{2}\hlstd{))}\hlopt{/}\hlnum{2}\hlstd{)}
+\hlkwd{arrows}\hlstd{(}\hlkwc{x0} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{0}\hlstd{),} \hlkwc{y0} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{0}\hlstd{),} \hlkwc{x1} \hlstd{= temp[}\hlnum{1}\hlstd{, ],} \hlkwc{y1} \hlstd{= temp[}\hlnum{2}\hlstd{, ],} \hlkwc{col} \hlstd{=} \hlstr{"black"}\hlstd{,}
+    \hlkwc{lwd} \hlstd{=} \hlnum{5}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+{\centering \includegraphics[width=\maxwidth]{figure/plots-4} 
 
 }
 
@@ -131,7 +182,7 @@
 \end{alltt}
 \end{kframe}
 
-{\centering \includegraphics[width=\maxwidth]{figure/plots-2} 
+{\centering \includegraphics[width=\maxwidth]{figure/plots-5} 
 
 }
 
@@ -141,7 +192,7 @@
 \end{alltt}
 \end{kframe}
 
-{\centering \includegraphics[width=\maxwidth]{figure/plots-3} 
+{\centering \includegraphics[width=\maxwidth]{figure/plots-6} 
 
 }
 
@@ -151,7 +202,7 @@
 \end{alltt}
 \end{kframe}
 
-{\centering \includegraphics[width=\maxwidth]{figure/plots-4} 
+{\centering \includegraphics[width=\maxwidth]{figure/plots-7} 
 
 }
 
@@ -161,7 +212,7 @@
 \end{alltt}
 \end{kframe}
 
-{\centering \includegraphics[width=\maxwidth]{figure/plots-5} 
+{\centering \includegraphics[width=\maxwidth]{figure/plots-8} 
 
 }
 
