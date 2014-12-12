@@ -48,8 +48,46 @@ syms = c(19, 4, 21)
 col = pal[xyc[,3]]
 pch = syms[xyc[,3]]
 
-plot(xy[subset,1], xy[subset,2], col = "black", pch = pch[subset], xlab = "Gene 1", ylab = "Gene 2", xlim = c(0, 1), ylim = c(0, 1))
+plot(0 ~ 0, type = "n", xlab = "Gene 1", ylab = "Gene 2", xlim = c(0, 1), ylim = c(0, 1), xaxt = "n", yaxt = "n")
+# arrows(
+# 	x0 = c(0, 0), 
+# 	y0 = c(0, 0), 
+# 	x1 = c(0.5, 1), 
+# 	y1 = c(1, 0.45), 
+# 	col = "lightgrey", lwd = 5)
+points(xy[subset,1], xy[subset,2], col = "black", pch = pch[subset])
 legend("topright", legend = c("State A", "State B", "Transition State"), pch = syms[c(3, 1, 2)], inset = 0.05)
+
+plot(xy[subset,1], xy[subset,2], col = rgb(0, 0, 0, 0.5), pch = pch[subset], xlab = "Gene 1", ylab = "Gene 2", xlim = c(0, 1), ylim = c(0, 1), xaxt = "n", yaxt = "n")
+temp = fit.pca$rotation
+temp = t(t(temp) / sqrt(colSums(temp^2)) / 2)
+arrows(
+	x0 = rep(mean(xy[,1], 2)), 
+	y0 = rep(mean(xy[,2], 2)), 
+	x1 = temp[1,] + mean(xy[,1]), 
+	y1 = temp[2,] + mean(xy[,2]), 
+	col = "black", lwd = 5)
+
+plot(xy[subset,1], xy[subset,2], col = rgb(0, 0, 0, 0.5), pch = pch[subset], xlab = "Gene 1", ylab = "Gene 2", xlim = c(0, 1), ylim = c(0, 1), xaxt = "n", yaxt = "n")
+temp = fit.ica$A
+temp = t(t(temp) / sqrt(colSums(temp^2)) / 2)
+arrows(
+	x0 = rep(mean(xy[,1], 2)), 
+	y0 = rep(mean(xy[,2], 2)), 
+	x1 = temp[1,] + mean(xy[,1]), 
+	y1 = temp[2,] + mean(xy[,2]), 
+	col = "black", lwd = 5)
+
+plot(xy[subset,1], xy[subset,2], col = rgb(0, 0, 0, 0.5), pch = pch[subset], xlab = "Gene 1", ylab = "Gene 2", xlim = c(0, 1), ylim = c(0, 1), xaxt = "n", yaxt = "n")
+temp = basis(fit.nmf)
+temp = t(t(temp) / sqrt(colSums(temp^2)) / 2)
+arrows(
+	x0 = c(0, 0), 
+	y0 = c(0, 0), 
+	x1 = temp[1,], 
+	y1 = temp[2,], 
+	col = "black", lwd = 5)
+
 plot(xy[subset,1], xy[subset,2], col = "black", pch = pch[subset], xlab = "Gene 1", ylab = "Gene 2", xlim = c(0, 1), ylim = c(0, 1))
 #legend("topright", legend = c("State A", "State B", "Transition State"), pch = syms[c(3, 1, 2)], inset = 0.05)
 legend("topright", legend = c("PCA", "ICA", "NMF"), lty = "solid", lwd = 5, col = pal, inset = 0.05)

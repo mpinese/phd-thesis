@@ -150,22 +150,22 @@ Recall that \gls{NMF} finds factorizations of the form $A = W H$, with all eleme
   P &= L H \\
     &\approx L \widehat{H} \\
     &= L \widehat{W}^+ A \\
-    &= \widehat{LW} A
+    &= k A
 \end{align}
-where $P$ is the vector of \gls{PARSE} score values, $L$ is the metagene loadings for the \gls{PARSE} score, $L = \irow{1.354&-1.548&0&0&-1.354&1.548}$, and $\widehat{LW}$ is an approximate gene loading vector for calculation of an approximate \gls{PARSE} score.  Approximation of $P$ by $\widehat{LW} A$ appears excellent; when tested on \gls{APGI} gene expression measurements, the approximation closely matched the more laborious exact \gls{NNLS} solution (\fref{fig:app-parse-approx-matching}).
+where $P$ is the vector of \gls{PARSE} score values, $L$ is the metagene loadings for the \gls{PARSE} score, $L = \irow{1.354&-1.548&0&0&-1.354&1.548}$, and $k$ is a row vector of gene loadings for calculation of an approximate \gls{PARSE} score.  Approximation of $P$ by $k A$ appears excellent; when tested on \gls{APGI} gene expression measurements, the approximation closely matched the more laborious exact \gls{NNLS} solution (\fref{fig:app-parse-approx-matching}).
 
 \begin{figure}
 \centering
 \includegraphics[width=.7\linewidth]{analysis/biosurv/reports/18_SIS_diag_dsd_final/figure/approx-calc-1}
-\caption[Performance of the \acrshort{PARSE} score approximation]{The linear \acrshort{PARSE} score approximation $P \approx \widehat{LW} A$ closely matches the exact version calculated using \gls{NNLS}, when evaluated on \gls{APGI} \gls{GEX} data.}\label{fig:app-parse-approx-matching}
+\caption[Performance of the \acrshort{PARSE} score approximation]{The linear \acrshort{PARSE} score approximation $P \approx k A$ closely matches the exact version calculated using \gls{NNLS}, when evaluated on \gls{APGI} \gls{GEX} data.}\label{fig:app-parse-approx-matching}
 \end{figure}
 
 To use the approximation in practice, perform the following steps:
 \begin{enumerate}
   \item Prepare a linear gene $\times$ sample matrix $A$, in which values for each row (gene) have been scaled to encompass the range $0$ to $1$.
-  \item Subset $A$ to only the genes present in the $\widehat{LW}$ table (below), and arrange rows of $A$ so that they exactly match the order of rows of $\widehat{LW}$.  If genes present in $\widehat{LW}$ are missing from $A$, insert all-zero rows for these genes into $A$.
-  \item Calculate approximate \gls{PARSE} scores $P$ as $P = \left(\widehat{LW}\right)^T A$.  This is equivalent to, for each column (sample) of $A$, multiplying each entry of the column of $A$ with the corresponding entry of $\widehat{LW}$, and summing the results.
+  \item Subset $A$ to only the genes present in the $k$ table (below), and arrange rows of $A$ so that they exactly match the order of rows of $k$.  If genes present in $k$ are missing from $A$, insert all-zero rows for these genes into $A$.
+  \item Calculate approximate \gls{PARSE} scores $P$ as $P = k A$.  This is equivalent to, for each column (sample) of $A$, multiplying each entry of the column of $A$ with the corresponding entry of $k$, and summing the results.
 \end{enumerate}
 
-The $\widehat{LW}$ vector follows.
+The loading vector for the calculation of approximate \gls{PARSE} score, $k^T$, follows.
 \input{analysis/biosurv/reports/18_SIS_diag_dsd_final/approx_table.tex}
