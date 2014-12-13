@@ -48,7 +48,7 @@ syms = c(19, 4, 21)
 col = pal[xyc[,3]]
 pch = syms[xyc[,3]]
 
-plot(0 ~ 0, type = "n", xlab = "Gene 1", ylab = "Gene 2", xlim = c(0, 1), ylim = c(0, 1), xaxt = "n", yaxt = "n")
+plot(0 ~ 0, type = "n", xlab = "Gene 1", ylab = "Gene 2", xlim = c(0, 1), ylim = c(0, 1), xaxt = "n", yaxt = "n", asp = 1)
 # arrows(
 # 	x0 = c(0, 0), 
 # 	y0 = c(0, 0), 
@@ -58,37 +58,37 @@ plot(0 ~ 0, type = "n", xlab = "Gene 1", ylab = "Gene 2", xlim = c(0, 1), ylim =
 points(xy[subset,1], xy[subset,2], col = "black", pch = pch[subset])
 legend("topright", legend = c("State A", "State B", "Transition State"), pch = syms[c(3, 1, 2)], inset = 0.05)
 
-plot(xy[subset,1], xy[subset,2], col = rgb(0, 0, 0, 0.5), pch = pch[subset], xlab = "Gene 1", ylab = "Gene 2", xlim = c(0, 1), ylim = c(0, 1), xaxt = "n", yaxt = "n")
+plot(xy[subset,1], xy[subset,2], col = rgb(0, 0, 0, 0.5), pch = pch[subset], xlab = "Gene 1", ylab = "Gene 2", xlim = c(0, 1), ylim = c(0, 1), xaxt = "n", yaxt = "n", asp = 1)
 temp = fit.pca$rotation
 temp = t(t(temp) / sqrt(colSums(temp^2)) / 2)
 arrows(
-	x0 = rep(mean(xy[,1], 2)), 
-	y0 = rep(mean(xy[,2], 2)), 
+	x0 = mean(xy[,1]), 
+	y0 = mean(xy[,2]), 
 	x1 = temp[1,] + mean(xy[,1]), 
 	y1 = temp[2,] + mean(xy[,2]), 
 	col = "black", lwd = 5)
 
-plot(xy[subset,1], xy[subset,2], col = rgb(0, 0, 0, 0.5), pch = pch[subset], xlab = "Gene 1", ylab = "Gene 2", xlim = c(0, 1), ylim = c(0, 1), xaxt = "n", yaxt = "n")
+plot(xy[subset,1], xy[subset,2], col = rgb(0, 0, 0, 0.5), pch = pch[subset], xlab = "Gene 1", ylab = "Gene 2", xlim = c(0, 1), ylim = c(0, 1), xaxt = "n", yaxt = "n", asp = 1)
 temp = fit.ica$A
 temp = t(t(temp) / sqrt(colSums(temp^2)) / 2)
 arrows(
-	x0 = rep(mean(xy[,1], 2)), 
-	y0 = rep(mean(xy[,2], 2)), 
+	x0 = mean(xy[,1]), 
+	y0 = mean(xy[,2]), 
 	x1 = temp[1,] + mean(xy[,1]), 
 	y1 = temp[2,] + mean(xy[,2]), 
 	col = "black", lwd = 5)
 
-plot(xy[subset,1], xy[subset,2], col = rgb(0, 0, 0, 0.5), pch = pch[subset], xlab = "Gene 1", ylab = "Gene 2", xlim = c(0, 1), ylim = c(0, 1), xaxt = "n", yaxt = "n")
+plot(xy[subset,1], xy[subset,2], col = rgb(0, 0, 0, 0.5), pch = pch[subset], xlab = "Gene 1", ylab = "Gene 2", xlim = c(0, 1), ylim = c(0, 1), xaxt = "n", yaxt = "n", asp = 1)
 temp = basis(fit.nmf)
 temp = t(t(temp) / sqrt(colSums(temp^2)) / 2)
 arrows(
-	x0 = c(0, 0), 
-	y0 = c(0, 0), 
+	x0 = 0, 
+	y0 = 0, 
 	x1 = temp[1,], 
 	y1 = temp[2,], 
 	col = "black", lwd = 5)
 
-plot(xy[subset,1], xy[subset,2], col = "black", pch = pch[subset], xlab = "Gene 1", ylab = "Gene 2", xlim = c(0, 1), ylim = c(0, 1))
+plot(xy[subset,1], xy[subset,2], col = "black", pch = pch[subset], xlab = "Gene 1", ylab = "Gene 2", xlim = c(0, 1), ylim = c(0, 1), asp = 1)
 #legend("topright", legend = c("State A", "State B", "Transition State"), pch = syms[c(3, 1, 2)], inset = 0.05)
 legend("topright", legend = c("PCA", "ICA", "NMF"), lty = "solid", lwd = 5, col = pal, inset = 0.05)
 arrows(
@@ -109,9 +109,9 @@ arrows(
 	x1 = basis(fit.nmf)[1,], 
 	y1 = basis(fit.nmf)[2,], 
 	col = pal[3], lwd = 5)
-plot(fit.pca$x[subset,], pch = pch[subset], xlab = "PC1", ylab = "PC2", main = "PCA Projection")
-plot(fit.ica$S[subset,], pch = pch[subset], xlab = "C1", ylab = "C2", main = "ICA Projection")
-plot(t(coef(fit.nmf)), pch = pch[subset], xlab = "F1", ylab = "F2", main = "NMF Projection")
+plot(fit.pca$x[subset,], pch = pch[subset], xlab = "PC1", ylab = "PC2", main = "PCA Projection", asp = 1)
+plot(fit.ica$S[subset,], pch = pch[subset], xlab = "C1", ylab = "C2", main = "ICA Projection", asp = 1)
+plot(t(coef(fit.nmf)), pch = pch[subset], xlab = "F1", ylab = "F2", main = "NMF Projection", asp = 1)
 @
 
 \end{document}

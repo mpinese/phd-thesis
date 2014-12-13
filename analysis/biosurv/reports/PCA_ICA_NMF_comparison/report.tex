@@ -103,7 +103,7 @@
 \hlstd{pch} \hlkwb{=} \hlstd{syms[xyc[,} \hlnum{3}\hlstd{]]}
 
 \hlkwd{plot}\hlstd{(}\hlnum{0} \hlopt{~} \hlnum{0}\hlstd{,} \hlkwc{type} \hlstd{=} \hlstr{"n"}\hlstd{,} \hlkwc{xlab} \hlstd{=} \hlstr{"Gene 1"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Gene 2"}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{1}\hlstd{),} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,}
-    \hlnum{1}\hlstd{),} \hlkwc{xaxt} \hlstd{=} \hlstr{"n"}\hlstd{,} \hlkwc{yaxt} \hlstd{=} \hlstr{"n"}\hlstd{)}
+    \hlnum{1}\hlstd{),} \hlkwc{xaxt} \hlstd{=} \hlstr{"n"}\hlstd{,} \hlkwc{yaxt} \hlstd{=} \hlstr{"n"}\hlstd{,} \hlkwc{asp} \hlstd{=} \hlnum{1}\hlstd{)}
 \hlcom{# arrows( x0 = c(0, 0), y0 = c(0, 0), x1 = c(0.5, 1), y1 = c(1, 0.45), col =}
 \hlcom{# 'lightgrey', lwd = 5)}
 \hlkwd{points}\hlstd{(xy[subset,} \hlnum{1}\hlstd{], xy[subset,} \hlnum{2}\hlstd{],} \hlkwc{col} \hlstd{=} \hlstr{"black"}\hlstd{,} \hlkwc{pch} \hlstd{= pch[subset])}
@@ -120,11 +120,11 @@
 \begin{kframe}\begin{alltt}
 \hlkwd{plot}\hlstd{(xy[subset,} \hlnum{1}\hlstd{], xy[subset,} \hlnum{2}\hlstd{],} \hlkwc{col} \hlstd{=} \hlkwd{rgb}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0.5}\hlstd{),} \hlkwc{pch} \hlstd{= pch[subset],}
     \hlkwc{xlab} \hlstd{=} \hlstr{"Gene 1"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Gene 2"}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{1}\hlstd{),} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{1}\hlstd{),} \hlkwc{xaxt} \hlstd{=} \hlstr{"n"}\hlstd{,}
-    \hlkwc{yaxt} \hlstd{=} \hlstr{"n"}\hlstd{)}
+    \hlkwc{yaxt} \hlstd{=} \hlstr{"n"}\hlstd{,} \hlkwc{asp} \hlstd{=} \hlnum{1}\hlstd{)}
 \hlstd{temp} \hlkwb{=} \hlstd{fit.pca}\hlopt{$}\hlstd{rotation}
 \hlstd{temp} \hlkwb{=} \hlkwd{t}\hlstd{(}\hlkwd{t}\hlstd{(temp)}\hlopt{/}\hlkwd{sqrt}\hlstd{(}\hlkwd{colSums}\hlstd{(temp}\hlopt{^}\hlnum{2}\hlstd{))}\hlopt{/}\hlnum{2}\hlstd{)}
-\hlkwd{arrows}\hlstd{(}\hlkwc{x0} \hlstd{=} \hlkwd{rep}\hlstd{(}\hlkwd{mean}\hlstd{(xy[,} \hlnum{1}\hlstd{],} \hlnum{2}\hlstd{)),} \hlkwc{y0} \hlstd{=} \hlkwd{rep}\hlstd{(}\hlkwd{mean}\hlstd{(xy[,} \hlnum{2}\hlstd{],} \hlnum{2}\hlstd{)),} \hlkwc{x1} \hlstd{= temp[}\hlnum{1}\hlstd{,}
-    \hlstd{]} \hlopt{+} \hlkwd{mean}\hlstd{(xy[,} \hlnum{1}\hlstd{]),} \hlkwc{y1} \hlstd{= temp[}\hlnum{2}\hlstd{, ]} \hlopt{+} \hlkwd{mean}\hlstd{(xy[,} \hlnum{2}\hlstd{]),} \hlkwc{col} \hlstd{=} \hlstr{"black"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{5}\hlstd{)}
+\hlkwd{arrows}\hlstd{(}\hlkwc{x0} \hlstd{=} \hlkwd{mean}\hlstd{(xy[,} \hlnum{1}\hlstd{]),} \hlkwc{y0} \hlstd{=} \hlkwd{mean}\hlstd{(xy[,} \hlnum{2}\hlstd{]),} \hlkwc{x1} \hlstd{= temp[}\hlnum{1}\hlstd{, ]} \hlopt{+} \hlkwd{mean}\hlstd{(xy[,} \hlnum{1}\hlstd{]),}
+    \hlkwc{y1} \hlstd{= temp[}\hlnum{2}\hlstd{, ]} \hlopt{+} \hlkwd{mean}\hlstd{(xy[,} \hlnum{2}\hlstd{]),} \hlkwc{col} \hlstd{=} \hlstr{"black"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{5}\hlstd{)}
 \end{alltt}
 \end{kframe}
 
@@ -136,11 +136,11 @@
 \begin{kframe}\begin{alltt}
 \hlkwd{plot}\hlstd{(xy[subset,} \hlnum{1}\hlstd{], xy[subset,} \hlnum{2}\hlstd{],} \hlkwc{col} \hlstd{=} \hlkwd{rgb}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0.5}\hlstd{),} \hlkwc{pch} \hlstd{= pch[subset],}
     \hlkwc{xlab} \hlstd{=} \hlstr{"Gene 1"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Gene 2"}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{1}\hlstd{),} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{1}\hlstd{),} \hlkwc{xaxt} \hlstd{=} \hlstr{"n"}\hlstd{,}
-    \hlkwc{yaxt} \hlstd{=} \hlstr{"n"}\hlstd{)}
+    \hlkwc{yaxt} \hlstd{=} \hlstr{"n"}\hlstd{,} \hlkwc{asp} \hlstd{=} \hlnum{1}\hlstd{)}
 \hlstd{temp} \hlkwb{=} \hlstd{fit.ica}\hlopt{$}\hlstd{A}
 \hlstd{temp} \hlkwb{=} \hlkwd{t}\hlstd{(}\hlkwd{t}\hlstd{(temp)}\hlopt{/}\hlkwd{sqrt}\hlstd{(}\hlkwd{colSums}\hlstd{(temp}\hlopt{^}\hlnum{2}\hlstd{))}\hlopt{/}\hlnum{2}\hlstd{)}
-\hlkwd{arrows}\hlstd{(}\hlkwc{x0} \hlstd{=} \hlkwd{rep}\hlstd{(}\hlkwd{mean}\hlstd{(xy[,} \hlnum{1}\hlstd{],} \hlnum{2}\hlstd{)),} \hlkwc{y0} \hlstd{=} \hlkwd{rep}\hlstd{(}\hlkwd{mean}\hlstd{(xy[,} \hlnum{2}\hlstd{],} \hlnum{2}\hlstd{)),} \hlkwc{x1} \hlstd{= temp[}\hlnum{1}\hlstd{,}
-    \hlstd{]} \hlopt{+} \hlkwd{mean}\hlstd{(xy[,} \hlnum{1}\hlstd{]),} \hlkwc{y1} \hlstd{= temp[}\hlnum{2}\hlstd{, ]} \hlopt{+} \hlkwd{mean}\hlstd{(xy[,} \hlnum{2}\hlstd{]),} \hlkwc{col} \hlstd{=} \hlstr{"black"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{5}\hlstd{)}
+\hlkwd{arrows}\hlstd{(}\hlkwc{x0} \hlstd{=} \hlkwd{mean}\hlstd{(xy[,} \hlnum{1}\hlstd{]),} \hlkwc{y0} \hlstd{=} \hlkwd{mean}\hlstd{(xy[,} \hlnum{2}\hlstd{]),} \hlkwc{x1} \hlstd{= temp[}\hlnum{1}\hlstd{, ]} \hlopt{+} \hlkwd{mean}\hlstd{(xy[,} \hlnum{1}\hlstd{]),}
+    \hlkwc{y1} \hlstd{= temp[}\hlnum{2}\hlstd{, ]} \hlopt{+} \hlkwd{mean}\hlstd{(xy[,} \hlnum{2}\hlstd{]),} \hlkwc{col} \hlstd{=} \hlstr{"black"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{5}\hlstd{)}
 \end{alltt}
 \end{kframe}
 
@@ -152,11 +152,10 @@
 \begin{kframe}\begin{alltt}
 \hlkwd{plot}\hlstd{(xy[subset,} \hlnum{1}\hlstd{], xy[subset,} \hlnum{2}\hlstd{],} \hlkwc{col} \hlstd{=} \hlkwd{rgb}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0.5}\hlstd{),} \hlkwc{pch} \hlstd{= pch[subset],}
     \hlkwc{xlab} \hlstd{=} \hlstr{"Gene 1"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Gene 2"}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{1}\hlstd{),} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{1}\hlstd{),} \hlkwc{xaxt} \hlstd{=} \hlstr{"n"}\hlstd{,}
-    \hlkwc{yaxt} \hlstd{=} \hlstr{"n"}\hlstd{)}
+    \hlkwc{yaxt} \hlstd{=} \hlstr{"n"}\hlstd{,} \hlkwc{asp} \hlstd{=} \hlnum{1}\hlstd{)}
 \hlstd{temp} \hlkwb{=} \hlkwd{basis}\hlstd{(fit.nmf)}
 \hlstd{temp} \hlkwb{=} \hlkwd{t}\hlstd{(}\hlkwd{t}\hlstd{(temp)}\hlopt{/}\hlkwd{sqrt}\hlstd{(}\hlkwd{colSums}\hlstd{(temp}\hlopt{^}\hlnum{2}\hlstd{))}\hlopt{/}\hlnum{2}\hlstd{)}
-\hlkwd{arrows}\hlstd{(}\hlkwc{x0} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{0}\hlstd{),} \hlkwc{y0} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{0}\hlstd{),} \hlkwc{x1} \hlstd{= temp[}\hlnum{1}\hlstd{, ],} \hlkwc{y1} \hlstd{= temp[}\hlnum{2}\hlstd{, ],} \hlkwc{col} \hlstd{=} \hlstr{"black"}\hlstd{,}
-    \hlkwc{lwd} \hlstd{=} \hlnum{5}\hlstd{)}
+\hlkwd{arrows}\hlstd{(}\hlkwc{x0} \hlstd{=} \hlnum{0}\hlstd{,} \hlkwc{y0} \hlstd{=} \hlnum{0}\hlstd{,} \hlkwc{x1} \hlstd{= temp[}\hlnum{1}\hlstd{, ],} \hlkwc{y1} \hlstd{= temp[}\hlnum{2}\hlstd{, ],} \hlkwc{col} \hlstd{=} \hlstr{"black"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{5}\hlstd{)}
 \end{alltt}
 \end{kframe}
 
@@ -167,7 +166,7 @@
 
 \begin{kframe}\begin{alltt}
 \hlkwd{plot}\hlstd{(xy[subset,} \hlnum{1}\hlstd{], xy[subset,} \hlnum{2}\hlstd{],} \hlkwc{col} \hlstd{=} \hlstr{"black"}\hlstd{,} \hlkwc{pch} \hlstd{= pch[subset],} \hlkwc{xlab} \hlstd{=} \hlstr{"Gene 1"}\hlstd{,}
-    \hlkwc{ylab} \hlstd{=} \hlstr{"Gene 2"}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{1}\hlstd{),} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{1}\hlstd{))}
+    \hlkwc{ylab} \hlstd{=} \hlstr{"Gene 2"}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{1}\hlstd{),} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{1}\hlstd{),} \hlkwc{asp} \hlstd{=} \hlnum{1}\hlstd{)}
 \hlcom{# legend('topright', legend = c('State A', 'State B', 'Transition State'),}
 \hlcom{# pch = syms[c(3, 1, 2)], inset = 0.05)}
 \hlkwd{legend}\hlstd{(}\hlstr{"topright"}\hlstd{,} \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"PCA"}\hlstd{,} \hlstr{"ICA"}\hlstd{,} \hlstr{"NMF"}\hlstd{),} \hlkwc{lty} \hlstd{=} \hlstr{"solid"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{5}\hlstd{,}
@@ -188,7 +187,8 @@
 
 
 \begin{kframe}\begin{alltt}
-\hlkwd{plot}\hlstd{(fit.pca}\hlopt{$}\hlstd{x[subset, ],} \hlkwc{pch} \hlstd{= pch[subset],} \hlkwc{xlab} \hlstd{=} \hlstr{"PC1"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"PC2"}\hlstd{,} \hlkwc{main} \hlstd{=} \hlstr{"PCA Projection"}\hlstd{)}
+\hlkwd{plot}\hlstd{(fit.pca}\hlopt{$}\hlstd{x[subset, ],} \hlkwc{pch} \hlstd{= pch[subset],} \hlkwc{xlab} \hlstd{=} \hlstr{"PC1"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"PC2"}\hlstd{,} \hlkwc{main} \hlstd{=} \hlstr{"PCA Projection"}\hlstd{,}
+    \hlkwc{asp} \hlstd{=} \hlnum{1}\hlstd{)}
 \end{alltt}
 \end{kframe}
 
@@ -198,7 +198,8 @@
 
 
 \begin{kframe}\begin{alltt}
-\hlkwd{plot}\hlstd{(fit.ica}\hlopt{$}\hlstd{S[subset, ],} \hlkwc{pch} \hlstd{= pch[subset],} \hlkwc{xlab} \hlstd{=} \hlstr{"C1"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"C2"}\hlstd{,} \hlkwc{main} \hlstd{=} \hlstr{"ICA Projection"}\hlstd{)}
+\hlkwd{plot}\hlstd{(fit.ica}\hlopt{$}\hlstd{S[subset, ],} \hlkwc{pch} \hlstd{= pch[subset],} \hlkwc{xlab} \hlstd{=} \hlstr{"C1"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"C2"}\hlstd{,} \hlkwc{main} \hlstd{=} \hlstr{"ICA Projection"}\hlstd{,}
+    \hlkwc{asp} \hlstd{=} \hlnum{1}\hlstd{)}
 \end{alltt}
 \end{kframe}
 
@@ -208,7 +209,8 @@
 
 
 \begin{kframe}\begin{alltt}
-\hlkwd{plot}\hlstd{(}\hlkwd{t}\hlstd{(}\hlkwd{coef}\hlstd{(fit.nmf)),} \hlkwc{pch} \hlstd{= pch[subset],} \hlkwc{xlab} \hlstd{=} \hlstr{"F1"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"F2"}\hlstd{,} \hlkwc{main} \hlstd{=} \hlstr{"NMF Projection"}\hlstd{)}
+\hlkwd{plot}\hlstd{(}\hlkwd{t}\hlstd{(}\hlkwd{coef}\hlstd{(fit.nmf)),} \hlkwc{pch} \hlstd{= pch[subset],} \hlkwc{xlab} \hlstd{=} \hlstr{"F1"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"F2"}\hlstd{,} \hlkwc{main} \hlstd{=} \hlstr{"NMF Projection"}\hlstd{,}
+    \hlkwc{asp} \hlstd{=} \hlnum{1}\hlstd{)}
 \end{alltt}
 \end{kframe}
 
