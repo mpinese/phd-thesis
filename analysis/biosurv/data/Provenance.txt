@@ -1,0 +1,16 @@
+* CPVs: 
+  - Received from Clare Watson on 4 Nov 2014.  Notes from Clare:
+    The data looks really tight for the key data points you specified (Tumour size, Lymph nodes, 
+	Margins, Staging, Recurrence/Outcome data) but just a reminder that only the ICGC cohort has 
+	been thoroughly audited.  Please note that the grading system for Neuroendocrine tumours (if 
+	you are to include them in your analysis) differs from the system used for PDACs; grading of 
+	Neuroendocrine tumours is based on mitotic count, Ki-67 staining and tumour size.  Also take 
+	note of 2142, a cholangiocarcinoma that is staged as a carcinoma of the intrahepatic bile 
+	duct, and 3345 which is a PDAC collected from a liver resection.
+* GEX:
+  - garvan_sample_overview.tsv was from an automatically generated email from Conrad Leonard 
+    received on 7 Nov 2014
+  - GEX raw data were from a QCMG mirror performed by Jianmin Wu in Feb 2014, as stored at 
+    gagri/ICGCPancreas/icgc_data_mirror
+  - Analysis was as per 14_apgi_gex_processing/0_doit.sh, stored here as backup under 
+    14_apgi_gex_processing_20140512.tar.xz

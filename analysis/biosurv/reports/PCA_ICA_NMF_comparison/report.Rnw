@@ -1,19 +1,28 @@
 \documentclass{article}
-\usepackage{geometry}
 \usepackage{amsmath}
 \usepackage{lscape}
-\geometry{verbose,tmargin=2.5cm,bmargin=2.5cm,lmargin=2.5cm,rmargin=2.5cm}
 
 \begin{document}
 
 <<setup, include=FALSE>>=
 library(knitr)
+library(tikzDevice)
+options(
+	tikzDocumentDeclaration = "\\documentclass[11pt]{memoir}",
+	tikzLatexPackages = c(
+		getOption("tikzLatexPackages"),
+		"\\usepackage{amsmath}"),
+	tikzMetricsDictionary="tikzMetrics"
+)
+knit_hooks$set(crop = hook_pdfcrop)
 opts_chunk$set(
-	fig.align = 'center', dev = 'pdf', fig.width = 6, fig.height = 6, dev.args = list(pointsize = 8), 
-	tidy = TRUE, width.cutoff = 60, formatR.arrow = TRUE, cache = TRUE)
+	fig.align = 'center', dev = 'tikz', dev.args = list(pointsize = 11), cache = TRUE)
 opts_knit$set(progress = TRUE, verbose = TRUE)
 options(warn = 1)
 @
+
+
+
 
 <<calcs,cache=TRUE>>=
 # xy = matrix(runif(10000), ncol = 2)
@@ -39,79 +48,74 @@ fit.ica = temp[[which.max(temp2)]]
 fit.nmf = nmf(t(xy[subset,]), rank = 2, nrun = 20, method = "snmf/r")
 @
 
-<<plots,cache=FALSE>>=
+
+
+<<plots,cache=FALSE,fig.width=4,fig.height=4,crop=TRUE>>=
 library(NMF)
 library(RColorBrewer)
+library(ggplot2)
+library(grid)
+
 pal = brewer.pal(3, "Set2")[c(2, 3, 1)]
 pal = sapply(pal, function(col) do.call(rgb, c(as.list(col2rgb(col)/255), alpha = 0.5)))
 syms = c(19, 4, 21)
 col = pal[xyc[,3]]
 pch = syms[xyc[,3]]
 
-plot(0 ~ 0, type = "n", xlab = "Gene 1", ylab = "Gene 2", xlim = c(0, 1), ylim = c(0, 1), xaxt = "n", yaxt = "n", asp = 1)
-# arrows(
-# 	x0 = c(0, 0), 
-# 	y0 = c(0, 0), 
-# 	x1 = c(0.5, 1), 
-# 	y1 = c(1, 0.45), 
-# 	col = "lightgrey", lwd = 5)
-points(xy[subset,1], xy[subset,2], col = "black", pch = pch[subset])
-legend("topright", legend = c("State A", "State B", "Transition State"), pch = syms[c(3, 1, 2)], inset = 0.05)
+# plot(0 ~ 0, type = "n", xlab = "Gene 1", ylab = "Gene 2", xlim = c(0, 1), ylim = c(0, 1), xaxt = "n", yaxt = "n", asp = 1)
+# # arrows(
+# # 	x0 = c(0, 0), 
+# # 	y0 = c(0, 0), 
+# # 	x1 = c(0.5, 1), 
+# # 	y1 = c(1, 0.45), 
+# # 	col = "lightgrey", lwd = 5)
+# points(xy[subset,1], xy[subset,2], col = "black", pch = pch[subset])
+# legend("topright", legend = c("State A", "State B", "Transition State"), pch = syms[c(3, 1, 2)], inset = 0.05)
 
-plot(xy[subset,1], xy[subset,2], col = rgb(0, 0, 0, 0.5), pch = pch[subset], xlab = "Gene 1", ylab = "Gene 2", xlim = c(0, 1), ylim = c(0, 1), xaxt = "n", yaxt = "n", asp = 1)
-temp = fit.pca$rotation
-temp = t(t(temp) / sqrt(colSums(temp^2)) / 2)
-arrows(
-	x0 = mean(xy[,1]), 
-	y0 = mean(xy[,2]), 
-	x1 = temp[1,] + mean(xy[,1]), 
-	y1 = temp[2,] + mean(xy[,2]), 
-	col = "black", lwd = 5)
+# for (spec in list(list(fit.pca$rotation, colMeans(xy)), list(fit.ica$A, colMeans(xy)), list(basis(fit.nmf), c(0, 0))))
+# {
+# 	plot(xy[subset,1], xy[subset,2], col = rgb(0, 0, 0, 0.5), pch = pch[subset], xlab = "", ylab = "", xlim = c(0, 1), ylim = c(0, 1), xaxt = "n", yaxt = "n", asp = 1)
+# 	temp = spec[[1]]
+# 	temp = t(t(temp) / sqrt(colSums(temp^2)) / 2)
+# 	arrows(
+# 		x0 = spec[[2]][1], 
+# 		y0 = spec[[2]][2], 
+# 		x1 = temp[1,] + spec[[2]][1], 
+# 		y1 = temp[2,] + spec[[2]][2], 
+# 		col = "black", lwd = 5)
+# }
 
-plot(xy[subset,1], xy[subset,2], col = rgb(0, 0, 0, 0.5), pch = pch[subset], xlab = "Gene 1", ylab = "Gene 2", xlim = c(0, 1), ylim = c(0, 1), xaxt = "n", yaxt = "n", asp = 1)
-temp = fit.ica$A
-temp = t(t(temp) / sqrt(colSums(temp^2)) / 2)
-arrows(
-	x0 = mean(xy[,1]), 
-	y0 = mean(xy[,2]), 
-	x1 = temp[1,] + mean(xy[,1]), 
-	y1 = temp[2,] + mean(xy[,2]), 
-	col = "black", lwd = 5)
+ggplot(data.frame(x = xyc[,1], y = xyc[,2], State = as.factor(c("B", "Transition", "A")[xyc[,3]]))[subset,], aes(x, y, pch = State)) + 
+	geom_point() + 
+	coord_fixed(xlim = c(0, 1), ylim = c(0, 1), ratio = 1) +
+	theme_bw() + 
+	xlab("Gene 1") + ylab("Gene 2") + 
+	theme(axis.ticks = element_blank(), axis.text.x = element_blank(), axis.text.y = element_blank()) + 
+	scale_shape_manual(values = c(21, 19, 4))
+@
 
-plot(xy[subset,1], xy[subset,2], col = rgb(0, 0, 0, 0.5), pch = pch[subset], xlab = "Gene 1", ylab = "Gene 2", xlim = c(0, 1), ylim = c(0, 1), xaxt = "n", yaxt = "n", asp = 1)
-temp = basis(fit.nmf)
-temp = t(t(temp) / sqrt(colSums(temp^2)) / 2)
-arrows(
-	x0 = 0, 
-	y0 = 0, 
-	x1 = temp[1,], 
-	y1 = temp[2,], 
-	col = "black", lwd = 5)
 
-plot(xy[subset,1], xy[subset,2], col = "black", pch = pch[subset], xlab = "Gene 1", ylab = "Gene 2", xlim = c(0, 1), ylim = c(0, 1), asp = 1)
-#legend("topright", legend = c("State A", "State B", "Transition State"), pch = syms[c(3, 1, 2)], inset = 0.05)
-legend("topright", legend = c("PCA", "ICA", "NMF"), lty = "solid", lwd = 5, col = pal, inset = 0.05)
-arrows(
-	x0 = rep(mean(xy[,1], 2)), 
-	y0 = rep(mean(xy[,2], 2)), 
-	x1 = fit.pca$rotation[1,] + mean(xy[,1]), 
-	y1 = fit.pca$rotation[2,] + mean(xy[,2]), 
-	col = pal[1], lwd = 5)
-arrows(
-	x0 = rep(mean(xy[,1], 2)), 
-	y0 = rep(mean(xy[,2], 2)), 
-	x1 = fit.ica$A[1,] + mean(xy[,1]), 
-	y1 = fit.ica$A[2,] + mean(xy[,2]), 
-	col = pal[2], lwd = 5)
-arrows(
-	x0 = c(0, 0), 
-	y0 = c(0, 0), 
-	x1 = basis(fit.nmf)[1,], 
-	y1 = basis(fit.nmf)[2,], 
-	col = pal[3], lwd = 5)
-plot(fit.pca$x[subset,], pch = pch[subset], xlab = "PC1", ylab = "PC2", main = "PCA Projection", asp = 1)
-plot(fit.ica$S[subset,], pch = pch[subset], xlab = "C1", ylab = "C2", main = "ICA Projection", asp = 1)
-plot(t(coef(fit.nmf)), pch = pch[subset], xlab = "F1", ylab = "F2", main = "NMF Projection", asp = 1)
+<<smallplots,cache=FALSE,fig.width=4,fig.height=4,crop=TRUE>>=
+baseplot = ggplot(data.frame(x = xyc[,1], y = xyc[,2], State = as.factor(c("B", "Transition", "A")[xyc[,3]]))[subset,], aes(x, y, pch = State)) + 
+	geom_point(col = "grey") + 
+	coord_fixed(xlim = c(0, 1), ylim = c(0, 1), ratio = 1) +
+	theme_bw() + 
+	theme(axis.ticks = element_blank(), axis.text.x = element_blank(), axis.text.y = element_blank(), axis.title.x = element_blank(), axis.title.y = element_blank()) + 
+	scale_shape_manual(values = c(21, 19, 4)) +
+	theme(legend.position="none")
+
+
+for (spec in list(list(fit.pca$rotation, colMeans(xy)), list(fit.ica$A, colMeans(xy)), list(basis(fit.nmf), c(0, 0))))
+{
+	temp = spec[[1]]
+	temp = t(t(temp) / sqrt(colSums(temp^2)) / 2)
+	thisplot = baseplot + 
+		geom_segment(x = spec[[2]][1], xend = temp[1,1] + spec[[2]][1], y = spec[[2]][2], yend = temp[2,1] + spec[[2]][2], 
+			arrow = arrow(length = unit(0.5, "cm")), size = 1.5, colour = "black", alpha = 0.4) + 
+		geom_segment(x = spec[[2]][1], xend = temp[1,2] + spec[[2]][1], y = spec[[2]][2], yend = temp[2,2] + spec[[2]][2], 
+			arrow = arrow(length = unit(0.5, "cm")), size = 1.5, colour = "black", alpha = 0.4)
+	print(thisplot)
+}
 @
 
 \end{document}
