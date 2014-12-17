@@ -1,0 +1,447 @@
+R> 
+R> load("../data/03_gex_cpv.rda")
+R> 
+R> pdf("../results/04_norm_gex.pdf", height = 10, width = 10)
+R> 
+R> library(lumi)
+R> 
+R> qc.detrate = colMeans(detection(probe_raw) < 0.01)
+R> qc.controldat = controlData(probe_raw)
+R> qc.negmed = log2(apply(qc.controldat[qc.controldat[,1] == "negative", c(-1,-2)], 2, median))
+R> qc.hkgmed = log2(apply(qc.controldat[qc.controldat[,1] == "housekeeping", c(-1,-2)], 2, median))
+R> qc.beadnum.q10 = apply(beadNum(probe_raw), 2, quantile, prob = 0.1)
+R> qc.cv = log(se.exprs(probe_raw)) / log(exprs(probe_raw))
+R> qc.det = detection(probe_raw)
+R> qc.detected.cvmed = sapply(1:ncol(probe_raw), function(i) {
++ 	det = qc.det[,i]
++ 	cv = qc.cv[,i]
++ 	median(cv[det < 0.01])
++ })
+R> 
+R> pairs(cbind("Detection rate" = qc.detrate, "Negative signal" = qc.negmed, "HKG signal" = qc.hkgmed, "Median CV of detected" = qc.detected.cvmed), col = sample_data$scanner_group + 1)
+R> 
+R> # Looks mostly OK.  Put a threshold on detection rate of 0.30.
+R> 
+R> gex.qc = probe_raw[,which(qc.detrate >= 0.30)]
+R> sample_data = sample_data[sampleNames(gex.qc),]
+R> 
+R> # Normalize these qc-ed arrays
+R> gex.qc.b = lumiB(gex.qc, method = "bgAdjust.affy")
+Perform bgAdjust.affy background correction ...
+R> gex.qc.bt = lumiT(gex.qc.b, method = "vst")
+Perform vst transformation ...
+2014-11-15 10:20:12 , processing array  1 
+2014-11-15 10:20:12 , processing array  2 
+2014-11-15 10:20:12 , processing array  3 
+2014-11-15 10:20:12 , processing array  4 
+2014-11-15 10:20:12 , processing array  5 
+2014-11-15 10:20:12 , processing array  6 
+2014-11-15 10:20:12 , processing array  7 
+2014-11-15 10:20:12 , processing array  8 
+2014-11-15 10:20:12 , processing array  9 
+2014-11-15 10:20:12 , processing array  10 
+2014-11-15 10:20:12 , processing array  11 
+2014-11-15 10:20:13 , processing array  12 
+2014-11-15 10:20:13 , processing array  13 
+2014-11-15 10:20:13 , processing array  14 
+2014-11-15 10:20:13 , processing array  15 
+2014-11-15 10:20:13 , processing array  16 
+2014-11-15 10:20:13 , processing array  17 
+2014-11-15 10:20:13 , processing array  18 
+2014-11-15 10:20:13 , processing array  19 
+2014-11-15 10:20:13 , processing array  20 
+2014-11-15 10:20:13 , processing array  21 
+2014-11-15 10:20:14 , processing array  22 
+2014-11-15 10:20:14 , processing array  23 
+2014-11-15 10:20:14 , processing array  24 
+2014-11-15 10:20:14 , processing array  25 
+2014-11-15 10:20:14 , processing array  26 
+2014-11-15 10:20:14 , processing array  27 
+2014-11-15 10:20:14 , processing array  28 
+2014-11-15 10:20:14 , processing array  29 
+2014-11-15 10:20:14 , processing array  30 
+2014-11-15 10:20:14 , processing array  31 
+2014-11-15 10:20:14 , processing array  32 
+2014-11-15 10:20:15 , processing array  33 
+2014-11-15 10:20:15 , processing array  34 
+2014-11-15 10:20:15 , processing array  35 
+2014-11-15 10:20:15 , processing array  36 
+2014-11-15 10:20:15 , processing array  37 
+2014-11-15 10:20:15 , processing array  38 
+2014-11-15 10:20:15 , processing array  39 
+2014-11-15 10:20:15 , processing array  40 
+2014-11-15 10:20:15 , processing array  41 
+2014-11-15 10:20:15 , processing array  42 
+2014-11-15 10:20:16 , processing array  43 
+2014-11-15 10:20:16 , processing array  44 
+2014-11-15 10:20:16 , processing array  45 
+2014-11-15 10:20:16 , processing array  46 
+2014-11-15 10:20:16 , processing array  47 
+2014-11-15 10:20:16 , processing array  48 
+2014-11-15 10:20:16 , processing array  49 
+2014-11-15 10:20:16 , processing array  50 
+2014-11-15 10:20:16 , processing array  51 
+2014-11-15 10:20:16 , processing array  52 
+2014-11-15 10:20:17 , processing array  53 
+2014-11-15 10:20:17 , processing array  54 
+2014-11-15 10:20:17 , processing array  55 
+2014-11-15 10:20:17 , processing array  56 
+2014-11-15 10:20:17 , processing array  57 
+2014-11-15 10:20:17 , processing array  58 
+2014-11-15 10:20:17 , processing array  59 
+2014-11-15 10:20:17 , processing array  60 
+2014-11-15 10:20:17 , processing array  61 
+2014-11-15 10:20:18 , processing array  62 
+2014-11-15 10:20:18 , processing array  63 
+2014-11-15 10:20:18 , processing array  64 
+2014-11-15 10:20:18 , processing array  65 
+2014-11-15 10:20:18 , processing array  66 
+2014-11-15 10:20:18 , processing array  67 
+2014-11-15 10:20:18 , processing array  68 
+2014-11-15 10:20:18 , processing array  69 
+2014-11-15 10:20:18 , processing array  70 
+2014-11-15 10:20:19 , processing array  71 
+2014-11-15 10:20:19 , processing array  72 
+2014-11-15 10:20:19 , processing array  73 
+2014-11-15 10:20:19 , processing array  74 
+2014-11-15 10:20:19 , processing array  75 
+2014-11-15 10:20:20 , processing array  76 
+2014-11-15 10:20:20 , processing array  77 
+2014-11-15 10:20:20 , processing array  78 
+2014-11-15 10:20:20 , processing array  79 
+2014-11-15 10:20:20 , processing array  80 
+2014-11-15 10:20:20 , processing array  81 
+2014-11-15 10:20:20 , processing array  82 
+2014-11-15 10:20:20 , processing array  83 
+2014-11-15 10:20:21 , processing array  84 
+2014-11-15 10:20:21 , processing array  85 
+2014-11-15 10:20:21 , processing array  86 
+2014-11-15 10:20:21 , processing array  87 
+2014-11-15 10:20:21 , processing array  88 
+2014-11-15 10:20:21 , processing array  89 
+2014-11-15 10:20:21 , processing array  90 
+2014-11-15 10:20:21 , processing array  91 
+2014-11-15 10:20:22 , processing array  92 
+2014-11-15 10:20:22 , processing array  93 
+2014-11-15 10:20:22 , processing array  94 
+2014-11-15 10:20:22 , processing array  95 
+2014-11-15 10:20:22 , processing array  96 
+2014-11-15 10:20:22 , processing array  97 
+2014-11-15 10:20:22 , processing array  98 
+2014-11-15 10:20:22 , processing array  99 
+2014-11-15 10:20:23 , processing array  100 
+2014-11-15 10:20:23 , processing array  101 
+2014-11-15 10:20:23 , processing array  102 
+2014-11-15 10:20:23 , processing array  103 
+2014-11-15 10:20:23 , processing array  104 
+2014-11-15 10:20:23 , processing array  105 
+2014-11-15 10:20:23 , processing array  106 
+2014-11-15 10:20:23 , processing array  107 
+2014-11-15 10:20:24 , processing array  108 
+2014-11-15 10:20:24 , processing array  109 
+2014-11-15 10:20:24 , processing array  110 
+2014-11-15 10:20:24 , processing array  111 
+2014-11-15 10:20:24 , processing array  112 
+2014-11-15 10:20:24 , processing array  113 
+2014-11-15 10:20:24 , processing array  114 
+2014-11-15 10:20:25 , processing array  115 
+2014-11-15 10:20:25 , processing array  116 
+2014-11-15 10:20:25 , processing array  117 
+2014-11-15 10:20:25 , processing array  118 
+2014-11-15 10:20:25 , processing array  119 
+2014-11-15 10:20:25 , processing array  120 
+2014-11-15 10:20:25 , processing array  121 
+2014-11-15 10:20:26 , processing array  122 
+2014-11-15 10:20:26 , processing array  123 
+2014-11-15 10:20:26 , processing array  124 
+2014-11-15 10:20:26 , processing array  125 
+2014-11-15 10:20:26 , processing array  126 
+2014-11-15 10:20:26 , processing array  127 
+2014-11-15 10:20:26 , processing array  128 
+2014-11-15 10:20:27 , processing array  129 
+2014-11-15 10:20:27 , processing array  130 
+2014-11-15 10:20:27 , processing array  131 
+2014-11-15 10:20:27 , processing array  132 
+2014-11-15 10:20:27 , processing array  133 
+2014-11-15 10:20:27 , processing array  134 
+2014-11-15 10:20:27 , processing array  135 
+2014-11-15 10:20:28 , processing array  136 
+2014-11-15 10:20:28 , processing array  137 
+2014-11-15 10:20:28 , processing array  138 
+2014-11-15 10:20:28 , processing array  139 
+2014-11-15 10:20:28 , processing array  140 
+2014-11-15 10:20:28 , processing array  141 
+2014-11-15 10:20:29 , processing array  142 
+2014-11-15 10:20:29 , processing array  143 
+2014-11-15 10:20:29 , processing array  144 
+2014-11-15 10:20:29 , processing array  145 
+2014-11-15 10:20:29 , processing array  146 
+2014-11-15 10:20:29 , processing array  147 
+2014-11-15 10:20:30 , processing array  148 
+2014-11-15 10:20:30 , processing array  149 
+2014-11-15 10:20:30 , processing array  150 
+2014-11-15 10:20:30 , processing array  151 
+2014-11-15 10:20:30 , processing array  152 
+2014-11-15 10:20:30 , processing array  153 
+2014-11-15 10:20:31 , processing array  154 
+2014-11-15 10:20:31 , processing array  155 
+2014-11-15 10:20:31 , processing array  156 
+2014-11-15 10:20:31 , processing array  157 
+2014-11-15 10:20:31 , processing array  158 
+2014-11-15 10:20:31 , processing array  159 
+2014-11-15 10:20:32 , processing array  160 
+2014-11-15 10:20:32 , processing array  161 
+2014-11-15 10:20:32 , processing array  162 
+2014-11-15 10:20:32 , processing array  163 
+2014-11-15 10:20:32 , processing array  164 
+2014-11-15 10:20:32 , processing array  165 
+2014-11-15 10:20:33 , processing array  166 
+2014-11-15 10:20:33 , processing array  167 
+2014-11-15 10:20:33 , processing array  168 
+2014-11-15 10:20:33 , processing array  169 
+2014-11-15 10:20:33 , processing array  170 
+2014-11-15 10:20:33 , processing array  171 
+2014-11-15 10:20:34 , processing array  172 
+2014-11-15 10:20:34 , processing array  173 
+2014-11-15 10:20:34 , processing array  174 
+2014-11-15 10:20:35 , processing array  175 
+2014-11-15 10:20:35 , processing array  176 
+2014-11-15 10:20:35 , processing array  177 
+2014-11-15 10:20:35 , processing array  178 
+2014-11-15 10:20:35 , processing array  179 
+2014-11-15 10:20:36 , processing array  180 
+2014-11-15 10:20:36 , processing array  181 
+2014-11-15 10:20:36 , processing array  182 
+2014-11-15 10:20:36 , processing array  183 
+2014-11-15 10:20:36 , processing array  184 
+2014-11-15 10:20:37 , processing array  185 
+2014-11-15 10:20:37 , processing array  186 
+2014-11-15 10:20:37 , processing array  187 
+2014-11-15 10:20:37 , processing array  188 
+2014-11-15 10:20:37 , processing array  189 
+2014-11-15 10:20:38 , processing array  190 
+2014-11-15 10:20:38 , processing array  191 
+2014-11-15 10:20:38 , processing array  192 
+2014-11-15 10:20:38 , processing array  193 
+2014-11-15 10:20:38 , processing array  194 
+2014-11-15 10:20:38 , processing array  195 
+2014-11-15 10:20:39 , processing array  196 
+2014-11-15 10:20:39 , processing array  197 
+2014-11-15 10:20:39 , processing array  198 
+2014-11-15 10:20:39 , processing array  199 
+2014-11-15 10:20:39 , processing array  200 
+2014-11-15 10:20:40 , processing array  201 
+2014-11-15 10:20:40 , processing array  202 
+2014-11-15 10:20:40 , processing array  203 
+2014-11-15 10:20:40 , processing array  204 
+2014-11-15 10:20:40 , processing array  205 
+2014-11-15 10:20:41 , processing array  206 
+2014-11-15 10:20:41 , processing array  207 
+2014-11-15 10:20:41 , processing array  208 
+2014-11-15 10:20:41 , processing array  209 
+2014-11-15 10:20:41 , processing array  210 
+2014-11-15 10:20:42 , processing array  211 
+2014-11-15 10:20:42 , processing array  212 
+2014-11-15 10:20:42 , processing array  213 
+2014-11-15 10:20:42 , processing array  214 
+2014-11-15 10:20:42 , processing array  215 
+2014-11-15 10:20:43 , processing array  216 
+2014-11-15 10:20:43 , processing array  217 
+2014-11-15 10:20:43 , processing array  218 
+2014-11-15 10:20:43 , processing array  219 
+2014-11-15 10:20:44 , processing array  220 
+2014-11-15 10:20:44 , processing array  221 
+2014-11-15 10:20:44 , processing array  222 
+2014-11-15 10:20:44 , processing array  223 
+2014-11-15 10:20:44 , processing array  224 
+2014-11-15 10:20:45 , processing array  225 
+2014-11-15 10:20:45 , processing array  226 
+2014-11-15 10:20:45 , processing array  227 
+2014-11-15 10:20:46 , processing array  228 
+2014-11-15 10:20:46 , processing array  229 
+2014-11-15 10:20:46 , processing array  230 
+2014-11-15 10:20:46 , processing array  231 
+2014-11-15 10:20:47 , processing array  232 
+2014-11-15 10:20:47 , processing array  233 
+2014-11-15 10:20:47 , processing array  234 
+R> gex.qc.btn = lumiN(gex.qc.bt, method = "quantile")
+Perform quantile normalization ...
+R> 
+R> # Produce some basic diagnostic plots.
+R> qc.raw.idr = apply(log2(exprs(gex.qc)), 1, quantile, prob = c(0.1, 0.9))
+R> qc.raw.idr = qc.raw.idr[2,] - qc.raw.idr[1,]
+R> qc.norm.idr = apply(exprs(gex.qc.btn), 1, quantile, prob = c(0.1, 0.9))
+R> qc.norm.idr = qc.norm.idr[2,] - qc.norm.idr[1,]
+R> qc.raw.med = apply(log2(exprs(gex.qc)), 1, median)
+R> qc.norm.med = apply(log2(exprs(gex.qc.btn)), 1, median)
+R> qc.detrate2 = rowMeans(detection(gex.qc) < 0.01)
+R> plot(qc.raw.idr ~ qc.raw.med, pch = ".", col = c("lightblue", "black")[I(qc.detrate2 >= 0.1) + 1], main = "Pre-normalization", xlab = "Median expression (log2)", ylab = "Expression IDR (log2)")
+R> legend("topright", legend = c("Detected < 10% of samples", "Detected in >= 10% of samples"), fill = c("lightblue", "black"), inset = 0.05)
+R> plot(qc.norm.idr ~ qc.norm.med, pch = ".", col = c("lightblue", "black")[I(qc.detrate2 >= 0.1) + 1], main = "rma-vst-quantile", xlab = "Median expression (vst)", ylab = "Expression IDR (vst)")
+R> legend("topright", legend = c("Detected < 10% of samples", "Detected in >= 10% of samples"), fill = c("lightblue", "black"), inset = 0.05)
+R> 
+R> # We have duplicated samples.  Look at these to get an idea of reproducibility
+R> # and technical variation.
+R> temp.array_counts = table(sample_data$patient_id)
+R> temp.array_counts = temp.array_counts[temp.array_counts > 1]
+R> sample_data[sample_data$patient_id %in% names(temp.array_counts),]
+             patient_id      sample_code purity_qpure exp_array_id exp_slide_id
+5445316014_A  APGI_1959 7:Primary tumour         <NA> 5445316014_A   5445316014
+5491021082_B  APGI_1959 7:Primary tumour         <NA> 5491021082_B   5491021082
+5624980044_B  APGI_2222 7:Primary tumour         <NA> 5624980044_B   5624980044
+5624980044_C  APGI_2222 7:Primary tumour         <NA> 5624980044_C   5624980044
+7976997017_C  APGI_2340 7:Primary tumour       0.9675 7976997017_C   7976997017
+8986311029_L  APGI_2315 7:Primary tumour       0.1477 8986311029_L   8986311029
+9020374003_H  APGI_2315 7:Primary tumour       0.1477 9020374003_H   9020374003
+9020374009_B  APGI_2340 7:Primary tumour       0.9675 9020374009_B   9020374009
+                                                                        path scanner_group
+5445316014_A /share/Temp/marpin/APGILumiGex/5445316014/5445316014_A_Grn.idat          TRUE
+5491021082_B /share/Temp/marpin/APGILumiGex/5491021082/5491021082_B_Grn.idat          TRUE
+5624980044_B /share/Temp/marpin/APGILumiGex/5624980044/5624980044_B_Grn.idat          TRUE
+5624980044_C /share/Temp/marpin/APGILumiGex/5624980044/5624980044_C_Grn.idat          TRUE
+7976997017_C /share/Temp/marpin/APGILumiGex/7976997017/7976997017_C_Grn.idat         FALSE
+8986311029_L /share/Temp/marpin/APGILumiGex/8986311029/8986311029_L_Grn.idat         FALSE
+9020374003_H /share/Temp/marpin/APGILumiGex/9020374003/9020374003_H_Grn.idat         FALSE
+9020374009_B /share/Temp/marpin/APGILumiGex/9020374009/9020374009_B_Grn.idat         FALSE
+R> 
+R> #              patient_id scanner_group
+R> # 5445316014_A  APGI_1959  TRUE
+R> # 5491021082_B  APGI_1959  TRUE
+R> # 5624980044_B  APGI_2222  TRUE
+R> # 5624980044_C  APGI_2222  TRUE
+R> # 8986311029_L  APGI_2315 FALSE
+R> # 9020374003_H  APGI_2315 FALSE
+R> # 7976997017_C  APGI_2340 FALSE
+R> # 9020374009_B  APGI_2340 FALSE
+R> 
+R> # APGI_2222 is a good test for intra-slide variation.  The others
+R> # will display inter- and intra-slide variability.
+R> plot(log2(exprs(gex.qc)[,c("5624980044_B", "5624980044_C")]), pch = 16, cex = 0.5, col = rgb(I(qc.detrate2 < 0.1)*0.7, I(qc.detrate2 < 0.1)*0.7, qc.detrate2 < 0.1, 0.1), main = "APGI_2222 (H) Pre-normalization")
+R> abline(0, 1, col = rgb(1, 0, 0, 0.7), lwd = 2)
+R> plot(log2(exprs(gex.qc.btn)[,c("5624980044_B", "5624980044_C")]), pch = 16, cex = 0.5, col = rgb(I(qc.detrate2 < 0.1)*0.7, I(qc.detrate2 < 0.1)*0.7, qc.detrate2 < 0.1, 0.1), main = "APGI_2222 (H) rma-vst-quantile")
+R> abline(0, 1, col = rgb(1, 0, 0, 0.7), lwd = 2)
+R> 
+R> plot(log2(exprs(gex.qc)[,c("5445316014_A", "5491021082_B")]), pch = 16, cex = 0.5, col = rgb(I(qc.detrate2 < 0.1)*0.7, I(qc.detrate2 < 0.1)*0.7, qc.detrate2 < 0.1, 0.1), main = "APGI_1959 (H) Pre-normalization")
+R> abline(0, 1, col = rgb(1, 0, 0, 0.7), lwd = 2)
+R> plot(log2(exprs(gex.qc.btn)[,c("5445316014_A", "5491021082_B")]), pch = 16, cex = 0.5, col = rgb(I(qc.detrate2 < 0.1)*0.7, I(qc.detrate2 < 0.1)*0.7, qc.detrate2 < 0.1, 0.1), main = "APGI_1959 (H) rma-vst-quantile")
+R> abline(0, 1, col = rgb(1, 0, 0, 0.7), lwd = 2)
+R> 
+R> plot(log2(exprs(gex.qc)[,c("8986311029_L", "9020374003_H")]), pch = 16, cex = 0.5, col = rgb(I(qc.detrate2 < 0.1)*0.7, I(qc.detrate2 < 0.1)*0.7, qc.detrate2 < 0.1, 0.1), main = "APGI_2315 (L) Pre-normalization")
+R> abline(0, 1, col = rgb(1, 0, 0, 0.7), lwd = 2)
+R> plot(log2(exprs(gex.qc.btn)[,c("8986311029_L", "9020374003_H")]), pch = 16, cex = 0.5, col = rgb(I(qc.detrate2 < 0.1)*0.7, I(qc.detrate2 < 0.1)*0.7, qc.detrate2 < 0.1, 0.1), main = "APGI_2315 (L) rma-vst-quantile")
+R> abline(0, 1, col = rgb(1, 0, 0, 0.7), lwd = 2)
+R> 
+R> plot(log2(exprs(gex.qc)[,c("7976997017_C", "9020374009_B")]), pch = 16, cex = 0.5, col = rgb(I(qc.detrate2 < 0.1)*0.7, I(qc.detrate2 < 0.1)*0.7, qc.detrate2 < 0.1, 0.1), main = "APGI_2340 (L) Pre-normalization")
+R> abline(0, 1, col = rgb(1, 0, 0, 0.7), lwd = 2)
+R> plot(log2(exprs(gex.qc.btn)[,c("7976997017_C", "9020374009_B")]), pch = 16, cex = 0.5, col = rgb(I(qc.detrate2 < 0.1)*0.7, I(qc.detrate2 < 0.1)*0.7, qc.detrate2 < 0.1, 0.1), main = "APGI_2340 (L) rma-vst-quantile")
+R> abline(0, 1, col = rgb(1, 0, 0, 0.7), lwd = 2)
+R> 
+R> 
+R> # Try and use these plots to get an idea of noise levels.
+R> noisePlot = function(xy, span, ...)
++ {
++ 	muhat = rowMeans(xy)
++ 	sdhat = apply(xy, 1, sd)
++ 	plot(sdhat ~ muhat, xlab = "Mean expression value", ylab = "Noise SD", ...)
++ 	sdfit = loess(sdhat ~ muhat, family = "symmetric", span = span)
++ 	plot.x = seq(min(xy), max(xy), length.out = 100)
++ 	lines(predict(sdfit, newdata = plot.x) ~ plot.x, lty = "solid", lwd = 2, col = "red")
++ 	legend("topright", legend = "LOESS fit", lty = "solid", lwd = 2, col = "red", inset = 0.05)
++ }
+R> 
+R> noisePlot(log2(exprs(gex.qc)[,c("5624980044_B", "5624980044_C")]), span = 0.1, pch = 16, cex = 0.5, ylim = c(0, 1.5), main = "APGI_2222 (H) Pre-normalization",  col = rgb(I(qc.detrate2 < 0.1)*0.7, I(qc.detrate2 < 0.1)*0.7, qc.detrate2 < 0.1, 0.1))
+R> noisePlot(log2(exprs(gex.qc.btn)[,c("5624980044_B", "5624980044_C")]), span = 0.1, pch = 16, cex = 0.5, ylim = c(0, 0.2), main = "APGI_2222 (H) rma-vst-quantile",  col = rgb(I(qc.detrate2 < 0.1)*0.7, I(qc.detrate2 < 0.1)*0.7, qc.detrate2 < 0.1, 0.1))
+R> 
+R> noisePlot(log2(exprs(gex.qc)[,c("5445316014_A", "5491021082_B")]), span = 0.1, pch = 16, cex = 0.5, ylim = c(0, 1.5), main = "APGI_1959 (H) Pre-normalization", col = rgb(I(qc.detrate2 < 0.1)*0.7, I(qc.detrate2 < 0.1)*0.7, qc.detrate2 < 0.1, 0.1))
+R> noisePlot(log2(exprs(gex.qc.btn)[,c("5445316014_A", "5491021082_B")]), span = 0.1, pch = 16, cex = 0.5, ylim = c(0, 0.2), main = "APGI_1959 (H) rma-vst-quantile", col = rgb(I(qc.detrate2 < 0.1)*0.7, I(qc.detrate2 < 0.1)*0.7, qc.detrate2 < 0.1, 0.1))
+R> 
+R> noisePlot(log2(exprs(gex.qc)[,c("8986311029_L", "9020374003_H")]), span = 0.1, pch = 16, cex = 0.5, ylim = c(0, 1.5), main = "APGI_2315 (L) Pre-normalization", col = rgb(I(qc.detrate2 < 0.1)*0.7, I(qc.detrate2 < 0.1)*0.7, qc.detrate2 < 0.1, 0.1))
+R> noisePlot(log2(exprs(gex.qc.btn)[,c("8986311029_L", "9020374003_H")]), span = 0.1, pch = 16, cex = 0.5, ylim = c(0, 0.2), main = "APGI_2315 (L) rma-vst-quantile", col = rgb(I(qc.detrate2 < 0.1)*0.7, I(qc.detrate2 < 0.1)*0.7, qc.detrate2 < 0.1, 0.1))
+R> 
+R> noisePlot(log2(exprs(gex.qc)[,c("7976997017_C", "9020374009_B")]), span = 0.1, pch = 16, cex = 0.5, ylim = c(0, 1.5), main = "APGI_2340 (L) Pre-normalization", col = rgb(I(qc.detrate2 < 0.1)*0.7, I(qc.detrate2 < 0.1)*0.7, qc.detrate2 < 0.1, 0.1))
+R> noisePlot(log2(exprs(gex.qc.btn)[,c("7976997017_C", "9020374009_B")]), span = 0.1, pch = 16, cex = 0.5, ylim = c(0, 0.2), main = "APGI_2340 (L) rma-vst-quantile", col = rgb(I(qc.detrate2 < 0.1)*0.7, I(qc.detrate2 < 0.1)*0.7, qc.detrate2 < 0.1, 0.1))
+R> 
+R> # Looks like the norm is doing its job.  We can infer something useful about
+R> # expected minimum SD -- it takes on a lowest inter-array value of around 0.015,
+R> # so going by the rule-of-thumb of 2*sd for around 5% false positives, set
+R> # min SD to 0.03.
+R> 
+R> library("illuminaHumanv4.db")
+R> 
+R> sel.probe.unsup.det = qc.detrate2 >= 0.1
+R> sel.probe.unsup.sdabovenoise = apply(exprs(gex.qc.btn), 1, sd) >= 0.03
+R> sel.probe.unsup.quality = grepl("Perfect|Good", unlist(mget(featureNames(gex.qc.btn), illuminaHumanv4PROBEQUALITY)))
+R> sel.probe.unsup = sel.probe.unsup.det & sel.probe.unsup.sdabovenoise & sel.probe.unsup.quality
+R> 
+R> features = data.frame(
++ 	probe_id = featureNames(gex.qc.btn),
++ 	loc = unlist(mget(featureNames(gex.qc.btn), illuminaHumanv4GENOMICLOCATION)),
++ 	entrezid = unlist(mget(featureNames(gex.qc.btn), illuminaHumanv4ENTREZID)),
++ 	symbol = unlist(mget(featureNames(gex.qc.btn), illuminaHumanv4SYMBOL)),
++ 	name = unlist(mget(featureNames(gex.qc.btn), illuminaHumanv4GENENAME)),
++ 	quality = unlist(mget(featureNames(gex.qc.btn), illuminaHumanv4PROBEQUALITY))
++ 	)
+R> rownames(features) = features$probe_id
+R> 
+R> library(VennDiagram)
+R> draw.triple.venn(area1 = sum(sel.probe.unsup.det), area2 = sum(sel.probe.unsup.sdabovenoise), area3 = sum(sel.probe.unsup.quality),
++ 	n12 = sum(sel.probe.unsup.det & sel.probe.unsup.sdabovenoise), n23 = sum(sel.probe.unsup.sdabovenoise & sel.probe.unsup.quality), n13 = sum(sel.probe.unsup.det & sel.probe.unsup.quality),
++ 	n123 = sum(sel.probe.unsup.det & sel.probe.unsup.sdabovenoise & sel.probe.unsup.quality),
++ 	category = c("Detected in >= 10%", "SD >= 2*noise", "Quality perfect or good"), overrideTriple = TRUE)
+(polygon[GRID.polygon.11], polygon[GRID.polygon.12], polygon[GRID.polygon.13], polygon[GRID.polygon.14], polygon[GRID.polygon.15], polygon[GRID.polygon.16], text[GRID.text.17], text[GRID.text.18], text[GRID.text.19], text[GRID.text.20], text[GRID.text.21], text[GRID.text.22], text[GRID.text.23], text[GRID.text.24]) 
+R> library(venneuler)
+R> plot(venneuler(cbind(sel.probe.unsup.det, sel.probe.unsup.sdabovenoise, sel.probe.unsup.quality)))
+R> 
+R> temp = ls()
+R> rm(list = temp[grepl("^qc\\.", temp)])
+R> rm(list = temp[grepl("^temp\\.", temp)])
+R> rm(probe_raw, temp)
+R> rm(noisePlot)
+R> 
+R> gex = exprs(gex.qc.btn)
+R> rm(gex.qc.b, gex.qc.bt, gex.qc, gex.qc.btn)
+R> 
+R> save.image("../data/04_gexnormed_cpv.rda")
+R> 
+R> dev.off()
+null device 
+          1 
+R> 
+R> sessionInfo()
+R version 3.1.1 (2014-07-10)
+Platform: x86_64-unknown-linux-gnu (64-bit)
+
+locale:
+ [1] LC_CTYPE=en_US.iso885915          LC_NUMERIC=C                      LC_TIME=en_US.iso885915          
+ [4] LC_COLLATE=en_US.iso885915        LC_MONETARY=en_US.iso885915       LC_MESSAGES=en_US.iso885915      
+ [7] LC_PAPER=en_US.iso885915          LC_NAME=en_US.iso885915           LC_ADDRESS=en_US.iso885915       
+[10] LC_TELEPHONE=en_US.iso885915      LC_MEASUREMENT=en_US.iso885915    LC_IDENTIFICATION=en_US.iso885915
+
+attached base packages:
+ [1] grid      stats4    parallel  methods   stats     graphics  grDevices utils     datasets  base     
+
+other attached packages:
+ [1] venneuler_1.1-0           rJava_0.9-6               VennDiagram_1.6.9         illuminaHumanv4.db_1.24.0
+ [5] org.Hs.eg.db_3.0.0        RSQLite_1.0.0             DBI_0.3.1                 AnnotationDbi_1.28.1     
+ [9] GenomeInfoDb_1.2.2        IRanges_2.0.0             S4Vectors_0.4.0           lumi_2.18.0              
+[13] Biobase_2.26.0            BiocGenerics_0.12.0      
+
+loaded via a namespace (and not attached):
+ [1] affy_1.44.0             affyio_1.34.0           annotate_1.44.0         base64_1.1             
+ [5] base64enc_0.1-2         BatchJobs_1.5           BBmisc_1.8              beanplot_1.2           
+ [9] BiocInstaller_1.16.1    BiocParallel_1.0.0      biomaRt_2.22.0          Biostrings_2.34.0      
+[13] bitops_1.0-6            brew_1.0-6              bumphunter_1.6.0        checkmate_1.5.0        
+[17] codetools_0.2-9         colorspace_1.2-4        digest_0.6.4            doRNG_1.6              
+[21] fail_1.2                foreach_1.4.2           genefilter_1.48.1       GenomicAlignments_1.2.1
+[25] GenomicFeatures_1.18.2  GenomicRanges_1.18.1    illuminaio_0.8.0        iterators_1.0.7        
+[29] KernSmooth_2.23-13      lattice_0.20-29         limma_3.22.1            locfit_1.5-9.1         
+[33] MASS_7.3-35             Matrix_1.1-4            matrixStats_0.10.3      mclust_4.4             
+[37] methylumi_2.12.0        mgcv_1.8-3              minfi_1.12.0            multtest_2.22.0        
+[41] nleqslv_2.5             nlme_3.1-118            nor1mix_1.2-0           pkgmaker_0.22          
+[45] plyr_1.8.1              preprocessCore_1.28.0   quadprog_1.5-5          R.methodsS3_1.6.1      
+[49] RColorBrewer_1.0-5      Rcpp_0.11.3             RCurl_1.95-4.3          registry_0.2           
+[53] reshape_0.8.5           rngtools_1.2.4          Rsamtools_1.18.2        rtracklayer_1.26.2     
+[57] sendmailR_1.2-1         siggenes_1.40.0         splines_3.1.1           stringr_0.6.2          
+[61] survival_2.37-7         tools_3.1.1             XML_3.98-1.1            xtable_1.7-4           
+[65] XVector_0.6.0           zlibbioc_1.12.0        
+R> 

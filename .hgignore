@@ -20,9 +20,11 @@ syntax:glob
 *.lot
 *.toc
 
-data/*
 analysis/biosurv/results/04_norm_gex.pdf
 
+*.gmt
+*.rda
+data/**.xz
 cache/*
 reports/*/*.rds
 reports/*/*.rda

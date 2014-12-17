@@ -30,13 +30,13 @@ A number of techniques from the field of matrix factorization have been applied 
 \begin{figure}
   \centering
   \subbottom[\acrshort{PCA}]{
-    \includegraphics[width=.3\textwidth]{analysis/biosurv/reports/PCA_ICA_NMF_comparison/figure/plots-2}
+    \includegraphics[width=.3\textwidth]{analysis/biosurv/reports/PCA_ICA_NMF_comparison/figure/smallplots-1}
     \label{fig:sigs-example-matrixfactor-methods-pca}}
   \subbottom[\acrshort{ICA}]{
-    \includegraphics[width=.3\textwidth]{analysis/biosurv/reports/PCA_ICA_NMF_comparison/figure/plots-3}
+    \includegraphics[width=.3\textwidth]{analysis/biosurv/reports/PCA_ICA_NMF_comparison/figure/smallplots-2}
     \label{fig:sigs-example-matrixfactor-methods-ica}}
   \subbottom[\acrshort{NMF}]{
-    \includegraphics[width=.3\textwidth]{analysis/biosurv/reports/PCA_ICA_NMF_comparison/figure/plots-4}
+    \includegraphics[width=.3\textwidth]{analysis/biosurv/reports/PCA_ICA_NMF_comparison/figure/smallplots-3}
     \label{fig:sigs-example-matrixfactor-methods-nmf}}
   \caption[Comparison of \acrshort{GEX} deconvolution techniques on synthetic data]{\gls{NMF} produces a more accurate \gls{GEX} decomposition than either \gls{PCA} or \gls{ICA}.  Metagenes found by each method are shown as arrows.  \gls{PCA} (panel a) produces metagenes that don't match the expression pattern seen in any sample; these metagenes do not have a ready biological interpretation.  \gls{ICA} (panel b) accurately identifies one metagene, but the inappropriateness of the non-Gaussianity criterion for these data leads to an incorrect estimate of the other; although this solution is better than that of \gls{PCA}, not all metagenes align well with biology.  \gls{NMF} (panel c) provides the best deconvolution; the metagenes identified closely match the expression patterns observed, and reflect the true structure of co-expression within the samples.}\label{fig:sigs-example-matrixfactor-methods}
 \end{figure}
@@ -65,7 +65,7 @@ General characteristics of both the full \gls{APGI} cohort, and the 110-patient 
 \begin{table}[h]
 \centering
 \caption[Characteristics of the \gls{APGI} patient cohorts]{Characteristics of the full \gls{APGI} patient cohort, and the homogenous \gls{PDAC}-only subset used for signature discovery.  Ordinal variables are shown as median, with quartiles in parentheses.  Categorical variables for which percentages do not add up to 100\% indicate the presence of minor unlisted categories.  Abbreviations: AAC - ampullary adenocarcinoma; IPMN - intraductal papillary mucinous neoplasm; PNET - pancreatic neuroendocrine tumour; PR - Puerto Rico}\label{tab:sigs-cohort-characteristics}
-\begin{tabular}{@{}llll@{}}
+\begin{tabular}{@{}llrr@{}}
 \toprule
 Characteristic             &                          & Full \gls{APGI} & Discovery \\ \midrule
 Number of patients         &                          & 228                      & 110                                                    \\
@@ -108,7 +108,7 @@ In order to focus the \gls{GEX} deconvolution method on finding outcome-associat
 Unsupervised filtering to remove lowly-expressed and redundant probes yielded \gls{APGI} cohort gene expression measurements for 13,000 genes, of which 361 were identified to be associated with time from diagnosis to \gls{DSD} by \gls{SIS}-\gls{FAST}, using a \gls{CPSS} wrapper to reduce false positive rate.  50 variable selection runs on permuted data gave a median number of selected genes of 87.5, resulting in an estimated \gls{FDR} for the selection procedure of approximately 25\%.  This relatively high \gls{FDR} was a consequence of the lenient selection parameters used, in an attempt to ensure that even genes for which expression was only weakly prognostic, were included.
 
 \paragraph{Prognostic genes factorized into six metagenes}
-\gls{NMF} was used to reduce the complex expression patterns of 361 survival-associated genes into a small number of metagenes.  \gls{NMF} aims to approximate a non-negative gene $\times$ sample \gls{GEX} matrix $A$ by a product of low-rank non-negative matrices $W$ and $H$, $A \approx W H$.  The gene $\times$ metagene matrix $W$, termed the basis matrix, stores the contribution of each gene's expression to each metagene, whereas the metagene $\times$ sample matrix $H$, termed the coefficient matrix, contains the `expression' of each metagene in each sample.  The \gls{NMF} procedure is highly sensitive to the choice of the rank of $W$ and $H$ (the number of metagenes) -- a wrong rank will lead to metagenes either being incorrectly combined, or split.
+\gls{NMF} was used to reduce the complex expression patterns of 361 survival-associated genes into a small number of metagenes.  \gls{NMF} aims to approximate a non-negative gene $\times$ sample \gls{GEX} matrix $A$ by a product of low-rank non-negative matrices $W$ and $H$, $A \approx W H$.  The gene $\times$ metagene matrix $W$, termed the basis matrix, stores the contribution of each gene's expression to each metagene, whereas the metagene $\times$ sample matrix $H$, termed the coefficient matrix, contains the `expression' of each metagene in each sample.  The \gls{NMF} procedure is highly sensitive to the choice of the rank of $W$ and $H$ (the number of metagenes) -- an incorrect rank will lead to metagenes inappropriately being either combined, or split.
 
 The expression of the 361 survival-associated genes across the 110 patients of the \gls{APGI} \gls{PDAC} cohort was decomposed into metagenes by the \gls{SNMFL} \gls{NMF} algorithm.  The number of metagenes (factorization rank) was automatically estimated to be 6, being the lowest rank for which the improvement in estimation error achieved by adding the next rank, was less than that observed for permuted data (\fref{fig:sigs-nmf-rank}).
 
@@ -285,6 +285,7 @@ At the molecular level, the phenomenon of cancer has long been recognised as a c
   \item The folly of clustering
   \item GSE21501 -- why didn't it validate?
   \item Broader implications of pan-cancer survival signature
+  \item Limitations -- not necessarily complete.  But can I be sure that the major players have been captured?
   \item Relevance to future work.
 \end{itemize}
 
