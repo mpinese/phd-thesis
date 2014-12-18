@@ -316,6 +316,68 @@ glmulti.conv_postop.aicc = glmulti(
 saveRDS(glmulti.conv_postop.aicc, file = "04_conv_postop_aicc.rds")
 }
 
+if (mode == 0 || mode == 10)
+{
+	library(randomForestSRC)
+
+	temp.data = cbind(time = data.y[,1], event = data.y[,2], data.x.molec_preop)
+	# temp.K = 10
+
+	# temp.tasks = expand.grid(mtry = c(1, 2, 3), splitrule = c("logrank", "logrankscore"), nsplit = c(0, 1, 2, 5))
+	# set.seed(1234)
+	# temp.folds = sample(rep(1:temp.K, ceiling(nrow(temp.data) / temp.K))[1:nrow(temp.data)])
+
+	# preds = lapply(1:temp.K, function(fold_i) {
+	# 	message(sprintf("Fold %d", fold_i))
+	# 	train = temp.data[fold_i != temp.folds,]
+	# 	test = temp.data[fold_i == temp.folds,]
+
+	# 	fold_preds = sapply(1:nrow(temp.tasks), function(task_i) {
+	# 		message(sprintf("  Task %d", task_i))
+	# 		fit = rfsrc(
+	# 			Surv(time, event) ~ 
+	# 				Patient.Sex + 
+	# 				History.Diagnosis.AgeAt.Cent + 
+	# 				Path.LocationBody + 
+	# 				Path.Size.Cent + 
+	# 				Stage.pT.Simplified + 
+	# 				Molec.S100A4.DCThresh + 
+	# 				Molec.S100A2.DCThresh, 
+	# 			data = train,
+	# 			mtry = temp.tasks$mtry[task_i],
+	# 			splitrule = temp.tasks$splitrule[task_i],
+	# 			nsplit = temp.tasks$nsplit[task_i])
+	# 		preds = predict(fit, test)$predicted
+	# 		preds
+	# 	})
+
+	# 	fold_preds
+	# })
+
+	# preds2 = do.call(rbind, preds)
+	# temp.y2 = do.call(rbind, lapply(1:temp.K, function(fold_i) data.y[fold_i == temp.folds,]))
+	# temp.y2 = Surv(temp.y2[,1], temp.y2[,2])
+	# temp.results = cbind(temp.tasks, C = apply(preds2, 2, function(p1) survConcordance(temp.y2 ~ p1)$concordance))
+	# temp.results[order(temp.results$C),]
+
+	# From the above: mtry = 1, splitrule = "logrankscore", nsplit = 2 gives good performance.
+
+	rsf.molec_preop = rfsrc(
+		Surv(time, event) ~ 
+			Patient.Sex + 
+			History.Diagnosis.AgeAt.Cent + 
+			Path.LocationBody + 
+			Path.Size.Cent + 
+			Stage.pT.Simplified + 
+			Molec.S100A4.DCThresh + 
+			Molec.S100A2.DCThresh, 
+		data = temp.data,
+		mtry = 1,
+		splitrule = "logrankscore",
+		nsplit = 2)
+	saveRDS(rsf.molec_preop, file = "04_rsf_molec_preop.rds")
+}
+
 if (mode == 0 || mode == 9) {
 glmulti.molec_preop.bic = readRDS("04_molec_preop_bic.rds")
 glmulti.molec_preop.aicc = readRDS("04_molec_preop_aicc.rds")
@@ -325,6 +387,7 @@ glmulti.conv_preop.bic = readRDS("04_conv_preop_bic.rds")
 glmulti.conv_preop.aicc = readRDS("04_conv_preop_aicc.rds")
 glmulti.conv_postop.bic = readRDS("04_conv_postop_bic.rds")
 glmulti.conv_postop.aicc = readRDS("04_conv_postop_aicc.rds")
+rsf.molec_preop = readRDS("04_rsf_molec_preop.rds")
 
 if ("nobs.coxph" %in% ls()) { rm(nobs.coxph) }
 
