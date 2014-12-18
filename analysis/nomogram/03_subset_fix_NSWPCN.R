@@ -117,6 +117,7 @@ data.x.preop.molecular = data.x.preop.molecular[temp.sel,]
 data.x.management = data.x.management[temp.sel,]
 data.x.confounders = data.x.confounders[temp.sel,,drop=FALSE]
 data.x.all = data.x.all[temp.sel,]
+data.x.extra = data.x.extra[temp.sel,]
 data.y = data.y[temp.sel,]
 
 # Ok so here's how they combine:

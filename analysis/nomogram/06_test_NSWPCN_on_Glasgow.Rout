@@ -1,3 +1,111 @@
+R> 
+R> load("04_NSWPCN_fits.rda")
+R> data.glasgow = readRDS("05_Glasgow.rds")
+R> 
+R> pdf("06_test_NSWPCN_on_Glasgow.pdf")
+R> 
+R> rm(args, data, data.x.confounders, data.x.conv_preop, data.x.conv_postop, 
++ 	data.x.management, data.x.molec_preop, data.x.molec_postop, data.x.postop.conventional,
++ 	data.x.preop.conventional, data.x.preop.molecular, mode, origcols, tsub)
+R> 
+R> library(glmulti)
+R> library(randomForestSRC)
+R> library(survival)
+R> 
+R> model0 = coxph(data.y ~ 1)
+R> model1 = glmulti.conv_preop.bic
+R> model2 = glmulti.molec_preop.bic
+R> model3 = glmulti.conv_postop.bic
+R> model4 = glmulti.molec_postop.bic
+R> model5 = rsf.molec_preop
+R> model6 = coxph(data.y ~ data.x.all$Molec.S100A4.DCThresh + data.x.all$Molec.S100A2.DCThresh)
+R> 
+R> preds0 = rep(0, nrow(data.glasgow))
+R> preds1 = predict(model1, select = 1, newdata = data.glasgow)$averages[1,]
+R> preds2 = predict(model2, select = 1, newdata = data.glasgow)$averages[1,]
+R> preds3 = predict(model3, select = 1, newdata = data.glasgow)$averages[1,]
+R> preds4 = predict(model4, select = 1, newdata = data.glasgow)$averages[1,]
+R> preds5 = predict(model5, newdata = data.glasgow)$predicted
+R> preds6 = predict(model6, newdata = data.glasgow)
+R> max(abs(preds6 - preds2))		# Sanity check
+[1] 1.263
+R> 
+R> data.glasgow.y = Surv(data.glasgow$History.Death.EventTimeDays/365.25*12, data.glasgow$History.DSDeath.Event)
+R> summary(coxph(data.glasgow.y ~ preds1))
+Call:
+coxph(formula = data.glasgow.y ~ preds1)
+
+  n= 198, number of events= 165 
+
+        coef exp(coef) se(coef)   z Pr(>|z|)
+preds1  4.33     75.76     1.81 2.4    0.017
+
+       exp(coef) exp(-coef) lower .95 upper .95
+preds1      75.8     0.0132       2.2      2606
+
+Concordance= 0.566  (se = 0.026 )
+Rsquare= 0.028   (max possible= 0.999 )
+Likelihood ratio test= 5.65  on 1 df,   p=0.0175
+Wald test            = 5.75  on 1 df,   p=0.0165
+Score (logrank) test = 5.74  on 1 df,   p=0.0166
+
+R> summary(coxph(data.glasgow.y ~ preds2))
+Call:
+coxph(formula = data.glasgow.y ~ preds2)
+
+  n= 198, number of events= 165 
+
+        coef exp(coef) se(coef)   z Pr(>|z|)
+preds2 0.894     2.446    0.190 4.7  2.7e-06
+
+       exp(coef) exp(-coef) lower .95 upper .95
+preds2      2.45      0.409      1.68      3.55
+
+Concordance= 0.655  (se = 0.026 )
+Rsquare= 0.106   (max possible= 0.999 )
+Likelihood ratio test= 22.1  on 1 df,   p=2.58e-06
+Wald test            = 22.1  on 1 df,   p=2.65e-06
+Score (logrank) test = 22.6  on 1 df,   p=1.97e-06
+
+R> summary(coxph(data.glasgow.y ~ preds5))
+Call:
+coxph(formula = data.glasgow.y ~ preds5)
+
+  n= 198, number of events= 165 
+
+          coef exp(coef) se(coef)    z Pr(>|z|)
+preds5 0.01202   1.01210  0.00265 4.54  5.7e-06
+
+       exp(coef) exp(-coef) lower .95 upper .95
+preds5      1.01      0.988      1.01      1.02
+
+Concordance= 0.634  (se = 0.026 )
+Rsquare= 0.098   (max possible= 0.999 )
+Likelihood ratio test= 20.5  on 1 df,   p=5.92e-06
+Wald test            = 20.6  on 1 df,   p=5.73e-06
+Score (logrank) test = 21  on 1 df,   p=4.65e-06
+
+R> 
+R> library(timeROC)
+R> cdroc0 = timeROC(data.glasgow$History.Death.EventTimeDays/365.25*12, as.numeric(as.character(data.glasgow$History.Death.Cause)), preds0, cause = 1, times = seq(1, 36, 1), iid = TRUE)
+R> cdroc1 = timeROC(data.glasgow$History.Death.EventTimeDays/365.25*12, as.numeric(as.character(data.glasgow$History.Death.Cause)), preds1, cause = 1, times = seq(1, 36, 1), iid = TRUE)
+R> cdroc2 = timeROC(data.glasgow$History.Death.EventTimeDays/365.25*12, as.numeric(as.character(data.glasgow$History.Death.Cause)), preds2, cause = 1, times = seq(1, 36, 1), iid = TRUE)
+R> cdroc3 = timeROC(data.glasgow$History.Death.EventTimeDays/365.25*12, as.numeric(as.character(data.glasgow$History.Death.Cause)), preds3, cause = 1, times = seq(1, 36, 1), iid = TRUE)
+R> cdroc4 = timeROC(data.glasgow$History.Death.EventTimeDays/365.25*12, as.numeric(as.character(data.glasgow$History.Death.Cause)), preds4, cause = 1, times = seq(1, 36, 1), iid = TRUE)
+R> cdroc5 = timeROC(data.glasgow$History.Death.EventTimeDays/365.25*12, as.numeric(as.character(data.glasgow$History.Death.Cause)), preds5, cause = 1, times = seq(1, 36, 1), iid = TRUE)
+R> #plotAUCcurve(cdroc0, conf.int = TRUE)
+R> plotAUCcurve(cdroc1, conf.int = FALSE, add = FALSE, col = "red")		# Preop-conv
+R> plotAUCcurve(cdroc2, conf.int = FALSE, add = TRUE, col = "blue")		# Preop-molec
+R> #plotAUCcurve(cdroc3, conf.int = FALSE, add = TRUE, col = "orange")		# Postop-conv
+R> #plotAUCcurve(cdroc4, conf.int = FALSE, add = TRUE, col = "green")		# Postop-molec
+R> plotAUCcurve(cdroc5, conf.int = FALSE, add = TRUE, col = "purple")		# Preop-molec (RSF)
+R> legend("topright", legend = c("Preop-Conv", "Preop-Molec", "Preop-Molec (RSF)"), col = c("red", "blue", "purple"), lty = "solid")
+R> plotAUCcurveDiff(cdroc2, cdroc1, conf.int = TRUE)
+R> plotAUCcurveDiff(cdroc5, cdroc2, conf.int = TRUE)
+R> 
+R> 
+R> library(risksetROC)
+R> risksetROC(data.glasgow$History.Death.EventTimeDays/365.25*12, status = data.glasgow$History.Death.Cause == "1", marker = preds1, predict.time = 12)
 $marker
       119        66       183       174       140        74       166        95        31         8       159       149       157       133        42        85       141        57       194        77       167       139        99 
 -0.587094 -0.470115 -0.448233 -0.430347 -0.423824 -0.390987 -0.381965 -0.351490 -0.348022 -0.347210 -0.345852 -0.338733 -0.332938 -0.331824 -0.299281 -0.285985 -0.283573 -0.281308 -0.279548 -0.270292 -0.264625 -0.260799 -0.260691 
@@ -35,6 +143,7 @@ $FP
 $AUC
 [1] 0.5479
 
+R> risksetROC(data.glasgow$History.Death.EventTimeDays/365.25*12, status = data.glasgow$History.Death.Cause == "1", marker = preds2, predict.time = 12)
 $marker
 Glasgow_203 Glasgow_124  Glasgow_54 Glasgow_504  Glasgow_94 Glasgow_196  Glasgow_57 Glasgow_326 Glasgow_242  Glasgow_95 Glasgow_213   Glasgow_9  Glasgow_39 Glasgow_154 Glasgow_135 Glasgow_204 Glasgow_375  Glasgow_16 Glasgow_169 
  -0.5155770  -0.4942614  -0.4896468  -0.4859802  -0.4820631  -0.4770654  -0.4762129  -0.4740602  -0.4696742  -0.4681724  -0.4675294  -0.4657672  -0.4657476  -0.4652473  -0.4641909  -0.4639651  -0.4639219  -0.4639170  -0.4637690 
@@ -78,6 +187,7 @@ $FP
 $AUC
 [1] 0.6034
 
+R> risksetROC(data.glasgow$History.Death.EventTimeDays/365.25*12, status = data.glasgow$History.Death.Cause == "1", marker = preds5, predict.time = 12)
 $marker
   [1] 0.9181 1.0037 1.1310 1.1357 1.1402 1.1760 1.1863 1.2242 1.2459 1.2576 1.2589 1.2601 1.2793 1.2848 1.2945 1.3012 1.3023 1.3023 1.3057 1.3060 1.3077 1.3105 1.3112 1.3112 1.3112 1.3136 1.3139 1.3143 1.3148 1.3194 1.3220 1.3308 1.3335
  [34] 1.3350 1.3368 1.3474 1.3480 1.3485 1.3500 1.3633 1.3688 1.3748 1.4030 1.4159 1.4863 1.4938 1.5003 1.5407 1.5617 1.5696 1.5967 1.6191 1.6242 1.6343 1.6445 1.6469 1.6696 1.6855 1.6864 1.6865 1.6944 1.7032 1.7244 1.7324 1.7350 1.7515
@@ -102,6 +212,7 @@ $FP
 $AUC
 [1] 0.5996
 
+R> risksetAUC(data.glasgow$History.Death.EventTimeDays/365.25*12, status = data.glasgow$History.Death.Cause == "1", marker = preds1, tmax = 36)
 $utimes
   [1]   0.80   1.63   2.50   3.00   3.40   3.73   3.83   3.90   4.47   4.57   4.67   4.73   4.83   4.87   5.00   5.30   5.77   5.83   5.87   6.00   6.10   6.27   6.30   6.67   6.93   7.00   7.10   7.66   7.67   7.73   8.00   8.17   8.33
  [34]   8.43   8.47   8.77   8.80   9.00   9.03   9.30   9.40   9.83  10.13  10.27  10.40  10.50  11.07  11.30  11.33  11.50  11.60  11.90  12.33  12.47  12.97  13.00  13.03  13.10  13.30  13.43  13.50  13.57  13.70  13.93  14.00  14.80
@@ -127,6 +238,7 @@ $AUC
 $Cindex
 [1] 0.5511
 
+R> risksetAUC(data.glasgow$History.Death.EventTimeDays/365.25*12, status = data.glasgow$History.Death.Cause == "1", marker = preds2, tmax = 36)
 $utimes
   [1]   0.80   1.63   2.50   3.00   3.40   3.73   3.83   3.90   4.47   4.57   4.67   4.73   4.83   4.87   5.00   5.30   5.77   5.83   5.87   6.00   6.10   6.27   6.30   6.67   6.93   7.00   7.10   7.66   7.67   7.73   8.00   8.17   8.33
  [34]   8.43   8.47   8.77   8.80   9.00   9.03   9.30   9.40   9.83  10.13  10.27  10.40  10.50  11.07  11.30  11.33  11.50  11.60  11.90  12.33  12.47  12.97  13.00  13.03  13.10  13.30  13.43  13.50  13.57  13.70  13.93  14.00  14.80
@@ -152,6 +264,7 @@ $AUC
 $Cindex
 [1] 0.6042
 
+R> risksetAUC(data.glasgow$History.Death.EventTimeDays/365.25*12, status = data.glasgow$History.Death.Cause == "1", marker = preds5, tmax = 36)
 $utimes
   [1]   0.80   1.63   2.50   3.00   3.40   3.73   3.83   3.90   4.47   4.57   4.67   4.73   4.83   4.87   5.00   5.30   5.77   5.83   5.87   6.00   6.10   6.27   6.30   6.67   6.93   7.00   7.10   7.66   7.67   7.73   8.00   8.17   8.33
  [34]   8.43   8.47   8.77   8.80   9.00   9.03   9.30   9.40   9.83  10.13  10.27  10.40  10.50  11.07  11.30  11.33  11.50  11.60  11.90  12.33  12.47  12.97  13.00  13.03  13.10  13.30  13.43  13.50  13.57  13.70  13.93  14.00  14.80
@@ -177,3 +290,9 @@ $AUC
 $Cindex
 [1] 0.6015
 
+R> 
+R> 
+R> library(pec)
+R> 
+R> 
+R> 

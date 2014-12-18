@@ -45,8 +45,8 @@ all: 01_NSWPCN.rda 03_NSWPCN_subset.rda 04_NSWPCN_fits.rda 05_Glasgow.rds 06_tes
 05_Glasgow.rds: data/Glasgow_S100A2_minimal_20140414.csv.xz 05_load_Glasgow.R
 	$(RSCRIPT) 05_load_Glasgow.R | tee 05_load_Glasgow.Rout
 
-06_test_NSWPCN_on_Glasgow.pdf: 04_NSWPCN_fits.rda 05_Glasgow.rds
+06_test_NSWPCN_on_Glasgow.pdf: 04_NSWPCN_fits.rda 05_Glasgow.rds 06_test_NSWPCN_on_Glasgow.R
 	$(RSCRIPT) 06_test_NSWPCN_on_Glasgow.R | tee 06_test_NSWPCN_on_Glasgow.Rout
 
-07_test_MSKCC_on_NSWPCN_Glasgow.pdf: 03_NSWPCN_subset.rda 05_Glasgow.rds
+07_test_MSKCC_on_NSWPCN_Glasgow.pdf: 03_NSWPCN_subset.rda 05_Glasgow.rds 07_test_MSKCC_on_NSWPCN_Glasgow.R
 	$(RSCRIPT) 07_test_MSKCC_on_NSWPCN_Glasgow.R | tee 07_test_MSKCC_on_NSWPCN_Glasgow.Rout

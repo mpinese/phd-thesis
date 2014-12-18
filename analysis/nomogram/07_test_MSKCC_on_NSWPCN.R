@@ -1,3 +1,5 @@
+options(echo = TRUE, warn = 1)
+
 load("03_NSWPCN_subset.rda")
 
 
@@ -141,8 +143,8 @@ coxph(data.y ~ mskcc.scores.nswpcn.postop[,1])
 mskcc.scores.nswpcn.preop = applyNomogram(nomogram.mskcc, data.x.conv_preop)
 
 
-coxph(data.y ~ mskcc.scores.nswpcn.preop[,1])
-coxph(data.y ~ mskcc.scores.nswpcn.postop[,1])
+summary(coxph(data.y ~ mskcc.scores.nswpcn.preop[,1]))
+summary(coxph(data.y ~ mskcc.scores.nswpcn.postop[,1]))
 
 
 pdf("06_test_MSKCC_on_NSWPCN.pdf")
