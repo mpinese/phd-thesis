@@ -1,3 +1,5 @@
+options(echo = TRUE, warn = 1)
+
 load("04_NSWPCN_fits.rda")
 data.glasgow = readRDS("05_Glasgow.rds")
 
@@ -17,6 +19,7 @@ model2 = glmulti.molec_preop.bic
 model3 = glmulti.conv_postop.bic
 model4 = glmulti.molec_postop.bic
 model5 = rsf.molec_preop
+model6 = coxph(data.y ~ data.x.all$Molec.S100A4.DCThresh + data.x.all$Molec.S100A2.DCThresh)
 
 preds0 = rep(0, nrow(data.glasgow))
 preds1 = predict(model1, select = 1, newdata = data.glasgow)$averages[1,]
@@ -24,7 +27,13 @@ preds2 = predict(model2, select = 1, newdata = data.glasgow)$averages[1,]
 preds3 = predict(model3, select = 1, newdata = data.glasgow)$averages[1,]
 preds4 = predict(model4, select = 1, newdata = data.glasgow)$averages[1,]
 preds5 = predict(model5, newdata = data.glasgow)$predicted
+preds6 = predict(model6, newdata = data.glasgow)
+max(abs(preds6 - preds2))		# Sanity check
 
+data.glasgow.y = Surv(data.glasgow$History.Death.EventTimeDays/365.25*12, data.glasgow$History.DSDeath.Event)
+summary(coxph(data.glasgow.y ~ preds1))
+summary(coxph(data.glasgow.y ~ preds2))
+summary(coxph(data.glasgow.y ~ preds5))
 
 library(timeROC)
 cdroc0 = timeROC(data.glasgow$History.Death.EventTimeDays/365.25*12, as.numeric(as.character(data.glasgow$History.Death.Cause)), preds0, cause = 1, times = seq(1, 36, 1), iid = TRUE)
