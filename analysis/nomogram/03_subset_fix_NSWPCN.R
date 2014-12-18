@@ -37,7 +37,7 @@ data$Path.Bilirubin.Postop.Cent = data$Path.Bilirubin.Postop - 0.643
 data$Path.Ca199.Postop.Cent = data$Path.Ca199.Postop.Cent - 3.97
 data$History.Diagnosis.Date.Cent = as.numeric(data$History.Diagnosis.Date - as.Date("2002-01-13"))
 data$Path.LN.InvolvedFraction = data$Path.LN.Involved / data$Path.LN.Inspected
-
+data$Path.LN.Negative = data$Path.LN.Inspected - data$Path.LN.Involved
 
 
 data.x.preop.conventional = data[,c(
@@ -92,12 +92,20 @@ data.x.confounders = data[,c(
 #	"Cohort.ICGC"							# Enforced by subsetting
 	), drop = FALSE]
 
+data.x.extra = data[,c(
+	"Path.LN.Inspected",
+	"Path.LN.Involved",
+	"Path.LN.Negative",
+	"History.Diagnosis.AgeAt",
+	"Path.Size")]
+
+
 library(survival)
 data.y = Surv(data$History.Death.EventTimeDays, data$History.DSDeath.Event)
 
 
 library(gplots)
-data.x.all = cbind(data.x.preop.conventional, data.x.preop.molecular, data.x.postop.conventional, data.x.management, data.x.confounders)
+data.x.all = cbind(data.x.preop.conventional, data.x.preop.molecular, data.x.postop.conventional, data.x.management, data.x.confounders, data.x.extra)
 heatmap.2(t(1-is.na(data.x.all)), trace = "none", scale = "none", useRaster = TRUE, col = grey(c(0.1, 0.9)))
 
 
