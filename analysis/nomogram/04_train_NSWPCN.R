@@ -1,10 +1,19 @@
+args = commandArgs(TRUE)
+mode = 0
+if (length(args) > 0)
+{
+	mode = as.numeric(args[1]) 
+}
+
 load("03_NSWPCN_subset.rda")
 
-pdf("04_train_NSWPCN.pdf")
-
+options(echo = TRUE, warn = 1)
 
 library(survival)
 
+if (mode == 0 || mode == 9)
+{
+pdf("04_train_NSWPCN.pdf")
 
 # What's going on with the diagnosis date prognostic?  I suspect something
 # else is correlated with it, and that other thing is the true prognostic.
@@ -56,7 +65,8 @@ legend("topleft", inset = 0.05, legend = c("Tubular", "Adenosquamous", "NotSpeci
 # all three main types, but by around 2003 (centered time == 0), no more adenosquamous cancers
 # were collected.
 survdiff(data.y ~ data.x.all$Path.Subtype)
-
+rm(temp, temp1, temp2)
+}
 
 # Practically speaking this means that I can remove History.Diagnosis.Date as 
 # a confounder, as it is captured by subtype (which in turns appears to be 
@@ -74,7 +84,7 @@ library(rJava)
 library(glmulti)
 nobs.coxph <<- function(object, ...) { object$n }
 
-
+if (mode == 0 || mode == 1) {
 set.seed(1234)
 glmulti.molec_preop.bic = glmulti(
 	data.y ~ 
@@ -95,7 +105,12 @@ glmulti.molec_preop.bic = glmulti(
 	plotty = FALSE, 
 	report = TRUE,
 	marginality = TRUE,
-	fitfunction = "coxph")
+	fitfunction = "coxph",
+	name = "glmulti.molec_preop.bic")
+saveRDS(glmulti.molec_preop.bic, file = "04_molec_preop_bic.rds")
+}
+
+if (mode == 0 || mode == 2) {
 set.seed(1234)
 glmulti.molec_preop.aicc = glmulti(
 	data.y ~ 
@@ -116,9 +131,12 @@ glmulti.molec_preop.aicc = glmulti(
 	plotty = FALSE, 
 	report = TRUE,
 	marginality = TRUE,
-	fitfunction = "coxph")
+	fitfunction = "coxph",
+	name = "glmulti.molec_preop.aicc")
+saveRDS(glmulti.molec_preop.aicc, file = "04_molec_preop_aicc.rds")
+}
 
-
+if (mode == 0 || mode == 3) {
 set.seed(1234)
 glmulti.conv_preop.bic = glmulti(
 	data.y ~ 
@@ -137,7 +155,12 @@ glmulti.conv_preop.bic = glmulti(
 	plotty = FALSE, 
 	report = TRUE,
 	marginality = TRUE,
-	fitfunction = "coxph")
+	fitfunction = "coxph",
+	name = "glmulti.conv_preop.bic")
+saveRDS(glmulti.conv_preop.bic, file = "04_conv_preop_bic.rds")
+}
+
+if (mode == 0 || mode == 4) {
 set.seed(1234)
 glmulti.conv_preop.aicc = glmulti(
 	data.y ~ 
@@ -156,9 +179,12 @@ glmulti.conv_preop.aicc = glmulti(
 	plotty = FALSE, 
 	report = TRUE,
 	marginality = TRUE,
-	fitfunction = "coxph")
+	fitfunction = "coxph",
+	name = "glmulti.conv_preop.aicc")
+saveRDS(glmulti.conv_preop.aicc, file = "04_conv_preop_aicc.rds")
+}
 
-
+if (mode == 0 || mode == 5) { 
 set.seed(1234)
 glmulti.molec_postop.bic = glmulti(
 	data.y ~ 
@@ -187,7 +213,12 @@ glmulti.molec_postop.bic = glmulti(
 	plotty = FALSE, 
 	report = TRUE,
 	marginality = TRUE,
-	fitfunction = "coxph")
+	fitfunction = "coxph",
+	name = "glmulti.molec_postop.bic")
+saveRDS(glmulti.molec_postop.bic, file = "04_molec_postop_bic.rds")
+}
+
+if (mode == 0 || mode == 6) {
 set.seed(1234)
 glmulti.molec_postop.aicc = glmulti(
 	data.y ~ 
@@ -216,9 +247,12 @@ glmulti.molec_postop.aicc = glmulti(
 	plotty = FALSE, 
 	report = TRUE,
 	marginality = TRUE,
-	fitfunction = "coxph")
+	fitfunction = "coxph",
+	name = "glmulti.molec_postop.aicc")
+saveRDS(glmulti.molec_postop.aicc, file = "04_molec_postop_aicc.rds")
+}
 
-
+if (mode == 0 || mode == 7) {
 set.seed(1234)
 glmulti.conv_postop.bic = glmulti(
 	data.y ~ 
@@ -245,7 +279,12 @@ glmulti.conv_postop.bic = glmulti(
 	plotty = FALSE, 
 	report = TRUE,
 	marginality = TRUE,
-	fitfunction = "coxph")
+	fitfunction = "coxph",
+	name = "glmulti.conv_postop.bic")
+saveRDS(glmulti.conv_postop.bic, file = "04_conv_postop_bic.rds")
+}
+
+if (mode == 0 || mode == 8) {
 set.seed(1234)
 glmulti.conv_postop.aicc = glmulti(
 	data.y ~ 
@@ -272,60 +311,70 @@ glmulti.conv_postop.aicc = glmulti(
 	plotty = FALSE, 
 	report = TRUE,
 	marginality = TRUE,
-	fitfunction = "coxph")
+	fitfunction = "coxph",
+	name = "glmulti.conv_postop.aicc")
+saveRDS(glmulti.conv_postop.aicc, file = "04_conv_postop_aicc.rds")
+}
 
+if (mode == 0 || mode == 9) {
+glmulti.molec_preop.bic = readRDS("04_molec_preop_bic.rds")
+glmulti.molec_preop.aicc = readRDS("04_molec_preop_aicc.rds")
+glmulti.molec_postop.bic = readRDS("04_molec_postop_bic.rds")
+glmulti.molec_postop.aicc = readRDS("04_molec_postop_aicc.rds")
+glmulti.conv_preop.bic = readRDS("04_conv_preop_bic.rds")
+glmulti.conv_preop.aicc = readRDS("04_conv_preop_aicc.rds")
+glmulti.conv_postop.bic = readRDS("04_conv_postop_bic.rds")
+glmulti.conv_postop.aicc = readRDS("04_conv_postop_aicc.rds")
+
+if ("nobs.coxph" %in% ls()) { rm(nobs.coxph) }
 
 glmulti.conv_preop.bic@formulas[1:10]
 plot(glmulti.conv_preop.bic, "p")
-plot(glmulti.conv_preop.bic, "r")
+#plot(glmulti.conv_preop.bic, "r")
 plot(glmulti.conv_preop.bic, "s")
 plot(glmulti.conv_preop.bic, "w")
 
 glmulti.conv_postop.bic@formulas[1:10]
 plot(glmulti.conv_postop.bic, "p")
-plot(glmulti.conv_postop.bic, "r")
+#plot(glmulti.conv_postop.bic, "r")
 plot(glmulti.conv_postop.bic, "s")
 plot(glmulti.conv_postop.bic, "w")
 
 glmulti.molec_preop.bic@formulas[1:10]
 plot(glmulti.molec_preop.bic, "p")
-plot(glmulti.molec_preop.bic, "r")
+#plot(glmulti.molec_preop.bic, "r")
 plot(glmulti.molec_preop.bic, "s")
 plot(glmulti.molec_preop.bic, "w")
 
 glmulti.molec_postop.bic@formulas[1:10]
 plot(glmulti.molec_postop.bic, "p")
-plot(glmulti.molec_postop.bic, "r")
+#plot(glmulti.molec_postop.bic, "r")
 plot(glmulti.molec_postop.bic, "s")
 plot(glmulti.molec_postop.bic, "w")
 
+glmulti.conv_preop.aicc@formulas[1:10]
+plot(glmulti.conv_preop.aicc, "p")
+#plot(glmulti.conv_preop.aicc, "r")
+plot(glmulti.conv_preop.aicc, "s")
+plot(glmulti.conv_preop.aicc, "w")
 
+glmulti.conv_postop.aicc@formulas[1:10]
+plot(glmulti.conv_postop.aicc, "p")
+#plot(glmulti.conv_postop.aicc, "r")
+plot(glmulti.conv_postop.aicc, "s")
+plot(glmulti.conv_postop.aicc, "w")
 
-glmulti.conv_preop.aic@formulas[1:10]
-plot(glmulti.conv_preop.aic, "p")
-plot(glmulti.conv_preop.aic, "r")
-plot(glmulti.conv_preop.aic, "s")
-plot(glmulti.conv_preop.aic, "w")
+glmulti.molec_preop.aicc@formulas[1:10]
+plot(glmulti.molec_preop.aicc, "p")
+#plot(glmulti.molec_preop.aicc, "r")
+plot(glmulti.molec_preop.aicc, "s")
+plot(glmulti.molec_preop.aicc, "w")
 
-glmulti.conv_postop.aic@formulas[1:10]
-plot(glmulti.conv_postop.aic, "p")
-plot(glmulti.conv_postop.aic, "r")
-plot(glmulti.conv_postop.aic, "s")
-plot(glmulti.conv_postop.aic, "w")
-
-glmulti.molec_preop.aic@formulas[1:10]
-plot(glmulti.molec_preop.aic, "p")
-plot(glmulti.molec_preop.aic, "r")
-plot(glmulti.molec_preop.aic, "s")
-plot(glmulti.molec_preop.aic, "w")
-
-glmulti.molec_postop.aic@formulas[1:10]
-plot(glmulti.molec_postop.aic, "p")
-plot(glmulti.molec_postop.aic, "r")
-plot(glmulti.molec_postop.aic, "s")
-plot(glmulti.molec_postop.aic, "w")
-
-
-rm(nobs.coxph, temp1, temp2, temp)
+glmulti.molec_postop.aicc@formulas[1:10]
+plot(glmulti.molec_postop.aicc, "p")
+#plot(glmulti.molec_postop.aicc, "r")
+plot(glmulti.molec_postop.aicc, "s")
+plot(glmulti.molec_postop.aicc, "w")
 
 save.image("04_NSWPCN_fits.rda")
+}

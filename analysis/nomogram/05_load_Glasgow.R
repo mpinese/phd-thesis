@@ -1,6 +1,6 @@
 options(stringsAsFactors = FALSE)
 
-data = read.csv("./originals/Glasgow_S100A2_minimal_20140414.csv.xz", quote = "", header = TRUE)
+data = read.csv("./data/Glasgow_S100A2_minimal_20140414.csv.xz", quote = "", header = TRUE)
 
 data$Stage.Overall.Coarse = ordered(c("2" = "II", "3" = "III", "4" = "IV")[as.character(data$AJCC)], levels = c("I", "II", "III", "IV"))
 

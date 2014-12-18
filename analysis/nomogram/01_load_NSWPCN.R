@@ -1,9 +1,9 @@
 options(stringsAsFactors = FALSE)
 
-data = read.table("./originals/Total_cohort_MP_05022013.txt.xz", sep = "\t", quote = "", header = TRUE)
+data = read.table("./data/Total_cohort_MP_05022013.txt.xz", sep = "\t", quote = "", header = TRUE)
 data[data == "."] = NA
 data[data == ""] = NA
-origcols = scan("./originals/Total_cohort_MP_05022013.txt.xz", sep = "\t", nlines = 1, what = character())
+origcols = scan("./data/Total_cohort_MP_05022013.txt.xz", sep = "\t", nlines = 1, what = character())
 
 # summary(data)
 # ifelse(sapply(apply(data, 2, table), length) < 20, apply(data, 2, table, useNA = "ifany"), length(apply(data, 2, table)))

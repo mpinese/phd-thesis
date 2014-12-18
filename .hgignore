@@ -24,6 +24,8 @@ analysis/biosurv/results/04_norm_gex.pdf
 
 *.gmt
 *.rda
+*.rds
+glmulti.*.back
 data/**.xz
 cache/*
 reports/*/*.rds
