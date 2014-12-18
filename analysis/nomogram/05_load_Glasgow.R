@@ -64,6 +64,7 @@ data$Molec.S100A4.DCThresh = data$Molec.S100A4.DCThresh == 1
 data$History.Death.Cause = as.factor(data$History.Death.Cause)
 data$History.Diagnosis.AgeAt.Cent = data$History.Diagnosis.AgeAt - 68
 data$Path.Size.Cent = data$Path.Size - 30
+data$Stage.pT.Simplified = ordered(c("T1" = "T1", "T2" = "T2", "T3" = "T34", "T4" = "T34")[as.character(data$Stage.pT)], levels = c("T1", "T2", "T34"))
 
 rm(temp.fields)
 saveRDS(data, "05_Glasgow.rds")
