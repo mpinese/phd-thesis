@@ -1,10 +1,10 @@
 .PHONY: all
 .SECONDARY: 
 
-#RSCRIPT = ~/bin/Rscript
-RSCRIPT = Rscript
+RSCRIPT = ~/bin/Rscript
+#RSCRIPT = Rscript
 
-all: 01_NSWPCN.rda 03_NSWPCN_subset.rda 04_NSWPCN_fits.rda 05_Glasgow.rds 06_test_NSWPCN_on_Glasgow.pdf 07_test_MSKCC_on_NSWPCN_Glasgow.pdf
+all: 01_NSWPCN.rda 03_NSWPCN_subset.rda 04_NSWPCN_fits.rda 05_NSWPCN_fits_2.rda 06_Glasgow.rds 07_test_MSKCC_on_NSWPCN_Glasgow.pdf 08_test_NSWPCN_on_Glasgow.pdf
 
 01_NSWPCN.rda: data/Total_cohort_MP_05022013.txt.xz 01_load_NSWPCN.R
 	$(RSCRIPT) 01_load_NSWPCN.R | tee 01_load_NSWPCN.Rout
@@ -42,11 +42,14 @@ all: 01_NSWPCN.rda 03_NSWPCN_subset.rda 04_NSWPCN_fits.rda 05_Glasgow.rds 06_tes
 04_rsf_molec_preop.rds: 03_NSWPCN_subset.rda 04_train_NSWPCN.R
 	$(RSCRIPT) 04_train_NSWPCN.R 10
 
-05_Glasgow.rds: data/Glasgow_S100A2_minimal_20140414.csv.xz 05_load_Glasgow.R
-	$(RSCRIPT) 05_load_Glasgow.R | tee 05_load_Glasgow.Rout
+05_NSWPCN_fits_2.rda: 03_NSWPCN_subset.rda 05_train_NSWPCN_2.R
+	$(RSCRIPT) 05_train_NSWPCN_2.R | tee 05_train_NSWPCN_2.Rout
 
-06_test_NSWPCN_on_Glasgow.pdf: 04_NSWPCN_fits.rda 05_Glasgow.rds 06_test_NSWPCN_on_Glasgow.R
-	$(RSCRIPT) 06_test_NSWPCN_on_Glasgow.R | tee 06_test_NSWPCN_on_Glasgow.Rout
+06_Glasgow.rds: data/Glasgow_S100A2_minimal_20140414.csv.xz 06_load_Glasgow.R
+	$(RSCRIPT) 06_load_Glasgow.R | tee 06_load_Glasgow.Rout
 
-07_test_MSKCC_on_NSWPCN_Glasgow.pdf: 03_NSWPCN_subset.rda 05_Glasgow.rds 07_test_MSKCC_on_NSWPCN_Glasgow.R
+07_test_MSKCC_on_NSWPCN_Glasgow.pdf: 03_NSWPCN_subset.rda 06_Glasgow.rds 07_test_MSKCC_on_NSWPCN_Glasgow.R
 	$(RSCRIPT) 07_test_MSKCC_on_NSWPCN_Glasgow.R | tee 07_test_MSKCC_on_NSWPCN_Glasgow.Rout
+
+08_test_NSWPCN_on_Glasgow.pdf: 04_NSWPCN_fits.rda 06_Glasgow.rds 08_test_NSWPCN_on_Glasgow.R
+	$(RSCRIPT) 08_test_NSWPCN_on_Glasgow.R | tee 08_test_NSWPCN_on_Glasgow.Rout

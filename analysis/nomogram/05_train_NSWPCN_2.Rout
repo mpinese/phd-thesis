@@ -1,0 +1,307 @@
+R> 
+R> library(survival)
+R> library(rms)
+R> library(randomForestSRC)
+R> 
+R> data.all = cbind(time = data.y[,1], event = data.y[,2], data.x.all, data.x.extra)
+R> dd <<- datadist(data.all)
+R> options(datadist = "dd")
+R> 
+R> #####################################################################
+R> ## RANDOM FOREST 
+R> 
+R> set.seed(1234)
+R> rsf.molec_preop = rfsrc(
++ 	Surv(time, event) ~ 
++ 		Patient.Sex + 
++ 		History.Diagnosis.AgeAt.Cent + 
++ 		Path.LocationBody + 
++ 		Path.Size.Cent + 
++ 		Molec.S100A4.DCThresh + 
++ 		Molec.S100A2.DCThresh, 
++ 	data = data.all,
++ 	mtry = 1,
++ 	splitrule = "logrankscore",
++ 	nsplit = 2, 
++ 	ntree = 1000)
+R> 
+R> 
+R> #####################################################################
+R> ## KAPLAN MEIER
+R> 
+R> km.molec_preop = survfit(
++ 	Surv(time, event) ~ 
++ 		Molec.S100A4.DCThresh + 
++ 		Molec.S100A2.DCThresh, 
++ 	data = data.all)
+R> km.molec_preop.strata = rep(gsub(" ", "", names(km.molec_preop$strata)), km.molec_preop$strata)
+R> 
+R> 
+R> #####################################################################
+R> ## WEIBULL TESTING
+R> 
+R> temp.start = 1
+R> for (temp.i in 1:length(km.molec_preop$strata))
++ {
++ 	temp.times = km.molec_preop$time[temp.start:(temp.start+km.molec_preop$strata[temp.i])]
++ 	temp.surv = km.molec_preop$surv[temp.start:(temp.start+km.molec_preop$strata[temp.i])]
++ 	if (temp.i == 1) { 
++ 		plot(log(temp.times), log(-log(temp.surv)), type = "s", col = temp.i, xlab = "log(t)", ylab = "log(-log(hat(S)(t)))", ylim = c(-5, 2)) 
++ 	} else {
++ 		lines(log(temp.times), log(-log(temp.surv)), type = "s", col = temp.i) 
++ 	}
++ 	temp.start = temp.start + km.molec_preop$strata[temp.i] + 1
++ }
+R> # Not great fits to Weibull.  :/
+R> 
+R> 
+R> #####################################################################
+R> ## WEIBULL
+R> 
+R> # weibull.molec_preop = psm(
+R> # 	Surv(time, event) ~ 
+R> # 		Patient.Sex + 
+R> # 		History.Diagnosis.AgeAt.Cent + 
+R> # 		Path.LocationBody + 
+R> # 		Path.Size.Cent + 
+R> # 		Molec.S100A4.DCThresh + 
+R> # 		Molec.S100A2.DCThresh, 
+R> # 	data = data.all, dist = "weibull", x = TRUE, y = TRUE)
+R> # anova(weibull.molec_preop)
+R> # fastbw(weibull.molec_preop)
+R> # validate(weibull.molec_preop, B = 1000)
+R> 
+R> 
+R> #####################################################################
+R> ## COX PROPORTIONAL HAZARD
+R> 
+R> temp.cox = cph(
++ 	Surv(time, event) ~ 1,
++ 	data = data.all, x = TRUE, y = TRUE)
+R> for (i in 1:ncol(data.all)) { 
++ 	scatter.smooth(data.all[,i], resid(temp.cox, type = "martingale"), xlab = colnames(data.all)[i], ylab = "Martingale residual", main = sprintf("Cox form: %s", colnames(data.all)[i]))
++ 	abline(h = 0) 
++ }
+R> # Looks like a threshold effect for size.  Introduce a new
+R> # variable to code this.
+R> data.all$Path.Size.Cent.Thresh = pmin(data.all$Path.Size.Cent, 0)
+R> dd <<- datadist(data.all)
+R> options(datadist = "dd")
+R> 
+R> temp.cox = cph(
++ 	Surv(time, event) ~ 
++ 		Patient.Sex + 
++ 		History.Diagnosis.AgeAt.Cent + 
++ 		Path.LocationBody + 
++ 		Path.Size.Cent.Thresh + 
++ 		Molec.S100A4.DCThresh + 
++ 		Molec.S100A2.DCThresh, 
++ 	data = data.all, x = TRUE, y = TRUE, surv = FALSE)
+R> cox.zph(temp.cox)
+                                  rho    chisq       p
+Patient.Sex=M                 0.21322  9.76712 0.00178
+History.Diagnosis.AgeAt.Cent -0.00261  0.00157 0.96840
+Path.LocationBody            -0.08108  1.35915 0.24369
+Path.Size.Cent.Thresh        -0.06027  0.72720 0.39379
+Molec.S100A4.DCThresh        -0.17585  6.16477 0.01303
+Molec.S100A2.DCThresh        -0.02077  0.09072 0.76326
+GLOBAL                             NA 19.77085 0.00304
+R> 
+R> # zph analysis indicated violations for Patient.Sex and Molec.S100A4.DCThresh.
+R> # Stratify on these to get around the problem
+R> cox.molec_preop = cph(
++ 	Surv(time, event) ~ 
++ 		strat(Patient.Sex) + 
++ 		History.Diagnosis.AgeAt.Cent + 
++ 		Path.LocationBody + 
++ 		Path.Size.Cent.Thresh + 
++ 		strat(Molec.S100A4.DCThresh) + 
++ 		Molec.S100A2.DCThresh, 
++ 	data = data.all, x = TRUE, y = TRUE, surv = FALSE)
+R> cox.zph(cox.molec_preop)			# All good now
+                                 rho  chisq     p
+History.Diagnosis.AgeAt.Cent -0.0152 0.0521 0.819
+Path.LocationBody            -0.0781 1.2831 0.257
+Path.Size.Cent.Thresh        -0.0532 0.5729 0.449
+Molec.S100A2.DCThresh        -0.0337 0.2428 0.622
+GLOBAL                            NA 2.5933 0.628
+R> 
+R> 
+R> library(survivalMPL)
+R> for (i in 1:4)
++ {
++ 	temp.data = data.all[xor(data.all$Patient.Sex == "M", i %% 2) & xor(data.all$Molec.S100A4.DCThresh, i <= 2),]
++ 	temp.mpl = coxph_mpl(
++ 	Surv(time, event) ~ 
++ 		History.Diagnosis.AgeAt.Cent + 
++ 		Path.LocationBody + 
++ 		Path.Size.Cent.Thresh + 
++ 		Molec.S100A2.DCThresh, 
++ 	data = temp.data)
++ 	plot(temp.mpl)
++ }
+1 	lambda = 4708945 	iter = 17 
+2 	lambda = 1741933 	iter = 0 
+3 	lambda = 2142039 	iter = 0 
+4 	lambda = 2045340 	iter = 0 
+5 	lambda = 2066264 	iter = 0 
+6 	lambda = 2061621 	iter = 0 
+7 	lambda = 2062645 	iter = 0 
+8 	lambda = 2062419 	iter = 0 
+9 	lambda = 2062469 	iter = 0 
+10 	lambda = 2062458 	iter = 0 
+11 	lambda = 2062460 	iter = 0 
+12 	lambda = 2062460 	iter = 0 
+13 	lambda = 2062460 	iter = 0 
+1 	lambda = 236062 	iter = 12 
+2 	lambda = 160573 	iter = 0 
+3 	lambda = 172012 	iter = 0 
+4 	lambda = 170011 	iter = 0 
+5 	lambda = 170353 	iter = 0 
+6 	lambda = 170294 	iter = 0 
+7 	lambda = 170304 	iter = 0 
+8 	lambda = 170302 	iter = 0 
+9 	lambda = 170303 	iter = 0 
+10 	lambda = 170302 	iter = 0 
+11 	lambda = 170302 	iter = 0 
+1 	lambda = 422365 	iter = 7 
+2 	lambda = 222839 	iter = 0 
+3 	lambda = 259690 	iter = 0 
+4 	lambda = 250592 	iter = 0 
+5 	lambda = 252701 	iter = 0 
+6 	lambda = 252205 	iter = 0 
+7 	lambda = 252321 	iter = 0 
+8 	lambda = 252294 	iter = 0 
+9 	lambda = 252301 	iter = 0 
+10 	lambda = 252299 	iter = 0 
+11 	lambda = 252299 	iter = 0 
+12 	lambda = 252299 	iter = 0 
+13 	lambda = 252299 	iter = 0 
+1 	lambda = 175681 	iter = 7 
+2 	lambda = 111527 	iter = 0 
+3 	lambda = 121912 	iter = 0 
+4 	lambda = 119881 	iter = 0 
+5 	lambda = 120265 	iter = 0 
+6 	lambda = 120192 	iter = 0 
+7 	lambda = 120206 	iter = 0 
+8 	lambda = 120203 	iter = 0 
+9 	lambda = 120204 	iter = 0 
+10 	lambda = 120204 	iter = 0 
+11 	lambda = 120204 	iter = 0 
+12 	lambda = 120204 	iter = 0 
+R> 
+R> temp.dfbetas <- residuals(cox.molec_preop, type = "dfbetas")
+R> for (j in 1:ncol(temp.dfbetas)) {
++ 	plot(temp.dfbetas[,j], ylab = names(coef(cox.molec_preop))[j], ylim = c(-max(c(abs(temp.dfbetas[,j]), 1)), max(c(abs(temp.dfbetas[,j]), 1))))
++ 	abline(h = c(-1, 0, 1), col = c("red", "grey", "red"))
++ }
+R> # Some outliers that will need checking if they persist.  First
+R> # wait for the updated data from DC -- maybe they'll be resolved.
+R> 
+R> plot(survfit(cox.molec_preop))
+R> temp.haz = basehaz(cox.molec_preop, centered = TRUE)
+R> temp.strata = sort(unique(temp.haz$strata))
+R> plot(exp(-hazard) ~ time, temp.haz, type = "n", xlab = "Time", ylab = "Survival", ylim = c(0, 1))
+R> for (i in 1:length(temp.strata))
++ {
++ 	lines(temp.haz$time[temp.haz$strata == temp.strata[i]], exp(-temp.haz$hazard[temp.haz$strata == temp.strata[i]]), type = "s", col = i, lwd = 2)
++ }
+R> legend("topright", legend = temp.strata, lty = "solid", col = 1:length(temp.strata), lwd = 2, inset = 0.05)
+R> 
+R> temp.haz = basehaz(cox.molec_preop, centered = FALSE)
+R> temp.strata = sort(unique(temp.haz$strata))
+R> plot(hazard ~ time, temp.haz, type = "n", xlab = "Time", ylab = "Cumulative Hazard", main = "Base hazard estimate")
+R> for (i in 1:length(temp.strata))
++ {
++ 	lines(temp.haz$time[temp.haz$strata == temp.strata[i]], temp.haz$hazard[temp.haz$strata == temp.strata[i]], type = "s", col = i, lwd = 2)
++ }
+R> legend("bottomright", legend = temp.strata, lty = "solid", col = 1:length(temp.strata), lwd = 2, inset = 0.05)
+R> 
+R> plot(log(hazard) ~ log(time), temp.haz, type = "n", xlab = "log(Time)", ylab = "log(Cumulative Hazard)", main = "Base hazard estimate")
+R> for (i in 1:length(temp.strata))
++ {
++ 	lines(log(temp.haz$time[temp.haz$strata == temp.strata[i]]), log(temp.haz$hazard[temp.haz$strata == temp.strata[i]]), type = "s", col = i, lwd = 2)
++ }
+R> legend("bottomright", legend = temp.strata, lty = "solid", col = 1:length(temp.strata), lwd = 2, inset = 0.05)
+R> 
+R> library(mfp)
+R> plot(hazard ~ time, temp.haz, type = "n", xlab = "Time", ylab = "Cumulative Hazard", main = "Base hazard estimate")
+R> temp.time = seq(0, max(temp.haz$time), 1)
+R> for (i in 1:length(temp.strata))
++ {
++ 	lines(temp.haz$time[temp.haz$strata == temp.strata[i]], temp.haz$hazard[temp.haz$strata == temp.strata[i]], type = "s", col = i, lwd = 2)
++ 	temp.haz.fit = mfp(log(hazard) ~ fp(time) + 0, data = temp.haz[temp.haz$strata == temp.strata[i],])
++ 	lines(temp.time, exp(predict(temp.haz.fit, newdata = data.frame(time = temp.time))), col = i, lty = "dotted", lwd = 2)
++ }
+R> #legend("bottomright", legend = temp.strata, lty = "solid", col = 1:length(temp.strata), lwd = 2, inset = 0.05)
+R> 
+R> 
+R> library(bshazard)
+R> temp.lp = predict(cox.molec_preop)
+R> for (i in 1:length(temp.strata))
++ {
++ 	temp.bshaz = bshazard(Surv(time, event) ~ temp.lp[temp.haz$strata == temp.strata[i]], data.all[temp.haz$strata == temp.strata[i],])
++ 	plot(temp.bshaz)
++ }
+Iterations: relative error in phi-hat = 1e-04 
+phi= 3.178   sv2= 0.02876   df= 6.491   lambda= 110.5 
+phi= 3.282   sv2= 0.01029   df= 4.036   lambda= 318.8 
+phi= 3.361   sv2= 0.006744   df= 3.325   lambda= 498.3 
+phi= 3.398   sv2= 0.005474   df= 3.09   lambda= 620.8 
+phi= 3.418   sv2= 0.004886   df= 2.987   lambda= 699.5 
+phi= 3.429   sv2= 0.004577   df= 2.933   lambda= 749.2 
+phi= 3.436   sv2= 0.004404   df= 2.904   lambda= 780.2 
+phi= 3.44   sv2= 0.004303   df= 2.887   lambda= 799.5 
+phi= 3.442   sv2= 0.004242   df= 2.876   lambda= 811.5 
+phi= 3.444   sv2= 0.004205   df= 2.87   lambda= 819 
+phi= 3.445   sv2= 0.004183   df= 2.866   lambda= 823.6 
+phi= 3.445   sv2= 0.004169   df= 2.864   lambda= 826.4 
+phi= 3.446   sv2= 0.004161   df= 2.863   lambda= 828.2 
+phi= 3.446   sv2= 0.004156   df= 2.862   lambda= 829.3 
+phi= 3.446   sv2= 0.004152   df= 2.861   lambda= 829.9 
+phi= 3.446   sv2= 0.00415   df= 2.861   lambda= 830.4 
+phi= 3.446   sv2= 0.004149   df= 2.861   lambda= 830.6 
+phi= 3.446   sv2= 0.004148   df= 2.86   lambda= 830.8 
+phi= 3.446   sv2= 0.004148   df= 2.86   lambda= 830.9 
+phi= 3.446   sv2= 0.004148   df= 2.86   lambda= 830.9 
+Iterations: relative error in phi-hat = 1e-04 
+phi= 3.548   sv2= 0.05177   df= 5.414   lambda= 68.52 
+phi= 3.917   sv2= 0.01097   df= 3.836   lambda= 357.2 
+phi= 4.048   sv2= 0.004008   df= 2.937   lambda= 1010 
+phi= 4.07   sv2= 0.002133   df= 2.549   lambda= 1908 
+phi= 4.077   sv2= 0.001326   df= 2.368   lambda= 3076 
+phi= 4.082   sv2= 0.0008908   df= 2.261   lambda= 4582 
+phi= 4.085   sv2= 0.0006262   df= 2.191   lambda= 6523 
+phi= 4.088   sv2= 0.000453   df= 2.142   lambda= 9024 
+phi= 4.09   sv2= 0.0003339   df= 2.107   lambda= 12247 
+Iterations: relative error in phi-hat = 1e-04 
+phi= 2.391   sv2= 0.0157   df= 5.827   lambda= 152.4 
+phi= 2.442   sv2= 0.00795   df= 3.516   lambda= 307.1 
+phi= 2.441   sv2= 0.006813   df= 3.162   lambda= 358.3 
+phi= 2.441   sv2= 0.006484   df= 3.094   lambda= 376.4 
+phi= 2.441   sv2= 0.006373   df= 3.073   lambda= 382.9 
+phi= 2.441   sv2= 0.006335   df= 3.066   lambda= 385.3 
+phi= 2.441   sv2= 0.006321   df= 3.063   lambda= 386.1 
+phi= 2.441   sv2= 0.006316   df= 3.062   lambda= 386.4 
+phi= 2.441   sv2= 0.006314   df= 3.062   lambda= 386.5 
+phi= 2.441   sv2= 0.006313   df= 3.062   lambda= 386.6 
+phi= 2.441   sv2= 0.006313   df= 3.062   lambda= 386.6 
+Iterations: relative error in phi-hat = 1e-04 
+phi= 2.921   sv2= 0.04986   df= 6.276   lambda= 58.57 
+phi= 3.043   sv2= 0.01598   df= 4.366   lambda= 190.4 
+phi= 3.111   sv2= 0.009811   df= 3.511   lambda= 317.2 
+phi= 3.145   sv2= 0.00817   df= 3.223   lambda= 384.9 
+phi= 3.159   sv2= 0.007587   df= 3.125   lambda= 416.4 
+phi= 3.165   sv2= 0.007352   df= 3.087   lambda= 430.5 
+phi= 3.168   sv2= 0.007252   df= 3.071   lambda= 436.8 
+phi= 3.169   sv2= 0.007209   df= 3.064   lambda= 439.6 
+phi= 3.17   sv2= 0.007191   df= 3.061   lambda= 440.8 
+phi= 3.17   sv2= 0.007182   df= 3.06   lambda= 441.4 
+phi= 3.17   sv2= 0.007179   df= 3.059   lambda= 441.6 
+phi= 3.17   sv2= 0.007177   df= 3.059   lambda= 441.7 
+phi= 3.17   sv2= 0.007176   df= 3.059   lambda= 441.7 
+phi= 3.17   sv2= 0.007176   df= 3.059   lambda= 441.8 
+R> 
+R> 
+R> save.image("05_NSWPCN_fits_2.rda")
+R> 
