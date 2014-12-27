@@ -1,9 +1,9 @@
 options(echo = TRUE, warn = 1)
 
 load("04_NSWPCN_fits.rda")
-data.glasgow = readRDS("05_Glasgow.rds")
+data.glasgow = readRDS("06_Glasgow.rds")
 
-pdf("06_test_NSWPCN_on_Glasgow.pdf")
+pdf("08_test_NSWPCN_on_Glasgow.pdf")
 
 rm(args, data, data.x.confounders, data.x.conv_preop, data.x.conv_postop, 
 	data.x.management, data.x.molec_preop, data.x.molec_postop, data.x.postop.conventional,

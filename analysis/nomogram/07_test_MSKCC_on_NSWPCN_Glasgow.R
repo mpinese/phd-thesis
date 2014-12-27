@@ -129,7 +129,7 @@ load("03_NSWPCN_subset.rda")
 mskcc.scores.nswpcn.postop = applyNomogram(nomogram.mskcc, data.x.all)
 mskcc.scores.nswpcn.preop = applyNomogram(nomogram.mskcc, cbind(data.x.conv_preop, data.x.all$Path.Size, data.x.all$History.Diagnosis.AgeAt))
 
-data.glasgow = readRDS("05_Glasgow.rds")
+data.glasgow = readRDS("06_Glasgow.rds")
 data.glasgow$Path.LN.Negative = data.glasgow$Path.LN.Inspected - data.glasgow$Path.LN.Involved
 data.glasgow$History.Diagnosis.AgeAt = data.glasgow$History.Diagnosis.AgeAt.Cent + 68
 data.glasgow$Path.Size = data.glasgow$Path.Size.Cent + 30
