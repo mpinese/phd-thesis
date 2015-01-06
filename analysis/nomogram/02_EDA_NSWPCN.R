@@ -4,6 +4,64 @@ load("01_NSWPCN.rda")
 #heatmap.2(1 - 1*is.na(data), trace = "none", useRaster = TRUE)
 
 library(survival)
+
+fit = survfit(Surv(History.Death.EventTimeDays, History.DSDeath.Event) ~ Treat.Resected, data)
+plot(fit, xlim = c(0, 3000), col = 2:1)
+data$Molec.S100A4.DCThresh = (data$Molec.S100A4.NucInt >= "1") | (data$Molec.S100A4.CytoInt >= "1")
+data$Molec.S100A2.DCThresh = (data$Molec.S100A2.Int >= "3") & (data$Molec.S100A2.Percent > 30)
+data$group = ifelse(data$Treat.Resected, data$Molec.S100A4.DCThresh*2 + data$Molec.S100A2.DCThresh + 1, 0)
+fit = survfit(Surv(History.Death.EventTimeDays, History.DSDeath.Event) ~ group, data)
+plot(fit, xlim = c(0, 3000), col = 2:6)
+legend("topright", legend = c("Biopsy", "A2- A4-", "A2+ A4-", "A2- A4+", "A2+ A4+"), col = 2:6, lty = "solid")
+
+
+approxHaz = function(fit, df)
+{
+	nstrata = length(fit$strata)
+	strata = rep(names(fit$strata), fit$strata)
+	strata.times = tapply(1:length(strata), strata, function(is) fit$time[is])
+	strata.surv = tapply(1:length(strata), strata, function(is) fit$surv[is])
+	strata.cumhaz = lapply(strata.surv, function(x) -log(x))
+
+	strata.cumhaz.splines = mapply(function(times, cumhaz) {
+		sel = times != 0 & cumhaz != 0
+		times = times[sel]
+		cumhaz = cumhaz[sel]
+		smooth.spline(log(times), log(cumhaz), df = df)
+	}, strata.times, strata.cumhaz, SIMPLIFY = FALSE)
+
+	delta = 0.1
+	grid = seq(0, max(fit$time), delta)
+	strata.haz_estimate = lapply(strata.cumhaz.splines, function(spl) {
+		cumhaz = exp(predict(spl, x = log(grid))$y)
+		haz = diff(c(0, cumhaz)) / delta
+		haz = pmax(0, haz)
+		cumhaz_corrected = cumsum(haz * delta)
+		#surv_corrected = exp(-cumhaz_corrected)
+		haz_corrected = diff(c(0, cumhaz_corrected)) / delta
+		haz_corrected
+	})
+
+	plot(0 ~ 0, type = "n", xlim = c(1, max(fit$time)), ylim = c(0, 1))
+	for (i in 1:nstrata)
+	{
+		lines(strata.surv[[i]] ~ strata.times[[i]], type = "s", col = i, lwd = 2)
+		temp.cumhaz_corrected = cumsum(strata.haz_estimate[[i]] * delta)
+		temp.surv_corrected = exp(-temp.cumhaz_corrected)
+		lines(grid, temp.surv_corrected, lwd = 1, col = i, lty = "dashed")
+	}
+
+	plot(0 ~ 0, type = "n", xlim = c(1, 2000), ylim = c(0, max(sapply(strata.haz_estimate, max))))
+	for (i in 1:nstrata)
+	{
+		lines(grid, strata.haz_estimate[[i]], lwd = 2, col = i, lty = "solid")
+	}
+	legend("topright", legend = paste(names(fit$strata), fit$strata, sep = " "), col = 1:nstrata, lty = "solid", lwd = 2)
+
+	strata.haz_estimate
+}
+
+
 temp.y = Surv(data$History.Death.EventTimeDays, data$History.DSDeath.Event)
 temp.sel = !is.na(temp.y[,1]) & !is.na(temp.y[,2]) & data$Treat.Resected == TRUE
 
