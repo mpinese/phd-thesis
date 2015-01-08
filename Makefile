@@ -7,7 +7,7 @@ dissertation: dissertation.pdf
 %.pdf: %.tex dissertation.aux dissertation.glo
 	-pdflatex -interaction=nonstopmode $*.tex
 
-dissertation.aux dissertation.glo: *.tex
+dissertation.aux dissertation.glo: *.tex dissertation.bib
 	-pdflatex -interaction=nonstopmode dissertation.tex
 	bibtex dissertation.aux
 	makeglossaries dissertation
