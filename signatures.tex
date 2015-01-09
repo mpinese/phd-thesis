@@ -160,7 +160,7 @@ Further investigation of the three prognostic metagenes revealed that they were 
 \paragraph{The \acrshort{PARSE} score}
 A repeat of the previous \gls{LASSO} fit with 10-fold \gls{CV}, this time using predictors of A1 activity, A2 activity, and the A1:A2 interaction, identified both A1 and A2, but not their interaction, as useful predictors of outcome.  Coefficients from the \gls{LASSO} fit were used to define a new risk score, the \gls{PARSE}, as $\text{PARSE score} = 1.354 \times \text{A1 activity} + 1.548 \times \text{A2 activity}$.
 
-Exact calculation of the \gls{PARSE} score requires the solution of a number of \gls{NNLS} problems, which presents a potential barrier to use.  An approximation to \gls{PARSE} can be derived by relaxing the non-negative constraint; this approximation requires only a linear combination of gene expression estimates, and is detailed in \Aref{app:sigs-parse-approx} on \pref{app:sigs-parse-approx}.
+Exact calculation of the \gls{PARSE} score requires the solution of a number of \gls{NNLS} problems, which presents a potential barrier to use.  An approximation to \gls{PARSE} can be derived by relaxing the non-negative constraint; this approximation requires only a weighted mean of gene expression estimates, and is detailed in \Aref{app:sigs-parse-approx} on \pref{app:sigs-parse-approx}.
 
 \paragraph{Validation of the \acrshort{PARSE} score}
 External validation confirmed that the \gls{PARSE} score was prognostic in other cohorts, including in cancers other than \gls{PDAC}.  \Gls{PARSE} score was significantly prognostic in \gls{PDAC} cohorts GSE28735 \cite{Zhang2013} (LRT $P = 0.0149$) and \gls{TCGA} paad (LRT $P = 0.0156$), but not in GSE21501 \cite{Stratford2010} (LRT $P = 0.115$).  When assessed against all \gls{TCGA} cancers for which at least 50 patients had both an event and complete RNASeq data, the \gls{PARSE} score was also significantly prognostic for head and neck squamous cell carcinoma, kidney renal clear cell carcinoma, lower grade glioma, and lung adenocarcinoma, at a 5\% \gls{FWER} (\tref{tab:sigs-validation-tcga}, column a).  This significant result reflected the ability of \acrshort{PARSE} score to stratify patients into risk groups in a range of solid tumours, as illustrated in \fref{fig:sigs-km}.
@@ -414,6 +414,6 @@ c7           & *                                  \\ \bottomrule
 
 
 \subsection{Attribution of work}
-Data for the \gls{APGI} discovery cohort were generated as part of the \gls{APGI} project, under the umbrella of the \gls{ICGC}.  The generation of these data was a huge team effort, of which I only played a small part.  However, all steps subsequent to raw data generation, from low level processing of \gls{IDAT} files through to analysis planning, signature development, testing, and interpretation, were performed solely by me.
+Data for the \gls{APGI} discovery cohort were generated as part of the \gls{APGI} project, under the umbrella of the \gls{ICGC}.  The generation of these data was a huge team effort, of which I only played a small part.  However, both conception of the project, and all steps subsequent to raw data generation, from low level processing of \gls{IDAT} files through to analysis planning, signature development, testing, and interpretation, were performed solely by me.
 
 \end{document}
