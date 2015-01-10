@@ -31,6 +31,42 @@ The majority of pancreas cancer resection procedures today are performed on pati
 TODO: Add Ca-19-9 to nomogram?  At least have it as a preoperative comparison?  Subset pts by threshold of 200 U/mL preoperative (or 163 U/mL?).
 
 \section{Results}
+Data from a large retrospectively-acquired cohort, the \gls{NSWPCN} cohort, were used to derive a prognostic predictor for survival of pancreas cancer patients who underwent curative-intent resection.  Discrimination and calibration of this predictor were then verified on TODO number independent surgical cohorts.  Data from an \gls{EUS}-\gls{FNA}-\gls{IHC} pilot study were then used to establish that pre-operatively assessed tissue biomarker levels reflected measurements from operative biopsies, and thus that the prognostic predictor developed here could be applied in a pre-operative decision setting.
+
+\subsection{Prognostic variables and biomarkers}
+As the aim was to develop a prognostic predictor that could be applied pre-operatively, only the small subset of traditional \glspl{CPV} that were deemed to be measurable prior to resection were considered.  These variables were: patient sex and age at diagnosis, tumour location (dichotomised as head of pancreas vs other location), and size of the tumour's longest pathological axis.  All but one of these variables is straightforward to measure pre-operatively, with the exception being tumour size.  In the training and validation sets, tumour size was measured post-operatively from the resected tumour, whereas in pre-operative application tumour size must be estimated by imaging techniques such as \gls{CT} or \gls{EUS}.  The correlation between \gls{CT} and \gls{EUS} estimates of tumour size, and actual size upon resection, is strong but not perfect \cite{Arvold2011}.  As no pre-operative measurements of tumour size were available in the cohorts used for this work, pre-operative size was approximated by the post-operative measurement.  The implications of this approximation for the prognostic tool developed here, as well as for future work, are considered in the discussion.
+
+The dichotomised tissue levels of two pre-operatively assessable biomarkers, S100A2 and S100A4, were considered when building the prognostic tool.  These biomarker levels were measured by \gls{IHC} on tissue collected during resection, and thus 
+
+Scores for two pre-operatively assessable biomarkers, S100A2 and S100A4, were considered during prognostic development.  Post-operative
+
+TODO: Biomarkers.  Specifically, why I didn't use CA-19-9.
+
+\subsection{Cohorts and Characteristics}
+General characteristics of the \gls{NSWPCN}, TODO, and TODO cohorts are summarised in \tref{TODO}.
+
+\subsection{Exploratory Analysis}
+Exploratory analyses were performed on the training cohort only, in order to ascertain the best model form for later fits.
+
+\paragraph{Model functional form and expanded terms}
+The \gls{CPH} framework was used to assess functional form for the two continuous covariates: age at diagnosis, and maximum pathological axis size.  \gls{LOESS} smooths of martingale residuals indicated a possible weak U-shaped relationship for age at diagnosis (TODO figref), and a knee-shaped form for size (TODO figref).  In subsequent fits these forms were modelled by adding a quadratic term for centered age at diagnosis, and a $size:I(size \leq knee)$ interaction for centered axis size.  The original set of five linear prognostic terms, plus the two additional nonlinear terms, was denoted the expanded term set.
+
+\paragraph{Proportional hazards assumption}
+A Grambsch-Therneau test \cite{Grambsch1994} on the \gls{CPH} model fit using all expanded terms indicated that patient sex violated the \glspl{PH} assumption (P = TODO) -- in other words, the two sexes had significantly different baseline hazard forms.  To account for this effect, all subsequent models were stratified by patient sex, so that the survival of male and female patients was modelled by two different baseline hazard functions.  A repeated Grambsch-Thernau test on the stratified model indicated no further significant violations of \gls{PH}.
+
+\paragraph{Variable selection}
+Genetic selection was used to identify the model with optimal \gls{BIC} from the set of all \gls{CPH} models that use any combination of the expanded terms.  Models with interactions between terms of up to degree two were considered, and a marginal term constraint was enforced, to ensure that interaction effects were only present in the model specification if the associated main effects were also.  Stratification of baseline hazard by patient sex was used in all models.  The identified optimal model used the three variables: tumour size (linear term only), S100A2 status, and S100A4 status, in addition to the sex stratum.  This model was also identified by stepwise backward selection for optimal BIC, starting from the marginal \gls{CPH} fit using all expanded terms.  The final \gls{BIC}-selected set of prognostic terms (tumour size linear term, S100A2 status, S100A4 status, and a patient sex stratum) was denoted the reduced term set.
+
+\paragraph{Fit diagnostics}
+The \gls{PH} assumption was again verified by the Grambsch-Therneau test on a \gls{CPH} fit to the reduced term set (global P = TODO).  Model residuals were inspected to identify possible outlier patients, and assess overall fit stability.  Deviance residuals indicated no egregious outlier patients, and $DFBETAS$ indicated TODO influential patients with $|DFBETAS_{i,j}| > \frac{2}{\sqrt{n}}$, where $n = TODO$.  TODO: Stuff on these outliers.
+
+\paragraph{Summary}
+Exploratory analysis on the training \gls{NSWPCN} cohort data indicated that a BIC-optimal \gls{CPH} fit was achieved by the following model: $Survival ~ Age + S100A2 + S100A4 + strata(Sex)$.  There was no significant evidence for nonlinear effects in any examined variables, or for any interactions up to degree two.  Male and female patients appeared to have significantly different baseline hazards, a feature that was modelled by stratifiying fits by patient sex.
+
+\subsection{Final fits}
+
+
+\subsection{Web tool}
 
 * Summary of analysis
 * Variables that are both available and reasonably pre-operatively assessable:
@@ -38,6 +74,10 @@ TODO: Add Ca-19-9 to nomogram?  At least have it as a preoperative comparison?  
   # Imaging:   Size, Location (head vs tail)
   # Biomarker: A2, A4, CA-19-9 (thresh 100 U/mL)
 * Cohort subsetting and characteristics (all of them)
+* Exploration.
+  # Functional forms.  Martingale residual smooths of marginal model.
+  # Perform CPH fit of marginal model using identified forms, examine violations of CPH.  Identify Sex and A4 as violators.  Re-fit with strata to resolve.  Probably just describe this step as a reason for stratification by Sex, A4.
+* All-subsets search for best model, including interactions.
 
 
 TODO: In app, show +/- margin curves, to guide surgeons as to benefit from aggressive surgery.
