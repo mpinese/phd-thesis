@@ -25,14 +25,15 @@ options(warn = 1)
 <<libs-load>>=
 library(survival)
 library(glmulti)
-library(randomForestSRC)
 library(flexsurv)
+library(randomForestSRC)
 
 library(reshape2)
 library(plyr)
 library(ggplot2)
 
 library(MASS)
+library(boot)
 
 load("03_NSWPCN_subset.rda")
 @
@@ -95,7 +96,9 @@ Investigate functional form with martingale residuals.
 fit.cph.NoAge = coxph(Surv(Time, DSD) ~ SexM + LocBody + SizeCent + A2 + A4, data = data)
 fit.cph.NoSize = coxph(Surv(Time, DSD) ~ SexM + AgeCent + LocBody + A2 + A4, data = data)
 scatter.smooth(data$AgeCent, resid(fit.cph.NoAge, type = "martingale"), main = "Functional form: Age (Centered)", xlab = "AgeCent", ylab = "Martingale residual")
+scatter.smooth(data$AgeCent, resid(fit.cph.NoAge, type = "martingale"), main = "Functional form: Age (Centered)", xlab = "AgeCent", ylab = "Martingale residual", ylim = c(-1, 1))
 scatter.smooth(data$SizeCent, resid(fit.cph.NoSize, type = "martingale"), main = "Functional form: Size (Centered)", xlab = "SizeCent", ylab = "Martingale residual")
+scatter.smooth(data$SizeCent, resid(fit.cph.NoSize, type = "martingale"), main = "Functional form: Size (Centered)", xlab = "SizeCent", ylab = "Martingale residual", ylim = c(-1, 1))
 @
 It looks like age has a minor nonlinear component, leading to a quadratic-like U shape.  The size relationship appears to have a knee, close to size == 0, around which the relationship is approximately linear.
 
@@ -140,7 +143,7 @@ Look at deviance residuals, both marginally and stratified by major subgroups.
 <<eda-outliers-full>>=
 plot(resid(fit.cph, type = "deviance"))
 abline(h = c(-2.5, 2.5))
-plot(resid(fit.cph, type = "deviance")[order(data$SexM, data$A2, data$A4)], col = (4*data$SexM + 2*data$A2 + data$A4)[order(data$SexM, data$A2, data$A4)], pch = 16)
+plot(resid(fit.cph, type = "deviance")[order(data$SexM, data$A2, data$A4)], col = (4*data$SexM + 2*data$A2 + data$A4 + 1)[order(data$SexM, data$A2, data$A4)], pch = 16)
 abline(h = c(-2.5, 2.5))
 boxplot(resid(fit.cph, type = "deviance") ~ data$SexM + data$A2 + data$A4, varwidth = TRUE)
 abline(h = 0)
@@ -166,7 +169,7 @@ nobs.coxph <<- function(obj, ...) sum(obj$y[,2])
 #fit.cph.as = glmulti(Surv(Time, DSD) ~ strata(SexM) + AgeCent + I(AgeCent^2) + LocBody + SizeCent + SizeSmall + A2 + A4, data = data, marginality = TRUE, method = "h", fitfunction = "coxph", crit = "bic", level = 2)
 set.seed(20150110)
 fit.cph.as = glmulti(Surv(Time, DSD) ~ strata(SexM) + AgeCent + I(AgeCent^2) + LocBody + SizeCent + SizeSmall + A2 + A4, data = data, marginality = TRUE, method = "g", fitfunction = "coxph", crit = "bic", level = 2, plotty = FALSE, report = FALSE)
-fit.cph.as
+# fit.cph.as
 # After 830 generations:
 # Best model: Surv(Time,DSD)~1+strata(SexM)+SizeCent+A2+A4
 # Crit= 1367.16344569113
@@ -214,8 +217,9 @@ sum(apply(abs(resid(fit.cph, type = "dfbetas")), 1, max) > 2/sqrt(nrow(data)))
 \item On the basis of pre-operative assessability and data availability, variables were filtered down to Sex, AgeCent, LocBody, SizeCent, A2, A4.
 \item Functional forms for the continuous variates AgeCent and SizeCent indicated a possible slight quadratic effect on AgeCent, and a knee on SizeCent.  These were modelled by incorporating additional terms.
 \item Analysis of a full model fit (with additional nonlinear terms included) indicated violation of PH for gender.  This was dealt with by stratification.  A slight PH violation by age was deemed unimportant. 
-\item Variable selection by BIC (both stepwise and genetic all-subset) settled on a final model of Surv(Time,DSD)~1+strata(SexM)+SizeCent+A2+A4.  This model was refit by coxph. 
+\item Variable selection by BIC (both stepwise and genetic all-subset) settled on a final model of Surv(Time,DSD) $\sim$ 1 + strata(SexM) + SizeCent + A2 + A4.  This model was refit by coxph. 
 \item PH was verified on the final model.  Deviance residuals showed no egregious outliers. dfBetaS indicated a number of influential observations, which require checking.
+\end{enumerate}
 
 \section{Final fits}
 <<final-fits-cph>>=
@@ -397,14 +401,21 @@ ibs_preds_rsf = t(apply(temp_rsf_preds$survival, 1, function(survs) approx(temp_
 # Add a no-information KM predictor
 temp_km0 = survfit(Surv(Time, DSD) ~ 1, data)
 ibs_preds_km0 = t(matrix(rep(approx(temp_km0$time, temp_km0$surv, xout = ibs_times, method = "constant", yleft = 1, rule = 2, f = 0)$y, times = nrow(data.val)), ncol = nrow(data.val)))
+ibs_preds_all = list(gg = ibs_preds_gg, gg2 = ibs_preds_gg2, cph = ibs_preds_cph, rsf = ibs_preds_rsf, km0 = ibs_preds_km0)
 @
 
 Evaluate IBS point estimates.
 BS paths over time on bootstrap samples of the holdout set.
-<<model-selection-bs-paths>>=
+<<model-selection-bs-boots>>=
 set.seed(20150111)
-bsc_boots = laply(1:5e2, function(i) {
-	if (i %% 5e1 == 0)	{ message(i) }
+ibs_eval_times = calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_gg, ibs_times, max(data.val$Time))$eval_times
+# bsc_boot2 = lapply(ibs_preds_all, function(preds) boot(data.val, statistic = function(d, i) calcIBS(Surv(d$Time, d$DSD)[i,], preds[i,], ibs_times, max(d$Time))$bsc, R = 500))
+# bsc_boot2ci = lapply(bsc_boot2, function(single_boot) t(sapply(1:length(ibs_eval_times), function(time_index) {
+# 	temp = try(boot.ci(single_boot, index = time_index, type = "bca")$bca, silent = TRUE)
+# 	if (class(temp) == "try-error" || is.null(temp)) { temp = rep(NA, 5) }
+# 	temp })))
+bsc_boots = laply(1:500, function(i) {
+	if (i %% 50 == 0)	{ message(i) }
 	boot_samp = sample.int(nrow(data.val), replace = TRUE)
 	gg = calcIBS(Surv(data.val$Time, data.val$DSD)[boot_samp,], ibs_preds_gg[boot_samp,], ibs_times, max(data.val$Time))$bsc
 	gg2 = calcIBS(Surv(data.val$Time, data.val$DSD)[boot_samp,], ibs_preds_gg2[boot_samp,], ibs_times, max(data.val$Time))$bsc
@@ -413,51 +424,67 @@ bsc_boots = laply(1:5e2, function(i) {
 	km0 = calcIBS(Surv(data.val$Time, data.val$DSD)[boot_samp,], ibs_preds_km0[boot_samp,], ibs_times, max(data.val$Time))$bsc
 	rbind(gg, gg2, cph, rsf, km0)
 })
-ibs_eval_times = calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_gg, ibs_times, max(data.val$Time))$eval_times
-plot(0 ~ 0, type = "n", xlim = c(0, max(data.val$Time)), ylim = c(0, 1))
-for (i in 1:dim(bsc_boots)[1])
-{
-	lines(bsc_boots[i, 1, ] ~ ibs_eval_times, col = rgb(0, 0, 1, 10/dim(bsc_boots)[1]), lwd = 3)
-	lines(bsc_boots[i, 2, ] ~ ibs_eval_times, col = rgb(1, 0, 0, 10/dim(bsc_boots)[1]), lwd = 3)
-	lines(bsc_boots[i, 3, ] ~ ibs_eval_times, col = rgb(0, 1, 0, 10/dim(bsc_boots)[1]), lwd = 3)
-	lines(bsc_boots[i, 4, ] ~ ibs_eval_times, col = rgb(1, 1, 0, 10/dim(bsc_boots)[1]), lwd = 3)
-	lines(bsc_boots[i, 5, ] ~ ibs_eval_times, col = rgb(0, 0, 0, 10/dim(bsc_boots)[1]), lwd = 3)
-}
-temp = melt(aaply(bsc_boots, 2:3, median))
-colnames(temp) = c("Model", "Time", "BSC")
-ggplot(temp, aes(x = Time, y = BSC, colour = Model)) + geom_line()
+@
 
-plot(0 ~ 0, type = "n", xlim = c(0, max(data.val$Time)), ylim = c(-0.05, 0.1), xlab = "Time", ylab = "Improvement over KM0")
-for (i in 1:dim(bsc_boots)[1])
-{
-	lines(bsc_boots[i, 5, ] - bsc_boots[i, 1, ] ~ ibs_eval_times, col = rgb(0, 0, 1, 40/dim(bsc_boots)[1]), lwd = 1)
-	lines(bsc_boots[i, 5, ] - bsc_boots[i, 2, ] ~ ibs_eval_times, col = rgb(1, 0, 0, 40/dim(bsc_boots)[1]), lwd = 1)
-	lines(bsc_boots[i, 5, ] - bsc_boots[i, 3, ] ~ ibs_eval_times, col = rgb(0, 1, 0, 40/dim(bsc_boots)[1]), lwd = 1)
-	lines(bsc_boots[i, 5, ] - bsc_boots[i, 4, ] ~ ibs_eval_times, col = rgb(0, 0, 0, 40/dim(bsc_boots)[1]), lwd = 1)
-}
+<<model-selection-bs-paths>>=
+# plot(0 ~ 0, type = "n", xlim = c(0, max(data.val$Time)), ylim = c(0, 1))
+# for (i in 1:dim(bsc_boots)[1])
+# {
+# 	lines(bsc_boots[i, 1, ] ~ ibs_eval_times, col = rgb(0, 0, 1, 10/dim(bsc_boots)[1]), lwd = 3)
+# 	lines(bsc_boots[i, 2, ] ~ ibs_eval_times, col = rgb(1, 0, 0, 10/dim(bsc_boots)[1]), lwd = 3)
+# 	lines(bsc_boots[i, 3, ] ~ ibs_eval_times, col = rgb(0, 1, 0, 10/dim(bsc_boots)[1]), lwd = 3)
+# 	lines(bsc_boots[i, 4, ] ~ ibs_eval_times, col = rgb(1, 1, 0, 10/dim(bsc_boots)[1]), lwd = 3)
+# 	lines(bsc_boots[i, 5, ] ~ ibs_eval_times, col = rgb(0, 0, 0, 10/dim(bsc_boots)[1]), lwd = 3)
+# }
+
+# plot(0 ~ 0, type = "n", xlim = c(0, max(data.val$Time)), ylim = c(-0.05, 0.1), xlab = "Time", ylab = "Improvement over KM0")
+# for (i in 1:dim(bsc_boots)[1])
+# {
+# 	lines(bsc_boots[i, 5, ] - bsc_boots[i, 1, ] ~ ibs_eval_times, col = rgb(0, 0, 1, 50/dim(bsc_boots)[1]), lwd = 1)
+# 	lines(bsc_boots[i, 5, ] - bsc_boots[i, 2, ] ~ ibs_eval_times, col = rgb(1, 0, 0, 50/dim(bsc_boots)[1]), lwd = 1)
+# 	lines(bsc_boots[i, 5, ] - bsc_boots[i, 3, ] ~ ibs_eval_times, col = rgb(0, 1, 0, 50/dim(bsc_boots)[1]), lwd = 1)
+# 	lines(bsc_boots[i, 5, ] - bsc_boots[i, 4, ] ~ ibs_eval_times, col = rgb(1, 1, 0, 50/dim(bsc_boots)[1]), lwd = 1)
+# }
+# legend("topright", legend = c("gg", "gg2", "cph", "rsf"), fill = c(rgb(0, 0, 1), rgb(1, 0, 0), rgb(0, 1, 0), rgb(1, 1, 0)), inset = 0.05)
 
 temp = sapply(list(gg = ibs_preds_gg, gg2 = ibs_preds_gg2, cph = ibs_preds_cph, rsf = ibs_preds_rsf, km0 = ibs_preds_km0), function(preds) calcIBS(Surv(data.val$Time, data.val$DSD), preds, ibs_times, max(data.val$Time))$bsc)
 temp = melt(temp)
 colnames(temp) = c("Time", "Model", "BS")
-ggplot(temp, aes(x = Time, y = BS, colour = Model)) + geom_line()
+ggplot(temp, aes(x = Time, y = BS, colour = Model)) + geom_line() + ylab("Brier Score") + geom_hline(yintercept = 0.25)
 
 temp = melt(aaply(bsc_boots, 2:3, quantile, probs = c(0.05, 0.5, 0.95)))
 colnames(temp) = c("Model", "Time", "Quantile", "Value")
 temp$Quantile = paste("Q", gsub("%", "", temp$Quantile), sep = "")
 temp = dcast(temp, Model + Time ~ Quantile, value.var = "Value")
-ggplot(temp, aes(x = Time, y = Q50, ymin = Q5, ymax = Q95, colour = Model, fill = Model)) + geom_line() + geom_ribbon(alpha = 0.2, colour = NA)
+ggplot(temp, aes(x = Time, y = Q50, ymin = Q5, ymax = Q95, colour = Model, fill = Model)) + geom_line() + geom_ribbon(alpha = 0.2, colour = NA) + ylab("Brier Score, 90% BI") + geom_hline(yintercept = 0.25)
 
 bsc_boots_diff = aaply(bsc_boots, 2, function(x) x - bsc_boots[,5,])[1:4,,]
 temp = melt(aaply(bsc_boots_diff, c(1,3), quantile, probs = c(0.05, 0.5, 0.95)))
 colnames(temp) = c("Model", "Time", "Quantile", "Value")
 temp$Quantile = paste("Q", gsub("%", "", temp$Quantile), sep = "")
 temp = dcast(temp, Model + Time ~ Quantile, value.var = "Value")
-ggplot(temp, aes(x = Time, y = Q50, ymin = Q5, ymax = Q95, colour = Model, fill = Model)) + geom_line() + geom_ribbon(alpha = 0.2, colour = NA)
-ggplot(temp, aes(x = Time, y = Q50, ymin = Q5, ymax = Q95, colour = Model, fill = Model)) + geom_line() + geom_ribbon(alpha = 0.2, colour = NA) + xlim(0, 500)
-ggplot(temp, aes(x = Time, y = Q50, colour = Model)) + geom_line()
+ggplot(temp, aes(x = Time, y = Q50, ymin = Q5, ymax = Q95, colour = Model, fill = Model)) + geom_line() + geom_ribbon(alpha = 0.2, colour = NA) + ylab("Brier Score: Improvement over KM0. BS median, 90% BI") + geom_hline(yintercept = 0)
+ggplot(temp, aes(x = Time, y = Q50, ymin = Q5, ymax = Q95, colour = Model, fill = Model)) + geom_line() + geom_ribbon(alpha = 0.2, colour = NA) + xlim(0, 700) + ylab("Brier Score: Improvement over KM0. BS median, 90% BI") + geom_hline(yintercept = 0)
+ggplot(temp, aes(x = Time, y = Q50, colour = Model)) + geom_line() + ylab("Brier Score: Improvement over KM0, BS median") + geom_hline(yintercept = 0)
+ggplot(temp, aes(x = Time, y = Q50, colour = Model)) + geom_line() + ylab("Brier Score: Improvement over KM0, BS median") + xlim(0, 700) + geom_hline(yintercept = 0)
 @
 
 IBS comparisons.
+<<model-selection-ibs-boots>>=
+set.seed(20150111)
+ibsc_boots = t(sapply(1:5e2, function(i) {
+	if (i %% 5e1 == 0)	{ message(i) }
+	boot_samp = sample.int(nrow(data.val), replace = TRUE)
+	gg = calcIBS(Surv(data.val$Time, data.val$DSD)[boot_samp,], ibs_preds_gg[boot_samp,], ibs_times, max(data.val$Time[boot_samp]))$ibs
+	gg2 = calcIBS(Surv(data.val$Time, data.val$DSD)[boot_samp,], ibs_preds_gg2[boot_samp,], ibs_times, max(data.val$Time[boot_samp]))$ibs
+	cph = calcIBS(Surv(data.val$Time, data.val$DSD)[boot_samp,], ibs_preds_cph[boot_samp,], ibs_times, max(data.val$Time[boot_samp]))$ibs
+	rsf = calcIBS(Surv(data.val$Time, data.val$DSD)[boot_samp,], ibs_preds_rsf[boot_samp,], ibs_times, max(data.val$Time[boot_samp]))$ibs
+	km0 = calcIBS(Surv(data.val$Time, data.val$DSD)[boot_samp,], ibs_preds_km0[boot_samp,], ibs_times, max(data.val$Time[boot_samp]))$ibs
+	c(gg, gg2, cph, rsf, km0)
+}))
+colnames(ibsc_boots) = c("gg", "gg2", "cph", "rsf", "km0")
+@
+
 <<model-selection-ibs>>=
 calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_gg, ibs_times, max(data.val$Time))$ibs
 calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_gg2, ibs_times, max(data.val$Time))$ibs
@@ -465,40 +492,47 @@ calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_cph, ibs_times, max(data.va
 calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_rsf, ibs_times, max(data.val$Time))$ibs
 calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_km0, ibs_times, max(data.val$Time))$ibs
 
-set.seed(20150111)
-ibsc_boots = t(sapply(1:5e2, function(i) {
-	if (i %% 5e1 == 0)	{ message(i) }
-	boot_samp = sample.int(nrow(data.val), replace = TRUE)
-	gg = calcIBS(Surv(data.val$Time, data.val$DSD)[boot_samp,], ibs_preds_gg[boot_samp,], ibs_times, max(data.val$Time[boot_samp]))$ibs / max(data.val$Time[boot_samp])
-	gg2 = calcIBS(Surv(data.val$Time, data.val$DSD)[boot_samp,], ibs_preds_gg2[boot_samp,], ibs_times, max(data.val$Time[boot_samp]))$ibs / max(data.val$Time[boot_samp])
-	cph = calcIBS(Surv(data.val$Time, data.val$DSD)[boot_samp,], ibs_preds_cph[boot_samp,], ibs_times, max(data.val$Time[boot_samp]))$ibs / max(data.val$Time[boot_samp])
-	rsf = calcIBS(Surv(data.val$Time, data.val$DSD)[boot_samp,], ibs_preds_rsf[boot_samp,], ibs_times, max(data.val$Time[boot_samp]))$ibs / max(data.val$Time[boot_samp])
-	km0 = calcIBS(Surv(data.val$Time, data.val$DSD)[boot_samp,], ibs_preds_km0[boot_samp,], ibs_times, max(data.val$Time[boot_samp]))$ibs / max(data.val$Time[boot_samp])
-	c(gg, gg2, cph, rsf, km0)
-}))
-colnames(ibsc_boots) = c("gg", "gg2", "cph", "rsf", "km0")
-
-boxplot(ibsc_boots)
-plot(density(ibsc_boots[,1]), col = "blue", lwd = 2)
+boxplot(ibsc_boots, main = "IBS BS Distribution", ylab = "IBS")
+plot(density(ibsc_boots[,1]), col = "blue", lwd = 2, main = "IBS BS Distribution", xlab = "IBS")
 lines(density(ibsc_boots[,2]), col = "red", lwd = 2)
 lines(density(ibsc_boots[,3]), col = "green", lwd = 2)
-lines(density(ibsc_boots[,4]), col = "yellow", lwd = 2)
+lines(density(ibsc_boots[,4]), col = "purple", lwd = 2)
 lines(density(ibsc_boots[,5]), col = "black", lwd = 2)
-abline(v = calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_gg, ibs_times, max(data.val$Time))$ibs, col = "blue", lwd = 2)
-abline(v = calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_gg2, ibs_times, max(data.val$Time))$ibs, col = "red", lwd = 2)
-abline(v = calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_cph, ibs_times, max(data.val$Time))$ibs, col = "green", lwd = 2)
-abline(v = calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_rsf, ibs_times, max(data.val$Time))$ibs, col = "yellow", lwd = 2)
-abline(v = calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_km0, ibs_times, max(data.val$Time))$ibs, col = "black", lwd = 2)
+abline(v = calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_gg, ibs_times, max(data.val$Time))$ibs, col = "blue", lwd = 1)
+abline(v = calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_gg2, ibs_times, max(data.val$Time))$ibs, col = "red", lwd = 1)
+abline(v = calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_cph, ibs_times, max(data.val$Time))$ibs, col = "green", lwd = 1)
+abline(v = calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_rsf, ibs_times, max(data.val$Time))$ibs, col = "purple", lwd = 1)
+abline(v = calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_km0, ibs_times, max(data.val$Time))$ibs, col = "black", lwd = 1)
+legend("topright", legend = c("gg", "gg2", "cph", "rsf", "km0"), col = c("blue", "red", "green", "purple", "black"), lty = "solid", inset = 0.05)
 
-plot(density(ibsc_boots[,5] - ibsc_boots[,1]), col = "blue", lwd = 2, ylim = c(0, 200))
+plot(density(ibsc_boots[,5] - ibsc_boots[,1]), col = "blue", lwd = 2, main = "IBS_KM0 - IBS_x BS Distribution", xlab = "IBS", ylim = c(0, 0.1))
 lines(density(ibsc_boots[,5] - ibsc_boots[,2]), col = "red", lwd = 2)
 lines(density(ibsc_boots[,5] - ibsc_boots[,3]), col = "green", lwd = 2)
 lines(density(ibsc_boots[,5] - ibsc_boots[,4]), col = "purple", lwd = 2)
-abline(v = calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_gg, ibs_times, max(data.val$Time))$ibs - calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_km0, ibs_times, max(data.val$Time))$ibs, col = "blue", lwd = 2)
-abline(v = calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_gg2, ibs_times, max(data.val$Time))$ibs - calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_km0, ibs_times, max(data.val$Time))$ibs, col = "red", lwd = 2)
-abline(v = calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_cph, ibs_times, max(data.val$Time))$ibs - calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_km0, ibs_times, max(data.val$Time))$ibs, col = "green", lwd = 2)
-abline(v = calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_rsf, ibs_times, max(data.val$Time))$ibs - calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_km0, ibs_times, max(data.val$Time))$ibs, col = "yellow", lwd = 2)
+abline(v = (calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_km0, ibs_times, max(data.val$Time))$ibs - calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_gg, ibs_times, max(data.val$Time))$ibs), col = "blue", lwd = 1)
+abline(v = (calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_km0, ibs_times, max(data.val$Time))$ibs - calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_gg2, ibs_times, max(data.val$Time))$ibs), col = "red", lwd = 1)
+abline(v = (calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_km0, ibs_times, max(data.val$Time))$ibs - calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_cph, ibs_times, max(data.val$Time))$ibs), col = "green", lwd = 1)
+abline(v = (calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_km0, ibs_times, max(data.val$Time))$ibs - calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_rsf, ibs_times, max(data.val$Time))$ibs), col = "purple", lwd = 1)
+legend("topright", legend = c("gg", "gg2", "cph", "rsf"), col = c("blue", "red", "green", "purple"), lty = "solid", inset = 0.05)
+@
 
+Do some proper BCA bootstrapping on the differences, just as a double-check test.
+<<model-selection-ibs-boots-2>>=
+set.seed(20150111)
+ibsc_boots2 = boot(data.val, statistic = function(d, i) {
+	gg = calcIBS(Surv(d$Time, d$DSD)[i,], ibs_preds_gg[i,], ibs_times, max(d$Time[i]))$ibs
+	gg2 = calcIBS(Surv(d$Time, d$DSD)[i,], ibs_preds_gg2[i,], ibs_times, max(d$Time[i]))$ibs
+	cph = calcIBS(Surv(d$Time, d$DSD)[i,], ibs_preds_cph[i,], ibs_times, max(d$Time[i]))$ibs
+	rsf = calcIBS(Surv(d$Time, d$DSD)[i,], ibs_preds_rsf[i,], ibs_times, max(d$Time[i]))$ibs
+	km0 = calcIBS(Surv(d$Time, d$DSD)[i,], ibs_preds_km0[i,], ibs_times, max(d$Time[i]))$ibs
+	c(gg - km0, gg2 - km0, cph - km0, rsf - km0, gg - rsf, gg2 - rsf, cph - rsf, gg - cph, gg2 - cph, gg - gg2)
+}, R = 500)
+ibsc_boots2_ci = t(sapply(1:length(ibsc_boots2$t0), function(i) boot.ci(ibsc_boots2, index = i, type = "bca")$bca))
+rownames(ibsc_boots2_ci) = c("gg-km0", "gg2-km0", "cph-km0", "rsf-km0", "gg-rsf", "gg2-rsf", "cph-rsf", "gg-cph", "gg2-cph", "gg-gg2")
+colnames(ibsc_boots2_ci) = c("level", "orderi1", "orderi2", "lci", "uci")
+ibsc_boots2
+ibsc_boots2_ci
+@
 All models perform equivalently on the validation set.  Select the simplest: gg.
 
 
@@ -507,7 +541,6 @@ All models perform equivalently on the validation set.  Select the simplest: gg.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Session information}
 <<sessioninfo>>=
-session_info
 sessionInfo()
 @
 
