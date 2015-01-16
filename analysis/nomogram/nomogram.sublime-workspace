@@ -1,0 +1,972 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"Smok",
+				"SmokingStatus"
+			],
+			[
+				"Alco",
+				"AlcoholLevel"
+			],
+			[
+				"Age",
+				"AgeAtDiagnosis"
+			],
+			[
+				"Pre",
+				"PreviousMalignancy"
+			],
+			[
+				"purity",
+				"purity_qpure"
+			],
+			[
+				"GSE",
+				"GSE21501"
+			],
+			[
+				"GSE215",
+				"GSE21501"
+			],
+			[
+				"residua",
+				"residual_norm"
+			],
+			[
+				"patinet",
+				"patient_id"
+			],
+			[
+				"level",
+				"levelToNA"
+			],
+			[
+				"prepr",
+				"preprocess.Ca"
+			],
+			[
+				"09_exp",
+				"09_expG_results.txt"
+			],
+			[
+				"Patien",
+				"Patient.ID"
+			],
+			[
+				"mrmse",
+				"mrmseC"
+			],
+			[
+				"mrm",
+				"mrmseB"
+			],
+			[
+				"norm10_",
+				"norm10_4800_4900"
+			],
+			[
+				"trans_succf",
+				"trans_succdiff2"
+			],
+			[
+				"cluster",
+				"cluster_weights"
+			],
+			[
+				"multi",
+				"multivariate_calibrator_1"
+			],
+			[
+				"multiv",
+				"multivariate_wrapper_1"
+			],
+			[
+				"doCV",
+				"doCVSingleFold"
+			],
+			[
+				"final",
+				"final_calibrator"
+			],
+			[
+				"final_",
+				"final_calibrator_fit"
+			],
+			[
+				"newclust",
+				"newcluster.weights"
+			],
+			[
+				"executeChai",
+				"executeChainForCvFit"
+			],
+			[
+				"fit.combiner",
+				"fit.combiner.matrix"
+			],
+			[
+				"Class",
+				"classification"
+			],
+			[
+				"data.sel",
+				"data.selection"
+			],
+			[
+				"prov",
+				"provean_scores"
+			],
+			[
+				"pre",
+				"previous_states"
+			],
+			[
+				"toke",
+				"token_list"
+			],
+			[
+				"bic_",
+				"bic_loss_gain"
+			],
+			[
+				"bic_lo",
+				"bic_loss_only"
+			],
+			[
+				"trans",
+				"transition_matrix"
+			],
+			[
+				"glob",
+				"global_transition_rate"
+			],
+			[
+				"stable",
+				"stable_loss_rate"
+			],
+			[
+				"coverage",
+				"coverage.normal"
+			],
+			[
+				"normal",
+				"normal_exon_coverage"
+			],
+			[
+				"obj",
+				"object"
+			],
+			[
+				"param",
+				"parameters"
+			],
+			[
+				"MyC",
+				"MyCNV_dualCoverage"
+			],
+			[
+				"REFERENCE",
+				"REFERENCE_FA"
+			],
+			[
+				"omi",
+				"omitLocusTable"
+			],
+			[
+				"lib",
+				"liblzma_stream"
+			],
+			[
+				"01_regen",
+				"01_regenerateFASTQsWorker"
+			],
+			[
+				"approxLog",
+				"approxLogLikFitter"
+			],
+			[
+				"depth.norma",
+				"depth.normal.total"
+			],
+			[
+				"data.co",
+				"data.common.targeted"
+			],
+			[
+				"vcf",
+				"vcftools"
+			],
+			[
+				"y.val",
+				"y.validate.100"
+			],
+			[
+				"CO",
+				"COX_BETA_DELTA_MAX"
+			],
+			[
+				"Num",
+				"NumericVector"
+			],
+			[
+				"sel.examp.",
+				"sel.examp.90complete"
+			],
+			[
+				"Pred.Mutation",
+				"Pred.MutationAssessor.normed"
+			],
+			[
+				"imp",
+				"imputer_missforest"
+			],
+			[
+				"class_",
+				"class_weights"
+			],
+			[
+				"optimi",
+				"optimize_mtry_ntree"
+			],
+			[
+				"optimize",
+				"optimize_mtry"
+			],
+			[
+				"classw",
+				"class_weights"
+			],
+			[
+				"Arff",
+				"ArffInStream"
+			],
+			[
+				"indi",
+				"indicator_matrix"
+			],
+			[
+				"join",
+				"joint_entropies"
+			],
+			[
+				"data.com",
+				"data.complete.pred.ensemble"
+			],
+			[
+				"data.complete.pred.",
+				"data.complete.pred.ensemble"
+			],
+			[
+				"cv20.glm",
+				"cv20.glmnet.pred"
+			],
+			[
+				"lines",
+				"lines_in_this_chunk"
+			],
+			[
+				"chu",
+				"chunk_part"
+			],
+			[
+				"line",
+				"line_chromosome"
+			],
+			[
+				"out",
+				"output_file_position"
+			],
+			[
+				"global",
+				"global_weight_param"
+			],
+			[
+				"glo",
+				"global_weight_algo"
+			],
+			[
+				"loca",
+				"local_weight_param"
+			],
+			[
+				"train",
+				"train_data"
+			],
+			[
+				"loc",
+				"local_weight_param"
+			],
+			[
+				"local",
+				"local_weight_algo"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "05_train_NSWPCN_2.Rnw",
+			"settings":
+			{
+				"buffer_size": 32371,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "07_validate.Rnw",
+			"settings":
+			{
+				"buffer_size": 25798,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "07_test_MSKCC_on_NSWPCN_Glasgow.Rout",
+			"settings":
+			{
+				"buffer_size": 32895,
+				"line_ending": "Unix"
+			}
+		}
+	],
+	"build_system": "",
+	"command_palette":
+	{
+		"height": 306.0,
+		"selected_items":
+		[
+			[
+				"Package Control: ",
+				"Package Control: Install Package"
+			],
+			[
+				"Package Control: in",
+				"Package Control: Install Package"
+			],
+			[
+				"Package Control: In",
+				"Package Control: Install Package"
+			]
+		],
+		"width": 467.0
+	},
+	"console":
+	{
+		"height": 139.0,
+		"history":
+		[
+			"import urllib.request,os,hashlib; h = '7183a2d3e96f11eeadd761d777e62404' + 'e330c659d4bb41d3bdf022e94cab3cd0'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://sublime.wbond.net/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h else open(os.path.join( ipp, pf), 'wb' ).write(by)"
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/nomogram"
+	],
+	"file_history":
+	[
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/nomogram/.quantiles = c(0.2, 0.5, 0.8)",
+		"/home/mark/ClusterHome/analysis/50_cosmic_lens/02_NB_classifier.R",
+		"/home/mark/ClusterHome/analysis/50_cosmic_lens/01_parseCosmicData.py",
+		"/home/mark/ClusterHome/analysis/50_cosmic_lens/01_parseCosmicData.R",
+		"/home/mark/ClusterHome/stats.txt",
+		"/home/mark/ClusterHome/temp.R",
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/nomogram/05_train_NSWPCN_2.Rnw",
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/nomogram/07_test_MSKCC_GG_on_Glasgow.Rnw",
+		"/home/mark/Downloads/classification.csv",
+		"/home/mark/ClusterHome/analysis/49_gois_for_darren_saunders/01_report.Rnw",
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/biosurv/reports/PCA_ICA_NMF_comparison/report.Rnw",
+		"/home/mark/ClusterHome/analysis/35_mann_goi_testing/01_analysis.R",
+		"/home/mark/ClusterHome/analysis/24_gois_for_marina/01_gois.R",
+		"/home/mark/repos/phd-thesis/analysis/nomogram/05_train_NSWPCN_2.Rnw",
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/biosurv/reports/18_SIS_diag_dsd_final/Makefile",
+		"/home/mark/repos/phd-thesis/analysis/nomogram/05_train_NSWPCN_2.R",
+		"/home/mark/repos/phd-thesis/analysis/biosurv/reports/18_SIS_diag_dsd_final/report.Rnw",
+		"/home/mark/repos/phd-thesis/analysis/nomogram/webapp/server.R",
+		"/home/mark/repos/phd-thesis/analysis/nomogram/04_train_NSWPCN.R",
+		"/home/mark/repos/phd-thesis/BUILD",
+		"/home/mark/Desktop/Scanning/Scans/C41/process.sh",
+		"/home/mark/Desktop/Scanning/Scans/C41/P20131204-1/metadata.txt",
+		"/home/mark/Desktop/Scanning/Scans/C41/testgamma.sh",
+		"/home/mark/Desktop/Scanning/Scans/B&W/P20131204-2 D20140123-1 S20140202-1 Honeymoon 4-12-2013 Madrid/metadata.txt",
+		"/home/mark/Desktop/Scanning/Scans/B&W/process.sh",
+		"/home/mark/Desktop/Scanning/Scans/B&W/testgamma.sh",
+		"/home/mark/Desktop/Scanning/Scans/B&W/P20131227-1/metadata.txt",
+		"/home/mark/Desktop/Scanning/Scans/B&W/P20140101-1/metadata.txt",
+		"/home/mark/Desktop/Scanning/Scans/B&W/P20131220-1 D20141118-1 S20141214-3 Honeymoon 20-12-2013 Lisbon/metadata.txt",
+		"/home/mark/Desktop/Scanning/Scans/B&W/P20131219-1 D20140123-1 S20140203-1 Honeymoon 19-12-2013 Lisbon/metadata.txt",
+		"/home/mark/Desktop/Scanning/Scans/B&W/P20131218-1 D20140123-1 S20140131-1 Honeymoon 18-12-2013 Porto Quinta Lisbon/metadata.txt",
+		"/home/mark/Desktop/Scanning/Scans/B&W/P2013 D20140123-2 S20130130-1 Filter series Sydney/metadata.txt",
+		"/home/mark/Desktop/Scanning/Scans/B&W/P20131130-2/metadata.txt",
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/nomogram/02_EDA_NSWPCN.R",
+		"/home/mark/Desktop/Scanning/Scans/B&W/P20131206-1/metadata.txt",
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/nomogram/05_train_NSWPCN_2.R",
+		"/home/mark/Downloads/stpm2.sthlp",
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/nomogram/Makefile",
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/nomogram/webapp/server.R",
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/nomogram/webapp/ui.R",
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/nomogram/06_test_NSWPCN_on_Glasgow.R",
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/nomogram/07_test_MSKCC_on_NSWPCN_Glasgow.R",
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/nomogram/08_test_NSWPCN_on_Glasgow.R",
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/nomogram/08_test_MSKCC_on_NSWPCN.R",
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/nomogram/05_load_Glasgow.R",
+		"/home/mark/Desktop/Scanning/Scans/B&W/doall.sh",
+		"/home/mark/Desktop/Scanning/Scans/B&W/P20131218-1 D20140123-1 S20140131-1 Honeymoon 18-12-2013 Porto Quinta Lisbon/process.sh",
+		"/home/mark/Desktop/Scanning/Scans/B&W/P20131218-1 D20140123-1 S20140131-1 Honeymoon 18-12-2013 Porto Quinta Lisbon/10.pam",
+		"/home/mark/Desktop/Scanning/Scans/B&W/P20131218-1 D20140123-1 S20140131-1 Honeymoon 18-12-2013 Porto Quinta Lisbon/dark.pgm",
+		"/home/mark/Desktop/Scanning/Scans/B&W/P20131218-1 D20140123-1 S20140131-1 Honeymoon 18-12-2013 Porto Quinta Lisbon/bright.pam",
+		"/home/mark/Desktop/Scanning/Scans/doit.sh",
+		"/home/mark/Desktop/ids.txt",
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/nomogram/06_test_NSWPCN_on_Glasgow.Rout",
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/nomogram/04_train_NSWPCN.R",
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/nomogram/03_subset_fix_NSWPCN.R",
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/nomogram/07_test_MSKCC_on_NSWPCN_Glasgow.Rout",
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/nomogram/07_test_MSKCC_on_NSWPCN.R",
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/nomogram/data/provenance.txt",
+		"/home/mark/2014-12-18-172558_3286x1080_scrot.csv",
+		"/home/mark/Desktop/Survival Analysis/2009 Work/20090605/01_evalBrennanOnGarvan.RSession",
+		"/home/mark/Desktop/Survival Analysis/2009 Work/20090603/02_importBrennan.RSession",
+		"/home/mark/Desktop/Survival Analysis/2009 Work/20090603/03_cIndex.RSession",
+		"/home/mark/Desktop/Survival Analysis/2009 Work/20090602 - Initial report to AB/01_finalProg.RSession",
+		"/home/mark/Downloads/04_train_NSWPCN.Rout",
+		"/home/mark/ClusterHome/repos/phd-thesis/replace-local.sh",
+		"/home/mark/ClusterHome/repos/phd-thesis/replace-s3.sh",
+		"/home/mark/ClusterHome/repos/phd-thesis/update-local.sh",
+		"/home/mark/ClusterHome/repos/phd-thesis/update-s3.sh",
+		"/home/mark/.config/GIMP/2.9/scripts/sepia-plus.scm",
+		"/media/mark/2ACE-AC6D/P20131204-2 D20140123-1 S20140202-1 Honeymoon 4-12-2013 Madrid/metadata.txt",
+		"/home/mark/.gimp-2.8/scripts/sepia-plus_0.scm",
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/nomogram/data/04_train_NSWPCN.R",
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/nomogram/data/Makefile",
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/nomogram/data/03_subset_fix_NSWPCN.R",
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/nomogram/data/05_load_Glasgow.R",
+		"/home/mark/.cache/.fr-5dKWhi/Total_cohort_MP_05022013.txt",
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/nomogram/data/originals/provenance.txt",
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/nomogram/data/01_load_NSWPCN.R",
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/nomogram/data/02_EDA_NSWPCN.R",
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/nomogram/data/03_train_NSWPCN.R",
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/nomogram/data/02_subset_NSWPCN.R",
+		"/home/mark/Desktop/Survival Analysis/01_ImportAndCleanData.RSession",
+		"/home/mark/Desktop/Survival Analysis/02_DataFixes.RSession",
+		"/home/mark/Desktop/Survival Analysis/03_SelectDataset.RSession",
+		"/home/mark/Desktop/Survival Analysis/07_peperr_trials.RSession",
+		"/home/mark/Desktop/Survival Analysis/06_CompareWithOldDataset.RSession",
+		"/home/mark/Desktop/Survival Analysis/04_CoxExploratory.RSession",
+		"/home/mark/Desktop/Survival Analysis/05_RSFExploratory.RSession",
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/nomogram/data/originals/Total_cohort_MP_05022013.txt",
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/nomogram/01_load_NSWPCN.R",
+		"/media/pandora/Cancer/Mark P/Pancreas/Survival Analysis/01_ImportAndCleanData.RSession",
+		"/home/mark/ClusterHome/analysis/20_poster_figures/01_figs.R",
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/biosurv/reports/PCA_ICA_NMF_comparison/figure/smallplots-1.tikz",
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/biosurv/reports/PCA_ICA_NMF_comparison/figure/plots-1.tikz",
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/biosurv/reports/PCA_ICA_NMF_comparison/report.tex",
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/biosurv/data/07_SIS_prep.R",
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/biosurv/reports/18_SIS_diag_dsd_final/report.Rnw",
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/biosurv/reports/PCA_ICA_NMF_comparison/comp.Rnw",
+		"/home/mark/synthetic_data.csv",
+		"/home/mark/ClusterHome/repos/phd-thesis/Makefile",
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/biosurv/reports/18_SIS_diag_dsd_final/calcs.R",
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/biosurv/reports/18_SIS_diag_dsd_final/report.tex",
+		"/home/mark/ClusterHome/15.tex",
+		"/home/mark/Downloads/report.tex",
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/biosurv/common/08_SIS_common_funcs.R",
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/biosurv/reports/18_SIS_diag_dsd_final/varsel.R",
+		"/home/mark/ClusterHome/temp01.png",
+		"/home/mark/.cache/.fr-Si80S2/ahaz/R/print.ahaz.R",
+		"/home/mark/.cache/.fr-O5heuJ/ahaz/R/ahazisis.R",
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/biosurv/data/15_prep_validation.R",
+		"/home/mark/ClusterHome/repos/phd-thesis/build/dissertation.log",
+		"/home/mark/ClusterHome/repos/phd-thesis/make.sh",
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/biosurv/analysis/14_SIS_NMF_CV.R",
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/biosurv/src/14_SIS_NMF_CV.R",
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/biosurv/src/07_SIS_prep.R",
+		"/home/mark/Downloads/calcs (1).R",
+		"/home/mark/Downloads/calcs.R",
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/biosurv/reports/common/SIS_NMF_calcs.R",
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/biosurv/reports/17_SIS_NMF_diag_dsd/calcs.R",
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/biosurv/src/15_prep_validation.R",
+		"/home/mark/ClusterHome/analysis/01_surv_paper/validation/data/temp.txt",
+		"/home/mark/ClusterHome/analysis/01_surv_paper/validation/data/GPL4133.annot",
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/biosurv/reports/16_SIS_NMF_alltogethernow/Makefile",
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/biosurv/reports/16_SIS_NMF_alltogethernow/report.tex",
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/biosurv/reports/16_SIS_NMF_alltogethernow/calcs.R",
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/biosurv/reports/16_SIS_NMF_alltogethernow/report.Rnw",
+		"/home/mark/.cache/.fr-bkoI3u/aws/IAM",
+		"/home/mark/Downloads/Calculus Wars (Linux)_Data/mainData"
+	],
+	"find":
+	{
+		"height": 35.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": true,
+		"find_history":
+		[
+			"History.Death.EventTimeDays",
+			"History.DSDeath.Event",
+			"data.test.glasgow",
+			"data.glasgow",
+			"        ",
+			".type",
+			"coord",
+			"fit.cph",
+			"12",
+			"data",
+			"AgeCent",
+			"^",
+			"I(AgeCent^2)",
+			"^",
+			"boot_samp",
+			"data.val",
+			"[boot_samp,]",
+			"data.val",
+			"4*",
+			"library",
+			".marginal",
+			"temp.",
+			"#!/",
+			".1",
+			".2",
+			".1",
+			"load(\"04_NSWPCN_fits.rda\")\ndata.glasgow = readRDS(\"05_Glasgow.rds\")\n\npdf(\"05_test_NSWPCN_on_Glasgow.pdf\")\n\nrm(args, data, data.x.confounders, data.x.conv_preop, data.x.conv_postop, \n	data.x.management, data.x.molec_preop, data.x.molec_postop, data.x.postop.conventional,\n	data.x.preop.conventional, data.x.preop.molecular, mode, origcols, tsub)\n\nlibrary(glmulti)\nlibrary(survival)\n\nmodel0 = coxph(data.y ~ 1)\nmodel1 = glmulti.conv_preop.bic\nmodel2 = glmulti.molec_preop.bic\nmodel3 = glmulti.conv_postop.bic\nmodel4 = glmulti.molec_postop.bic\n\npreds0 = rep(0, nrow(data.glasgow))\npreds1 = predict(model1, select = 1, newdata = data.glasgow)$averages[1,]\npreds2 = predict(model2, select = 1, newdata = data.glasgow)$averages[1,]\npreds3 = predict(model3, select = 1, newdata = data.glasgow)$averages[1,]\npreds4 = predict(model4, select = 1, newdata = data.glasgow)$averages[1,]\n\n\nlibrary(timeROC)\ncdroc0 = timeROC(data.glasgow$History.Death.EventTimeDays/365.25*12, as.numeric(as.character(data.glasgow$History.Death.Cause)), preds0, cause = 1, times = seq(1, 36, 1), iid = TRUE)\ncdroc1 = timeROC(data.glasgow$History.Death.EventTimeDays/365.25*12, as.numeric(as.character(data.glasgow$History.Death.Cause)), preds1, cause = 1, times = seq(1, 36, 1), iid = TRUE)\ncdroc2 = timeROC(data.glasgow$History.Death.EventTimeDays/365.25*12, as.numeric(as.character(data.glasgow$History.Death.Cause)), preds2, cause = 1, times = seq(1, 36, 1), iid = TRUE)\ncdroc3 = timeROC(data.glasgow$History.Death.EventTimeDays/365.25*12, as.numeric(as.character(data.glasgow$History.Death.Cause)), preds3, cause = 1, times = seq(1, 36, 1), iid = TRUE)\ncdroc4 = timeROC(data.glasgow$History.Death.EventTimeDays/365.25*12, as.numeric(as.character(data.glasgow$History.Death.Cause)), preds4, cause = 1, times = seq(1, 36, 1), iid = TRUE)\n#plotAUCcurve(cdroc0, conf.int = TRUE)\nplotAUCcurve(cdroc1, conf.int = FALSE, add = FALSE, col = \"red\")		# Preop-conv\nplotAUCcurve(cdroc2, conf.int = FALSE, add = TRUE, col = \"blue\")		# Preop-molec\n#plotAUCcurve(cdroc3, conf.int = FALSE, add = TRUE, col = \"orange\")		# Postop-conv\n#plotAUCcurve(cdroc4, conf.int = FALSE, add = TRUE, col = \"green\")		# Postop-molec\nlegend(\"topright\", legend = c(\"Preop-Conv\", \"Preop-Molec\"), col = c(\"red\", \"blue\"), lty = \"solid\")\nplotAUCcurveDiff(cdroc2, cdroc1, conf.int = TRUE)\n\n\nlibrary(risksetROC)\nrisksetROC(data.glasgow$History.Death.EventTimeDays/365.25*12, status = data.glasgow$History.Death.Cause == \"1\", marker = preds1, predict.time = 12)\nrisksetROC(data.glasgow$History.Death.EventTimeDays/365.25*12, status = data.glasgow$History.Death.Cause == \"1\", marker = preds2, predict.time = 12)\nrisksetAUC(data.glasgow$History.Death.EventTimeDays/365.25*12, status = data.glasgow$History.Death.Cause == \"1\", marker = preds1, tmax = 36)\nrisksetAUC(data.glasgow$History.Death.EventTimeDays/365.25*12, status = data.glasgow$History.Death.Cause == \"1\", marker = preds2, tmax = 36)\n\n\nlibrary(pec)\n",
+			"phd",
+			"..aic@",
+			"bic",
+			"@",
+			"conv",
+			"\"",
+			"\" +\"",
+			" +",
+			"Preop",
+			".normed",
+			" +",
+			" *",
+			"data",
+			",.*",
+			"Margin",
+			"definecolor",
+			"Class ",
+			"	",
+			"gex",
+			" +$",
+			"nmf.final.msigdb.corr",
+			"temp.prog",
+			" *$",
+			",  ",
+			"/",
+			" /",
+			"\\\\_",
+			"0 ",
+			"\\.",
+			"^ +",
+			"^## [0-9]+",
+			" .*",
+			"        ",
+			"pvals",
+			"xlin",
+			"temp.pvals",
+			"error",
+			"thesis",
+			"GSE21501",
+			".all",
+			"coef",
+			"consen",
+			"xlin.scaled.sel.nmf",
+			"meta",
+			"metadata",
+			" .*",
+			"^ ",
+			"^[^ ].*",
+			"tabularx",
+			"longtable",
+			"\\Gscale@box@dd3",
+			"ktable",
+			"scale",
+			"msigdb",
+			"sigs",
+			"mergeSimilarGSVAScores",
+			"stdout",
+			"doublereal",
+			"integer",
+			"mat ",
+			"arma::",
+			"^[0-9]{5} ",
+			"xlin.scaled.sel.nmf",
+			"max",
+			"samps",
+			", cache=FALSE",
+			"library",
+			"16",
+			"t(coef(xlin.scaled.sel.nmf))",
+			"coxnet",
+			"w(no)",
+			"weight",
+			"xlin",
+			"temp.x",
+			"ncomp",
+			"temp.nmf",
+			"_rel",
+			"temp.nmf",
+			"sample_data",
+			"gex",
+			"noisePlot(log2(exprs(gex.qc)[,c(\"5624980044_B\", \"5624980044_C\")]), span = 0.05, pch = 16, cex = 0.5, ylim = c(0, 1.5), main = \"APGI_2222 (H) Pre-normalization\",  col = rgb(I(qc.detrate2 < 0.1)*0.7, I(qc.detrate2 < 0.1)*0.7, qc.detrate2 < 0.1, 0.1))\n\nnoisePlot(log2(exprs(gex.qc)[,c(\"5445316014_A\", \"5491021082_B\")]), span = 0.05, pch = 16, cex = 0.5, ylim = c(0, 1.5), main = \"APGI_1959 (H) Pre-normalization\", col = rgb(I(qc.detrate2 < 0.1)*0.7, I(qc.detrate2 < 0.1)*0.7, qc.detrate2 < 0.1, 0.1))\n\nnoisePlot(log2(exprs(gex.qc)[,c(\"8986311029_L\", \"9020374003_H\")]), span = 0.05, pch = 16, cex = 0.5, ylim = c(0, 1.5), main = \"APGI_2315 (L) Pre-normalization\", col = rgb(I(qc.detrate2 < 0.1)*0.7, I(qc.detrate2 < 0.1)*0.7, qc.detrate2 < 0.1, 0.1))\n\nnoisePlot(log2(exprs(gex.qc)[,c(\"7976997017_C\", \"9020374009_B\")]), span = 0.05, pch = 16, cex = 0.5, ylim = c(0, 1.5), main = \"APGI_2340 (L) Pre-normalization\", col = rgb(I(qc.detrate2 < 0.1)*0.7, I(qc.detrate2 < 0.1)*0.7, qc.detrate2 < 0.1, 0.1))\n\n",
+			"temp1",
+			"celllines.",
+			"lines.ha",
+			"primary",
+			"\",\"",
+			",",
+			"\"",
+			"rankmean",
+			"|",
+			"\"[A-Z0-9_]*\" = ",
+			" = [0-9]",
+			"primary",
+			"\\t*",
+			"#.*",
+			"^$",
+			" there is .*",
+			"> ",
+			".*:",
+			" ",
+			"\\t*$"
+		],
+		"highlight": true,
+		"in_selection": true,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			"Time",
+			"DSD",
+			"data.glasgow",
+			"data.test.glasgow",
+			"    ",
+			".site",
+			"24",
+			"36",
+			"AgeCent2",
+			"i",
+			"d",
+			"",
+			"d",
+			"",
+			"1",
+			"2",
+			"1",
+			".aic",
+			".aic@",
+			".bic@",
+			"molec",
+			"",
+			"\\n",
+			"\"",
+			"Postop",
+			".transformed",
+			", ",
+			"data2",
+			" = \"\",",
+			"",
+			",",
+			"temp.gex",
+			"",
+			"axis_coefs.msigdb.corr",
+			"temp.coefs",
+			"",
+			", ",
+			" ",
+			"0.",
+			" ",
+			"",
+			"\\t",
+			"dissertation",
+			"GSE17891",
+			"nmf.final",
+			"samp",
+			"meta",
+			"",
+			"double",
+			"int",
+			"arma::mat ",
+			"",
+			"32",
+			"xlin.scores",
+			"xlin.scaled",
+			"nmf.rankrange",
+			"temp.nmf.rank",
+			"_scaled",
+			"xlin.sel.nmf",
+			"sample_data2",
+			"gex2",
+			"temp2",
+			"cellline.",
+			"celllines.ha",
+			"lines",
+			", ",
+			"",
+			"gsva",
+			"\\n",
+			"",
+			"cellline",
+			"",
+			",",
+			"\\t\\t",
+			"\\n",
+			"\", ",
+			"\"",
+			"cpvs.jw$",
+			"",
+			"C",
+			"round",
+			",",
+			"_rc_",
+			"transcript",
+			"  ",
+			"temp.",
+			"strata_ids",
+			"",
+			" ",
+			"",
+			" ",
+			"temp",
+			"cnv$data",
+			"call$data",
+			"",
+			"_shifted",
+			"model",
+			"CNVUNIFORMresponse",
+			"CNVBETAresponse",
+			"cnv",
+			"normal",
+			"$caller.Q",
+			"loh$data$caller.depth_sufficient",
+			"loh$data$caller.depth_sufficient.",
+			"loh$data$caller.",
+			"caller.depth_sufficient",
+			"loh",
+			"UNIFORMresponse",
+			"tile",
+			"/home/marpin",
+			"stream.mode.",
+			"",
+			".val.",
+			".gli.",
+			".imputed",
+			".traincv.",
+			"perf.cv.",
+			"pred.cv.",
+			"event",
+			"",
+			"FALSE",
+			"TRUE",
+			"events",
+			"times",
+			"TRUE",
+			"FALSE",
+			"",
+			"beta"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 1,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "05_train_NSWPCN_2.Rnw",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 32371,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								32136,
+								32136
+							]
+						],
+						"settings":
+						{
+							"r_box_status": false,
+							"syntax": "Packages/LaTeXing/support/LaTeX (Knitr).tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 10867.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "07_validate.Rnw",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 25798,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								14628,
+								14628
+							]
+						],
+						"settings":
+						{
+							"r_box_status": false,
+							"syntax": "Packages/LaTeXing/support/LaTeX (Knitr).tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 4376.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "07_test_MSKCC_on_NSWPCN_Glasgow.Rout",
+					"semi_transient": true,
+					"settings":
+					{
+						"buffer_size": 32895,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 25.0
+	},
+	"input":
+	{
+		"height": 33.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"project": "nomogram.sublime-project",
+	"replace":
+	{
+		"height": 64.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 316.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}

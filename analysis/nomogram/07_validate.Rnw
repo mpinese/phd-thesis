@@ -1,0 +1,562 @@
+\documentclass{article}
+\usepackage{geometry}
+\usepackage{amsmath}
+\usepackage{lscape}
+\geometry{verbose,tmargin=2.5cm,bmargin=2.5cm,lmargin=2.5cm,rmargin=2.5cm}
+
+\begin{document}
+
+<<setup, include=FALSE>>=
+library(knitr)
+library(tikzDevice)
+options(
+	tikzDocumentDeclaration = "\\documentclass[11pt]{memoir}",
+	tikzLatexPackages = c(
+		getOption("tikzLatexPackages"),
+		"\\usepackage{amsmath}"),
+	tikzMetricsDictionary="tikzMetrics"
+)
+knit_hooks$set(crop = hook_pdfcrop)
+opts_chunk$set(
+	fig.align = 'center', fig.path = "figure/05-", dev = 'tikz', dev.args = list(pointsize = 11), 
+	cache = TRUE, cache.path = "cache/05-", autodep = TRUE, crop = TRUE)
+opts_knit$set(progress = TRUE, verbose = TRUE)
+options(warn = 1)
+@
+
+
+<<libs>>=
+library(flexsurv)
+library(boot)
+library(randomForestSRC)
+library(timeROC)
+library(risksetROC)
+@
+
+
+\section{Preparation}
+Construct a *preoperative* function based on the Brennan nomogram.  The preoperative nature will mean that most prognostic components will need to be marginalized out.
+
+\begin{table}[h]
+\begin{tabular}{llll}
+Variable            & Preoperative? & Available? & Marginals                                                                                     \\
+Age                 & Yes           & Yes        & Linear.  90 =\textgreater 0, 30 =\textgreater 8.  Therefore $f(x) = -2/15(x-90) = -2/15x + 12$ \\
+Sex                 & Yes           & Yes        & Male risk delta 3                                                                             \\
+Portal Vein         & NO            &            & 14.4\% YES, risk delta 10, marginal 1.4                                                       \\
+Splenectomy         & NO            &            & 9.9\% YES, risk delta 62, marginal 6.1                                                        \\
+Margin of resection & NO            &            & 20.7\% POS, risk delta 4, marginal 0.8                                                        \\
+Head.vs.Other       & Yes           & Yes        & Head risk delta 51                                                                            \\
+Differentiation     & NO            &            & 14.2\% Well, risk delta 0, marginal 0                                                         \\
+                    &               &            & 56.4\% Mod, risk delta 14, marginal 7.9                                                       \\
+                    &               &            & 29.5\% Poor, risk delta 35, marginal 10.3.  Overall marginal 18.2                             \\
+Posterior.margin    & NO            &            & 86.0\% POS, risk delta 22, marginal 18.9                                                      \\
+Numb.pos.nodes      & NO            &            & Mean 2.1, approx marginal 15                                                                  \\
+Numb.neg.nodes      & NO            &            & Mean 16.9, approx marginal 9                                                                  \\
+Back.pain           & Yes           & NO         & 13.7\% YES, risk delta 15, marginal 2.0                                                       \\
+T.stage             & Yes           & Yes        &                                                                                               \\
+Weight Loss         & Yes           & NO         & 53.7\% YES, risk delta 3,  marginal 1.6                                                       \\
+Max.path.axis       & Yes           & Yes        &                                                                                              
+\end{tabular}
+\end{table}
+
+So the preoperative MSKCC score would be:
+\begin{align}
+S &= 1.4 + 6.1 + 0.8 + 18.2 + 18.9 + 15 + 9 + 15*Back.pain + 3*Weight.Loss + -2/15*Age + 12 + 3\left[Sex = M\right] + 51\left[Head.vs.Other = Head\right] + T.stage + Max.path.axis
+  &= 81.4 + 15*Back.pain + 3*Weight.Loss + -2/15*Age + 3*\left[Sex = M\right] + 51\left[Head.vs.Other = Head\right] + fT(T.stage) + fS(Max.path.axis)
+fT(T.stage) = 36\left[T.stage = T1\right] + 10\left[T.stage = T3\right] + 63\left[T.stage = T4\right]
+\end{align}
+
+
+<<mskcc-nomogram-def>>=
+fit.mskcc = list(
+	inputs = list(
+	History.Diagnosis.AgeAt = list(
+		margins = data.frame(value = 65, fraction = 1),
+		scorefunc = function(x) { x = x; -2/15*pmin(pmax(x, 0), 90) + 12 }),
+	Patient.Sex = list(
+		margins = data.frame(value = c("M", "F"), fraction = c(0.501, 1-0.501)),
+		scorefunc = function(x) { 3*I(x == "M") }),
+	Portal.Vein = list(
+		margins = data.frame(value = c(TRUE, FALSE), fraction = c(0.144, 1-0.144)),
+		scorefunc = function(x) { 10*I(x == TRUE) }),
+	Splenectomy = list(
+		margins = data.frame(value = c(TRUE, FALSE), fraction = c(0.099, 1-0.099)),
+		scorefunc = function(x) { 62*I(x == TRUE) }),
+	Treat.MarginPositive = list(
+		margins = data.frame(value = c(TRUE, FALSE), fraction = c(0.207, 1-0.207)),
+		scorefunc = function(x) { 4*I(x == TRUE) }),
+	Path.LocationBody = list(
+		margins = data.frame(value = c(FALSE, TRUE), fraction = c(0.894, 1-0.894)),
+		scorefunc = function(x) { 51*I(x == TRUE) }),
+	Path.Differentiation = list(
+		margins = data.frame(value = c("1", "2", "3", "4"), fraction = c(0.142, 0.564, 1-0.142-0.564, 0)),
+		scorefunc = function(x) { 14*I(x == "2") + 35*I(x == "3") + 35*I(x == "4") }),		# Undifferentiated (4) not covered by the MSKCC nomogram; here assign the same score as poorly differentiated (3)
+	Posterior.Margin = list(
+		margins = data.frame(value = c(TRUE, FALSE), fraction = c(0.86, 1-0.86)),
+		scorefunc = function(x) { 22*I(x == TRUE) }),
+	Path.LN.Involved = list(
+		margins = data.frame(value = 2.1, fraction = 1),
+		scorefunc = function(x) { 
+			x = pmin(40, pmax(x, 0))
+			fitfun = splinefun(c(0, 1, 2, 3, 4, 10, 15, 20, 25, 30, 35, 40), c(0, 14.56, 24.64, 30.28, 33.00, 39.05, 43.89, 48.83, 53.77, 58.61, 63.55, 68.49), method = "natural")
+			fitfun(x)
+		}),
+	Path.LN.Negative = list(
+		margins = data.frame(value = 16.9, fraction = 1),
+		scorefunc = function(x) { (pmin(pmax(x, 0), 90)-90)*-11/90 }),
+	Back.pain = list(
+		margins = data.frame(value = c(TRUE, FALSE), fraction = c(0.137, 1-0.137)),
+		scorefunc = function(x) { 15*I(x == TRUE) }),
+	Stage.pT.Simplified = list(
+		margins = data.frame(value = c("T1", "T2", "T34"), fraction = c(0.037, 0.119, 1-0.037-0.119)),
+		scorefunc = function(x) { 36*I(x == "T1") + 11*I(x == "T34") }),
+		# The following matches the original Brennan nomogram, but was not used as there are too few T4
+		# tumours in either the NSWPCN *or* the MSKCC cohorts -- how the T4 coefficient was ever estimated,
+		# I'll never know.  The T34 coefficient of 11 was arrived at as (0.828*10+(1-0.037-0.119-0.828)*63)/(1-0.037-0.119),
+		# being a frequency-weighted average of the T3 and T4 coefficients.
+		# margins = data.frame(value = c("T1", "T2", "T3", "T4"), fraction = c(0.037, 0.119, 0.828, 1-0.037-0.119-0.828)),
+		# scorefunc = function(x) { 36*I(x == "T1") + 10*I(x == "T3") + 63*I(x == "T4") }),
+	Weight.loss = list(
+		margins = data.frame(value = c(TRUE, FALSE), fraction = c(0.537, 1-0.537)),
+		scorefunc = function(x) { 3*I(x == TRUE) }),
+	Path.Size = list(
+		margins = data.frame(),
+		scorefunc = function(x) {
+			x = pmin(16, pmax(x, 0))
+			fitfun = splinefun(c(0, 1, 2, 3, 4, 6, 8, 10, 12, 14, 16), c(0, 29.74, 59.48, 86.70, 100, 97.29, 90.03, 82.77, 75.51, 68.25, 61.10), method = "natural")
+			fitfun(x)
+		}) ),
+	outputs = list(
+		DSS12mo = function(s) {
+			x = pmax(50, pmin(350, s))
+			fitfun = splinefun(c(79.0323, 115.02, 165.524, 197.278, 221.774, 242.339, 261.089, 279.839, 299.194, 323.992, 337.298), c(0.94, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0.06))
+			y = fitfun(x)
+			pmax(0, pmin(1, y))
+		},
+		DSS24mo = function(s) {
+			x = pmax(50, pmin(350, s))
+			fitfun = splinefun(c(71.1694, 97.7823, 129.536, 153.73, 174.294, 193.347, 211.794, 231.452, 255.645, 303.125), c(0.86, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0.01))
+			y = fitfun(x)
+			pmax(0, pmin(1, y))
+		},
+		DSS36mo = function(s) {
+			x = pmax(50, pmin(350, s))
+			fitfun = splinefun(c(69.3548, 101.109, 125.302, 145.867, 164.919, 183.367, 202.722, 226.915, 274.093), c(0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0.01))
+			y = fitfun(x)
+			pmax(0, pmin(1, y))
+		}) 
+	)
+
+applyNomogram = function(nomogram, data)
+{
+	scores = rowSums(sapply(names(nomogram$inputs), function(input) {
+		if (input %in% colnames(data)) {
+			return(nomogram$inputs[[input]]$scorefunc(data[,input]))
+		}
+		warning(sprintf("Marginalizing missing variable: %s", input))
+		margin_score = sum(nomogram$inputs[[input]]$scorefunc(nomogram$inputs[[input]]$margins$value) * nomogram$inputs[[input]]$margins$fraction)
+		return(rep(margin_score, nrow(data)))
+	}))
+
+	outputs = sapply(nomogram$outputs, function(f) f(scores))
+	cbind(Score = scores, outputs)
+}
+@
+
+
+\section{Model and data loading}
+Trained models:
+<<load-models>>=
+temp = readRDS("05_final_model.rds")
+fit.gg = temp$gg
+fit.gg2 = temp$gg2
+fit.cph = temp$cph
+fit.km0 = temp$km0
+fit.rsf = temp$rsf
+data.nswpcn = temp$data.train
+@
+
+<<load-glasgow>>=
+data.glasgow = readRDS("06_Glasgow.rds")
+data.glasgow$Path.LN.Negative = data.glasgow$Path.LN.Inspected - data.glasgow$Path.LN.Involved
+data.glasgow$History.Diagnosis.AgeAt = data.glasgow$History.Diagnosis.AgeAt.Cent + 68
+data.glasgow$Path.Size = data.glasgow$Path.Size.Cent + 30
+data.glasgow$SexM = data.glasgow$Patient.Sex == "M"
+data.glasgow$AgeCent = data.glasgow$History.Diagnosis.AgeAt.Cent
+data.glasgow$SizeCent = data.glasgow$Path.Size.Cent
+data.glasgow$A2 = data.glasgow$Molec.S100A2.DCThresh
+data.glasgow$A4 = data.glasgow$Molec.S100A4.DCThresh
+data.glasgow$LocBody = data.glasgow$Path.Location != "HOP"
+data.glasgow$Time = data.glasgow$History.Death.EventTimeDays
+data.glasgow$DSD = data.glasgow$History.DSDeath.Event
+@
+
+
+\section{Score calculation}
+<<calc-mskcc-scores>>=
+temp = applyNomogram(fit.mskcc, data.glasgow)
+mskcc_post.linpred.glasgow = temp[,1]
+mskcc_post.12mo.glasgow = temp[,2]
+mskcc_post.24mo.glasgow = temp[,3]
+mskcc_post.36mo.glasgow = temp[,4]
+temp = applyNomogram(fit.mskcc, data.glasgow[,c("History.Diagnosis.AgeAt", "Patient.Sex", "Path.LocationBody", "Stage.pT.Simplified", "Path.Size")])
+mskcc_pre.linpred.glasgow = temp[,1]
+mskcc_pre.12mo.glasgow = temp[,2]
+mskcc_pre.24mo.glasgow = temp[,3]
+mskcc_pre.36mo.glasgow = temp[,4]
+@
+
+Get approximate linear predictors from the GG model, by just calculating the location term effect.
+<<calc-gg-scores>>=
+gg.path.glasgow = summary(fit.gg, newdata = data.glasgow, ci = FALSE)
+temp.coefs = coef(fit.gg)
+gg.linpred.glasgow = sapply(1:length(temp.coefs), function(coef_i) {
+	if (names(temp.coefs)[coef_i] %in% colnames(data.glasgow)) { 
+		temp.coefs[coef_i] * data.glasgow[,names(temp.coefs)[coef_i]] 
+	} else if (gsub("TRUE$", "", names(temp.coefs)[coef_i]) %in% colnames(data.glasgow)) { 
+		temp.coefs[coef_i] * data.glasgow[,gsub("TRUE$", "", names(temp.coefs)[coef_i])] 
+	} else {
+		rep(0, nrow(data.glasgow)) 
+	} })
+gg.linpred.glasgow = -rowSums(gg.linpred.glasgow)	# Negate to bring into concordance with the direction of Cox coefficients (ie higher is now worse)
+
+gg.linpred.nswpcn = sapply(1:length(temp.coefs), function(coef_i) {
+	if (names(temp.coefs)[coef_i] %in% colnames(data.nswpcn)) { 
+		temp.coefs[coef_i] * data.nswpcn[,names(temp.coefs)[coef_i]] 
+	} else if (gsub("TRUE$", "", names(temp.coefs)[coef_i]) %in% colnames(data.nswpcn)) { 
+		temp.coefs[coef_i] * data.nswpcn[,gsub("TRUE$", "", names(temp.coefs)[coef_i])] 
+	} else {
+		rep(0, nrow(data.nswpcn)) 
+	} })
+gg.linpred.nswpcn = -rowSums(gg.linpred.nswpcn)		# Negate to bring into concordance with the direction of Cox coefficients (ie higher is now worse)
+@
+
+And the GG2
+<<calc-gg2-scores>>=
+gg2.path.glasgow = summary(fit.gg2, newdata = data.glasgow, ci = FALSE)
+temp.coefs = coef(fit.gg2)
+gg2.linpred.glasgow = sapply(1:length(temp.coefs), function(coef_i) {
+	if (names(temp.coefs)[coef_i] %in% colnames(data.glasgow)) { 
+		temp.coefs[coef_i] * data.glasgow[,names(temp.coefs)[coef_i]] 
+	} else if (gsub("TRUE$", "", names(temp.coefs)[coef_i]) %in% colnames(data.glasgow)) { 
+		temp.coefs[coef_i] * data.glasgow[,gsub("TRUE$", "", names(temp.coefs)[coef_i])] 
+	} else {
+		rep(0, nrow(data.glasgow)) 
+	} })
+gg2.linpred.glasgow = -rowSums(gg2.linpred.glasgow)	# Negate to bring into concordance with the direction of Cox coefficients (ie higher is now worse)
+
+gg2.linpred.nswpcn = sapply(1:length(temp.coefs), function(coef_i) {
+	if (names(temp.coefs)[coef_i] %in% colnames(data.nswpcn)) { 
+		temp.coefs[coef_i] * data.nswpcn[,names(temp.coefs)[coef_i]] 
+	} else if (gsub("TRUE$", "", names(temp.coefs)[coef_i]) %in% colnames(data.nswpcn)) { 
+		temp.coefs[coef_i] * data.nswpcn[,gsub("TRUE$", "", names(temp.coefs)[coef_i])] 
+	} else {
+		rep(0, nrow(data.nswpcn)) 
+	} })
+gg2.linpred.nswpcn = -rowSums(gg2.linpred.nswpcn)		# Negate to bring into concordance with the direction of Cox coefficients (ie higher is now worse)
+@
+
+
+<<calc-cph-scores>>=
+temp.coefs = coef(fit.cph)
+cph.linpred.nswpcn = sapply(1:length(temp.coefs), function(coef_i) {
+	if (names(temp.coefs)[coef_i] %in% colnames(data.nswpcn)) { 
+		temp.coefs[coef_i] * data.nswpcn[,names(temp.coefs)[coef_i]] 
+	} else if (gsub("TRUE$", "", names(temp.coefs)[coef_i]) %in% colnames(data.nswpcn)) { 
+		temp.coefs[coef_i] * data.nswpcn[,gsub("TRUE$", "", names(temp.coefs)[coef_i])] 
+	} else {
+		rep(0, nrow(data.nswpcn)) 
+	} })
+cph.linpred.nswpcn = rowSums(cph.linpred.nswpcn)
+
+cph.linpred.glasgow = sapply(1:length(temp.coefs), function(coef_i) {
+	if (names(temp.coefs)[coef_i] %in% colnames(data.glasgow)) { 
+		temp.coefs[coef_i] * data.glasgow[,names(temp.coefs)[coef_i]] 
+	} else if (gsub("TRUE$", "", names(temp.coefs)[coef_i]) %in% colnames(data.glasgow)) { 
+		temp.coefs[coef_i] * data.glasgow[,gsub("TRUE$", "", names(temp.coefs)[coef_i])] 
+	} else {
+		rep(0, nrow(data.glasgow)) 
+	} })
+cph.linpred.glasgow = rowSums(cph.linpred.glasgow)
+
+# Doesn't work for some obscure reason, I suspect to do with strata and environments:
+# cph.linpred.glasgow = predict(fit.cph, newdata = data.glasgow)
+# cph.linpred.nswpcn = predict(fit.cph, newdata = data.nswpcn)
+@
+
+
+\section{Validation}
+\subsection{Altman diagnostic 1: score histograms}
+<<score-hists>>=
+par(mfrow = c(2, 1))
+hist(gg.linpred.nswpcn, main = "NSWPCN GG scores", xlim = range(c(gg.linpred.nswpcn, gg.linpred.glasgow)), breaks = 20, col = "grey")
+abline(v = quantile(gg.linpred.nswpcn, probs = c(0.25, 0.5, 0.75)), col = "red")
+hist(gg.linpred.glasgow, main = "Glasgow GG scores", xlim = range(c(gg.linpred.nswpcn, gg.linpred.glasgow)), breaks = 20, col = "grey")
+abline(v = quantile(gg.linpred.glasgow, probs = c(0.25, 0.5, 0.75)), col = "red")
+par(mfrow = c(1, 1))
+
+par(mfrow = c(2, 1))
+hist(cph.linpred.nswpcn, main = "NSWPCN CPH scores", xlim = range(c(cph.linpred.nswpcn, cph.linpred.glasgow)), breaks = 20, col = "grey")
+abline(v = quantile(gg.linpred.nswpcn, probs = c(0.25, 0.5, 0.75)), col = "red")
+hist(cph.linpred.glasgow, main = "Glasgow CPH scores", xlim = range(c(cph.linpred.nswpcn, cph.linpred.glasgow)), breaks = 20, col = "grey")
+abline(v = quantile(gg.linpred.glasgow, probs = c(0.25, 0.5, 0.75)), col = "red")
+par(mfrow = c(1, 1))
+@
+
+\subsection{Altman method 1 (D,F)}
+<<altman-1>>=
+summary(coxph(Surv(Time, DSD) ~ mskcc_post.linpred.glasgow, data.glasgow))
+summary(coxph(Surv(Time, DSD) ~ mskcc_pre.linpred.glasgow, data.glasgow))
+summary(coxph(Surv(Time, DSD) ~ gg.linpred.glasgow, data.glasgow))
+summary(coxph(Surv(Time, DSD) ~ cph.linpred.glasgow, data.glasgow))
+
+anova(coxph(Surv(Time, DSD) ~ offset(gg.linpred.glasgow) + gg.linpred.glasgow, data.glasgow))
+anova(coxph(Surv(Time, DSD) ~ offset(cph.linpred.glasgow) + cph.linpred.glasgow, data.glasgow))
+@
+Booyah.
+
+
+\subsection{Altman method 2 (F)}
+<<altman-2>>=
+summary(coxph(Surv(Time, DSD) ~ offset(mskcc_pre.linpred.glasgow) + AgeCent + SexM + SizeCent + A2 + A4, data.glasgow))
+summary(coxph(Surv(Time, DSD) ~ offset(mskcc_post.linpred.glasgow) + AgeCent + SexM + SizeCent + A2 + A4, data.glasgow))
+summary(coxph(Surv(Time, DSD) ~ offset(gg.linpred.glasgow) + AgeCent + SexM + SizeCent + A2 + A4, data.glasgow))
+summary(coxph(Surv(Time, DSD) ~ offset(cph.linpred.glasgow) + AgeCent + SexM + SizeCent + A2 + A4, data.glasgow))
+@
+Still strong evidence of misspecification or poor fit.  However, the above calibration slope was not significantly different from 1.  Hmm.  This doesn't necessarily sink the method, but will need checking as we go along.
+
+\subsection{Altman method 3 (D)}
+Look at the CIs above.
+
+\subsection{Altman method 4 (D,C)}
+<<altman-4>>=
+group_quantiles = c(0, 0.25, 0.5, 0.75, 1)
+mskcc_pre.groups.glasgow = cut(mskcc_pre.linpred.glasgow, quantile(mskcc_pre.linpred.glasgow, group_quantiles))
+mskcc_post.groups.glasgow = cut(mskcc_post.linpred.glasgow, quantile(mskcc_post.linpred.glasgow, group_quantiles))
+gg.groups.glasgow = cut(gg.linpred.glasgow, quantile(gg.linpred.glasgow, group_quantiles))
+gg.groups.nswpcn = cut(gg.linpred.nswpcn, quantile(gg.linpred.nswpcn, group_quantiles))
+cph.groups.glasgow = cut(cph.linpred.glasgow, quantile(cph.linpred.glasgow, group_quantiles))
+cph.groups.nswpcn = cut(cph.linpred.nswpcn, quantile(cph.linpred.nswpcn, group_quantiles))
+
+par(mfrow = c(3, 2))
+plot(survfit(Surv(data.nswpcn$Time, data.nswpcn$DSD) ~ gg.groups.nswpcn), col = 1:(length(group_quantiles)-1), xlab = "Time (days)", ylab = "Fraction Alive", main = "GG: NSWPCN (Resubstitution)")
+plot(survfit(Surv(data.glasgow$Time, data.glasgow$DSD) ~ gg.groups.glasgow), col = 1:(length(group_quantiles)-1), xlab = "Time (days)", ylab = "Fraction Alive", main = "GG: Glasgow")
+plot(survfit(Surv(data.nswpcn$Time, data.nswpcn$DSD) ~ cph.groups.nswpcn), col = 1:(length(group_quantiles)-1), xlab = "Time (days)", ylab = "Fraction Alive", main = "CPH: NSWPCN (Resubstitution)")
+plot(survfit(Surv(data.glasgow$Time, data.glasgow$DSD) ~ cph.groups.glasgow), col = 1:(length(group_quantiles)-1), xlab = "Time (days)", ylab = "Fraction Alive", main = "CPH: Glasgow")
+plot(survfit(Surv(data.glasgow$Time, data.glasgow$DSD) ~ mskcc_pre.groups.glasgow), col = 1:(length(group_quantiles)-1), xlab = "Time (days)", ylab = "Fraction Alive", main = "MSKCC Preop: Glasgow")
+plot(survfit(Surv(data.glasgow$Time, data.glasgow$DSD) ~ mskcc_post.groups.glasgow), col = 1:(length(group_quantiles)-1), xlab = "Time (days)", ylab = "Fraction Alive", main = "MSKCC Postop: Glasgow")
+par(mfrow = c(1, 1))
+
+# temp = survfit(Surv(data.nswpcn$Time, data.nswpcn$DSD) ~ gg.groups.nswpcn)
+# plot(0 ~ 0, type = "n", xlim = c(0, max(data.nswpcn$Time)), ylim = c(0, 1))
+# for (i in )
+@
+Weird.  MSKCC somehow is still finding a subgroup, and it's somehow even clearer in preop!  This is based on an approximation to GG only, but should be pretty close.  It certainly does OK on resubstituted data, but not so well on the Glasgow patients.
+
+
+\subsection{Brier score}
+<<calc-ibs-func>>=
+calcIBS = function(surv, pred, pred_times, max_time)
+{
+	stopifnot(nrow(surv) == nrow(pred) && length(pred_times) == ncol(pred))
+
+	n = nrow(surv)
+	marg_survfit = survfit(surv ~ 1)
+	marg_censfit = survfit(Surv(surv[,1], !surv[,2]) ~ 1)
+	marg_surv_func = approxfun(marg_survfit$time, marg_survfit$surv, method = "constant", yleft = 1, yright = 0, rule = 2:1, f = 0)
+	marg_cens_func = approxfun(marg_censfit$time, marg_censfit$surv, method = "constant", yleft = 1, yright = 0, rule = 2:1, f = 0)
+
+	pred_funcs = apply(pred, 1, function(pat_preds) approxfun(pred_times, pat_preds, yleft = 1, yright = min(pat_preds), rule = 2))
+
+	indiv_patient_bsc = function(pat_i, tstars)
+	{
+		observed_time = surv[pat_i, 1]
+		observed_event = surv[pat_i, 2]
+		pred_func = pred_funcs[[pat_i]]
+		category = 1*(observed_time <= tstars & observed_event) + 2*(observed_time > tstars) + 3*(observed_time <= tstars & !observed_event)
+		bsc = rep(NA, length(tstars))
+		bsc[category == 1] = pred_func(tstars[category == 1])^2 / marg_cens_func(observed_time)
+		bsc[category == 2] = (1 - pred_func(tstars[category == 2]))^2 / marg_cens_func(tstars[category == 2])
+		bsc[category == 3] = 0
+		bsc
+	}
+
+	bsc_func = function(tstars) { rowMeans(sapply(1:n, function(pat_i) indiv_patient_bsc(pat_i, tstars))) }
+
+	weight_func = function(tstars) { (1 - marg_surv_func(tstars)) / (1 - marg_surv_func(max_time)) }
+
+	# Be slack and do trapezoidal int. with a fine grid.  It should be possible 
+	# to calulate the int. exactly but I cbfed.
+	int_grid = seq(0, max_time, length.out = 1e3)
+	bsc_vals = bsc_func(int_grid)
+	weight_vals = weight_func(int_grid)
+	int_vals = bsc_vals * weight_vals
+	ibsc = (2*sum(int_vals) - int_vals[1] - int_vals[length(int_vals)]) * (diff(range(int_grid))) / (2*length(int_vals))
+
+	return(list(bsc = bsc_vals, weights = weight_vals, eval_times = int_grid, ibsc = ibsc))
+}
+
+calcBSsingle = function(surv, pred, pred_time)
+{
+	n = nrow(surv)
+	obs_time = surv[,1]
+	obs_event = surv[,2]
+	marg_censfit = survfit(Surv(obs_time, !obs_event) ~ 1)
+	marg_cens_func = approxfun(marg_censfit$time, marg_censfit$surv, method = "constant", yleft = 1, yright = 0, rule = 2:1, f = 0)
+
+	brier_val = rep(NA, n)
+	cat = 1*I(obs_time <= pred_time & obs_event) + 2*I(obs_time > pred_time) + 3*I(obs_time <= pred_time & !obs_event)
+	brier_val[cat == 1] = (pred[cat == 1])^2 / marg_cens_func(obs_time[cat == 1])
+	brier_val[cat == 2] = (1-pred[cat == 2])^2 / marg_cens_func(pred_time)
+	brier_val[cat == 3] = 0
+
+	mean(brier_val)
+}
+@
+
+
+<<prob-bs-paths>>=
+mskcc_post.12mo.glasgow.brier = calcBSsingle(Surv(data.glasgow$Time, data.glasgow$DSD), mskcc_post.12mo.glasgow, 12/12*365.25)
+mskcc_post.24mo.glasgow.brier = calcBSsingle(Surv(data.glasgow$Time, data.glasgow$DSD), mskcc_post.24mo.glasgow, 24/12*365.25)
+mskcc_post.36mo.glasgow.brier = calcBSsingle(Surv(data.glasgow$Time, data.glasgow$DSD), mskcc_post.36mo.glasgow, 36/12*365.25)
+mskcc_pre.12mo.glasgow.brier = calcBSsingle(Surv(data.glasgow$Time, data.glasgow$DSD), mskcc_pre.12mo.glasgow, 12/12*365.25)
+mskcc_pre.24mo.glasgow.brier = calcBSsingle(Surv(data.glasgow$Time, data.glasgow$DSD), mskcc_pre.24mo.glasgow, 24/12*365.25)
+mskcc_pre.36mo.glasgow.brier = calcBSsingle(Surv(data.glasgow$Time, data.glasgow$DSD), mskcc_pre.36mo.glasgow, 36/12*365.25)
+gg.path.glasgow.brier = calcIBS(Surv(data.glasgow$Time, data.glasgow$DSD), t(sapply(gg.path.glasgow, function(x) x[,2])), gg.path.glasgow[[1]][,1], 10*365.25)
+
+km0.path.glasgow.brier = calcIBS(Surv(data.glasgow$Time, data.glasgow$DSD), matrix(fit.km0$surv, nrow = nrow(data.glasgow), ncol = length(fit.km0$time), byrow = TRUE), fit.km0$time, 10*365.25)
+
+temp.cph.pred = survfit(fit.cph, newdata = data.glasgow)
+temp.cph.pred.expanded_strata = rep(names(temp.cph.pred$strata), temp.cph.pred$strata)
+temp.cph.pred_funcs = sapply(rownames(data.glasgow), function(pat_id) {
+	approxfun(temp.cph.pred$time[temp.cph.pred.expanded_strata == pat_id], temp.cph.pred$surv[temp.cph.pred.expanded_strata == pat_id], method = "constant", f = 0, yleft = 1, rule = 2)
+})
+cph.path.glasgow.brier = calcIBS(Surv(data.glasgow$Time, data.glasgow$DSD), 
+	t(sapply(temp.cph.pred_funcs[rownames(data.glasgow)], function(f) f(c(12, 24, 36)/12*365.25))), c(12, 24, 36)/12*365.25, 10*365.25)
+
+gg2.path.glasgow.brier = calcIBS(Surv(data.glasgow$Time, data.glasgow$DSD), t(sapply(gg2.path.glasgow, function(x) x[,2])), gg2.path.glasgow[[1]][,1], 10*365.25)
+
+temp.rsf.pred = predict(fit.rsf, newdata = data.glasgow)
+rsf.path.glasgow.brier = calcIBS(Surv(data.glasgow$Time, data.glasgow$DSD), t(apply(temp.rsf.pred$survival, 1, function(patpreds) approx(temp.rsf.pred$time.interest, patpreds, c(12, 24, 36)/12*365.25)$y)), c(12, 24, 36)/12*365.25, 10*365.25)
+
+plot(gg.path.glasgow.brier$bsc ~ gg.path.glasgow.brier$eval_times, col = "aquamarine", type = "l", ylim = c(0, 0.3), xlab = "Time from diagnosis", ylab = "Brier score")
+lines(km0.path.glasgow.brier$bsc ~ km0.path.glasgow.brier$eval_times, col = "grey")
+lines(cph.path.glasgow.brier$bsc ~ cph.path.glasgow.brier$eval_times, col = "pink")
+lines(gg2.path.glasgow.brier$bsc ~ gg2.path.glasgow.brier$eval_times, col = "purple")
+lines(rsf.path.glasgow.brier$bsc ~ rsf.path.glasgow.brier$eval_times, col = "green")
+points(c(12, 24, 36)/12*365.25, c(mskcc_post.12mo.glasgow.brier, mskcc_post.24mo.glasgow.brier, mskcc_post.36mo.glasgow.brier), col = "red", cex = 1)
+points(c(12, 24, 36)/12*365.25, c(mskcc_pre.12mo.glasgow.brier, mskcc_pre.24mo.glasgow.brier, mskcc_pre.36mo.glasgow.brier), col = "blue", cex = 1)
+abline(h = 0.25, col = "grey", lty = "dotted")
+legend("topright", 
+	legend = c(	"GG1 Preop", 	"GG2 Preop", 	"CP1 Preop", 	"RSF Preop", 	"KM0", 		"MSKCC Postop", 	"MSKCC Preop"), 
+	pch = c(	NA, 			NA, 			NA, 			NA, 			NA, 		1, 					1), 
+	col = c(	"aquamarine", 	"purple", 		"pink", 		"green", 		"grey", 	"red", 				"blue"), 
+	lty = c(	"solid", 		"solid", 		"solid", 		"solid", 		"solid", 	NA, 				NA), 
+	inset = 0.05)
+@
+
+
+<<prob-bs-bootstrap>>=
+probs_bs_boot_func = function(d, i) {
+	bs.mskcc.postop.12 = calcBSsingle(Surv(d$Time[i], d$DSD[i]), mskcc_post.12mo.glasgow[i], 12/12*365.25)
+	bs.mskcc.postop.24 = calcBSsingle(Surv(d$Time[i], d$DSD[i]), mskcc_post.24mo.glasgow[i], 24/12*365.25)
+	bs.mskcc.postop.36 = calcBSsingle(Surv(d$Time[i], d$DSD[i]), mskcc_post.36mo.glasgow[i], 36/12*365.25)
+	bs.mskcc.preop.12 = calcBSsingle(Surv(d$Time[i], d$DSD[i]), mskcc_pre.12mo.glasgow[i], 12/12*365.25)
+	bs.mskcc.preop.24 = calcBSsingle(Surv(d$Time[i], d$DSD[i]), mskcc_pre.24mo.glasgow[i], 24/12*365.25)
+	bs.mskcc.preop.36 = calcBSsingle(Surv(d$Time[i], d$DSD[i]), mskcc_pre.36mo.glasgow[i], 36/12*365.25)
+
+	bs.gg.vals = t(sapply(gg.path.glasgow[i], function(path) approx(path[,1], path[,2], c(12, 24, 36)/12*365.25)$y))
+	rownames(bs.gg.vals) <- NULL
+	bs.gg.12 = calcBSsingle(Surv(d$Time[i], d$DSD[i]), bs.gg.vals[,1], 12/12*365.25)
+	bs.gg.24 = calcBSsingle(Surv(d$Time[i], d$DSD[i]), bs.gg.vals[,2], 24/12*365.25)
+	bs.gg.36 = calcBSsingle(Surv(d$Time[i], d$DSD[i]), bs.gg.vals[,3], 36/12*365.25)
+
+	cph.pred = survfit(fit.cph, newdata = d[i,])
+	cph.pred.expanded_strata = rep(names(cph.pred$strata), cph.pred$strata)
+	cph.pred_funcs = sapply(rownames(d)[i], function(pat_id) {
+		approxfun(cph.pred$time[cph.pred.expanded_strata == pat_id], cph.pred$surv[cph.pred.expanded_strata == pat_id], method = "constant", f = 0, yleft = 1, rule = 2)
+	})
+	bs.cph.12 = calcBSsingle(Surv(d$Time[i], d$DSD[i]), sapply(rownames(d)[i], function(pat_id) cph.pred_funcs[[pat_id]](12/12*365.25)), 12/12*365.25)
+	bs.cph.24 = calcBSsingle(Surv(d$Time[i], d$DSD[i]), sapply(rownames(d)[i], function(pat_id) cph.pred_funcs[[pat_id]](24/12*365.25)), 24/12*365.25)
+	bs.cph.36 = calcBSsingle(Surv(d$Time[i], d$DSD[i]), sapply(rownames(d)[i], function(pat_id) cph.pred_funcs[[pat_id]](36/12*365.25)), 36/12*365.25)
+	
+	bs.km0.vals = approx(fit.km0$time, fit.km0$surv, c(12, 24, 36)/12*365.25)$y
+	bs.km0.12 = calcBSsingle(Surv(d$Time[i], d$DSD[i]), rep(bs.km0.vals[1], nrow(d[i,])), 12/12*365.25)
+	bs.km0.24 = calcBSsingle(Surv(d$Time[i], d$DSD[i]), rep(bs.km0.vals[2], nrow(d[i,])), 24/12*365.25)
+	bs.km0.36 = calcBSsingle(Surv(d$Time[i], d$DSD[i]), rep(bs.km0.vals[3], nrow(d[i,])), 36/12*365.25)
+
+	result = c(
+		bs.cph.12 - bs.km0.12, 			bs.gg.12 - bs.km0.12, 			bs.mskcc.postop.12 - bs.km0.12, 		bs.mskcc.preop.12 - bs.km0.12, 
+		bs.cph.12 - bs.mskcc.preop.12, 	bs.gg.12 - bs.mskcc.preop.12, 	bs.mskcc.postop.12 - bs.mskcc.preop.12, 
+		bs.cph.12 - bs.mskcc.postop.12, bs.gg.12 - bs.mskcc.postop.12,
+		bs.cph.12 - bs.gg.12,
+		bs.cph.24 - bs.km0.24, 			bs.gg.24 - bs.km0.24, 			bs.mskcc.postop.24 - bs.km0.24, 		bs.mskcc.preop.24 - bs.km0.24, 
+		bs.cph.24 - bs.mskcc.preop.24, 	bs.gg.24 - bs.mskcc.preop.24, 	bs.mskcc.postop.24 - bs.mskcc.preop.24, 
+		bs.cph.24 - bs.mskcc.postop.24, bs.gg.24 - bs.mskcc.postop.24,
+		bs.cph.24 - bs.gg.24,
+		bs.cph.36 - bs.km0.36, 			bs.gg.36 - bs.km0.36, 			bs.mskcc.postop.36 - bs.km0.36, 		bs.mskcc.preop.36 - bs.km0.36, 
+		bs.cph.36 - bs.mskcc.preop.36, 	bs.gg.36 - bs.mskcc.preop.36, 	bs.mskcc.postop.36 - bs.mskcc.preop.36, 
+		bs.cph.36 - bs.mskcc.postop.36, bs.gg.36 - bs.mskcc.postop.36,
+		bs.cph.36 - bs.gg.36)
+	names(result) <- NULL
+	result
+}
+
+set.seed(20150113)
+deltaBrier.boot.glasgow = boot(data.glasgow, probs_bs_boot_func, R = 500)
+deltaBrier.boot.glasgow.cis = t(sapply(1:ncol(deltaBrier.boot.glasgow$t), function(i) boot.ci(deltaBrier.boot.glasgow, index = i, type = "bca")$bca))
+colnames(deltaBrier.boot.glasgow.cis) = c("level", "lowindex", "highindex", "lci", "uci")
+rownames(deltaBrier.boot.glasgow.cis) = c(
+	"12:cph-km0", "12:gg-km0", "12:post-km0", "12:pre-km0", "12:cph-pre", "12:gg-pre", "12:post-pre", "12:cph-post", "12:gg-post", "12:cph-gg", 
+	"24:cph-km0", "24:gg-km0", "24:post-km0", "24:pre-km0", "24:cph-pre", "24:gg-pre", "24:post-pre", "24:cph-post", "24:gg-post", "24:cph-gg", 
+	"36:cph-km0", "36:gg-km0", "36:post-km0", "36:pre-km0", "36:cph-pre", "36:gg-pre", "36:post-pre", "36:cph-post", "36:gg-post", "36:cph-gg")
+deltaBrier.boot.glasgow
+deltaBrier.boot.glasgow.cis
+@
+
+
+<<prob-bs-bootstrap-summary>>=
+temp.time = gsub(":.*", "", rownames(deltaBrier.boot.glasgow.cis))
+temp.methodpos = gsub(".*:", "", gsub("-.*", "", rownames(deltaBrier.boot.glasgow.cis)))
+temp.methodneg = gsub(".*-", "", rownames(deltaBrier.boot.glasgow.cis))
+temp.methods = sort(unique(c(temp.methodpos, temp.methodneg)))
+tapply(1:length(temp.time), temp.time, function(is) {
+	res = matrix(0, nrow = length(temp.methods), ncol = length(temp.methods))
+	rownames(res) = temp.methods
+	colnames(res) = temp.methods
+	# Make res signed.  0 => NS.  +1 => row is better than col (BS_row - BS_col < 0).  -1 => row is worse than col (BS_row - BS_col > 0).
+	res[cbind(temp.methodpos[is], temp.methodneg[is])] = (sign(deltaBrier.boot.glasgow.cis[is, "uci"]) == sign(deltaBrier.boot.glasgow.cis[is, "lci"])) * sign(-deltaBrier.boot.glasgow.cis[is, "uci"])
+	res[cbind(temp.methodneg[is], temp.methodpos[is])] = (sign(deltaBrier.boot.glasgow.cis[is, "uci"]) == sign(deltaBrier.boot.glasgow.cis[is, "lci"])) * sign(deltaBrier.boot.glasgow.cis[is, "uci"])
+	res
+})
+@
+
+
+<<timeROC>>=
+mskcc_pre.cdroc.glasgow = timeROC(data.glasgow$Time/365.25*12, data.glasgow$DSD, mskcc_pre.linpred.glasgow, cause = 1, times = seq(1, 36, 1), iid = TRUE)
+mskcc_post.cdroc.glasgow = timeROC(data.glasgow$Time/365.25*12, data.glasgow$DSD, mskcc_post.linpred.glasgow, cause = 1, times = seq(1, 36, 1), iid = TRUE)
+gg.cdroc.glasgow = timeROC(data.glasgow$Time/365.25*12, data.glasgow$DSD, gg.linpred.glasgow, cause = 1, times = seq(1, 36, 1), iid = TRUE)
+gg2.cdroc.glasgow = timeROC(data.glasgow$Time/365.25*12, data.glasgow$DSD, gg2.linpred.glasgow, cause = 1, times = seq(1, 36, 1), iid = TRUE)
+cph.cdroc.glasgow = timeROC(data.glasgow$Time/365.25*12, data.glasgow$DSD, cph.linpred.glasgow, cause = 1, times = seq(1, 36, 1), iid = TRUE)
+plotAUCcurve(mskcc_pre.cdroc.glasgow, conf.int = FALSE, add = FALSE, col = "blue")
+plotAUCcurve(mskcc_post.cdroc.glasgow, conf.int = FALSE, add = TRUE, col = "black")
+plotAUCcurve(gg.cdroc.glasgow, conf.int = FALSE, add = TRUE, col = "aquamarine")
+plotAUCcurve(gg2.cdroc.glasgow, conf.int = FALSE, add = TRUE, col = "purple")
+plotAUCcurve(cph.cdroc.glasgow, conf.int = FALSE, add = TRUE, col = "pink")
+legend("topright", legend = c("Glasgow Preop", "Glasgow Postop", "GG", "GG2", "CPH"), col = c("blue", "black", "aquamarine", "purple", "pink"), lty = "solid")
+@
+
+<<risksetROC>>=
+risksetROC(data.glasgow$Time/365.25*12, status = data.glasgow$DSD, marker = mskcc_pre.linpred.glasgow, predict.time = 12)
+risksetROC(data.glasgow$Time/365.25*12, status = data.glasgow$DSD, marker = mskcc_post.linpred.glasgow, predict.time = 12)
+risksetROC(data.glasgow$Time/365.25*12, status = data.glasgow$DSD, marker = gg.linpred.glasgow, predict.time = 12)
+risksetROC(data.glasgow$Time/365.25*12, status = data.glasgow$DSD, marker = gg2.linpred.glasgow, predict.time = 12)
+risksetROC(data.glasgow$Time/365.25*12, status = data.glasgow$DSD, marker = cph.linpred.glasgow, predict.time = 12)
+risksetAUC(data.glasgow$Time/365.25*12, status = data.glasgow$DSD, marker = mskcc_pre.linpred.glasgow, tmax = 36)
+risksetAUC(data.glasgow$Time/365.25*12, status = data.glasgow$DSD, marker = mskcc_post.linpred.glasgow, tmax = 36)
+risksetAUC(data.glasgow$Time/365.25*12, status = data.glasgow$DSD, marker = gg.linpred.glasgow, tmax = 36)
+risksetAUC(data.glasgow$Time/365.25*12, status = data.glasgow$DSD, marker = gg2.linpred.glasgow, tmax = 36)
+risksetAUC(data.glasgow$Time/365.25*12, status = data.glasgow$DSD, marker = cph.linpred.glasgow, tmax = 36)
+@
+
+\end{document}

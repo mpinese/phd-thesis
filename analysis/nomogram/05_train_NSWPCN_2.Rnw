@@ -43,6 +43,7 @@ library(ggplot2)
 
 library(MASS)
 library(boot)
+library(timeROC)
 
 load("03_NSWPCN_subset.rda")
 @
@@ -395,6 +396,8 @@ fit.gg2 = flexsurvreg(Surv(Time, DSD) ~ SexM + SizeCent + A2 + A4 + I(SexM == FA
 		Q = ~ SexM),
 	data = data, dist = "gengamma")
 
+fit.gg2
+
 AIC(fit.gg)
 AIC(fit.gg2)
 AIC(fit.gg) - AIC(fit.gg2)
@@ -520,6 +523,36 @@ ibs_preds_rsf = t(apply(temp_rsf_preds$survival, 1, function(survs) approx(temp_
 temp_km0 = survfit(Surv(Time, DSD) ~ 1, data)
 ibs_preds_km0 = t(matrix(rep(approx(temp_km0$time, temp_km0$surv, xout = ibs_times, method = "constant", yleft = 1, rule = 2, f = 0)$y, times = nrow(data.val)), ncol = nrow(data.val)))
 ibs_preds_all = list(gg = ibs_preds_gg, gg2 = ibs_preds_gg2, cph = ibs_preds_cph, rsf = ibs_preds_rsf, km0 = ibs_preds_km0)
+@
+
+
+<<model-selection-tests>>=
+temp.linpred.gg = summary(fit.gg, newdata = data.val, type = "survival")[,1]
+temp.linpred.gg2 = summary(fit.gg2, newdata = data.val, type = "survival")[,1]
+temp.linpred.cph = predict(fit.cph, newdata = data.val)
+
+summary(coxph(Surv(Time, DSD) ~ temp.linpred.gg, data.val))
+summary(coxph(Surv(Time, DSD) ~ temp.linpred.gg2, data.val))
+summary(coxph(Surv(Time, DSD) ~ temp.linpred.cph, data.val))
+
+anova(coxph(Surv(Time, DSD) ~ offset(temp.linpred.gg) + temp.linpred.gg, data.val))
+anova(coxph(Surv(Time, DSD) ~ offset(temp.linpred.gg2) + temp.linpred.gg2, data.val))
+anova(coxph(Surv(Time, DSD) ~ offset(temp.linpred.cph) + temp.linpred.cph, data.val))
+
+summary(coxph(Surv(Time, DSD) ~ offset(temp.linpred.gg) + SexM + AgeCent + LocBody + SizeCent + A2 + A4, data.val))
+summary(coxph(Surv(Time, DSD) ~ offset(temp.linpred.gg2) + SexM + AgeCent + LocBody + SizeCent + A2 + A4, data.val))
+summary(coxph(Surv(Time, DSD) ~ offset(temp.linpred.cph) + SexM + AgeCent + LocBody + SizeCent + A2 + A4, data.val))
+@
+
+
+<<model-selection-auc>>=
+temp.gg = timeROC(data.val$Time/365.25*12, data.val$DSD, temp.linpred.gg, cause = 1, times = seq(1, 36, 1), iid = TRUE)
+temp.gg2 = timeROC(data.val$Time/365.25*12, data.val$DSD, temp.linpred.gg2, cause = 1, times = seq(1, 36, 1), iid = TRUE)
+temp.cph = timeROC(data.val$Time/365.25*12, data.val$DSD, temp.linpred.cph, cause = 1, times = seq(1, 36, 1), iid = TRUE)
+plotAUCcurve(temp.gg, conf.int = FALSE, add = FALSE, col = "blue")
+plotAUCcurve(temp.gg2, conf.int = FALSE, add = TRUE, col = "green")
+plotAUCcurve(temp.cph, conf.int = FALSE, add = TRUE, col = "red")
+legend("topright", legend = c("GG", "GG2", "CPH"), col = c("blue", "green", "red"), lty = "solid")
 @
 
 Evaluate IBS point estimates.
