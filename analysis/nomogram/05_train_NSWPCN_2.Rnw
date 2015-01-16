@@ -655,7 +655,7 @@ fit.final.cph = coxph(Surv(Time, DSD) ~ strata(SexM) + SizeCent + A2 + A4, data 
 set.seed(20150111)
 fit.final.rsf = rfsrc(Surv(Time, DSD) ~ SexM + AgeCent + LocBody + SizeCent + A2 + A4, data = data.all, mtry = 1, splitrule = "logrankscore", nsplit = 2, ntree = 1000)
 fit.final.km0 = survfit(Surv(Time, DSD) ~ 1, data.all)
-saveRDS(list(gg = fit.final.gg, km0 = fit.final.km0, gg2 = fit.final.gg2, cph = fit.final.cph, rsf = fit.final.rsf), file = "05_final_model.rds")
+saveRDS(list(gg = fit.final.gg, km0 = fit.final.km0, gg2 = fit.final.gg2, cph = fit.final.cph, rsf = fit.final.rsf, data.train = data.all), file = "05_final_model.rds")
 @
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
