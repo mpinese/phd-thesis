@@ -20,7 +20,6 @@ The decision of whether or not to resect will always involve close consultation 
 A number of pancreas cancer grading and schemes and prognostic tools have been described, but inconsistent performance, or a reliance on information that can only be known post-operatively, limits their use in pre-operative decisions.  The level of serum \gls{CA-19-9} is a well-characterised biomarker of pancreas cancer, with high levels correlating with increased tumour burden, lower probability of resectability, increased post-resection recurrence, and worse prognosis \cite{Kim2011, Ballehaninna2012, Barugola2007, Lundin1994}.  \Gls{CA-19-9} levels are easily determined pre-operatively, but the use of this marker is complicated by a lack of consensus on threshold concentrations, the elevation of \gls{CA-19-9} levels by a number of conditions other than pancreas cancer, and the complete absence of this marker in approximately 10\% of the general population \cite{Ballehaninna2012}.  Additionally, although \gls{CA-19-9} levels are statistically associated with post-resection recurrence by distant metastasis, a very low \gls{PPV} renders the biomarker unhelpful when deciding whether or not to resect \cite{Kim2011}.
 
 The current standard prognostic tool for pancreas cancer is the \gls{MSKCC} nomogram \cite{Brennan2004}, which integrates a number of \glspl{CPV} to arrive at point estimates of survival post-resection.  Unfortunately, its clinical utility is small: as it relies on information that is only available following resection, the \gls{MSKCC} nomogram is only useful in a post-operative context, and cannot assist in pre-operative decisions to resect.  This severely limiting reliance on postoperative variables is made necessary by the fact that all strong classical prognostic factors in pancreas cancer (such as lymph node infiltration, resection margin status, or histological grade \cite{Bilici2014}) can only be reliably measured following resection.  Any prognostic tool for pancreas cancer that relies heavily on classical \glspl{CPV} will very likely share this same reliance on post-operative variables, and so an effective pre-operatively assessable prognostic will need to shirk classical \glspl{CPV}, and leverage novel pre-operative measures of prognosis.
-%The \gls{MSKCC} nomogram also provides relatively little information to the user, supplying only an aggregate risk score and survival probabilities at three fixed times, with no indication of prediction confidence or prognosis over the full disease course.  These technical limitations are a consequence of the simple construction of the \gls{MSKCC} nomogram, so chosen to facilitate hand calculation.  With the widespread availability and use of portable computers and smart phones today, limiting performance for the sake of allowing hand calculation is no longer necessary, and return of far richer prognostic information is straightforward.
 
 Levels of tissue biomarkers directly reflect cellular state, and thus have the potential to predict cancer behaviour far more reliably than macroscopic \glspl{CPV}.  Given that most pancreas cancer patients who undergo curative resection quickly recur due to occult metastases, biomarkers of metastasis have the potential to identify those patients who are likely to already have occult metastatic disease at the time of surgery, and thus better inform the decision to resect.  Two such biomarkers of metastasis are the cancer cell levels of the \gls{EMT}-related S100A2, and S100A4 proteins, both of which are strongly predictive of outcome following resection, and appear to reflect the presence of a pro-metastatic invasive phenotype in the cancer \cite{Biankin2008, Tsukamoto2013, Lee2014}.  Despite this promise, these tissue biomarkers have to date only been assessed in bulk tissue samples collected during surgery, and their utility, or even measurability, in a pre-operative setting, is untested.
 
@@ -34,36 +33,34 @@ The majority of pancreas cancer resection procedures today are performed on pati
 Data from the large, retrospectively-acquired \gls{NSWPCN} cohort were used to derive \gls{PCOP}, a tool to predict the survival of pancreas cancer patients following curative-intent resection.  Discrimination and calibration of \gls{PCOP} were verified on two independent surgical cohorts.  Data from an \gls{EUS}-\gls{FNA}-\acrshort{IHCry} pilot study established that pre-operatively assessed tissue biomarker levels reflected measurements from operative biopsies, and therefore that \gls{PCOP} could be translated to a pre-operative decision setting.
 
 \subsection{Prognostic variables and biomarkers}
-As the aim was to develop a prognostic predictor that could be applied pre-operatively, only the small subset of traditional \glspl{CPV} that were deemed to be measurable prior to resection were considered.  These variables were: patient sex and age at diagnosis, tumour location (dichotomised as head of pancreas vs other location), and size of the tumour's longest pathological axis.  Pre-operative measurements of tumour size (for example, by \gls{CT} X-ray or \gls{EUS}) were not available in the training and validation sets, and were approximated by post-operative measurements during the development and testing of this nomogram.  \mpfatal{For the disc: Although the correlation between \gls{CT} and \gls{EUS} estimates of tumour size, and actual size upon resection, is respectable \cite{Arvold2011}, full clinical validation of this prognostic's use in a pre-operative setting will require ...}
+As the aim was to develop a prognostic predictor that could be applied pre-operatively, only factors that could be practically measured pre-operatively were considered for inclusion in the \gls{PCOP}.  The traditional \glspl{CPV} that were judged to be pre-operatively assessable were patient sex, patient age at diagnosis, tumour location (dichotomised as head of pancreas vs other location), and size of the tumour's longest pathological axis.  In addition to these traditional factors, the dichotomised tissue levels of S100A2 and S100A4 proteins were included as candidate biomarkers in the construction of the \gls{PCOP}.  Pre-operative blood levels of the biomarker \gls{CA-19-9} were available for a subset of the training cohort, but none of the validation sets; for this reason, and the marker's generally poor performance in isolation \cite{Kim2011}, \gls{CA-19-9} levels were not considered for inclusion in the \gls{PCOP}.
 
-The dichotomised tissue levels of two pre-operatively assessable biomarkers, S100A2 and S100A4, were considered when building the prognostic tool.  These biomarker levels were measured by \gls{IHCry} on tissue collected during resection, and thus could potentially be 
+Pre-operative measurements of tumour size (for example, by \gls{CT} X-ray or \gls{EUS}) were not available in the training and validation sets, and were approximated by post-operative measurements during the development and testing of this nomogram.  Similarily, biomarker measurements were approximated using \gls{IHCal} staining of tissue collected during resection, as only very limited pre-operative \gls{EUS}-\gls{FNA} samples were available in the cohorts used.  The implications of these approximations for the prognostic tool developed here, as well as for future work, are considered in the discussion.  
 
-The implications of these approximations for the prognostic tool developed here, as well as for future work, are considered in the discussion.
-
-\mpfatal{Stuff on biomarkers.  Specifically, why I didn't use CA-19-9.}
+\mpfatal{For the disc: Although the correlation between \gls{CT} and \gls{EUS} estimates of tumour size, and actual size upon resection, is respectable \cite{Arvold2011}, full clinical validation of this prognostic's use in a pre-operative setting will require ...}
 
 \subsection{Cohorts and Characteristics}
 General characteristics of the \gls{NSWPCN}, Glasgow, and Dresden cohorts are summarised in \tref{tab:nomo-cohort-characteristics}.\mpfatal{TODO.  Waiting on DC's data.}
 
 \begin{table}[h]
 \centering
-\caption[Characteristics of patient cohorts]{Characteristics of the \gls{NSWPCN} training cohort, and the Glasgow and Dresden validation cohorts.  Ordinal variables are shown as median, with quartiles in parentheses.  Categorical variables for which percentages do not add up to 100\% indicate the presence of minor unlisted categories.}\label{tab:nomo-cohort-characteristics}
+\caption[Characteristics of patient cohorts]{Characteristics of the \gls{NSWPCN} training cohort, and the APGI, Dresden, and Glasgow validation cohorts.  Ordinal variables are shown as median, with quartiles in parentheses.  Categorical variables for which percentages do not add up to 100\% indicate the presence of minor unlisted categories.}\label{tab:nomo-cohort-characteristics}
 \begin{tabular}{@{}lllll@{}}
 \toprule
-Characteristic         &         & NSWPCN       & Glasgow      & Dresden      \\ \midrule
-Number of patients     &         & xx           & xx           & xx           \\
-Gender                 & Male    & xx\%         & xx\%         & xx\%         \\
-Age at diagnosis       & (years) & xx (xx - xx) & xx (xx - xx) & xx (xx - xx) \\
-Tumour location        & Head    & xx\%         & xx\%         & xx\%         \\
-Size of longest axis   & (mm)    & xx (xx - xx) & xx (xx - xx) & xx (xx - xx) \\
-S100A2 positive        &         & xx (xx - xx) & xx (xx - xx) & xx (xx - xx) \\
-S100A4 positive        &         & xx (xx - xx) & xx (xx - xx) & xx (xx - xx) \\
-Excision margin status & R0      & xx\%         & xx\%         & xx\%         \\
-                       & R1      & xx\%         & xx\%         & xx\%         \\
-                       & R2      & xx\%         & xx\%         & xx\%         \\
-Node involvement       &         & xx\%         & xx\%         & xx\%         \\
-Disease-specific death &         & xx\%         & xx\%         & xx\%         \\
-Length of follow-up    & (days)  & xx (xx - xx) & xx (xx - xx) & xx (xx - xx) \\ \bottomrule
+Characteristic         &         & NSWPCN       & APGI         & Dresden      & Glasgow      \\ \midrule
+Number of patients     &         & xx           & xx           & xx           & xx           \\
+Gender                 & Male    & xx\%         & xx\%         & xx\%         & xx\%         \\
+Age at diagnosis       & (years) & xx (xx - xx) & xx (xx - xx) & xx (xx - xx) & xx (xx - xx) \\
+Tumour location        & Head    & xx\%         & xx\%         & xx\%         & xx\%         \\
+Size of longest axis   & (mm)    & xx (xx - xx) & xx (xx - xx) & xx (xx - xx) & xx (xx - xx) \\
+S100A2 positive        &         & xx (xx - xx) & xx (xx - xx) & xx (xx - xx) & xx (xx - xx) \\
+S100A4 positive        &         & xx (xx - xx) & xx (xx - xx) & xx (xx - xx) & xx (xx - xx) \\
+Excision margin status & R0      & xx\%         & xx\%         & xx\%         & xx\%         \\
+                       & R1      & xx\%         & xx\%         & xx\%         & xx\%         \\
+                       & R2      & xx\%         & xx\%         & xx\%         & xx\%         \\
+Node involvement       &         & xx\%         & xx\%         & xx\%         & xx\%         \\
+Disease-specific death &         & xx\%         & xx\%         & xx\%         & xx\%         \\
+Length of follow-up    & (days)  & xx (xx - xx) & xx (xx - xx) & xx (xx - xx) & xx (xx - xx) \\ \bottomrule
 \end{tabular}
 \end{table}
 

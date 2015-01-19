@@ -311,7 +311,7 @@
 			"file": "05_train_NSWPCN_2.Rnw",
 			"settings":
 			{
-				"buffer_size": 32371,
+				"buffer_size": 37965,
 				"line_ending": "Unix"
 			}
 		},
@@ -319,15 +319,7 @@
 			"file": "07_validate.Rnw",
 			"settings":
 			{
-				"buffer_size": 25798,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "07_test_MSKCC_on_NSWPCN_Glasgow.Rout",
-			"settings":
-			{
-				"buffer_size": 32895,
+				"buffer_size": 38406,
 				"line_ending": "Unix"
 			}
 		}
@@ -376,13 +368,17 @@
 	],
 	"file_history":
 	[
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/nomogram/05_train_NSWPCN_2.Rnw",
+		"/home/mark/ClusterHome/analysis/50_cosmic_lens/03_parseCosmicDataForVW.py",
+		"/home/mark/ClusterHome/analysis/50_cosmic_lens/03_parseCosmicDataForVW.sh",
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/nomogram/07_validate.Rnw",
+		"/home/mark/ClusterHome/analysis/44_apgi_germline_for_jeremy/02_run_vep.sh",
 		"/home/mark/ClusterHome/repos/phd-thesis/analysis/nomogram/.quantiles = c(0.2, 0.5, 0.8)",
 		"/home/mark/ClusterHome/analysis/50_cosmic_lens/02_NB_classifier.R",
 		"/home/mark/ClusterHome/analysis/50_cosmic_lens/01_parseCosmicData.py",
 		"/home/mark/ClusterHome/analysis/50_cosmic_lens/01_parseCosmicData.R",
 		"/home/mark/ClusterHome/stats.txt",
 		"/home/mark/ClusterHome/temp.R",
-		"/home/mark/ClusterHome/repos/phd-thesis/analysis/nomogram/05_train_NSWPCN_2.Rnw",
 		"/home/mark/ClusterHome/repos/phd-thesis/analysis/nomogram/07_test_MSKCC_GG_on_Glasgow.Rnw",
 		"/home/mark/Downloads/classification.csv",
 		"/home/mark/ClusterHome/analysis/49_gois_for_darren_saunders/01_report.Rnw",
@@ -499,11 +495,7 @@
 		"/home/mark/ClusterHome/analysis/01_surv_paper/validation/data/temp.txt",
 		"/home/mark/ClusterHome/analysis/01_surv_paper/validation/data/GPL4133.annot",
 		"/home/mark/ClusterHome/repos/phd-thesis/analysis/biosurv/reports/16_SIS_NMF_alltogethernow/Makefile",
-		"/home/mark/ClusterHome/repos/phd-thesis/analysis/biosurv/reports/16_SIS_NMF_alltogethernow/report.tex",
-		"/home/mark/ClusterHome/repos/phd-thesis/analysis/biosurv/reports/16_SIS_NMF_alltogethernow/calcs.R",
-		"/home/mark/ClusterHome/repos/phd-thesis/analysis/biosurv/reports/16_SIS_NMF_alltogethernow/report.Rnw",
-		"/home/mark/.cache/.fr-bkoI3u/aws/IAM",
-		"/home/mark/Downloads/Calculus Wars (Linux)_Data/mainData"
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/biosurv/reports/16_SIS_NMF_alltogethernow/report.tex"
 	],
 	"find":
 	{
@@ -521,6 +513,15 @@
 		"case_sensitive": true,
 		"find_history":
 		[
+			"val.prob.gg",
+			"gg",
+			"12",
+			"gg",
+			"data.glasgow",
+			"bs.gg",
+			".gg",
+			"aqua",
+			"gg.",
 			"History.Death.EventTimeDays",
 			"History.DSDeath.Event",
 			"data.test.glasgow",
@@ -639,23 +640,24 @@
 			"rankmean",
 			"|",
 			"\"[A-Z0-9_]*\" = ",
-			" = [0-9]",
-			"primary",
-			"\\t*",
-			"#.*",
-			"^$",
-			" there is .*",
-			"> ",
-			".*:",
-			" ",
-			"\\t*$"
+			" = [0-9]"
 		],
 		"highlight": true,
-		"in_selection": true,
+		"in_selection": false,
 		"preserve_case": false,
 		"regex": false,
 		"replace_history":
 		[
+			"gg.prob.glasgow",
+			"gg2",
+			"36",
+			"24",
+			"cph",
+			"d",
+			"bs.cph",
+			".cph",
+			"aquamarine",
+			"gg2.",
 			"Time",
 			"DSD",
 			"data.glasgow",
@@ -773,17 +775,7 @@
 			".imputed",
 			".traincv.",
 			"perf.cv.",
-			"pred.cv.",
-			"event",
-			"",
-			"FALSE",
-			"TRUE",
-			"events",
-			"times",
-			"TRUE",
-			"FALSE",
-			"",
-			"beta"
+			"pred.cv."
 		],
 		"reverse": false,
 		"show_context": true,
@@ -803,15 +795,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 32371,
+						"buffer_size": 37965,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								32136,
-								32136
+								1151,
+								1151
 							]
 						],
 						"settings":
@@ -822,10 +814,10 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 10867.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 2,
+					"stack_index": 1,
 					"type": "text"
 				},
 				{
@@ -834,15 +826,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 25798,
+						"buffer_size": 38406,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								14628,
-								14628
+								23782,
+								23782
 							]
 						],
 						"settings":
@@ -852,40 +844,10 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 4376.0,
+						"translation.y": 6764.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,
-					"type": "text"
-				},
-				{
-					"buffer": 2,
-					"file": "07_test_MSKCC_on_NSWPCN_Glasgow.Rout",
-					"semi_transient": true,
-					"settings":
-					{
-						"buffer_size": 32895,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Text/Plain text.tmLanguage",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 1,
 					"type": "text"
 				}
 			]
