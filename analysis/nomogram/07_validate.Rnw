@@ -31,6 +31,7 @@ library(boot)
 library(randomForestSRC)
 library(timeROC)
 library(risksetROC)
+source("stdca.R")
 @
 
 
@@ -208,6 +209,8 @@ mskcc_pre.36mo.glasgow = temp[,4]
 
 Get approximate linear predictors from the GG model, by just calculating the location term effect.
 <<calc-gg-scores>>=
+val.prob.times = seq(0, max(data.glasgow$Time), 1)
+
 gg.path.glasgow = summary(fit.gg, newdata = data.glasgow, ci = FALSE)
 temp.coefs = coef(fit.gg)
 gg.linpred.glasgow = sapply(1:length(temp.coefs), function(coef_i) {
@@ -219,6 +222,9 @@ gg.linpred.glasgow = sapply(1:length(temp.coefs), function(coef_i) {
 		rep(0, nrow(data.glasgow)) 
 	} })
 gg.linpred.glasgow = -rowSums(gg.linpred.glasgow)	# Negate to bring into concordance with the direction of Cox coefficients (ie higher is now worse)
+temp = summary(fit.gg, newdata = data.glasgow, ci = FALSE)
+gg.prob.glasgow = sapply(temp, function(x) approx(x[,1], x[,2], xout = val.prob.times, yleft = 1, yright = 0, rule = 2)$y)
+colnames(gg.prob.glasgow) = rownames(data.glasgow)
 
 gg.linpred.nswpcn = sapply(1:length(temp.coefs), function(coef_i) {
 	if (names(temp.coefs)[coef_i] %in% colnames(data.nswpcn)) { 
@@ -229,6 +235,9 @@ gg.linpred.nswpcn = sapply(1:length(temp.coefs), function(coef_i) {
 		rep(0, nrow(data.nswpcn)) 
 	} })
 gg.linpred.nswpcn = -rowSums(gg.linpred.nswpcn)		# Negate to bring into concordance with the direction of Cox coefficients (ie higher is now worse)
+temp = summary(fit.gg, newdata = data.nswpcn, ci = FALSE)
+gg.prob.nswpcn = sapply(temp, function(x) approx(x[,1], x[,2], xout = val.prob.times, yleft = 1, yright = 0, rule = 2)$y)
+colnames(gg.prob.nswpcn) = rownames(data.nswpcn)
 @
 
 And the GG2
@@ -244,6 +253,9 @@ gg2.linpred.glasgow = sapply(1:length(temp.coefs), function(coef_i) {
 		rep(0, nrow(data.glasgow)) 
 	} })
 gg2.linpred.glasgow = -rowSums(gg2.linpred.glasgow)	# Negate to bring into concordance with the direction of Cox coefficients (ie higher is now worse)
+temp = summary(fit.gg2, newdata = data.glasgow, ci = FALSE)
+gg2.prob.glasgow = sapply(temp, function(x) approx(x[,1], x[,2], xout = val.prob.times, yleft = 1, yright = 0, rule = 2)$y)
+colnames(gg2.prob.glasgow) = rownames(data.glasgow)
 
 gg2.linpred.nswpcn = sapply(1:length(temp.coefs), function(coef_i) {
 	if (names(temp.coefs)[coef_i] %in% colnames(data.nswpcn)) { 
@@ -254,21 +266,14 @@ gg2.linpred.nswpcn = sapply(1:length(temp.coefs), function(coef_i) {
 		rep(0, nrow(data.nswpcn)) 
 	} })
 gg2.linpred.nswpcn = -rowSums(gg2.linpred.nswpcn)		# Negate to bring into concordance with the direction of Cox coefficients (ie higher is now worse)
+temp = summary(fit.gg2, newdata = data.nswpcn, ci = FALSE)
+gg2.prob.nswpcn = sapply(temp, function(x) approx(x[,1], x[,2], xout = val.prob.times, yleft = 1, yright = 0, rule = 2)$y)
+colnames(gg2.prob.nswpcn) = rownames(data.nswpcn)
 @
 
 
 <<calc-cph-scores>>=
 temp.coefs = coef(fit.cph)
-cph.linpred.nswpcn = sapply(1:length(temp.coefs), function(coef_i) {
-	if (names(temp.coefs)[coef_i] %in% colnames(data.nswpcn)) { 
-		temp.coefs[coef_i] * data.nswpcn[,names(temp.coefs)[coef_i]] 
-	} else if (gsub("TRUE$", "", names(temp.coefs)[coef_i]) %in% colnames(data.nswpcn)) { 
-		temp.coefs[coef_i] * data.nswpcn[,gsub("TRUE$", "", names(temp.coefs)[coef_i])] 
-	} else {
-		rep(0, nrow(data.nswpcn)) 
-	} })
-cph.linpred.nswpcn = rowSums(cph.linpred.nswpcn)
-
 cph.linpred.glasgow = sapply(1:length(temp.coefs), function(coef_i) {
 	if (names(temp.coefs)[coef_i] %in% colnames(data.glasgow)) { 
 		temp.coefs[coef_i] * data.glasgow[,names(temp.coefs)[coef_i]] 
@@ -278,10 +283,47 @@ cph.linpred.glasgow = sapply(1:length(temp.coefs), function(coef_i) {
 		rep(0, nrow(data.glasgow)) 
 	} })
 cph.linpred.glasgow = rowSums(cph.linpred.glasgow)
+temp = survfit(fit.cph, newdata = data.glasgow)
+cph.prob.glasgow = simplify2array(tapply(1:length(temp$surv), rep(names(temp$strata), temp$strata), function(is) approx(temp$time[is], temp$surv[is], val.prob.times, yleft = 1, yright = 0, rule = 2)$y))[,rownames(data.glasgow)]
+
+cph.linpred.nswpcn = sapply(1:length(temp.coefs), function(coef_i) {
+	if (names(temp.coefs)[coef_i] %in% colnames(data.nswpcn)) { 
+		temp.coefs[coef_i] * data.nswpcn[,names(temp.coefs)[coef_i]] 
+	} else if (gsub("TRUE$", "", names(temp.coefs)[coef_i]) %in% colnames(data.nswpcn)) { 
+		temp.coefs[coef_i] * data.nswpcn[,gsub("TRUE$", "", names(temp.coefs)[coef_i])] 
+	} else {
+		rep(0, nrow(data.nswpcn)) 
+	} })
+cph.linpred.nswpcn = rowSums(cph.linpred.nswpcn)
+temp = survfit(fit.cph, newdata = data.nswpcn)
+cph.prob.nswpcn = simplify2array(tapply(1:length(temp$surv), rep(names(temp$strata), temp$strata), function(is) approx(temp$time[is], temp$surv[is], val.prob.times, yleft = 1, yright = 0, rule = 2)$y))[,rownames(data.nswpcn)]
 
 # Doesn't work for some obscure reason, I suspect to do with strata and environments:
 # cph.linpred.glasgow = predict(fit.cph, newdata = data.glasgow)
 # cph.linpred.nswpcn = predict(fit.cph, newdata = data.nswpcn)
+@
+
+
+<<calc-rsf-scores>>=
+temp = predict(fit.rsf, newdata = data.glasgow)
+rsf.linpred.glasgow = apply(temp$survival, 1, function(s1) {
+    sfunc = approxfun(temp$time.interest, s1, yleft = 1, yright = 0, rule = 2)
+    med = uniroot(function(x) sfunc(x) - 0.5, lower = min(temp$time.interest), upper = max(temp$time.interest))$root
+    med
+})
+rsf.linpred.glasgow = -rsf.linpred.glasgow
+rsf.prob.glasgow = apply(temp$survival, 1, function(s1) approx(temp$time.interest, s1, xout = val.prob.times, yleft = 1, yright = 0, rule = 2)$y)
+colnames(rsf.prob.glasgow) = rownames(data.glasgow)
+
+temp = predict(fit.rsf, newdata = data.nswpcn)
+rsf.linpred.nswpcn = apply(temp$survival, 1, function(s1) {
+    sfunc = approxfun(temp$time.interest, s1, yleft = 1, yright = 0, rule = 2)
+    med = uniroot(function(x) sfunc(x) - 0.5, lower = min(temp$time.interest), upper = max(temp$time.interest))$root
+    med
+})
+rsf.linpred.nswpcn = -rsf.linpred.nswpcn
+rsf.prob.nswpcn = apply(temp$survival, 1, function(s1) approx(temp$time.interest, s1, xout = val.prob.times, yleft = 1, yright = 0, rule = 2)$y)
+colnames(rsf.prob.nswpcn) = rownames(data.nswpcn)
 @
 
 
@@ -301,6 +343,13 @@ abline(v = quantile(gg.linpred.nswpcn, probs = c(0.25, 0.5, 0.75)), col = "red")
 hist(cph.linpred.glasgow, main = "Glasgow CPH scores", xlim = range(c(cph.linpred.nswpcn, cph.linpred.glasgow)), breaks = 20, col = "grey")
 abline(v = quantile(gg.linpred.glasgow, probs = c(0.25, 0.5, 0.75)), col = "red")
 par(mfrow = c(1, 1))
+
+par(mfrow = c(2, 1))
+hist(rsf.linpred.nswpcn, main = "NSWPCN RSF scores", xlim = range(c(rsf.linpred.nswpcn, rsf.linpred.glasgow)), breaks = 20, col = "grey")
+abline(v = quantile(rsf.linpred.nswpcn, probs = c(0.25, 0.5, 0.75)), col = "red")
+hist(rsf.linpred.glasgow, main = "Glasgow RSF scores", xlim = range(c(rsf.linpred.nswpcn, rsf.linpred.glasgow)), breaks = 20, col = "grey")
+abline(v = quantile(rsf.linpred.glasgow, probs = c(0.25, 0.5, 0.75)), col = "red")
+par(mfrow = c(1, 1))
 @
 
 \subsection{Altman method 1 (D,F)}
@@ -309,9 +358,11 @@ summary(coxph(Surv(Time, DSD) ~ mskcc_post.linpred.glasgow, data.glasgow))
 summary(coxph(Surv(Time, DSD) ~ mskcc_pre.linpred.glasgow, data.glasgow))
 summary(coxph(Surv(Time, DSD) ~ gg.linpred.glasgow, data.glasgow))
 summary(coxph(Surv(Time, DSD) ~ cph.linpred.glasgow, data.glasgow))
+summary(coxph(Surv(Time, DSD) ~ rsf.linpred.glasgow, data.glasgow))
 
 anova(coxph(Surv(Time, DSD) ~ offset(gg.linpred.glasgow) + gg.linpred.glasgow, data.glasgow))
 anova(coxph(Surv(Time, DSD) ~ offset(cph.linpred.glasgow) + cph.linpred.glasgow, data.glasgow))
+anova(coxph(Surv(Time, DSD) ~ offset(rsf.linpred.glasgow) + rsf.linpred.glasgow, data.glasgow))
 @
 Booyah.
 
@@ -322,6 +373,7 @@ summary(coxph(Surv(Time, DSD) ~ offset(mskcc_pre.linpred.glasgow) + AgeCent + Se
 summary(coxph(Surv(Time, DSD) ~ offset(mskcc_post.linpred.glasgow) + AgeCent + SexM + SizeCent + A2 + A4, data.glasgow))
 summary(coxph(Surv(Time, DSD) ~ offset(gg.linpred.glasgow) + AgeCent + SexM + SizeCent + A2 + A4, data.glasgow))
 summary(coxph(Surv(Time, DSD) ~ offset(cph.linpred.glasgow) + AgeCent + SexM + SizeCent + A2 + A4, data.glasgow))
+summary(coxph(Surv(Time, DSD) ~ offset(rsf.linpred.glasgow) + AgeCent + SexM + SizeCent + A2 + A4, data.glasgow))
 @
 Still strong evidence of misspecification or poor fit.  However, the above calibration slope was not significantly different from 1.  Hmm.  This doesn't necessarily sink the method, but will need checking as we go along.
 
@@ -337,12 +389,16 @@ gg.groups.glasgow = cut(gg.linpred.glasgow, quantile(gg.linpred.glasgow, group_q
 gg.groups.nswpcn = cut(gg.linpred.nswpcn, quantile(gg.linpred.nswpcn, group_quantiles))
 cph.groups.glasgow = cut(cph.linpred.glasgow, quantile(cph.linpred.glasgow, group_quantiles))
 cph.groups.nswpcn = cut(cph.linpred.nswpcn, quantile(cph.linpred.nswpcn, group_quantiles))
+rsf.groups.glasgow = cut(rsf.linpred.glasgow, quantile(rsf.linpred.glasgow, group_quantiles))
+rsf.groups.nswpcn = cut(rsf.linpred.nswpcn, quantile(rsf.linpred.nswpcn, group_quantiles))
 
-par(mfrow = c(3, 2))
+par(mfrow = c(2, 2))
 plot(survfit(Surv(data.nswpcn$Time, data.nswpcn$DSD) ~ gg.groups.nswpcn), col = 1:(length(group_quantiles)-1), xlab = "Time (days)", ylab = "Fraction Alive", main = "GG: NSWPCN (Resubstitution)")
 plot(survfit(Surv(data.glasgow$Time, data.glasgow$DSD) ~ gg.groups.glasgow), col = 1:(length(group_quantiles)-1), xlab = "Time (days)", ylab = "Fraction Alive", main = "GG: Glasgow")
 plot(survfit(Surv(data.nswpcn$Time, data.nswpcn$DSD) ~ cph.groups.nswpcn), col = 1:(length(group_quantiles)-1), xlab = "Time (days)", ylab = "Fraction Alive", main = "CPH: NSWPCN (Resubstitution)")
 plot(survfit(Surv(data.glasgow$Time, data.glasgow$DSD) ~ cph.groups.glasgow), col = 1:(length(group_quantiles)-1), xlab = "Time (days)", ylab = "Fraction Alive", main = "CPH: Glasgow")
+plot(survfit(Surv(data.nswpcn$Time, data.nswpcn$DSD) ~ rsf.groups.nswpcn), col = 1:(length(group_quantiles)-1), xlab = "Time (days)", ylab = "Fraction Alive", main = "RSF: NSWPCN (Resubstitution)")
+plot(survfit(Surv(data.glasgow$Time, data.glasgow$DSD) ~ rsf.groups.glasgow), col = 1:(length(group_quantiles)-1), xlab = "Time (days)", ylab = "Fraction Alive", main = "RSF: Glasgow")
 plot(survfit(Surv(data.glasgow$Time, data.glasgow$DSD) ~ mskcc_pre.groups.glasgow), col = 1:(length(group_quantiles)-1), xlab = "Time (days)", ylab = "Fraction Alive", main = "MSKCC Preop: Glasgow")
 plot(survfit(Surv(data.glasgow$Time, data.glasgow$DSD) ~ mskcc_post.groups.glasgow), col = 1:(length(group_quantiles)-1), xlab = "Time (days)", ylab = "Fraction Alive", main = "MSKCC Postop: Glasgow")
 par(mfrow = c(1, 1))
@@ -352,6 +408,21 @@ par(mfrow = c(1, 1))
 # for (i in )
 @
 Weird.  MSKCC somehow is still finding a subgroup, and it's somehow even clearer in preop!  This is based on an approximation to GG only, but should be pretty close.  It certainly does OK on resubstituted data, but not so well on the Glasgow patients.
+
+
+Decision curve analysis.
+<<model-selection-dca>>=
+temp.data = data.frame(Time = data.glasgow$Time, DSD = data.glasgow$DSD*1, 
+    gg.1 = 1-gg.prob.glasgow[val.prob.times == 365,], gg.2 = 1-gg.prob.glasgow[val.prob.times == 365*2,], gg.3 = 1-gg.prob.glasgow[val.prob.times == 365*3,], 
+    gg2.1 = 1-gg2.prob.glasgow[val.prob.times == 365,], gg2.2 = 1-gg2.prob.glasgow[val.prob.times == 365*2,], gg2.3 = 1-gg2.prob.glasgow[val.prob.times == 365*3,], 
+    cph.1 = 1-cph.prob.glasgow[val.prob.times == 365,], cph.2 = 1-cph.prob.glasgow[val.prob.times == 365*2,], cph.3 = 1-cph.prob.glasgow[val.prob.times == 365*3,], 
+    rsf.1 = 1-rsf.prob.glasgow[val.prob.times == 365,], rsf.2 = 1-rsf.prob.glasgow[val.prob.times == 365*2,], rsf.3 = 1-rsf.prob.glasgow[val.prob.times == 365*3,],
+    mskcc.pre.1 = 1-mskcc_pre.12mo.glasgow, mskcc.pre.2 = 1-mskcc_pre.24mo.glasgow, mskcc.pre.3 = 1-mskcc_pre.36mo.glasgow, 
+    mskcc.post.1 = 1-mskcc_post.12mo.glasgow, mskcc.post.2 = 1-mskcc_post.24mo.glasgow, mskcc.post.3 = 1-mskcc_post.36mo.glasgow)
+stdca(data = temp.data, outcome = "DSD", ttoutcome = "Time", predictors = c("gg.1", "cph.1", "rsf.1", "mskcc.pre.1", "mskcc.post.1"), timepoint = 365, probability = rep(TRUE, 5))
+stdca(data = temp.data, outcome = "DSD", ttoutcome = "Time", predictors = c("gg.2", "cph.2", "rsf.2", "mskcc.pre.2", "mskcc.post.2"), timepoint = 365*2, probability = rep(TRUE, 5))
+stdca(data = temp.data, outcome = "DSD", ttoutcome = "Time", predictors = c("gg.3", "cph.3", "rsf.3", "mskcc.pre.3", "mskcc.post.3"), timepoint = 365*3, probability = rep(TRUE, 5))
+@
 
 
 \subsection{Brier score}
@@ -538,12 +609,14 @@ mskcc_post.cdroc.glasgow = timeROC(data.glasgow$Time/365.25*12, data.glasgow$DSD
 gg.cdroc.glasgow = timeROC(data.glasgow$Time/365.25*12, data.glasgow$DSD, gg.linpred.glasgow, cause = 1, times = seq(1, 36, 1), iid = TRUE)
 gg2.cdroc.glasgow = timeROC(data.glasgow$Time/365.25*12, data.glasgow$DSD, gg2.linpred.glasgow, cause = 1, times = seq(1, 36, 1), iid = TRUE)
 cph.cdroc.glasgow = timeROC(data.glasgow$Time/365.25*12, data.glasgow$DSD, cph.linpred.glasgow, cause = 1, times = seq(1, 36, 1), iid = TRUE)
+rsf.cdroc.glasgow = timeROC(data.glasgow$Time/365.25*12, data.glasgow$DSD, rsf.linpred.glasgow, cause = 1, times = seq(1, 36, 1), iid = TRUE)
 plotAUCcurve(mskcc_pre.cdroc.glasgow, conf.int = FALSE, add = FALSE, col = "blue")
 plotAUCcurve(mskcc_post.cdroc.glasgow, conf.int = FALSE, add = TRUE, col = "black")
 plotAUCcurve(gg.cdroc.glasgow, conf.int = FALSE, add = TRUE, col = "aquamarine")
 plotAUCcurve(gg2.cdroc.glasgow, conf.int = FALSE, add = TRUE, col = "purple")
 plotAUCcurve(cph.cdroc.glasgow, conf.int = FALSE, add = TRUE, col = "pink")
-legend("topright", legend = c("Glasgow Preop", "Glasgow Postop", "GG", "GG2", "CPH"), col = c("blue", "black", "aquamarine", "purple", "pink"), lty = "solid")
+plotAUCcurve(rsf.cdroc.glasgow, conf.int = FALSE, add = TRUE, col = "green")
+legend("topright", legend = c("Glasgow Preop", "Glasgow Postop", "GG", "GG2", "CPH", "RSF"), col = c("blue", "black", "aquamarine", "purple", "pink", "green"), lty = "solid")
 @
 
 <<risksetROC>>=
@@ -552,11 +625,13 @@ risksetROC(data.glasgow$Time/365.25*12, status = data.glasgow$DSD, marker = mskc
 risksetROC(data.glasgow$Time/365.25*12, status = data.glasgow$DSD, marker = gg.linpred.glasgow, predict.time = 12)
 risksetROC(data.glasgow$Time/365.25*12, status = data.glasgow$DSD, marker = gg2.linpred.glasgow, predict.time = 12)
 risksetROC(data.glasgow$Time/365.25*12, status = data.glasgow$DSD, marker = cph.linpred.glasgow, predict.time = 12)
+risksetROC(data.glasgow$Time/365.25*12, status = data.glasgow$DSD, marker = rsf.linpred.glasgow, predict.time = 12)
 risksetAUC(data.glasgow$Time/365.25*12, status = data.glasgow$DSD, marker = mskcc_pre.linpred.glasgow, tmax = 36)
 risksetAUC(data.glasgow$Time/365.25*12, status = data.glasgow$DSD, marker = mskcc_post.linpred.glasgow, tmax = 36)
 risksetAUC(data.glasgow$Time/365.25*12, status = data.glasgow$DSD, marker = gg.linpred.glasgow, tmax = 36)
 risksetAUC(data.glasgow$Time/365.25*12, status = data.glasgow$DSD, marker = gg2.linpred.glasgow, tmax = 36)
 risksetAUC(data.glasgow$Time/365.25*12, status = data.glasgow$DSD, marker = cph.linpred.glasgow, tmax = 36)
+risksetAUC(data.glasgow$Time/365.25*12, status = data.glasgow$DSD, marker = rsf.linpred.glasgow, tmax = 36)
 @
 
 \end{document}

@@ -1,4 +1,4 @@
-% Created by tikzDevice version 0.7.0 on 2015-01-16 11:00:48
+% Created by tikzDevice version 0.7.0 on 2015-01-19 18:01:34
 % !TEX encoding = UTF-8 Unicode
 \documentclass[11pt]{memoir}
 \nonstopmode
@@ -303,9 +303,47 @@
 	(440.03,247.43) --
 	(451.25,242.45) --
 	(462.46,254.39);
+\definecolor[named]{drawColor}{rgb}{0.00,1.00,0.00}
+
+\path[draw=drawColor,line width= 0.8pt,line join=round,line cap=round] ( 69.83,301.82) --
+	( 81.04,332.70) --
+	( 92.26,332.50) --
+	(103.48,238.80) --
+	(114.70,258.18) --
+	(125.92,233.03) --
+	(137.14,213.17) --
+	(148.35,236.63) --
+	(159.57,257.12) --
+	(170.79,228.16) --
+	(182.01,213.38) --
+	(193.23,204.61) --
+	(204.44,199.42) --
+	(215.66,217.68) --
+	(226.88,216.46) --
+	(238.10,206.50) --
+	(249.32,206.67) --
+	(260.54,207.03) --
+	(271.75,207.63) --
+	(282.97,216.82) --
+	(294.19,219.37) --
+	(305.41,217.39) --
+	(316.63,221.89) --
+	(327.85,226.64) --
+	(339.06,235.16) --
+	(350.28,229.90) --
+	(361.50,226.36) --
+	(372.72,221.00) --
+	(383.94,232.55) --
+	(395.15,220.47) --
+	(406.37,210.82) --
+	(417.59,218.17) --
+	(428.81,223.26) --
+	(440.03,222.00) --
+	(451.25,218.32) --
+	(462.46,223.15);
 \definecolor[named]{drawColor}{rgb}{0.00,0.00,0.00}
 
-\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] (353.69,451.77) rectangle (478.17,372.18);
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] (353.69,451.77) rectangle (478.17,358.91);
 \definecolor[named]{drawColor}{rgb}{0.00,0.00,1.00}
 
 \path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] (363.63,438.50) -- (383.52,438.50);
@@ -321,6 +359,9 @@
 \definecolor[named]{drawColor}{rgb}{1.00,0.75,0.80}
 
 \path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] (363.63,385.44) -- (383.52,385.44);
+\definecolor[named]{drawColor}{rgb}{0.00,1.00,0.00}
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] (363.63,372.18) -- (383.52,372.18);
 \definecolor[named]{drawColor}{rgb}{0.00,0.00,0.00}
 
 \node[text=drawColor,anchor=base west,inner sep=0pt, outer sep=0pt, scale=  1.00] at (393.47,434.73) {Glasgow Preop};
@@ -332,6 +373,8 @@
 \node[text=drawColor,anchor=base west,inner sep=0pt, outer sep=0pt, scale=  1.00] at (393.47,394.94) {GG2};
 
 \node[text=drawColor,anchor=base west,inner sep=0pt, outer sep=0pt, scale=  1.00] at (393.47,381.67) {CPH};
+
+\node[text=drawColor,anchor=base west,inner sep=0pt, outer sep=0pt, scale=  1.00] at (393.47,368.41) {RSF};
 \end{scope}
 \end{tikzpicture}
 

@@ -44,6 +44,7 @@ library(ggplot2)
 library(MASS)
 library(boot)
 library(timeROC)
+source("stdca.R")
 
 load("03_NSWPCN_subset.rda")
 @
@@ -87,7 +88,7 @@ data$DSD = data$DSD == 1
 There's going to be an awful lot of model manipulation and black magic going on.  Create a holdout validation set for final model comparison and selection.
 <<data-split>>=
 set.seed(20150110)
-sel.val = sample.int(nrow(data), floor(nrow(data)/5))
+sel.val = sample.int(nrow(data), floor(nrow(data)/4))
 sel.val = 1:nrow(data) %in% sel.val
 mean(sel.val)
 data.val = data[sel.val,,drop = FALSE]
@@ -527,33 +528,94 @@ ibs_preds_all = list(gg = ibs_preds_gg, gg2 = ibs_preds_gg2, cph = ibs_preds_cph
 
 
 <<model-selection-tests>>=
-temp.linpred.gg = summary(fit.gg, newdata = data.val, type = "survival")[,1]
-temp.linpred.gg2 = summary(fit.gg2, newdata = data.val, type = "survival")[,1]
-temp.linpred.cph = predict(fit.cph, newdata = data.val)
+val.prob.times = seq(0, max(data.val$Time), 1)
 
-summary(coxph(Surv(Time, DSD) ~ temp.linpred.gg, data.val))
-summary(coxph(Surv(Time, DSD) ~ temp.linpred.gg2, data.val))
-summary(coxph(Surv(Time, DSD) ~ temp.linpred.cph, data.val))
+temp.coefs = coef(fit.gg)
+val.linpred.gg = sapply(1:length(temp.coefs), function(coef_i) {
+    if (names(temp.coefs)[coef_i] %in% colnames(data.val)) { 
+        temp.coefs[coef_i] * data.val[,names(temp.coefs)[coef_i]] 
+    } else if (gsub("TRUE$", "", names(temp.coefs)[coef_i]) %in% colnames(data.val)) { 
+        temp.coefs[coef_i] * data.val[,gsub("TRUE$", "", names(temp.coefs)[coef_i])] 
+    } else {
+        rep(0, nrow(data.val)) 
+    } })
+val.linpred.gg = -rowSums(val.linpred.gg)   # Negate to bring into concordance with the direction of Cox coefficients (ie higher is now worse)
+temp = summary(fit.gg, newdata = data.val, ci = FALSE)
+val.prob.gg = sapply(temp, function(x) approx(x[,1], x[,2], xout = val.prob.times, yleft = 1, yright = 0, rule = 2)$y)
+colnames(val.prob.gg) = rownames(data.val)
 
-anova(coxph(Surv(Time, DSD) ~ offset(temp.linpred.gg) + temp.linpred.gg, data.val))
-anova(coxph(Surv(Time, DSD) ~ offset(temp.linpred.gg2) + temp.linpred.gg2, data.val))
-anova(coxph(Surv(Time, DSD) ~ offset(temp.linpred.cph) + temp.linpred.cph, data.val))
+temp.coefs = coef(fit.gg2)
+val.linpred.gg2 = sapply(1:length(temp.coefs), function(coef_i) {
+    if (names(temp.coefs)[coef_i] %in% colnames(data.val)) { 
+        temp.coefs[coef_i] * data.val[,names(temp.coefs)[coef_i]] 
+    } else if (gsub("TRUE$", "", names(temp.coefs)[coef_i]) %in% colnames(data.val)) { 
+        temp.coefs[coef_i] * data.val[,gsub("TRUE$", "", names(temp.coefs)[coef_i])] 
+    } else {
+        rep(0, nrow(data.val)) 
+    } })
+val.linpred.gg2 = -rowSums(val.linpred.gg2)   # Negate to bring into concordance with the direction of Cox coefficients (ie higher is now worse)
+temp = summary(fit.gg2, newdata = data.val, ci = FALSE)
+val.prob.gg2 = sapply(temp, function(x) approx(x[,1], x[,2], xout = val.prob.times, yleft = 1, yright = 0, rule = 2)$y)
+colnames(val.prob.gg2) = rownames(data.val)
 
-summary(coxph(Surv(Time, DSD) ~ offset(temp.linpred.gg) + SexM + AgeCent + LocBody + SizeCent + A2 + A4, data.val))
-summary(coxph(Surv(Time, DSD) ~ offset(temp.linpred.gg2) + SexM + AgeCent + LocBody + SizeCent + A2 + A4, data.val))
-summary(coxph(Surv(Time, DSD) ~ offset(temp.linpred.cph) + SexM + AgeCent + LocBody + SizeCent + A2 + A4, data.val))
+val.linpred.cph = predict(fit.cph, newdata = data.val)
+temp = survfit(fit.cph, newdata = data.val)
+val.prob.cph = simplify2array(tapply(1:length(temp$surv), rep(names(temp$strata), temp$strata), function(is) approx(temp$time[is], temp$surv[is], val.prob.times, yleft = 1, yright = 0, rule = 2)$y))[,rownames(data.val)]
+
+temp = predict(fit.rsf, newdata = data.val)
+# val.linpred.rsf = temp$predicted
+# Median survival time:
+val.linpred.rsf = apply(temp$survival, 1, function(s1) {
+    sfunc = approxfun(temp$time.interest, s1, yleft = 1, yright = 0, rule = 2)
+    med = uniroot(function(x) sfunc(x) - 0.5, lower = min(temp$time.interest), upper = max(temp$time.interest))$root
+    med
+})
+val.linpred.rsf = -val.linpred.rsf
+val.prob.rsf = apply(temp$survival, 1, function(s1) approx(temp$time.interest, s1, xout = val.prob.times, yleft = 1, yright = 0, rule = 2)$y)
+colnames(val.prob.rsf) = rownames(data.val)
+
+summary(coxph(Surv(Time, DSD) ~ val.linpred.gg, data.val))
+summary(coxph(Surv(Time, DSD) ~ val.linpred.gg2, data.val))
+summary(coxph(Surv(Time, DSD) ~ val.linpred.cph, data.val))
+summary(coxph(Surv(Time, DSD) ~ val.linpred.rsf, data.val))
+
+anova(coxph(Surv(Time, DSD) ~ offset(val.linpred.gg) + val.linpred.gg, data.val))
+anova(coxph(Surv(Time, DSD) ~ offset(val.linpred.gg2) + val.linpred.gg2, data.val))
+anova(coxph(Surv(Time, DSD) ~ offset(val.linpred.cph) + val.linpred.cph, data.val))
+anova(coxph(Surv(Time, DSD) ~ offset(val.linpred.rsf) + val.linpred.rsf, data.val))
+
+summary(coxph(Surv(Time, DSD) ~ offset(val.linpred.gg) + SexM + AgeCent + LocBody + SizeCent + A2 + A4, data.val))
+summary(coxph(Surv(Time, DSD) ~ offset(val.linpred.gg2) + SexM + AgeCent + LocBody + SizeCent + A2 + A4, data.val))
+summary(coxph(Surv(Time, DSD) ~ offset(val.linpred.cph) + SexM + AgeCent + LocBody + SizeCent + A2 + A4, data.val))
+summary(coxph(Surv(Time, DSD) ~ offset(val.linpred.rsf) + SexM + AgeCent + LocBody + SizeCent + A2 + A4, data.val))
 @
 
 
+TD-ROC AUC
 <<model-selection-auc>>=
-temp.gg = timeROC(data.val$Time/365.25*12, data.val$DSD, temp.linpred.gg, cause = 1, times = seq(1, 36, 1), iid = TRUE)
-temp.gg2 = timeROC(data.val$Time/365.25*12, data.val$DSD, temp.linpred.gg2, cause = 1, times = seq(1, 36, 1), iid = TRUE)
-temp.cph = timeROC(data.val$Time/365.25*12, data.val$DSD, temp.linpred.cph, cause = 1, times = seq(1, 36, 1), iid = TRUE)
+temp.times = seq(0.1, 48, 0.1)
+temp.gg = timeROC(data.val$Time/365.25*12, data.val$DSD, val.linpred.gg, cause = 1, times = temp.times, iid = TRUE)
+temp.gg2 = timeROC(data.val$Time/365.25*12, data.val$DSD, val.linpred.gg2, cause = 1, times = temp.times, iid = TRUE)
+temp.cph = timeROC(data.val$Time/365.25*12, data.val$DSD, val.linpred.cph, cause = 1, times = temp.times, iid = TRUE)
 plotAUCcurve(temp.gg, conf.int = FALSE, add = FALSE, col = "blue")
 plotAUCcurve(temp.gg2, conf.int = FALSE, add = TRUE, col = "green")
 plotAUCcurve(temp.cph, conf.int = FALSE, add = TRUE, col = "red")
 legend("topright", legend = c("GG", "GG2", "CPH"), col = c("blue", "green", "red"), lty = "solid")
 @
+
+
+Decision curve analysis.
+<<model-selection-dca>>=
+temp.data = data.frame(Time = data.val$Time, DSD = data.val$DSD*1, 
+    gg.1 = 1-val.prob.gg[val.prob.times == 365,], gg.2 = 1-val.prob.gg[val.prob.times == 365*2,], gg.3 = 1-val.prob.gg[val.prob.times == 365*3,], 
+    gg2.1 = 1-val.prob.gg2[val.prob.times == 365,], gg2.2 = 1-val.prob.gg2[val.prob.times == 365*2,], gg2.3 = 1-val.prob.gg2[val.prob.times == 365*3,], 
+    cph.1 = 1-val.prob.cph[val.prob.times == 365,], cph.2 = 1-val.prob.cph[val.prob.times == 365*2,], cph.3 = 1-val.prob.cph[val.prob.times == 365*3,], 
+    rsf.1 = 1-val.prob.rsf[val.prob.times == 365,], rsf.2 = 1-val.prob.rsf[val.prob.times == 365*2,], rsf.3 = 1-val.prob.rsf[val.prob.times == 365*3,])
+stdca(data = temp.data, outcome = "DSD", ttoutcome = "Time", predictors = c("gg.1", "cph.1", "rsf.1"), timepoint = 365, probability = rep(TRUE, 3))
+stdca(data = temp.data, outcome = "DSD", ttoutcome = "Time", predictors = c("gg.2", "cph.2", "rsf.2"), timepoint = 365*2, probability = rep(TRUE, 3))
+stdca(data = temp.data, outcome = "DSD", ttoutcome = "Time", predictors = c("gg.3", "cph.3", "rsf.3"), timepoint = 365*3, probability = rep(TRUE, 3))
+@
+
 
 Evaluate IBS point estimates.
 BS paths over time on bootstrap samples of the holdout set.
