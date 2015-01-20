@@ -8,9 +8,17 @@
 
 <<setup, include=FALSE>>=
 library(knitr)
+library(tikzDevice)
+options(
+	tikzDocumentDeclaration = "\\documentclass[11pt]{memoir}",
+	tikzLatexPackages = c(
+		getOption("tikzLatexPackages"),
+		"\\usepackage{amsmath}"),
+	tikzMetricsDictionary="tikzMetrics"
+)
+knit_hooks$set(crop = hook_pdfcrop)
 opts_chunk$set(
-	fig.align = 'center', dev = 'pdf', fig.width = 6, fig.height = 6, dev.args = list(pointsize = 8), 
-	tidy = TRUE, width.cutoff = 60, formatR.arrow = TRUE, cache = FALSE)
+	fig.align = 'center', dev = 'tikz', dev.args = list(pointsize = 11), cache = TRUE)
 opts_knit$set(progress = TRUE, verbose = TRUE)
 options(warn = 1)
 @
@@ -96,7 +104,7 @@ legend("topright", legend = c("Original data", "Permuted data", sprintf("Selecte
 @
 
 \subsection{Fit}
-<<nmf-plots>>=
+<<nmf-plots, dev="pdf">>=
 consensusmap(nmf.final)
 basismap(nmf.final)
 coefmap(nmf.final)
@@ -155,7 +163,7 @@ print(xtable(temp, digits = 5), file = "approx_table.tex", tabular.environment =
 % METAGENE PAIRING, AXES
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-<<metagene-pairs>>=
+<<metagene-pairs, dev="pdf">>=
 temp.pred.pairs = t(rbind(coefs.pdac_au, metapcna.scores[colnames(coefs.pdac_au)]))
 colnames(temp.pred.pairs) = paste("mg", 1:ncol(temp.pred.pairs), sep = ".")
 colnames(temp.pred.pairs)[ncol(temp.pred.pairs)] = "PCNA"
@@ -442,7 +450,7 @@ plot_km_axes_tcga = function(code, mc)
 	}
 }
 
-plot_km_axes(axis_coefs.diag_dsd[,1], axis_coefs.diag_dsd[,2], y.diag_dsd, mc = FALSE, main = "APGI")
+plot_km_axes(axis_coefs.diag_dsd[,1], axis_coefs.diag_dsd[,2], y.diag_dsd, mc = FALSE, main = "APGI (Resubstituted)")
 plot_km_axes(GSE21501.axis1, GSE21501.axis2, Surv(GSE21501.samp$time, GSE21501.samp$event), mc = FALSE, main = "GSE21501")
 plot_km_axes(GSE28735.axis1, GSE28735.axis2, Surv(GSE28735.samp$time, GSE28735.samp$event), mc = FALSE, main = "GSE28735")
 plot_km_axes_tcga("hnsc", mc = FALSE)

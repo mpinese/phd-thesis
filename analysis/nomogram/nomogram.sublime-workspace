@@ -314,14 +314,6 @@
 				"buffer_size": 37965,
 				"line_ending": "Unix"
 			}
-		},
-		{
-			"file": "07_validate.Rnw",
-			"settings":
-			{
-				"buffer_size": 38406,
-				"line_ending": "Unix"
-			}
 		}
 	],
 	"build_system": "",
@@ -368,10 +360,10 @@
 	],
 	"file_history":
 	[
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/nomogram/07_validate.Rnw",
 		"/home/mark/ClusterHome/repos/phd-thesis/analysis/nomogram/05_train_NSWPCN_2.Rnw",
 		"/home/mark/ClusterHome/analysis/50_cosmic_lens/03_parseCosmicDataForVW.py",
 		"/home/mark/ClusterHome/analysis/50_cosmic_lens/03_parseCosmicDataForVW.sh",
-		"/home/mark/ClusterHome/repos/phd-thesis/analysis/nomogram/07_validate.Rnw",
 		"/home/mark/ClusterHome/analysis/44_apgi_germline_for_jeremy/02_run_vep.sh",
 		"/home/mark/ClusterHome/repos/phd-thesis/analysis/nomogram/.quantiles = c(0.2, 0.5, 0.8)",
 		"/home/mark/ClusterHome/analysis/50_cosmic_lens/02_NB_classifier.R",
@@ -786,7 +778,7 @@
 	"groups":
 	[
 		{
-			"selected": 1,
+			"selected": 0,
 			"sheets":
 			[
 				{
@@ -815,36 +807,6 @@
 						},
 						"translation.x": 0.0,
 						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 1,
-					"type": "text"
-				},
-				{
-					"buffer": 1,
-					"file": "07_validate.Rnw",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 38406,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								23782,
-								23782
-							]
-						],
-						"settings":
-						{
-							"r_box_status": false,
-							"syntax": "Packages/LaTeXing/support/LaTeX (Knitr).tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 6764.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,
@@ -904,11 +866,15 @@
 	},
 	"select_project":
 	{
-		"height": 0.0,
+		"height": 500.0,
 		"selected_items":
 		[
+			[
+				"",
+				"~/ClusterHome/analysis/50_cosmic_lens/cosmic_lens.sublime-project"
+			]
 		],
-		"width": 0.0
+		"width": 380.0
 	},
 	"select_symbol":
 	{
