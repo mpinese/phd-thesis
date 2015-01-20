@@ -6,7 +6,7 @@
 
 \emph{Thesis: Specific molecular processes control survival of patients with resectable \acrlong{PDAC}, and  these processes can be identified using \acrlong{GEX} data.}
 
-\paragraph{Summary}Very little is known regarding the biological processes that control the survival of patients with \gls{PDAC}, the most common and aggressive form of pancreas cancer.  As discussed in \Cref{chap:nomogram}, the wide range of relative patient survival times that is observed in practice is not well explained by extrinsic factors such as age at diagnosis, and perhaps instead reflects differences in the biological processes operating within each tumour.  Recent molecular profiling work \cite{Collisson2011} has identified possible molecular subtypes within the previously homogenous group of \gls{PDAC}, but these subtypes have not achieved the maturity or clinical application of those in breast cancer, and their discovery and validation has been hampered by ad-hoc methodology, and the lack of large, well-curated cohorts of \gls{PDAC} samples.  The recently-compiled \gls{APGI} cohort contains the largest group of clinically annotated \gls{PDAC} samples, with accompanying \gls{GEX} and high-quality follow-up data, in the world.  It presents a unique opportunity to apply modern techniques for prognostic signature identification to the discovery of biological processes that drive the clinical course of pancreas cancer.  These signatures may find application as prognostic tools in their own right, but more importantly can supply much-needed information on the fundamental biology of the one common cancer that has, to date, been almost entirely refractory to all the tools of modern molecular medicine.
+\paragraph{Summary}Very little is known regarding the biological processes that control the survival of patients with \gls{PDAC}, the most common and aggressive form of pancreas cancer.  As discussed in \Cref{chap:nomogram}, the range of relative patient survival times that is observed in practice is not well explained by extrinsic factors such as age at diagnosis, and perhaps instead reflects differences in the biological processes operating within each tumour.  Recent molecular profiling work \cite{Collisson2011} has identified possible molecular subtypes within the previously homogenous group of \gls{PDAC}, but these subtypes have not achieved the maturity or clinical application of those in breast cancer, and their discovery and validation has been hampered by ad-hoc methodology, and the lack of large, well-curated cohorts of \gls{PDAC} samples.  The recently-compiled \gls{APGI} cohort contains the largest group of clinically annotated \gls{PDAC} samples, with accompanying \gls{GEX} and high-quality follow-up data, in the world.  It presents a unique opportunity to apply modern techniques for prognostic signature identification to the discovery of biological processes that drive the clinical course of pancreas cancer.  These signatures may find application as prognostic tools in their own right, but more importantly can supply much-needed information on the fundamental biology of the one common cancer that has, to date, been almost entirely refractory to all the tools of modern molecular medicine.
 
 \section{Introduction}
 Despite extensive research, \gls{PDAC} remains a poorly-understood disease.  Recent genomic profiling has revealed the genetic alterations that accompany the cancer \cite{Biankin2012}, and a huge number of prognostic factors are known \cite{Harsha2009} (refer to \Cref{chap:intro} for further discussion on both points), but these findings have shed little light on the fundamental disease processes at work in individual tumours.  This is a consequence of genetic and biomarker data being poorly-suited for understanding the biological state of a cell: although genetic alterations are central to the etiology of cancer, they give incomplete information on the pathways and systems actually active in a given tumour, and biomarkers supply non-causal readouts of cell state that are difficult to trace back to underlying biological processes.
@@ -131,7 +131,7 @@ The expression of the 361 survival-associated genes across the 110 patients of t
 \begin{figure}
 \centering
 \includegraphics[width=.7\linewidth]{analysis/biosurv/reports/18_SIS_diag_dsd_final/figure/nmf-plots-2}
-\caption[Basis matrix $W$ of the final \acrshort{SNMFL} factorization]{Basis matrix $W$ of the final \acrshort{SNMFL} factorization.  Rows represent genes, and columns metagenes, with cell colours proportional to the loading of a given gene on a given metagene.  The loadings are sparse within rows, indicating that the metagenes are modular, each affecting the expression of largely distinct sets of target genes.  A table of values of this basis matrix is available as \aref{app:sigs-w-matrix} on \pref{app:sigs-w-matrix}.}\label{fig:sigs-nmf-basis}
+\caption[Basis matrix $W$ of the final \acrshort{SNMFL} factorization]{Basis matrix $W$ of the final \acrshort{SNMFL} factorization.  Rows represent genes, and columns metagenes, with cell colours proportional to the loading of a given gene on a given metagene.  The loadings are sparse within rows, indicating that the metagenes are modular, each affecting the expression of largely distinct sets of target genes.  A table of values of this basis matrix is available as \Aref{app:sigs-w-matrix} on \pref{app:sigs-w-matrix}.}\label{fig:sigs-nmf-basis}
 \end{figure}
 
 \paragraph{Three metagenes together formed a prognostic model}
@@ -280,27 +280,44 @@ Tumour longest axis length & 0.844                         & 0.171              
 \caption[A2 signal is closely associated with meta-EMT score]{Axis A2 signal is closely associated with a signature of the \gls{EMT}.  A2 signal and meta-EMT \cite{Groger2012} scores were as evaluated on the \acrshort{APGI} training set; Kendall's $\tau = 0.568$, $n = 110$, linear model $R^2 = 0.557$.}\label{fig:sigs-axis2-emt}
 \end{figure}
 
-\mpfatal{TODO: Consider comparing A1 and A2 vs meta-PCNA and meta-ECM in TCGA -- are A1/A2 better than the metas?  Model complexity is the same so therefore can just compare partials -- woo}
-
 \section{Discussion}
-At the molecular level, the phenomenon of cancer has long been recognised as a composite of many processes \cite{Hanahan2011}, however the relative importance of each process to a particular type of cancer has been largely uncertain.  In pancreas cancer, a huge number of individual biomarkers are known \cite{Harsha2009}, and some attempts have been made to stratify cancers into empirical molecular subtypes \cite{Collisson2011}, but no studies have provided a comprehensive analysis of which basic hallmarks of cancer are actually important in determining patient outcome.  This work fills that gap in knowledge, and is the first to exhaustively identify proliferation and the \gls{EMT} as the major molecular processes that control survival of patients with pancreas cancer.
+At the molecular level, the phenomenon of cancer has long been recognised as a composite of many processes \cite{Hanahan2011}, however the relative importance of each process to a particular type of cancer has been largely uncertain.  In pancreas cancer, a huge number of individual biomarkers are known \cite{Harsha2009}, and attempts have been made to stratify cancers into empirical molecular subtypes \cite{Collisson2011}, but no studies have yet provided a comprehensive analysis of which basic hallmarks of cancer are actually important in determining patient outcome.  This chapter fills that gap in knowledge, by exhaustively identifying proliferation and the \gls{EMT} as the major molecular processes that control survival of patients with pancreas cancer.
 
-\begin{itemize}
-  \item PARSE = meta-PCNA + meta-EMT (+ immune + stroma?).
-  \item Context-dependency of stroma signal
-  \item The folly of clustering
-  \item GSE21501 -- why didn't it validate?
-  \item Broader implications of pan-cancer survival signature
-  \item Limitations -- not necessarily complete.  But can I be sure that the major players have been captured?
-  \item Relevance to future work.
-\end{itemize}
+The thesis underlying this work was that fundamental disease processes control the survival of patients with resected \gls{PDAC}, and that these processes can be identified from patterns of gene expression in patient tumours.  To test this thesis, a global biology-agnostic approach was used to exhaustively identify expression modules strongly associated with outcome, and these modules were then linked to biological processes.  Two independent outcome-associated modules were identified, and comparisons with published gene signatures indicated that one of these modules was likely measuring proliferative activity, and the other the \gls{EMT}, in the tumours.
+
+Proliferation and the \gls{EMT} are two of the ten major hallmarks of cancer \cite{Hanahan2011}, and so it is unsurprising that they are so closely associated with patient survival: the very definition of cancer involves uncontrolled and unceasing cell proliferation (TODO cite); and the \gls{EMT} is a major enabling step in metastasis, the process by which most cancers are ultimately lethal (TODO cite).  What \emph{is} surprising is that the majority of hallmarks do \emph{not} appear to be strongly associated with survival in resected \gls{PDAC}.  In particular, the absence of stromal or inflammatory signatures is unexpected given that \gls{PDAC} cells are almost always surrounded by extensive stroma, which is believed to be a clinically significant component of the disease \cite{Luo2012}.
+
+Cancer is fundamentally a proliferative process: it is through inappropriate and continued proliferation, and the consequent destruction of normal tissues and disruption of homeostasis, that cancer progressively overwhelms the body.  In keeping with this, the meta-PCNA signature of cell proliferation is prognostic in a wide range of cancers \cite{Venet2011} -- actually it isn't tested as such in Venet.
+TODO: should probably do what Venet suggests and pull some random genes as a test.
+* Something on prolif.  Obviously a central aspect of cancer.  Discuss meta-PCNA briefly and its pan-can applicability.  A1/A2 also have pan-can prognostic ability, but interestingly it's subtly different from PCNA -- eg kirc, where double pos is needed for poor prognosis.
+
+* EMT.  Huge topic, but essentially the idea is that this is a hallmark of metastasis.  Fold in with the nomogram chapter, with A2/A4 as markers of occult met, which is a major mechanism of early recurrence for resected PDAC.  How do A2/A4 compare with Ax2?  I may need to put a bit of results in for this, but from memory they were poor proxies.  Ax2 could be a superior indicator of met ability to A2/A4.
+
+* Brief consideration of potential limitations -- these are the big players, but can't exclude everything.  Good examples are stroma and immune, which may also be playing a part.
+
+* What about the stroma?  The inverse corrs with the sigs is interesting.  This links in with the current confusing lit on the influence of stroma on PC.  Ie it's bad (http://www.ncbi.nlm.nih.gov/pubmed/22521638) vs it's good (http://www.ncbi.nlm.nih.gov/pubmed/24856585).
+
+* Talk about validation.  That bloody dataset.  Link in with pan-cancer.  I've talked about prolif. and EMT, but looks like they're also important in other solid tumours.  Definitely warrants follow-up.
+
+* This technique is general -- can be applied to anything.  Might be a good way to assess prognostic sigs across all cancers.  Another approach might be to take hallmarks and test, but the advantage of this is that it is totally unbiased.  Disadvantage is complexity.
+
+* Techniques.  This approach was taken for its low bias, trying to capture as much biology as possible.   Seems to indicate that Ax1/Ax2 are smooth axes, not the discrete groupings that are often sought.  But this clustering is probably artefactual, when there are very many factors combining to yield a phenotype.  It highlights the follow of clustering -- look for clusters, and ye will find.  The approach taken was global and inclusive, with the ability to link to bio., but unfortunately this led to very large sigs.
+
+* More general application.  Problem is the large cardinality of the sigs.  These were generated more for understanding of biol. than ease of application.  But it's possible that they could be cut down, see eg the approx. appendix.  Similar approaches could maybe cut them down further, more work to do here.  If trimmed down sufficiently, could even become replacements for A2/A4 etc.  
+
+* Wrap-up.  Thesis came up +ve, and two major players found.  This has given new understanding of PDAC survival, and possibly surv in other solid tumours too.  It's also illustrated a technique that might be applied to pan-cancer, to assess sigs on a truly global scale.  These sigs are primarily tools for better understanding of the processes in the cancers, but immediately illustrate potential avenues for therapy.
+
+In this work, I set out to determine whether specific molecular signatures control the survival of patients with resectable \gls{PDAC}, and to link these survival signatures to fundamental biological processes.  I found that prognostic gene expression signals could be factorized into two orthogonal components, and linked these components to the fundamental cancer processes of proliferation and \gls{EMT}.  These two processes were the dominant determinants of survival in resected \gls{PDAC}, and 
+
+Although it is impossible to conclusively exclude the effect of any other processes, the global unbiased nature of the analysis undertaken here establishes that proliferation and \gls{EMT} are the predominant determinants of survival in \gls{PDAC}
+
 
 \section{Methods}
 \subsection{Cohort recruitment and ethics}
-\mpfatal{TODO: Cohort recruitment and ethics}
+All samples were prospectively acquired as part of the \gls{APGI} project, and detailed inclusion criteria and ethics approvals are given in the associated publication \cite{Biankin2012}.  Briefly, samples were of primary, untreated, operable \gls{PDAC}, collected during resection.  For all cases, the diagnosis of \gls{PDAC} was made by at least two pathologists with expertise in pancreas diseases.
 
 \subsection{Sample collection, preparation, and gene expression microarrays}
-\mpfatal{TODO: Sample collection, preparation, and gene expression microarrays}
+Protocols for collection and processing of these samples have been published \cite{Biankin2012}.  In summary, specimens were snap frozen in liquid nitrogen immediately following resection, and RNA extracted using the Qiagen AllPrep DNA/RNA/Protein Mini kit.  For each sample, 150 ng of total RNA was amplified using the Life Technologies TotalPrep RNA Amplification Kit, and 750 ng of the resultant amplified cRNA was hybridised on to Illumina Human HT-12 V4 arrays.  Arrays were scanned on an Illumina Bead Array Reader, to yield \gls{IDAT} scan files.  All kit and microarray procedures were performed as per the manufacturer's instructions.
 
 \subsection{Data preprocessing}
 \paragraph{Microarray quality control and normalization}
@@ -417,7 +434,6 @@ c6           & *                                  \\
 c7           & *                                  \\ \bottomrule
 \end{tabular}
 \end{table}
-
 
 \subsection{Attribution of work}
 Data for the \gls{APGI} discovery cohort were generated as part of the \gls{APGI} project, under the umbrella of the \gls{ICGC}.  The generation of these data was a huge team effort, of which I only played a small part.  However, both conception of the project, and all steps subsequent to raw data generation, from low level processing of \gls{IDAT} files through to analysis planning, signature development, testing, and interpretation, were performed solely by me.
