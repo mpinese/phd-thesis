@@ -308,7 +308,7 @@ anova(coxph(Surv(GSE28735.samp$time, GSE28735.samp$event) ~ GSE28735.axis1 + GSE
 
 
 <<val-tcga-load>>=
-load("../../data/validation/tcga-clin-gex.20141118.rda")
+load("../../data/validation/tcga-clin-gex.20150119.rda")
 @
 
 <<val-tcga-calc>>=
