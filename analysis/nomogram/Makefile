@@ -1,8 +1,8 @@
 .PHONY: all
 .SECONDARY: 
 
-#RSCRIPT = ~/bin/Rscript
-RSCRIPT = Rscript
+RSCRIPT = ~/bin/Rscript
+#RSCRIPT = Rscript
 
 all: 01_NSWPCN.rda 03_NSWPCN_subset.rda 04_NSWPCN_fits.rda 05_train_NSWPCN_2.pdf 05_final_model.rds 06_Glasgow.rds 07_validate.pdf
 
