@@ -18,7 +18,7 @@ options(
 )
 knit_hooks$set(crop = hook_pdfcrop)
 opts_chunk$set(
-	fig.align = 'center', dev = 'tikz', dev.args = list(pointsize = 11), cache = TRUE)
+	fig.align = 'center', dev = 'tikz', dev.args = list(pointsize = 11), cache = TRUE, cache.lazy = FALSE)
 opts_knit$set(progress = TRUE, verbose = TRUE)
 options(warn = 1)
 @
@@ -308,7 +308,7 @@ anova(coxph(Surv(GSE28735.samp$time, GSE28735.samp$event) ~ GSE28735.axis1 + GSE
 
 
 <<val-tcga-load>>=
-load("../../data/validation/tcga-clin-gex.20150119.rda")
+load("../../data/validation/tcga-clin-gex.20141118.rda")
 @
 
 <<val-tcga-calc>>=
@@ -478,8 +478,8 @@ emt.scores = emt.scores.pos - emt.scores.neg
 axis_coefs.msigdb.corr = cor(axis_coefs.diag_dsd, t(sigs), method = "kendall")
 
 temp.sel_cols = apply(abs(axis_coefs.msigdb.corr) >= sig.corr.threshold, 2, any)
-heatmap.2(axis_coefs.msigdb.corr[, temp.sel_cols], trace = "none", scale = "none", useRaster = TRUE, col = brewer.pal(11, "PiYG"), symbreaks = TRUE)
-heatmap.2(axis_coefs.msigdb.corr[, temp.sel_cols], trace = "none", scale = "none", useRaster = TRUE, col = brewer.pal(3, "PiYG"), breaks = c(-1, -sig.corr.threshold, sig.corr.threshold, 1))
+#heatmap.2(axis_coefs.msigdb.corr[, temp.sel_cols], trace = "none", scale = "none", useRaster = TRUE, col = brewer.pal(11, "PiYG"), symbreaks = TRUE)
+#heatmap.2(axis_coefs.msigdb.corr[, temp.sel_cols], trace = "none", scale = "none", useRaster = TRUE, col = brewer.pal(3, "PiYG"), breaks = c(-1, -sig.corr.threshold, sig.corr.threshold, 1))
 
 cpv.pvals = apply(axis_coefs.diag_dsd, 2, function(mg) sapply(cbind(cpvs.diag_dsd, purity = samps.diag_dsd$purity_qpure), function(x) {
         s = !is.na(mg) & !is.na(x)

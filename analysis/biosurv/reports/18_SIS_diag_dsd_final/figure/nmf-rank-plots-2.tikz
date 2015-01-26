@@ -1,4 +1,4 @@
-% Created by tikzDevice version 0.7.0 on 2015-01-20 21:54:39
+% Created by tikzDevice version 0.8.1 on 2015-01-26 20:20:26
 % !TEX encoding = UTF-8 Unicode
 \documentclass[11pt]{memoir}
 \nonstopmode
@@ -26,11 +26,11 @@
 \begin{document}
 
 \begin{tikzpicture}[x=1pt,y=1pt]
-\definecolor[named]{fillColor}{rgb}{1.00,1.00,1.00}
+\definecolor{fillColor}{RGB}{255,255,255}
 \path[use as bounding box,fill=fillColor,fill opacity=0.00] (0,0) rectangle (505.89,505.89);
 \begin{scope}
 \path[clip] ( 54.12, 67.32) rectangle (478.17,451.77);
-\definecolor[named]{drawColor}{rgb}{0.00,0.00,0.00}
+\definecolor{drawColor}{RGB}{0,0,0}
 
 \path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] ( 69.83,437.53) --
 	(135.27,270.53) --
@@ -56,7 +56,7 @@
 \end{scope}
 \begin{scope}
 \path[clip] (  0.00,  0.00) rectangle (505.89,505.89);
-\definecolor[named]{drawColor}{rgb}{0.00,0.00,0.00}
+\definecolor{drawColor}{RGB}{0,0,0}
 
 \path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] ( 69.83, 67.32) -- (462.46, 67.32);
 
@@ -130,7 +130,7 @@
 \end{scope}
 \begin{scope}
 \path[clip] (  0.00,  0.00) rectangle (505.89,505.89);
-\definecolor[named]{drawColor}{rgb}{0.00,0.00,0.00}
+\definecolor{drawColor}{RGB}{0,0,0}
 
 \node[text=drawColor,anchor=base,inner sep=0pt, outer sep=0pt, scale=  1.00] at (266.14, 17.16) {Factorization Rank Added};
 
@@ -138,7 +138,7 @@
 \end{scope}
 \begin{scope}
 \path[clip] ( 54.12, 67.32) rectangle (478.17,451.77);
-\definecolor[named]{drawColor}{rgb}{1.00,0.00,0.00}
+\definecolor{drawColor}{RGB}{255,0,0}
 
 \path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] ( 69.83,147.99) --
 	(135.27,135.21) --
@@ -161,7 +161,7 @@
 \path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] (397.02,105.24) circle (  2.47);
 
 \path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] (462.46,100.04) circle (  2.47);
-\definecolor[named]{drawColor}{rgb}{1.00,0.00,0.00}
+\definecolor{drawColor}{RGB}{255,0,0}
 
 \path[draw=drawColor,draw opacity=0.25,line width= 0.4pt,line join=round,line cap=round] ( 69.83,149.58) --
 	(135.27,133.56) --
@@ -272,7 +272,7 @@
 \path[draw=drawColor,draw opacity=0.25,line width= 0.4pt,line join=round,line cap=round] (397.02,108.37) circle (  2.47);
 
 \path[draw=drawColor,draw opacity=0.25,line width= 0.4pt,line join=round,line cap=round] (462.46,102.54) circle (  2.47);
-\definecolor[named]{drawColor}{rgb}{1.00,0.00,0.00}
+\definecolor{drawColor}{RGB}{255,0,0}
 
 \path[draw=drawColor,line width= 0.4pt,dash pattern=on 1pt off 3pt ,line join=round,line cap=round] ( 69.83,153.40) --
 	(135.27,142.31) --
@@ -281,30 +281,30 @@
 	(331.58,116.15) --
 	(397.02,109.09) --
 	(462.46,104.62);
-\definecolor[named]{drawColor}{rgb}{0.00,1.00,0.00}
+\definecolor{drawColor}{RGB}{0,255,0}
 
 \path[draw=drawColor,line width= 0.8pt,line join=round,line cap=round] (266.14, 67.32) -- (266.14,451.77);
-\definecolor[named]{drawColor}{rgb}{0.00,0.00,0.00}
+\definecolor{drawColor}{RGB}{0,0,0}
 
 \path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] (319.80,432.55) rectangle (456.97,379.49);
 
 \path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] (322.79,419.28) -- (342.67,419.28);
-\definecolor[named]{drawColor}{rgb}{1.00,0.00,0.00}
+\definecolor{drawColor}{RGB}{255,0,0}
 
 \path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] (322.79,406.02) -- (342.67,406.02);
-\definecolor[named]{drawColor}{rgb}{0.00,1.00,0.00}
+\definecolor{drawColor}{RGB}{0,255,0}
 
 \path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] (322.79,392.75) -- (342.67,392.75);
-\definecolor[named]{drawColor}{rgb}{0.00,0.00,0.00}
+\definecolor{drawColor}{RGB}{0,0,0}
 
 \path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] (332.73,419.28) circle (  2.47);
-\definecolor[named]{drawColor}{rgb}{1.00,0.00,0.00}
+\definecolor{drawColor}{RGB}{255,0,0}
 
 \path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] (332.73,406.02) circle (  2.47);
-\definecolor[named]{drawColor}{rgb}{0.00,1.00,0.00}
+\definecolor{drawColor}{RGB}{0,255,0}
 
 \path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] (332.73,392.75) circle (  2.47);
-\definecolor[named]{drawColor}{rgb}{0.00,0.00,0.00}
+\definecolor{drawColor}{RGB}{0,0,0}
 
 \node[text=drawColor,anchor=base west,inner sep=0pt, outer sep=0pt, scale=  1.00] at (352.62,415.51) {Original data};
 

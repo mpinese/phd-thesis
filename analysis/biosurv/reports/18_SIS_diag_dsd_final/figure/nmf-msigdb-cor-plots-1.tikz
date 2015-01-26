@@ -1,0 +1,125 @@
+% Created by tikzDevice version 0.8.1 on 2015-01-26 20:23:04
+% !TEX encoding = UTF-8 Unicode
+\documentclass[11pt]{memoir}
+\nonstopmode
+
+\usepackage{tikz}
+
+\usepackage[active,tightpage,psfixbb]{preview}
+
+\PreviewEnvironment{pgfpicture}
+
+\setlength\PreviewBorder{0pt}
+
+\usepackage{amsmath}
+\newcommand{\SweaveOpts}[1]{}  % do not interfere with LaTeX
+\newcommand{\SweaveInput}[1]{} % because they are not real TeX commands
+\newcommand{\Sexpr}[1]{}       % will only be parsed by R
+
+
+\usepackage{geometry}
+\usepackage{amsmath}
+\usepackage{lscape}
+\geometry{verbose,tmargin=2.5cm,bmargin=2.5cm,lmargin=2.5cm,rmargin=2.5cm}
+
+
+\begin{document}
+
+\begin{tikzpicture}[x=1pt,y=1pt]
+\definecolor{fillColor}{RGB}{255,255,255}
+\path[use as bounding box,fill=fillColor,fill opacity=0.00] (0,0) rectangle (505.89,505.89);
+\begin{scope}
+\path[clip] ( 54.12, 67.32) rectangle (478.17,451.77);
+\definecolor{drawColor}{RGB}{0,0,0}
+
+\path[draw=drawColor,line width= 1.2pt,line join=round] ( 89.46,218.34) -- (246.51,218.34);
+
+\path[draw=drawColor,line width= 0.4pt,dash pattern=on 4pt off 4pt ,line join=round,line cap=round] (167.99, 81.56) -- (167.99,163.15);
+
+\path[draw=drawColor,line width= 0.4pt,dash pattern=on 4pt off 4pt ,line join=round,line cap=round] (167.99,380.77) -- (167.99,253.27);
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] (128.72, 81.56) -- (207.25, 81.56);
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] (128.72,380.77) -- (207.25,380.77);
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] ( 89.46,163.15) --
+	(246.51,163.15) --
+	(246.51,253.27) --
+	( 89.46,253.27) --
+	( 89.46,163.15);
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] (167.99,437.53) circle (  2.47);
+
+\path[draw=drawColor,line width= 1.2pt,line join=round] (285.78,266.20) -- (442.83,266.20);
+
+\path[draw=drawColor,line width= 0.4pt,dash pattern=on 4pt off 4pt ,line join=round,line cap=round] (364.30,141.53) -- (364.30,213.59);
+
+\path[draw=drawColor,line width= 0.4pt,dash pattern=on 4pt off 4pt ,line join=round,line cap=round] (364.30,384.27) -- (364.30,288.03);
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] (325.04,141.53) -- (403.57,141.53);
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] (325.04,384.27) -- (403.57,384.27);
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] (285.78,213.59) --
+	(442.83,213.59) --
+	(442.83,288.03) --
+	(285.78,288.03) --
+	(285.78,213.59);
+\end{scope}
+\begin{scope}
+\path[clip] (  0.00,  0.00) rectangle (505.89,505.89);
+\definecolor{drawColor}{RGB}{0,0,0}
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] (167.99, 67.32) -- (364.30, 67.32);
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] (167.99, 67.32) -- (167.99, 60.72);
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] (364.30, 67.32) -- (364.30, 60.72);
+
+\node[text=drawColor,anchor=base,inner sep=0pt, outer sep=0pt, scale=  1.00] at (167.99, 43.56) {1or2};
+
+\node[text=drawColor,anchor=base,inner sep=0pt, outer sep=0pt, scale=  1.00] at (364.30, 43.56) {3or4};
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] ( 54.12, 82.77) -- ( 54.12,378.95);
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] ( 54.12, 82.77) -- ( 47.52, 82.77);
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] ( 54.12,156.81) -- ( 47.52,156.81);
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] ( 54.12,230.86) -- ( 47.52,230.86);
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] ( 54.12,304.90) -- ( 47.52,304.90);
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] ( 54.12,378.95) -- ( 47.52,378.95);
+
+\node[text=drawColor,rotate= 90.00,anchor=base,inner sep=0pt, outer sep=0pt, scale=  1.00] at ( 38.28, 82.77) {-0.4};
+
+\node[text=drawColor,rotate= 90.00,anchor=base,inner sep=0pt, outer sep=0pt, scale=  1.00] at ( 38.28,156.81) {-0.2};
+
+\node[text=drawColor,rotate= 90.00,anchor=base,inner sep=0pt, outer sep=0pt, scale=  1.00] at ( 38.28,230.86) {0.0};
+
+\node[text=drawColor,rotate= 90.00,anchor=base,inner sep=0pt, outer sep=0pt, scale=  1.00] at ( 38.28,304.90) {0.2};
+
+\node[text=drawColor,rotate= 90.00,anchor=base,inner sep=0pt, outer sep=0pt, scale=  1.00] at ( 38.28,378.95) {0.4};
+\end{scope}
+\begin{scope}
+\path[clip] (  0.00,  0.00) rectangle (505.89,505.89);
+\definecolor{drawColor}{RGB}{0,0,0}
+
+\node[text=drawColor,anchor=base,inner sep=0pt, outer sep=0pt, scale=  1.00] at (266.14, 17.16) {Pathological grade};
+
+\node[text=drawColor,rotate= 90.00,anchor=base,inner sep=0pt, outer sep=0pt, scale=  1.00] at ( 11.88,259.55) {A1 signal};
+\end{scope}
+\begin{scope}
+\path[clip] (  0.00,  0.00) rectangle (505.89,505.89);
+\definecolor{drawColor}{RGB}{0,0,0}
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] ( 54.12, 67.32) --
+	(478.17, 67.32) --
+	(478.17,451.77) --
+	( 54.12,451.77) --
+	( 54.12, 67.32);
+\end{scope}
+\end{tikzpicture}
+
+\end{document}
