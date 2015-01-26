@@ -19,7 +19,7 @@ options(
 knit_hooks$set(crop = hook_pdfcrop)
 opts_chunk$set(
 	fig.align = 'center', fig.path = "figure/05-", dev = 'tikz', dev.args = list(pointsize = 11), 
-	cache = TRUE, cache.path = "cache/05-", autodep = TRUE, crop = TRUE)
+	cache = TRUE, cache.lazy = FALSE, cache.path = "cache/05-", autodep = TRUE, crop = TRUE)
 opts_knit$set(progress = TRUE, verbose = TRUE)
 options(warn = 1)
 @

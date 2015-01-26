@@ -1,4 +1,4 @@
-% Created by tikzDevice version 0.7.0 on 2015-01-20 22:04:34
+% Created by tikzDevice version 0.8.1 on 2015-01-26 20:20:48
 % !TEX encoding = UTF-8 Unicode
 \documentclass[11pt]{memoir}
 \nonstopmode
@@ -26,11 +26,11 @@
 \begin{document}
 
 \begin{tikzpicture}[x=1pt,y=1pt]
-\definecolor[named]{fillColor}{rgb}{1.00,1.00,1.00}
+\definecolor{fillColor}{RGB}{255,255,255}
 \path[use as bounding box,fill=fillColor,fill opacity=0.00] (0,0) rectangle (505.89,505.89);
 \begin{scope}
 \path[clip] ( 54.12, 67.32) rectangle (478.17,451.77);
-\definecolor[named]{drawColor}{rgb}{0.00,0.00,0.00}
+\definecolor{drawColor}{RGB}{0,0,0}
 
 \path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] ( 69.83,339.39) --
 	( 79.27,339.39) --
@@ -97,7 +97,7 @@
 \end{scope}
 \begin{scope}
 \path[clip] (  0.00,  0.00) rectangle (505.89,505.89);
-\definecolor[named]{drawColor}{rgb}{0.00,0.00,0.00}
+\definecolor{drawColor}{RGB}{0,0,0}
 
 \path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] ( 69.83, 67.32) -- (474.40, 67.32);
 
@@ -159,7 +159,7 @@
 \end{scope}
 \begin{scope}
 \path[clip] (  0.00,  0.00) rectangle (505.89,505.89);
-\definecolor[named]{drawColor}{rgb}{0.00,0.00,0.00}
+\definecolor{drawColor}{RGB}{0,0,0}
 
 \node[text=drawColor,anchor=base,inner sep=0pt, outer sep=0pt, scale=  1.00] at (266.14, 17.16) {L1 Norm};
 
@@ -167,7 +167,7 @@
 \end{scope}
 \begin{scope}
 \path[clip] ( 54.12, 67.32) rectangle (478.17,451.77);
-\definecolor[named]{drawColor}{rgb}{1.00,0.00,0.00}
+\definecolor{drawColor}{RGB}{255,0,0}
 
 \path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] ( 69.83,339.39) --
 	( 79.27,324.43) --
@@ -231,7 +231,7 @@
 	(454.30, 85.26) --
 	(458.45, 83.38) --
 	(462.46, 81.56);
-\definecolor[named]{drawColor}{rgb}{0.00,0.80,0.00}
+\definecolor{drawColor}{RGB}{0,205,0}
 
 \path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] ( 69.83,339.39) --
 	( 79.27,339.39) --
@@ -295,7 +295,7 @@
 	(454.30,400.02) --
 	(458.45,398.92) --
 	(462.46,397.84);
-\definecolor[named]{drawColor}{rgb}{0.00,0.00,1.00}
+\definecolor{drawColor}{RGB}{0,0,255}
 
 \path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] ( 69.83,339.39) --
 	( 79.27,339.39) --
@@ -359,7 +359,7 @@
 	(454.30,290.61) --
 	(458.45,289.25) --
 	(462.46,287.93);
-\definecolor[named]{drawColor}{rgb}{0.00,1.00,1.00}
+\definecolor{drawColor}{RGB}{0,255,255}
 
 \path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] ( 69.83,339.39) --
 	( 79.27,339.39) --
@@ -423,7 +423,7 @@
 	(454.30,173.29) --
 	(458.45,171.25) --
 	(462.46,169.29);
-\definecolor[named]{drawColor}{rgb}{1.00,0.00,1.00}
+\definecolor{drawColor}{RGB}{255,0,255}
 
 \path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] ( 69.83,339.39) --
 	( 79.27,339.39) --
@@ -490,7 +490,7 @@
 \end{scope}
 \begin{scope}
 \path[clip] (  0.00,  0.00) rectangle (505.89,505.89);
-\definecolor[named]{drawColor}{rgb}{0.00,0.00,0.00}
+\definecolor{drawColor}{RGB}{0,0,0}
 
 \path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] ( 69.83,451.77) -- (474.40,451.77);
 
@@ -528,7 +528,7 @@
 \end{scope}
 \begin{scope}
 \path[clip] ( 54.12, 67.32) rectangle (478.17,451.77);
-\definecolor[named]{drawColor}{rgb}{0.00,0.00,0.00}
+\definecolor{drawColor}{RGB}{0,0,0}
 
 \node[text=drawColor,anchor=base west,inner sep=0pt, outer sep=0pt, scale=  0.50] at (469.06,284.22) {1};
 
@@ -542,7 +542,7 @@
 
 \node[text=drawColor,anchor=base west,inner sep=0pt, outer sep=0pt, scale=  0.50] at (469.06,308.45) {6};
 
-\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] (165.97, 67.32) -- (165.97,451.77);
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] (100.44, 67.32) -- (100.44,451.77);
 \end{scope}
 \end{tikzpicture}
 

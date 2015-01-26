@@ -1,4 +1,4 @@
-% Created by tikzDevice version 0.7.0 on 2015-01-19 17:29:02
+% Created by tikzDevice version 0.8.1 on 2015-01-26 13:19:41
 % !TEX encoding = UTF-8 Unicode
 \documentclass[11pt]{memoir}
 \nonstopmode
@@ -26,11 +26,11 @@
 \begin{document}
 
 \begin{tikzpicture}[x=1pt,y=1pt]
-\definecolor[named]{fillColor}{rgb}{1.00,1.00,1.00}
+\definecolor{fillColor}{RGB}{255,255,255}
 \path[use as bounding box,fill=fillColor,fill opacity=0.00] (0,0) rectangle (289.08,289.08);
 \begin{scope}
 \path[clip] ( 54.12, 67.32) rectangle (261.36,234.96);
-\definecolor[named]{drawColor}{rgb}{0.00,0.00,0.00}
+\definecolor{drawColor}{RGB}{0,0,0}
 
 \path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] (107.37, 92.62) circle (  2.47);
 
@@ -380,7 +380,7 @@
 \end{scope}
 \begin{scope}
 \path[clip] (  0.00,  0.00) rectangle (289.08,289.08);
-\definecolor[named]{drawColor}{rgb}{0.00,0.00,0.00}
+\definecolor{drawColor}{RGB}{0,0,0}
 
 \path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] ( 61.80, 67.32) -- (253.68, 67.32);
 
@@ -434,13 +434,13 @@
 \end{scope}
 \begin{scope}
 \path[clip] (  0.00,  0.00) rectangle (289.08,289.08);
-\definecolor[named]{drawColor}{rgb}{0.00,0.00,0.00}
+\definecolor{drawColor}{RGB}{0,0,0}
 
 \node[text=drawColor,rotate= 90.00,anchor=base,inner sep=0pt, outer sep=0pt, scale=  1.00] at ( 11.88,151.14) {Martingale residual};
 \end{scope}
 \begin{scope}
 \path[clip] ( 54.12, 67.32) rectangle (261.36,234.96);
-\definecolor[named]{drawColor}{rgb}{0.00,0.00,0.00}
+\definecolor{drawColor}{RGB}{0,0,0}
 
 \path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] ( 61.80,131.73) --
 	( 65.71,135.92) --

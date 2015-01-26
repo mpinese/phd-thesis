@@ -1,0 +1,380 @@
+% Created by tikzDevice version 0.8.1 on 2015-01-26 20:22:44
+% !TEX encoding = UTF-8 Unicode
+\documentclass[11pt]{memoir}
+\nonstopmode
+
+\usepackage{tikz}
+
+\usepackage[active,tightpage,psfixbb]{preview}
+
+\PreviewEnvironment{pgfpicture}
+
+\setlength\PreviewBorder{0pt}
+
+\usepackage{amsmath}
+\newcommand{\SweaveOpts}[1]{}  % do not interfere with LaTeX
+\newcommand{\SweaveInput}[1]{} % because they are not real TeX commands
+\newcommand{\Sexpr}[1]{}       % will only be parsed by R
+
+
+\usepackage{geometry}
+\usepackage{amsmath}
+\usepackage{lscape}
+\geometry{verbose,tmargin=2.5cm,bmargin=2.5cm,lmargin=2.5cm,rmargin=2.5cm}
+
+
+\begin{document}
+
+\begin{tikzpicture}[x=1pt,y=1pt]
+\definecolor{fillColor}{RGB}{255,255,255}
+\path[use as bounding box,fill=fillColor,fill opacity=0.00] (0,0) rectangle (505.89,505.89);
+\begin{scope}
+\path[clip] ( 54.12, 67.32) rectangle (478.17,451.77);
+\definecolor{fillColor}{RGB}{252,141,98}
+
+\path[fill=fillColor] (230.21,297.49) circle (  3.71);
+\definecolor{fillColor}{RGB}{102,194,165}
+
+\path[fill=fillColor] (213.54,121.82) circle (  3.71);
+\definecolor{fillColor}{RGB}{252,141,98}
+
+\path[fill=fillColor] (256.06,225.38) circle (  3.71);
+\definecolor{fillColor}{RGB}{231,138,195}
+
+\path[fill=fillColor] (278.01,424.06) circle (  3.71);
+\definecolor{fillColor}{RGB}{252,141,98}
+
+\path[fill=fillColor] (211.80,170.68) circle (  3.71);
+
+\path[fill=fillColor] (162.52,231.67) circle (  3.71);
+
+\path[fill=fillColor] (242.06,273.84) circle (  3.71);
+
+\path[fill=fillColor] (242.26,292.19) circle (  3.71);
+\definecolor{fillColor}{RGB}{102,194,165}
+
+\path[fill=fillColor] (185.54,128.75) circle (  3.71);
+\definecolor{fillColor}{RGB}{252,141,98}
+
+\path[fill=fillColor] (255.42,297.56) circle (  3.71);
+
+\path[fill=fillColor] (263.88,307.19) circle (  3.71);
+\definecolor{fillColor}{RGB}{102,194,165}
+
+\path[fill=fillColor] ( 69.83,146.71) circle (  3.71);
+\definecolor{fillColor}{RGB}{231,138,195}
+
+\path[fill=fillColor] (289.92,169.65) circle (  3.71);
+\definecolor{fillColor}{RGB}{252,141,98}
+
+\path[fill=fillColor] (276.47,284.41) circle (  3.71);
+
+\path[fill=fillColor] (222.32,218.07) circle (  3.71);
+
+\path[fill=fillColor] (246.70,298.63) circle (  3.71);
+\definecolor{fillColor}{RGB}{231,138,195}
+
+\path[fill=fillColor] (325.06,318.36) circle (  3.71);
+
+\path[fill=fillColor] (299.52,227.86) circle (  3.71);
+\definecolor{fillColor}{RGB}{252,141,98}
+
+\path[fill=fillColor] (240.31,272.77) circle (  3.71);
+
+\path[fill=fillColor] (187.95,211.58) circle (  3.71);
+
+\path[fill=fillColor] (262.91,291.48) circle (  3.71);
+\definecolor{fillColor}{RGB}{231,138,195}
+
+\path[fill=fillColor] (278.01,361.64) circle (  3.71);
+\definecolor{fillColor}{RGB}{102,194,165}
+
+\path[fill=fillColor] (219.00,138.05) circle (  3.71);
+\definecolor{fillColor}{RGB}{231,138,195}
+
+\path[fill=fillColor] (278.01,150.84) circle (  3.71);
+\definecolor{fillColor}{RGB}{141,160,203}
+
+\path[fill=fillColor] (288.26, 81.56) circle (  3.71);
+\definecolor{fillColor}{RGB}{231,138,195}
+
+\path[fill=fillColor] (330.14,180.02) circle (  3.71);
+
+\path[fill=fillColor] (278.01,164.04) circle (  3.71);
+\definecolor{fillColor}{RGB}{252,141,98}
+
+\path[fill=fillColor] (200.60,231.83) circle (  3.71);
+
+\path[fill=fillColor] (273.25,260.31) circle (  3.71);
+\definecolor{fillColor}{RGB}{231,138,195}
+
+\path[fill=fillColor] (301.21,179.01) circle (  3.71);
+\definecolor{fillColor}{RGB}{252,141,98}
+
+\path[fill=fillColor] (208.26,212.91) circle (  3.71);
+\definecolor{fillColor}{RGB}{231,138,195}
+
+\path[fill=fillColor] (278.01,306.01) circle (  3.71);
+\definecolor{fillColor}{RGB}{252,141,98}
+
+\path[fill=fillColor] (165.57,202.35) circle (  3.71);
+
+\path[fill=fillColor] (105.74,173.39) circle (  3.71);
+
+\path[fill=fillColor] (177.77,235.21) circle (  3.71);
+
+\path[fill=fillColor] (238.82,149.83) circle (  3.71);
+
+\path[fill=fillColor] (160.76,209.15) circle (  3.71);
+\definecolor{fillColor}{RGB}{141,160,203}
+
+\path[fill=fillColor] (289.60,129.43) circle (  3.71);
+\definecolor{fillColor}{RGB}{102,194,165}
+
+\path[fill=fillColor] (180.79,133.57) circle (  3.71);
+\definecolor{fillColor}{RGB}{252,141,98}
+
+\path[fill=fillColor] (201.28,164.23) circle (  3.71);
+
+\path[fill=fillColor] (190.60,235.94) circle (  3.71);
+\definecolor{fillColor}{RGB}{141,160,203}
+
+\path[fill=fillColor] (302.41,125.11) circle (  3.71);
+\definecolor{fillColor}{RGB}{231,138,195}
+
+\path[fill=fillColor] (280.14,237.81) circle (  3.71);
+
+\path[fill=fillColor] (307.22,287.82) circle (  3.71);
+
+\path[fill=fillColor] (390.30,230.17) circle (  3.71);
+\definecolor{fillColor}{RGB}{252,141,98}
+
+\path[fill=fillColor] (246.97,215.08) circle (  3.71);
+\definecolor{fillColor}{RGB}{231,138,195}
+
+\path[fill=fillColor] (333.39,162.72) circle (  3.71);
+\definecolor{fillColor}{RGB}{252,141,98}
+
+\path[fill=fillColor] (252.02,278.46) circle (  3.71);
+\definecolor{fillColor}{RGB}{231,138,195}
+
+\path[fill=fillColor] (462.46,193.21) circle (  3.71);
+
+\path[fill=fillColor] (327.59,371.55) circle (  3.71);
+\definecolor{fillColor}{RGB}{252,141,98}
+
+\path[fill=fillColor] (168.11,163.84) circle (  3.71);
+
+\path[fill=fillColor] (253.82,169.44) circle (  3.71);
+
+\path[fill=fillColor] (202.30,263.51) circle (  3.71);
+\definecolor{fillColor}{RGB}{231,138,195}
+
+\path[fill=fillColor] (279.40,212.32) circle (  3.71);
+\definecolor{fillColor}{RGB}{252,141,98}
+
+\path[fill=fillColor] ( 90.04,158.81) circle (  3.71);
+
+\path[fill=fillColor] (225.99,158.31) circle (  3.71);
+
+\path[fill=fillColor] (222.53,271.60) circle (  3.71);
+
+\path[fill=fillColor] (227.10,245.98) circle (  3.71);
+\definecolor{fillColor}{RGB}{141,160,203}
+
+\path[fill=fillColor] (374.47,103.32) circle (  3.71);
+\definecolor{fillColor}{RGB}{252,141,98}
+
+\path[fill=fillColor] (194.31,168.84) circle (  3.71);
+\definecolor{fillColor}{RGB}{231,138,195}
+
+\path[fill=fillColor] (319.96,395.46) circle (  3.71);
+\definecolor{fillColor}{RGB}{252,141,98}
+
+\path[fill=fillColor] (156.63,215.80) circle (  3.71);
+\definecolor{fillColor}{RGB}{231,138,195}
+
+\path[fill=fillColor] (366.72,197.34) circle (  3.71);
+
+\path[fill=fillColor] (283.69,251.51) circle (  3.71);
+\definecolor{fillColor}{RGB}{102,194,165}
+
+\path[fill=fillColor] (271.31,141.91) circle (  3.71);
+\definecolor{fillColor}{RGB}{231,138,195}
+
+\path[fill=fillColor] (288.91,331.34) circle (  3.71);
+\definecolor{fillColor}{RGB}{102,194,165}
+
+\path[fill=fillColor] (257.79,145.33) circle (  3.71);
+\definecolor{fillColor}{RGB}{252,141,98}
+
+\path[fill=fillColor] (214.15,228.45) circle (  3.71);
+\definecolor{fillColor}{RGB}{231,138,195}
+
+\path[fill=fillColor] (278.01,330.10) circle (  3.71);
+
+\path[fill=fillColor] (284.10,238.41) circle (  3.71);
+\definecolor{fillColor}{RGB}{252,141,98}
+
+\path[fill=fillColor] (117.74,211.76) circle (  3.71);
+\definecolor{fillColor}{RGB}{231,138,195}
+
+\path[fill=fillColor] (278.01,154.85) circle (  3.71);
+
+\path[fill=fillColor] (316.22,255.09) circle (  3.71);
+
+\path[fill=fillColor] (333.01,316.83) circle (  3.71);
+\definecolor{fillColor}{RGB}{102,194,165}
+
+\path[fill=fillColor] (186.19,132.01) circle (  3.71);
+
+\path[fill=fillColor] (226.98,146.54) circle (  3.71);
+\definecolor{fillColor}{RGB}{252,141,98}
+
+\path[fill=fillColor] (271.85,299.88) circle (  3.71);
+\definecolor{fillColor}{RGB}{231,138,195}
+
+\path[fill=fillColor] (330.95,206.80) circle (  3.71);
+\definecolor{fillColor}{RGB}{102,194,165}
+
+\path[fill=fillColor] (217.52,140.07) circle (  3.71);
+\definecolor{fillColor}{RGB}{252,141,98}
+
+\path[fill=fillColor] (231.43,226.48) circle (  3.71);
+
+\path[fill=fillColor] (227.21,171.73) circle (  3.71);
+
+\path[fill=fillColor] (253.78,161.21) circle (  3.71);
+\definecolor{fillColor}{RGB}{231,138,195}
+
+\path[fill=fillColor] (308.08,247.23) circle (  3.71);
+
+\path[fill=fillColor] (278.01,437.53) circle (  3.71);
+
+\path[fill=fillColor] (383.11,187.08) circle (  3.71);
+
+\path[fill=fillColor] (322.30,339.32) circle (  3.71);
+\definecolor{fillColor}{RGB}{252,141,98}
+
+\path[fill=fillColor] (159.35,179.23) circle (  3.71);
+\definecolor{fillColor}{RGB}{141,160,203}
+
+\path[fill=fillColor] (278.01, 96.47) circle (  3.71);
+\definecolor{fillColor}{RGB}{252,141,98}
+
+\path[fill=fillColor] (259.35,236.52) circle (  3.71);
+\definecolor{fillColor}{RGB}{231,138,195}
+
+\path[fill=fillColor] (278.01,371.70) circle (  3.71);
+\definecolor{fillColor}{RGB}{252,141,98}
+
+\path[fill=fillColor] (228.47,253.24) circle (  3.71);
+\definecolor{fillColor}{RGB}{231,138,195}
+
+\path[fill=fillColor] (319.27,158.21) circle (  3.71);
+\definecolor{fillColor}{RGB}{252,141,98}
+
+\path[fill=fillColor] (169.88,198.67) circle (  3.71);
+
+\path[fill=fillColor] (213.60,244.17) circle (  3.71);
+
+\path[fill=fillColor] (186.05,217.26) circle (  3.71);
+
+\path[fill=fillColor] (271.58,289.25) circle (  3.71);
+
+\path[fill=fillColor] (247.32,187.24) circle (  3.71);
+\definecolor{fillColor}{RGB}{231,138,195}
+
+\path[fill=fillColor] (278.01,301.95) circle (  3.71);
+\definecolor{fillColor}{RGB}{252,141,98}
+
+\path[fill=fillColor] (277.62,247.25) circle (  3.71);
+\definecolor{fillColor}{RGB}{231,138,195}
+
+\path[fill=fillColor] (278.01,345.66) circle (  3.71);
+\definecolor{fillColor}{RGB}{102,194,165}
+
+\path[fill=fillColor] (171.13,111.89) circle (  3.71);
+\definecolor{fillColor}{RGB}{231,138,195}
+
+\path[fill=fillColor] (278.01,332.67) circle (  3.71);
+\end{scope}
+\begin{scope}
+\path[clip] (  0.00,  0.00) rectangle (505.89,505.89);
+\definecolor{drawColor}{RGB}{0,0,0}
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] ( 95.46, 67.32) -- (460.55, 67.32);
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] ( 95.46, 67.32) -- ( 95.46, 60.72);
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] (186.73, 67.32) -- (186.73, 60.72);
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] (278.01, 67.32) -- (278.01, 60.72);
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] (369.28, 67.32) -- (369.28, 60.72);
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] (460.55, 67.32) -- (460.55, 60.72);
+
+\node[text=drawColor,anchor=base,inner sep=0pt, outer sep=0pt, scale=  1.00] at ( 95.46, 43.56) {-0.10};
+
+\node[text=drawColor,anchor=base,inner sep=0pt, outer sep=0pt, scale=  1.00] at (186.73, 43.56) {-0.05};
+
+\node[text=drawColor,anchor=base,inner sep=0pt, outer sep=0pt, scale=  1.00] at (278.01, 43.56) {0.00};
+
+\node[text=drawColor,anchor=base,inner sep=0pt, outer sep=0pt, scale=  1.00] at (369.28, 43.56) {0.05};
+
+\node[text=drawColor,anchor=base,inner sep=0pt, outer sep=0pt, scale=  1.00] at (460.55, 43.56) {0.10};
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] ( 54.12, 81.98) -- ( 54.12,411.08);
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] ( 54.12, 81.98) -- ( 47.52, 81.98);
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] ( 54.12,147.80) -- ( 47.52,147.80);
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] ( 54.12,213.62) -- ( 47.52,213.62);
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] ( 54.12,279.44) -- ( 47.52,279.44);
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] ( 54.12,345.26) -- ( 47.52,345.26);
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] ( 54.12,411.08) -- ( 47.52,411.08);
+
+\node[text=drawColor,rotate= 90.00,anchor=base,inner sep=0pt, outer sep=0pt, scale=  1.00] at ( 38.28, 81.98) {-0.05};
+
+\node[text=drawColor,rotate= 90.00,anchor=base,inner sep=0pt, outer sep=0pt, scale=  1.00] at ( 38.28,147.80) {0.00};
+
+\node[text=drawColor,rotate= 90.00,anchor=base,inner sep=0pt, outer sep=0pt, scale=  1.00] at ( 38.28,213.62) {0.05};
+
+\node[text=drawColor,rotate= 90.00,anchor=base,inner sep=0pt, outer sep=0pt, scale=  1.00] at ( 38.28,279.44) {0.10};
+
+\node[text=drawColor,rotate= 90.00,anchor=base,inner sep=0pt, outer sep=0pt, scale=  1.00] at ( 38.28,345.26) {0.15};
+
+\node[text=drawColor,rotate= 90.00,anchor=base,inner sep=0pt, outer sep=0pt, scale=  1.00] at ( 38.28,411.08) {0.20};
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] ( 54.12, 67.32) --
+	(478.17, 67.32) --
+	(478.17,451.77) --
+	( 54.12,451.77) --
+	( 54.12, 67.32);
+\end{scope}
+\begin{scope}
+\path[clip] (  0.00,  0.00) rectangle (505.89,505.89);
+\definecolor{drawColor}{RGB}{0,0,0}
+
+\node[text=drawColor,anchor=base,inner sep=0pt, outer sep=0pt, scale=  1.20] at (266.14,474.30) {\bfseries GSE21501};
+
+\node[text=drawColor,anchor=base,inner sep=0pt, outer sep=0pt, scale=  1.00] at (266.14, 17.16) {A1 activity};
+
+\node[text=drawColor,rotate= 90.00,anchor=base,inner sep=0pt, outer sep=0pt, scale=  1.00] at ( 11.88,259.55) {A2 activity};
+\end{scope}
+\begin{scope}
+\path[clip] ( 54.12, 67.32) rectangle (478.17,451.77);
+\definecolor{drawColor}{RGB}{0,0,0}
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] ( 54.12,147.80) -- (478.17,147.80);
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] (278.01, 67.32) -- (278.01,451.77);
+\end{scope}
+\end{tikzpicture}
+
+\end{document}
