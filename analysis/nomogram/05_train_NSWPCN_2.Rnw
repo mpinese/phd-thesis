@@ -87,8 +87,8 @@ data$DSD = data$DSD == 1
 \section{Data splitting}
 There's going to be an awful lot of model manipulation and black magic going on.  Create a holdout validation set for final model comparison and selection.
 <<data-split>>=
-set.seed(20150110)
-sel.val = sample.int(nrow(data), floor(nrow(data)/4))
+set.seed(20150201)
+sel.val = sample.int(nrow(data), floor(nrow(data)/5))
 sel.val = 1:nrow(data) %in% sel.val
 mean(sel.val)
 data.val = data[sel.val,,drop = FALSE]
@@ -114,170 +114,34 @@ fit.cph.NoSize = coxph(Surv(Time, DSD) ~ SexM + AgeCent + LocBody + A2 + A4, dat
 scatter.smooth(data$SizeCent, resid(fit.cph.NoSize, type = "martingale"), xlab = "", ylab = "Martingale residual")
 scatter.smooth(data$SizeCent, resid(fit.cph.NoSize, type = "martingale"), xlab = "", ylab = "Martingale residual", ylim = c(-1, 1))
 @
-It looks like age has a minor nonlinear component, leading to a quadratic-like U shape.  The size relationship appears to have a knee, close to size == 0, around which the relationship is approximately linear.
+It looks like age has a minor nonlinear component, with a small uptick at advanced age.  Very minor though.  The size relationship appears to have a knee, close to size == 0, around which the relationship is approximately linear.
 
-Model age as:  $AgeCent + AgeCent^2$
+Model age as:  $AgeCent + AgeCent I(AgeCent > 0) \equiv AgeCent+ AgeCent_+$
 Model size as: $SizeCent + SizeCent I(SizeCent > 0) \equiv SizeCent + SizeCent_+$
 
 <<eda-accessory-vars>>=
-data$SizeSmall = data$SizeCent * (data$SizeCent < 0)
-data$AgeCent2 = data$AgeCent^2
+data$AgePlus = pmax(data$AgeCent, 0)
+data$SizePlus = pmax(data$SizeCent, 0)
 @
+
 
 \subsection{PH assumption: full model}
 <<eda-ph-check-full>>=
-fit.cph = coxph(Surv(Time, DSD) ~ SexM + AgeCent + AgeCent2 + LocBody + SizeCent + SizeSmall + A2 + A4, data = data)
+fit.cph = coxph(Surv(Time, DSD) ~ SexM + AgeCent + AgePlus + LocBody + SizeCent + SizePlus + A2 + A4, data = data)
 cox.zph(fit.cph)
-plot(cox.zph(fit.cph))
+plot(cox.zph(fit.cph)[1])
+plot(cox.zph(fit.cph)[8])
 @
-
-<<eda-ph-check-full-sexplot>>=
-temp = function (x, resid = TRUE, se = TRUE, df = 4, nsmo = 40, var, ...) {
-    xx <- x$x
-    yy <- x$y
-    d <- nrow(yy)
-    df <- max(df)
-    nvar <- ncol(yy)
-    pred.x <- seq(from = min(xx), to = max(xx), length = nsmo)
-    temp <- c(pred.x, xx)
-    lmat <- ns(temp, df = df, intercept = TRUE)
-    pmat <- lmat[1:nsmo, ]
-    xmat <- lmat[-(1:nsmo), ]
-    qmat <- qr(xmat)
-    if (qmat$rank < df) 
-        stop("Spline fit is singular, try a smaller degrees of freedom")
-    if (se) {
-        bk <- backsolve(qmat$qr[1:df, 1:df], diag(df))
-        xtx <- bk %*% t(bk)
-        seval <- d * ((pmat %*% xtx) * pmat) %*% rep(1, df)
-    }
-    ylab <- paste("Beta(t) for", dimnames(yy)[[2]])
-    if (missing(var)) 
-        var <- 1:nvar
-    else {
-        if (is.character(var)) 
-            var <- match(var, dimnames(yy)[[2]])
-        if (any(is.na(var)) || max(var) > nvar || min(var) < 
-            1) 
-            stop("Invalid variable requested")
-    }
-    if (x$transform == "log") {
-        xx <- exp(xx)
-        pred.x <- exp(pred.x)
-    }
-    else if (x$transform != "identity") {
-        xtime <- as.numeric(dimnames(yy)[[1]])
-        indx <- !duplicated(xx)
-        apr1 <- approx(xx[indx], xtime[indx], seq(min(xx), max(xx), 
-            length = 17)[2 * (1:8)])
-        temp <- signif(apr1$y, 2)
-        apr2 <- approx(xtime[indx], xx[indx], temp)
-        xaxisval <- apr2$y
-        xaxislab <- rep("", 8)
-        for (i in 1:8) xaxislab[i] <- format(temp[i])
-    }
-    for (i in var) {
-        y <- yy[, i]
-        yhat <- pmat %*% qr.coef(qmat, y)
-        if (resid) 
-            yr <- range(yhat, y)
-        else yr <- range(yhat)
-        if (se) {
-            temp <- 2 * sqrt(x$var[i, i] * seval)
-            yup <- yhat + temp
-            ylow <- yhat - temp
-            yr <- range(yr, yup, ylow)
-        }
-        if (x$transform == "identity") 
-            plot(range(xx), yr, type = "n", ...)
-        else if (x$transform == "log") 
-            plot(range(xx), yr, type = "n", log = "x", ...)
-        else {
-            plot(range(xx), yr, type = "n", axes = FALSE, ...)
-            axis(1, xaxisval, xaxislab)
-            axis(2)
-            box()
-        }
-        if (resid) 
-            points(xx, y)
-        lines(pred.x, yhat)
-        if (se) {
-            lines(pred.x, yup, lty = 2)
-            lines(pred.x, ylow, lty = 2)
-        }
-    }
-}
-
-temp(cox.zph(fit.cph), var = 1, ylab = "Scaled Schoenfeld residual for patient sex", xlab = "Time")
-abline(h = 0, lty = "dotted")
-@
-
-
-Looks like there's a violation of CPH with gender.  Not unexpected.  First check whether there is any evidence of gender interaction.
-<<eda-ph-check-full-2>>=
-anova(coxph(Surv(Time, DSD) ~ SexM*(AgeCent + AgeCent2 + LocBody + SizeCent + SizeSmall + A2 + A4), data = data))
-@
-Nope, good.  We're not interested in gender effects so just stratify.
-
-<<eda-ph-check-full-3>>=
-fit.cph = coxph(Surv(Time, DSD) ~ strata(SexM) + AgeCent + AgeCent2 + LocBody + SizeCent + SizeSmall + A2 + A4, data = data)
-cox.zph(fit.cph)
-plot(cox.zph(fit.cph))
-@
-
-Looks good.  Slight snifter with age but I'm not particularly concerned.
-Split into age groups and do KM plots to verify.
-<<eda-ph-check-full-age>>=
-temp.age = cut(data$AgeCent, 4)
-temp = survfit(Surv(Time, DSD) ~ temp.age, data)
-ggplot(data.frame(surv = temp$surv, time = temp$time, age = rep(names(temp$strata), temp$strata)), aes(y = log(-log(surv)), x = log(time), col = age)) + geom_line()
-@
-Not perfect but it'll do.
-
-
-\subsection{Outliers: full model}
-Look at deviance residuals, both marginally and stratified by major subgroups.
-<<eda-outliers-full>>=
-plot(resid(fit.cph, type = "deviance"))
-abline(h = c(-2.5, 2.5))
-temp.ord = order(data$SexM, data$A2, data$A4)
-temp.resid = resid(fit.cph, type = "deviance")[temp.ord]
-temp.col = (4*data$SexM + 2*data$A2 + data$A4 + 1)[temp.ord]
-plot(temp.resid, col = temp.col, pch = 16)
-abline(h = c(-2.5, 2.5))
-boxplot(resid(fit.cph, type = "deviance") ~ data$SexM + data$A2 + data$A4, varwidth = TRUE)
-abline(h = 0)
-boxplot(resid(fit.cph, type = "martingale") ~ data$SexM + data$A2 + data$A4, varwidth = TRUE)
-abline(h = 0)
-@
-
-Use DFBETAS to examine influence.
-<<eda-dfbetas-full>>=
-temp = resid(fit.cph, type = "dfbetas")
-colnames(temp) = names(fit.cph$coefficients)
-temp = melt(temp)
-colnames(temp) = c("Patient", "Coefficient", "dfbetas")
-temp$Patient = gsub("NSWPCN_", "", temp$Patient)
-ggplot(temp, aes(y = dfbetas, x = Patient, col = Coefficient)) + geom_point()
-@
-There is quite a number of rather influential observations.  These could do with some checking, but first collapse down the model -- there's little point doing dfbeta fucking about based on coefficients that will never get fit in the end anyway.
+Looks OK, just weak possible effects with gender and A4.
 
 
 \subsection{EDA: Variable selection}
 <<eda-varsel-glmulti>>=
 nobs.coxph <<- function(obj, ...) sum(obj$y[,2])
-# Note: Exhaustive search at level 2 is only feasible for at most 5 variables
-#fit.cph.as = glmulti(Surv(Time, DSD) ~ strata(SexM) + AgeCent + AgeCent2 + LocBody + SizeCent + SizeSmall + A2 + A4, data = data, marginality = TRUE, method = "h", fitfunction = "coxph", crit = "bic", level = 2)
-set.seed(20150110)
-fit.cph.as = glmulti(Surv(Time, DSD) ~ strata(SexM) + AgeCent + AgeCent2 + LocBody + SizeCent + SizeSmall + A2 + A4, data = data, marginality = TRUE, method = "g", fitfunction = "coxph", crit = "bic", level = 2, plotty = FALSE, report = FALSE)
-# fit.cph.as
-# After 830 generations:
-# Best model: Surv(Time,DSD)~1+strata(SexM)+SizeCent+A2+A4
-# Crit= 1367.16344569113
-# Mean crit= 1401.37248769175
-# Improvements in best and average IC have bebingo en below the specified goals.
-# Algorithm is declared to have converged.
-# Completed.
+set.seed(20150201)
+fit.cph.as.bic = glmulti(Surv(Time, DSD) ~ SexM + AgeCent + AgePlus + LocBody + SizeCent + SizePlus + A2 + A4, data = data, marginality = TRUE, method = "g", fitfunction = "coxph", crit = "bic", level = 2, plotty = FALSE, report = TRUE)
+fit.cph.as.aicc = glmulti(Surv(Time, DSD) ~ SexM + AgeCent + AgePlus + LocBody + SizeCent + SizePlus + A2 + A4, data = data, marginality = TRUE, method = "g", fitfunction = "coxph", crit = "aicc", level = 2, plotty = FALSE, report = TRUE)
+fit.cph.as = fit.cph.as.bic
 rm(nobs.coxph)
 @
 
@@ -287,20 +151,36 @@ stepAIC(fit.cph, k = log(nrow(data)))
 @
 Consensus, excellent.
 
-
 \subsection{PH assumption: reduced model}
 <<eda-ph-check-reduced>>=
-fit.cph = coxph(Surv(Time, DSD) ~ strata(SexM) + SizeCent + A2 + A4, data = data)
+fit.cph = coxph(Surv(Time, DSD) ~ SizeCent + A2 + A4, data = data)
+cox.zph(fit.cph)
+plot(cox.zph(fit.cph))
+@
+Interesting effect on A4.  Betas for A4+ drop at high times.  Could this suggest that high A4 is a met proxy, but \emph{not always} -- there are some A4+ pts who don't met, and thus once they've made it to 800 days or so (by which point the mets should have killed them), they're proven to have a met-free high-A4 phenotype, and consequently have good survival?
+
+Size also has a bit of a non-PH indication, but I'm not particularly fussed as it's graphically not too worrying.
+
+For now maybe just stratify by A4 and be done with it.
+<<eda-final-fit>>=
+fit.cph = coxph(Surv(Time, DSD) ~ SizeCent + A2 + strata(A4), data = data)
 cox.zph(fit.cph)
 plot(cox.zph(fit.cph))
 @
 
+
 \subsection{Outliers: reduced model}
 <<eda-outliers-reduced>>=
+scatter.smooth(resid(fit.cph, type = "deviance"), data$SizeCent)
+boxplot(resid(fit.cph, type = "deviance") ~ data$A2, main = "Deviance vs A2")
+boxplot(resid(fit.cph, type = "deviance") ~ data$A4, main = "Deviance vs A4")
 plot(resid(fit.cph, type = "deviance"))
+abline(h = c(-2.5, 2.5))
+data$devresid = resid(fit.cph, type = "deviance")
+temp = data[abs(data$devresid) >= 2.5,]
+temp[order(temp$Time),]
 @
-
-Now generate the restricted fit and examine the DFBETAS on the reduced model.
+Few enough that I'm not particularly concerned.  The DFBETAS will be more telling.
 
 <<eda-dfbetas-reduced>>=
 temp = resid(fit.cph, type = "dfbetas")
@@ -312,7 +192,108 @@ temp$Patient = gsub("NSWPCN_", "", temp$Patient)
 ggplot(temp, aes(y = abs(dfbetas), x = Patient, col = Coefficient)) + geom_point() + geom_hline(yintercept = 2/sqrt(nrow(data)))
 sort(apply(abs(resid(fit.cph, type = "dfbetas")), 1, max), decreasing = TRUE)
 sum(apply(abs(resid(fit.cph, type = "dfbetas")), 1, max) > 2/sqrt(nrow(data)))
+data$DFBETAS_max = apply(abs(resid(fit.cph, type = "dfbetas")), 1, max)
+temp = data[data$DFBETAS_max >= 2/sqrt(nrow(data)) | abs(data$devresid) >= 2.5,]
+temp[order(temp$DFBETAS_max),]
 @
+Some long survivors are causing problems.  Given the data issues, it'd be prudent to remove them -- it's not
+practical to go back to the source data and find out if they're legit or not.  These guys are alive at >10 years,
+according to the data, which is near unheard-of in PDAC.  I propose to remove all pts alive for 3000 days or longer, and
+anything with DFBETAS >= 0.2.
+
+<<eda-remove-outliers>>=
+data = data[data$Time < 3000 & data$DFBETAS_max < 0.2,]
+data.val = data.val[data.val$Time < 3000,]
+@
+
+Now repeat everything...
+\subsection{Functional form}
+<<eda-func-form-age-2,fig.width=4,fig.height=4>>=
+fit.cph.NoAge = coxph(Surv(Time, DSD) ~ SexM + LocBody + SizeCent + A2 + A4, data = data)
+scatter.smooth(data$AgeCent, resid(fit.cph.NoAge, type = "martingale"), xlab = "", ylab = "Martingale residual")
+scatter.smooth(data$AgeCent, resid(fit.cph.NoAge, type = "martingale"), xlab = "", ylab = "Martingale residual", ylim = c(-1, 1))
+@
+
+<<eda-func-form-size-2,fig.width=4,fig.height=4>>=
+fit.cph.NoSize = coxph(Surv(Time, DSD) ~ SexM + AgeCent + LocBody + A2 + A4, data = data)
+scatter.smooth(data$SizeCent, resid(fit.cph.NoSize, type = "martingale"), xlab = "", ylab = "Martingale residual")
+scatter.smooth(data$SizeCent, resid(fit.cph.NoSize, type = "martingale"), xlab = "", ylab = "Martingale residual", ylim = c(-1, 1))
+@
+It looks like age has a minor nonlinear component, with a small uptick at advanced age.  Very minor though.  The size relationship appears to have a knee, close to size == 0, around which the relationship is approximately linear.
+
+Model age as:  $AgeCent + AgeCent I(AgeCent > 0) \equiv AgeCent+ AgeCent_+$
+Model size as: $SizeCent + SizeCent I(SizeCent > 0) \equiv SizeCent + SizeCent_+$
+
+<<eda-accessory-vars-2>>=
+data$AgePlus = pmax(data$AgeCent, 5) - 5
+data$SizePlus = pmax(data$SizeCent, 0)
+@
+
+
+\subsection{PH assumption: full model}
+<<eda-ph-check-full-2>>=
+fit.cph = coxph(Surv(Time, DSD) ~ SexM + AgeCent + AgePlus + LocBody + SizeCent + SizePlus + A2 + A4, data = data)
+cox.zph(fit.cph)
+plot(cox.zph(fit.cph)[1])
+@
+
+
+\subsection{EDA: Variable selection}
+<<eda-varsel-glmulti-2>>=
+nobs.coxph <<- function(obj, ...) sum(obj$y[,2])
+set.seed(20150201)
+fit.cph.as.bic = glmulti(Surv(Time, DSD) ~ strata(SexM) + AgeCent + AgePlus + LocBody + SizeCent + SizePlus + A2 + A4, data = data, marginality = TRUE, method = "g", fitfunction = "coxph", crit = "bic", level = 2, plotty = FALSE, report = TRUE)
+fit.cph.as.aicc = glmulti(Surv(Time, DSD) ~ strata(SexM) + AgeCent + AgePlus + LocBody + SizeCent + SizePlus + A2 + A4, data = data, marginality = TRUE, method = "g", fitfunction = "coxph", crit = "aicc", level = 2, plotty = FALSE, report = TRUE)
+fit.cph.as = fit.cph.as.bic
+rm(nobs.coxph)
+@
+
+Also run BIC stepwise, because we can.
+<<eda-varsel-stepwise-2>>=
+fit.cph = coxph(Surv(Time, DSD) ~ strata(SexM) + AgeCent + AgePlus + LocBody + SizeCent + SizePlus + A2 + A4, data = data)
+stepAIC(fit.cph, k = log(nrow(data)))
+@
+Consensus, excellent.
+
+\subsection{PH assumption: reduced model}
+<<eda-ph-check-reduced-2>>=
+fit.cph = coxph(Surv(Time, DSD) ~ strata(SexM) + SizeCent + A2 + A4, data = data)
+cox.zph(fit.cph)
+plot(cox.zph(fit.cph))
+@
+
+
+\subsection{Outliers: reduced model}
+<<eda-outliers-reduced-2>>=
+scatter.smooth(resid(fit.cph, type = "deviance"), data$SizeCent)
+boxplot(resid(fit.cph, type = "deviance") ~ data$A2, main = "Deviance vs A2")
+boxplot(resid(fit.cph, type = "deviance") ~ data$A4, main = "Deviance vs A4")
+plot(resid(fit.cph, type = "deviance"))
+abline(h = c(-2.5, 2.5))
+data$devresid = resid(fit.cph, type = "deviance")
+temp = data[abs(data$devresid) >= 2.5,]
+temp[order(temp$Time),]
+@
+Few enough that I'm not particularly concerned.  The DFBETAS will be more telling.
+
+<<eda-dfbetas-reduced>>=
+temp = resid(fit.cph, type = "dfbetas")
+colnames(temp) = names(fit.cph$coefficients)
+temp = melt(temp)
+colnames(temp) = c("Patient", "Coefficient", "dfbetas")
+temp$Patient = gsub("NSWPCN_", "", temp$Patient)
+2/sqrt(nrow(data))      # The classic threshold for concern is 2/sqrt(n).
+ggplot(temp, aes(y = abs(dfbetas), x = Patient, col = Coefficient)) + geom_point() + geom_hline(yintercept = 2/sqrt(nrow(data)))
+sort(apply(abs(resid(fit.cph, type = "dfbetas")), 1, max), decreasing = TRUE)
+sum(apply(abs(resid(fit.cph, type = "dfbetas")), 1, max) > 2/sqrt(nrow(data)))
+data$DFBETAS_max = apply(abs(resid(fit.cph, type = "dfbetas")), 1, max)
+temp = data[data$DFBETAS_max >= 2/sqrt(nrow(data)) | abs(data$devresid) >= 2.5,]
+temp[order(temp$DFBETAS_max),]
+@
+
+
+
+
 
 \subsection{Summary of EDA}
 \begin{enumerate}
@@ -751,6 +732,10 @@ set.seed(20150111)
 fit.final.rsf = rfsrc(Surv(Time, DSD) ~ SexM + AgeCent + LocBody + SizeCent + A2 + A4, data = data.all, mtry = 1, splitrule = "logrankscore", nsplit = 2, ntree = 1000)
 fit.final.km0 = survfit(Surv(Time, DSD) ~ 1, data.all)
 saveRDS(list(gg = fit.final.gg, km0 = fit.final.km0, gg2 = fit.final.gg2, cph = fit.final.cph, rsf = fit.final.rsf, data.train = data.all), file = "05_final_model.rds")
+@
+
+<<final-save>>=
+save.image("05_train_NSWPCN_2.rda")
 @
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
