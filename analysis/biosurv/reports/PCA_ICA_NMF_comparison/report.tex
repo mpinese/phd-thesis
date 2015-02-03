@@ -77,7 +77,7 @@
 \end{alltt}
 
 
-{\ttfamily\noindent\itshape\color{messagecolor}{\#\# Loading required package: methods\\\#\# Loading required package: pkgmaker\\\#\# Loading required package: registry\\\#\# Loading required package: rngtools\\\#\# Loading required package: cluster\\\#\# NMF - BioConductor layer [OK] | Shared memory capabilities [OK] | Cores 7/8}}\begin{alltt}
+{\ttfamily\noindent\itshape\color{messagecolor}{\#\# Loading required package: methods\\\#\# Loading required package: pkgmaker\\\#\# Loading required package: registry\\\#\# Loading required package: rngtools\\\#\# Loading required package: cluster\\\#\# NMF - BioConductor layer [OK] | Shared memory capabilities [OK] | Cores 2/2}}\begin{alltt}
 \hlstd{fit.pca} \hlkwb{=} \hlkwd{prcomp}\hlstd{(xy,} \hlkwc{center} \hlstd{=} \hlnum{TRUE}\hlstd{,} \hlkwc{scale} \hlstd{=} \hlnum{FALSE}\hlstd{)}
 
 \hlstd{temp} \hlkwb{=} \hlkwd{replicate}\hlstd{(}\hlnum{1000}\hlstd{,} \hlkwd{fastICA}\hlstd{(xy,} \hlnum{2}\hlstd{,} \hlkwc{method} \hlstd{=} \hlstr{"C"}\hlstd{),} \hlkwc{simplify} \hlstd{=} \hlnum{FALSE}\hlstd{)}
