@@ -171,9 +171,9 @@ plot(cox.zph(fit.cph))
 
 \subsection{Outliers: reduced model}
 <<eda-outliers-reduced>>=
-scatter.smooth(resid(fit.cph, type = "deviance"), data$SizeCent)
-boxplot(resid(fit.cph, type = "deviance") ~ data$A2, main = "Deviance vs A2")
-boxplot(resid(fit.cph, type = "deviance") ~ data$A4, main = "Deviance vs A4")
+scatter.smooth(resid(fit.cph, type = "deviance"), data$SizeCent, xlab = "SizeCent", main = "Deviance vs SizeCent", ylab = "Deviance residuals")
+boxplot(resid(fit.cph, type = "deviance") ~ data$A2, main = "Deviance vs A2", xlab = "A2", ylab = "Deviance residuals")
+boxplot(resid(fit.cph, type = "deviance") ~ data$A4, main = "Deviance vs A4", xlab = "A4", ylab = "Deviance residuals")
 plot(resid(fit.cph, type = "deviance"))
 abline(h = c(-2.5, 2.5))
 data$devresid = resid(fit.cph, type = "deviance")
@@ -265,9 +265,9 @@ plot(cox.zph(fit.cph))
 
 \subsection{Outliers: reduced model}
 <<eda-outliers-reduced-2>>=
-scatter.smooth(resid(fit.cph, type = "deviance"), data$SizeCent)
-boxplot(resid(fit.cph, type = "deviance") ~ data$A2, main = "Deviance vs A2")
-boxplot(resid(fit.cph, type = "deviance") ~ data$A4, main = "Deviance vs A4")
+scatter.smooth(resid(fit.cph, type = "deviance"), data$SizeCent, xlab = "SizeCent", main = "Deviance vs SizeCent", ylab = "Deviance residuals")
+boxplot(resid(fit.cph, type = "deviance") ~ data$A2, main = "Deviance vs A2", xlab = "A2", ylab = "Deviance residuals")
+boxplot(resid(fit.cph, type = "deviance") ~ data$A4, main = "Deviance vs A4", xlab = "A4", ylab = "Deviance residuals")
 plot(resid(fit.cph, type = "deviance"))
 abline(h = c(-2.5, 2.5))
 data$devresid = resid(fit.cph, type = "deviance")
@@ -276,7 +276,7 @@ temp[order(temp$Time),]
 @
 Few enough that I'm not particularly concerned.  The DFBETAS will be more telling.
 
-<<eda-dfbetas-reduced>>=
+<<eda-dfbetas-reduced-2>>=
 temp = resid(fit.cph, type = "dfbetas")
 colnames(temp) = names(fit.cph$coefficients)
 temp = melt(temp)

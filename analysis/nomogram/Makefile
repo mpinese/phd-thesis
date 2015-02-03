@@ -1,10 +1,16 @@
-.PHONY: all
+.PHONY: all clean ultraclean
 .SECONDARY: 
 
-RSCRIPT = ~/bin/Rscript
-#RSCRIPT = Rscript
+#RSCRIPT = ~/bin/Rscript
+RSCRIPT = Rscript
 
 all: 01_NSWPCN.rda 03_NSWPCN_subset.rda 05_train_NSWPCN_2.pdf 05_final_model.rds 06_Glasgow.rds 07_validate.pdf
+
+clean:
+	rm -f 01_NSWPCN.rda 03_NSWPCN_subset.rda 03_NSWPCN_subset.pdf 05_final_model.rds 06_Glasgow.rds 07_validate.pdf *.Rout 07_validate.aux 07_validate.log 07_validate.tex
+
+ultraclean: clean
+	rm -rf figure/ cache/ tikzMetrics
 
 01_NSWPCN.rda: data/Total_cohort_MP_05022013.txt.xz 01_load_NSWPCN.R
 	$(RSCRIPT) 01_load_NSWPCN.R | tee 01_load_NSWPCN.Rout
@@ -43,10 +49,10 @@ all: 01_NSWPCN.rda 03_NSWPCN_subset.rda 05_train_NSWPCN_2.pdf 05_final_model.rds
 # 	$(RSCRIPT) 04_train_NSWPCN.R 10
 
 05_final_model.rds 05_train_NSWPCN_2.pdf 05_train_NSWPCN_2.rda: 03_NSWPCN_subset.rda 05_train_NSWPCN_2.Rnw
-	Rscript -e "knitr::knit2pdf('05_train_NSWPCN_2.Rnw')"
+	$(RSCRIPT) -e "knitr::knit2pdf('05_train_NSWPCN_2.Rnw')"
 
 06_Glasgow.rds: data/Glasgow_S100A2_minimal_20140414.csv.xz 06_load_Glasgow.R
 	$(RSCRIPT) 06_load_Glasgow.R | tee 06_load_Glasgow.Rout
 
 07_validate.pdf: 05_final_model.rds 06_Glasgow.rds 07_validate.Rnw
-	Rscript -e "knitr::knit2pdf('07_validate.Rnw')"
+	$(RSCRIPT) -e "knitr::knit2pdf('07_validate.Rnw')"
