@@ -30,6 +30,7 @@ temp.fields = list(
 	"Date.of.Death" = 														"History.Death.Date",
 	"Date.Last.Followup" = 													"History.Followup.Date",
 	"LOF..days." = 															"History.Death.EventTimeDays",
+	"Status" = 																"History.Status",
 	"CPa.resect.0.Biopsy.2" = 												"Treat.Resected",
 	"X..Operation.Whipple.0.." = 											"Treat.ProcedureWhipple",
 #	"Margin..mm." = 														"Treat.MarginMm",					# Variable unreliable
@@ -81,7 +82,6 @@ temp.fields = list(
 	"S100A4.Cyto.." = 														"Molec.S100A4.CytoPercent",
 	"X..S100A4.Nu.Int.C.." = 												"Molec.S100A4.NucInt",
 	"X..S100A4.Nu...C.." = 													"Molec.S100A4.NucPercent")
-#	"Status" = 																"History.Status",
 #	"X.hENT1.H." = 															"Molec.HENT1.H",
 #	"RON.H" = 																"Molec.RON.H",
 #	"cyto.H" = 																"Molec.S100A4.CytoH",
@@ -190,6 +190,53 @@ data2$Molec.S100A4.CytoInt = ordered(as.numeric(data2$Molec.S100A4.CytoInt), lev
 data2$Molec.S100A4.CytoPercent = as.numeric(data2$Molec.S100A4.CytoPercent)
 data2$Molec.S100A4.NucInt = ordered(as.numeric(data2$Molec.S100A4.NucInt), levels = 0:3)
 data2$Molec.S100A4.NucPercent = as.numeric(data2$Molec.S100A4.NucPercent)
+data2$History.Status = gsub("[ .-]+", " ", data2$History.Status)
+data2$History.Status = gsub("(^|[[:space:]])([[:alpha:]])", "\\1\\U\\2", data2$History.Status, perl = TRUE)
+data2$History.Status = gsub("(^ +)|( +)$", "", data2$History.Status)
+data2$History.Status[data2$History.Status == "Decaesed Of Disease"] = "Deceased Of Disease"
+data2$History.Status[data2$History.Status %in% c("Deceased Of Other Disease", "Deceased Of Unknown Cause", "Deceased Other Cause", "Deceased Surgical Death")] = "Deceased Of Other Cause"
+data2$History.Death.Event = grepl("Deceased", data2$History.Status)
+data2 = data2[,colnames(data2) != "History.Status"]
+
+# Remove duplicated patients.
+temp = table(data2$Patient.ID)
+temp = data2$Patient.ID %in% names(temp)[temp > 1]
+data2 = data2[!temp,]
+
+# Integrate in DC's data fixes
+fixes = read.csv("./data/NSWPCN_DC_fixes_20150130.csv")
+fixes = fixes[fixes$Patient.ID %in% data2$Patient.ID,]
+fixes_match = match(fixes$Patient.ID, data2$Patient.ID)
+for (i in setdiff(colnames(fixes), "Patient.ID"))
+{
+	if (grepl("Date", i))
+		fixes[,i] = as.Date(fixes[,i], format = "%d/%m/%Y")
+	if (i %in% colnames(data2))
+		data2[fixes_match, i] = fixes[,i]
+}
+if ("Exclude" %in% colnames(fixes))
+{
+	data2$Exclude = FALSE
+	data2$Exclude[fixes_match] = as.logical(fixes$Exclude)
+	data2 = data2[!data2$Exclude,colnames(data2) != "Exclude"]
+}
+
+fixes = read.csv("./data/NSWPCN_DC_fixes_20150131.csv")
+fixes = fixes[fixes$Patient.ID %in% data2$Patient.ID,]
+fixes_match = match(fixes$Patient.ID, data2$Patient.ID)
+for (i in setdiff(colnames(fixes), "Patient.ID"))
+{
+	if (grepl("Date", i))
+		fixes[,i] = as.Date(fixes[,i], format = "%d/%m/%Y")
+	if (i %in% colnames(data2))
+		data2[fixes_match, i] = fixes[,i]
+}
+if ("Exclude" %in% colnames(fixes))
+{
+	data2$Exclude = FALSE
+	data2$Exclude[fixes_match] = as.logical(fixes$Exclude)
+	data2 = data2[!data2$Exclude,colnames(data2) != "Exclude"]
+}
 
 temp = NA
 temp = ls()
@@ -198,6 +245,7 @@ rm(list = temp[grep("^temp", temp)])
 data = data2
 rm(data2)
 rm(calculateStage)
+rm(i, fixes, fixes_match)
 
 #data = data[,order(colnames(data))]
 origcols = origcols[match(colnames(data), names(origcols))]
