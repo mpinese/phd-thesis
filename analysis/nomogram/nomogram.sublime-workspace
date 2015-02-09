@@ -352,10 +352,11 @@
 	],
 	"file_history":
 	[
-		"/home/mark/AWS/phd-thesis/analysis/nomogram/03_subset_fix_NSWPCN.R",
-		"/home/mark/AWS/phd-thesis/analysis/nomogram/Makefile",
-		"/home/mark/AWS/phd-thesis/analysis/nomogram/01_load_NSWPCN.R",
 		"/home/mark/AWS/phd-thesis/analysis/nomogram/05_train_NSWPCN_2.Rnw",
+		"/home/mark/AWS/phd-thesis/analysis/nomogram/07_validate.Rnw",
+		"/home/mark/AWS/phd-thesis/analysis/nomogram/Makefile",
+		"/home/mark/AWS/phd-thesis/analysis/nomogram/03_subset_fix_NSWPCN.R",
+		"/home/mark/AWS/phd-thesis/analysis/nomogram/01_load_NSWPCN.R",
 		"/home/mark/ClusterHome/repos/phd-thesis/analysis/nomogram/07_validate.Rnw",
 		"/home/mark/ClusterHome/repos/phd-thesis/analysis/nomogram/05_train_NSWPCN_2.Rnw",
 		"/home/mark/ClusterHome/analysis/50_cosmic_lens/03_parseCosmicDataForVW.py",
@@ -478,8 +479,7 @@
 		"/home/mark/Downloads/calcs (1).R",
 		"/home/mark/Downloads/calcs.R",
 		"/home/mark/ClusterHome/repos/phd-thesis/analysis/biosurv/reports/common/SIS_NMF_calcs.R",
-		"/home/mark/ClusterHome/repos/phd-thesis/analysis/biosurv/reports/17_SIS_NMF_diag_dsd/calcs.R",
-		"/home/mark/ClusterHome/repos/phd-thesis/analysis/biosurv/src/15_prep_validation.R"
+		"/home/mark/ClusterHome/repos/phd-thesis/analysis/biosurv/reports/17_SIS_NMF_diag_dsd/calcs.R"
 	],
 	"find":
 	{
@@ -497,6 +497,12 @@
 		"case_sensitive": true,
 		"find_history":
 		[
+			"pal",
+			"stdca",
+			"pal",
+			".gg",
+			"fit.cph.aicc",
+			"3000/365.25",
 			"val.prob.gg",
 			"gg",
 			"12",
@@ -618,13 +624,7 @@
 			"celllines.",
 			"lines.ha",
 			"primary",
-			"\",\"",
-			",",
-			"\"",
-			"rankmean",
-			"|",
-			"\"[A-Z0-9_]*\" = ",
-			" = [0-9]"
+			"\",\""
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -632,6 +632,9 @@
 		"regex": false,
 		"replace_history":
 		[
+			".gg2",
+			"fit.cph",
+			"5",
 			"gg.prob.glasgow",
 			"gg2",
 			"36",
@@ -756,10 +759,7 @@
 			"",
 			".val.",
 			".gli.",
-			".imputed",
-			".traincv.",
-			"perf.cv.",
-			"pred.cv."
+			".imputed"
 		],
 		"reverse": false,
 		"show_context": true,

@@ -40,7 +40,7 @@ Pre-operative measurements of tumour size (for example, by \gls{CT} X-ray or \gl
 \mpfatal{For the disc: Although the correlation between \gls{CT} and \gls{EUS} estimates of tumour size, and actual size upon resection, is respectable \cite{Arvold2011}, full clinical validation of this prognostic's use in a pre-operative setting will require ...}
 
 \subsection{Cohorts and Characteristics}
-General characteristics of the \gls{NSWPCN}, Glasgow, and Dresden cohorts are summarised in \tref{tab:nomo-cohort-characteristics}.\mpfatal{TODO.  Waiting on DC's data.}
+General characteristics of the \gls{NSWPCN}, Glasgow, and Dresden cohorts are summarised in \tref{tab:nomo-cohort-characteristics}.  The \gls{NSWPCN} training cohort contained a small subgroup of patients with abnormally long recorded survival times ($> 3000$ days, TODO/TODO patients), that were strongly suspected to represent data errors, either as a consequence of incorrect coding following loss to follow-up, or misdiagnosis.  Given the age of the cohort, it was deemed impractical to revisit the original records to check these patients, and so all patients with recorded survival times exceeding 3000 days were excluded from the \gls{NSWPCN} training data.  The \gls{NSWPCN} cohort characteristics in \tref{tab:nomo-cohort-characteristics} have been calculated on the TODO patients that passed the 3000 day data quality cutoff.
 
 \begin{table}[h]
 \centering
@@ -68,7 +68,7 @@ Length of follow-up    & (days)  & xx (xx - xx) & xx (xx - xx) & xx (xx - xx) & 
 Candidate prognostic models were constructed on the \gls{NSWPCN} training data by iterative model fitting, evaluation, and refinement.  To guard against overfitting caused by this iterative process, the \gls{NSWPCN} cohort was randomly split once into model building and testing sets.  All model fitting and refinement described below was performed on the model building set, to yield three final candidate prognostic predictors.  The performance of each of these three predictors was then assessed on the model test set, and the most parsimonious high-performing model was chosen as the final prognostic predictor, for subsequent external validation.
 
 \paragraph{Model functional form and expanded terms}
-The \gls{CPH} framework was used to assess functional form for the two continuous covariates: age at diagnosis, and maximum pathological axis size.  \gls{LOESS} smooths of martingale residuals \cite{Therneau1990} indicated a possible weak U-shaped relationship for age at diagnosis (\fref{fig:nomo-funcform-age}), and a knee-shaped form for size (\fref{fig:nomo-funcform-size}), with the knee at approximately $0$ in median-centered units.  In subsequent fits these forms were modelled by adding a quadratic term for centered age at diagnosis, and a $\mbox{size}_+$ ramp term for centered axis size.  The original set of five linear prognostic terms, plus the two additional nonlinear terms, was denoted the expanded term set.
+The \gls{CPH} framework was used to assess functional form for the two continuous covariates: age at diagnosis, and maximum pathological axis size.  \gls{LOESS} smooths of martingale residuals \cite{Therneau1990} indicated a largely linear relationship for age at diagnosis (\fref{fig:nomo-funcform-age}), and a knee-shaped form for size (\fref{fig:nomo-funcform-size}), with the knee at approximately $0$ in median-centered units.  In subsequent fits this potential nonlinear size effect was modelled by adding a $\mbox{size}_+$ ramp term.  The original set of five linear prognostic terms, plus the additional nonlinear size term, was denoted the expanded term set.
 
 \begin{figure}
 \centering
@@ -78,12 +78,15 @@ The \gls{CPH} framework was used to assess functional form for the two continuou
   \subbottom[Tumour size (centered)]{
     \includegraphics[width=.45\textwidth]{analysis/nomogram/figure/05-eda-func-form-size-2}
     \label{fig:nomo-funcform-size}}
-\caption[Prognostic predictor functional forms]{\gls{NSWPCN} prognostic predictor functional forms. Smoothed Cox model martingale residual plots indicate hazard relationships that are approximately quadratic for centered age (panel a), and piecewise linear for centered tumour size (panel b).  For clarity, plots have been restricted to the residual range $[-1,1]$.}
+\caption[Prognostic predictor functional forms]{\gls{NSWPCN} prognostic predictor functional forms. Smoothed Cox model martingale residual plots indicate hazard relationships that are approximately linear for centered age (panel a), and piecewise linear for centered tumour size (panel b).  For clarity, plots have been restricted to the residual range $[-1,1]$.}
 \label{fig:nomo-funcform}
 \end{figure}
 
+\mpfatal{TODO: Year variable -- exclude as prognostic?  At least model it and then make predictions as at current time}
+\mpfatal{Decide what to do with the models.  At the moment, I have CPH from genetic AS, and GG from stepwise.  This doesn't make sense.  Choose one for both.  I think stepwise AIC is the best option.}
+
 \paragraph{Proportional hazards assumption}
-A Grambsch-Therneau test \cite{Grambsch1994} on the \gls{CPH} model fit using all expanded terms indicated that patient sex violated the \glspl{PH} assumption (P = TODO, \fref{fig:nomo-ph-plot-sex}) -- in other words, the two sexes had significantly different baseline hazard shapes.  To account for this effect, all subsequent models were stratified by patient sex, so that the survival of male and female patients was modelled by two different baseline hazard functions.  A repeated Grambsch-Thernau test on the stratified model indicated no further significant violations of the \gls{PH} assumption (global P = TODO).
+A Grambsch-Therneau test \cite{Grambsch1994} on the \gls{CPH} model fit using all expanded terms indicated that patient sex violated the \glspl{PH} assumption ($P = 0.0104$, \fref{fig:nomo-ph-plot-sex}) -- in other words, the two sexes had significantly different baseline hazard shapes.  To account for this effect, all subsequent models were stratified by patient sex, so that the survival of male and female patients was modelled by two different baseline hazard functions.  A repeated Grambsch-Thernau test on the stratified model indicated no further significant violations of the \gls{PH} assumption (global $P = 0.4194$).
 
 \begin{figure}
 \centering
@@ -91,6 +94,9 @@ A Grambsch-Therneau test \cite{Grambsch1994} on the \gls{CPH} model fit using al
   \caption[Baseline hazard forms differ between patient sexes]{NSWPCN baseline hazard differs between patient sexes.  A natural spline smooth of scaled Schoenfeld residuals for patient sex has a slope obviously differing from zero, suggesting that the baseline hazard forms differ between the two sexes, and that the combined data violates the \acrshort{PH} assumption of Cox regression.  Individual residuals are displayed as points, the natural spline smooth ($\mbox{df}=4$) as a solid line, and approximate $\pm 1\ \mbox{SE}$ bounds as dashed lines.}
 \label{fig:nomo-ph-plot-sex}
 \end{figure}
+
+\paragraph{Outlier removal}
+Strongly influential or outlying samples from the full marginal Cox fit were removed from the \gls{NSWPCN} building set.  I considered this unusual measure to be necessary given known and unresolvable quality issues in the \gls{NSWPCN} cohort data.  For all subsequent work, patients with full marginal Cox model absolute deviance residuals exceeding 2.5, or any absolute DFBETAS score exceeding 0.3, were excluded from the original building set.  This filter removed seven patients, reducing the size of the model building set to TODO patients.	
 
 \paragraph{Variable selection}
 Genetic selection was used to identify a model with optimal \gls{BIC} from the set of all \gls{CPH} models that use any combination of the expanded terms.  Models with interactions between terms of up to degree two were considered, and a marginal term constraint was enforced, to ensure that interaction effects were only present in the model specification if the associated main effects were also.  Stratification of baseline hazard by patient sex was used in all models.  The identified optimal \gls{CPH} model used three variables: tumour size (linear term only), S100A2 status, and S100A4 status, in addition to the sex stratum.  This model was also identified by stepwise backward selection for optimal BIC, starting from the marginal \gls{CPH} fit using all expanded terms.  The final \gls{BIC}-selected set of prognostic terms (tumour size linear term, S100A2 binary status, S100A4 binary status, and a patient sex stratum) was denoted the reduced term set.
