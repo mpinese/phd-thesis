@@ -617,6 +617,15 @@ for (subtable_index in 1:length(tables))
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% SIDE INVESTIGATION: S100A2, S100A4 vs axis A2
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+<<s100s-vs-a2>>=
+pairs(cbind(axis_coefs.diag_dsd, t(x.diag_dsd[c("S100A2", "S100A4"),])))
+@
+Underwhelming, but the poor detection rate of A2 and A4 probes is a likely culprit.  When I get APGI scores from DC, I can directly compare the staining patterns to A1 and A2 signals -- this would be a better comparison to the work of chapter 2 anyway.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % THE END
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Session information}

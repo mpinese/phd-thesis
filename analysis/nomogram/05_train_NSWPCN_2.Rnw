@@ -44,9 +44,12 @@ library(ggplot2)
 library(MASS)
 library(boot)
 library(timeROC)
-source("stdca.R")
 
 load("03_NSWPCN_subset.rda")
+
+library(RColorBrewer)
+pal = brewer.pal(5, "Dark2")
+names(pal) = c("GG", "GG2", "CPH", "RSF", "KM0")
 @
 
 
@@ -55,17 +58,20 @@ load("03_NSWPCN_subset.rda")
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Cohort selection and transformation}
 <<data-selection>>=
-x = data[,c("Patient.Sex", "History.Diagnosis.AgeAt.Cent", "Path.LocationBody", "Path.Size.Cent", "Path.Ca199.Preop", "Molec.S100A2.DCThresh", "Molec.S100A4.DCThresh")]
-colnames(x) = c("SexM", "AgeCent", "LocBody", "SizeCent", "Ca199", "A2", "A4")
+x = data[,c("History.Diagnosis.Date", "Patient.Sex", "History.Diagnosis.AgeAt.Cent", "Path.LocationBody", "Path.Size.Cent", "Path.Ca199.Preop", "Molec.S100A2.DCThresh", "Molec.S100A4.DCThresh")]
+colnames(x) = c("DiagYearCent", "SexM", "AgeCent", "LocBody", "SizeCent", "Ca199", "A2", "A4")
 x$SexM = x$Sex == "M"
 x$Ca199 = x$Ca199 > 100
+median(x$DiagYearCent)
+x$DiagYearCent = as.numeric((x$DiagYearCent - median(x$DiagYearCent)) / 365.25)
+hist(x$DiagYearCent, main = "Histogram of Median-Centered Diagnosis Year", xlab = "")
 
 y = Surv(as.numeric(data$History.Death.Date - data$History.Diagnosis.Date), data$History.DSDeath.Event)
 # Note no surgery dates, though for almost all pts there were only a few days difference.
 
 temp = NA
 temp = ls()
-rm(list = temp[!(temp %in% c("x", "y"))])
+rm(list = temp[!(temp %in% c("x", "y", "pal"))])
 
 sel = !is.na(y[,1]) & !is.na(y[,2]) & !is.na(x$A2) & !is.na(x$A4) & !is.na(x$LocBody)
 x = x[sel,]
@@ -78,6 +84,11 @@ x = x[,colnames(x) != "Ca199"]
 data = as.data.frame(cbind(Time = y[,1], DSD = y[,2], x))
 rm(x, y)
 data$DSD = data$DSD == 1
+
+# Remove long-survivors.  These are very likely to be misdiagnoses, or LTF.
+nrow(data)
+data = data[data$Time < 3000,]
+nrow(data)
 @
 
 
@@ -93,6 +104,8 @@ sel.val = 1:nrow(data) %in% sel.val
 mean(sel.val)
 data.val = data[sel.val,,drop = FALSE]
 data = data[!sel.val,,drop = FALSE]
+nrow(data)
+nrow(data.val)
 @
 
 
@@ -104,85 +117,62 @@ Use the CPH model as a convenient framework for EDA.
 \subsection{Functional form}
 Investigate functional form with martingale residuals.
 <<eda-func-form-age,fig.width=4,fig.height=4>>=
-fit.cph.NoAge = coxph(Surv(Time, DSD) ~ SexM + LocBody + SizeCent + A2 + A4, data = data)
+fit.cph.NoAge = coxph(Surv(Time, DSD) ~ DiagYearCent + SexM + LocBody + SizeCent + A2 + A4, data = data)
 scatter.smooth(data$AgeCent, resid(fit.cph.NoAge, type = "martingale"), xlab = "", ylab = "Martingale residual")
 scatter.smooth(data$AgeCent, resid(fit.cph.NoAge, type = "martingale"), xlab = "", ylab = "Martingale residual", ylim = c(-1, 1))
 @
+Close enough to linear.
+
+<<eda-func-form-date,fig.width=4,fig.height=4>>=
+fit.cph.NoDate = coxph(Surv(Time, DSD) ~ SexM + AgeCent + LocBody + SizeCent + A2 + A4, data = data)
+scatter.smooth(data$DiagYearCent, resid(fit.cph.NoDate, type = "martingale"), xlab = "", ylab = "Martingale residual")
+scatter.smooth(data$DiagYearCent, resid(fit.cph.NoDate, type = "martingale"), xlab = "", ylab = "Martingale residual", ylim = c(-1, 1))
+@
+Doesn't appear to have much of an effect.
 
 <<eda-func-form-size,fig.width=4,fig.height=4>>=
-fit.cph.NoSize = coxph(Surv(Time, DSD) ~ SexM + AgeCent + LocBody + A2 + A4, data = data)
+fit.cph.NoSize = coxph(Surv(Time, DSD) ~ DiagYearCent + SexM + AgeCent + LocBody + A2 + A4, data = data)
 scatter.smooth(data$SizeCent, resid(fit.cph.NoSize, type = "martingale"), xlab = "", ylab = "Martingale residual")
 scatter.smooth(data$SizeCent, resid(fit.cph.NoSize, type = "martingale"), xlab = "", ylab = "Martingale residual", ylim = c(-1, 1))
 @
-It looks like age has a minor nonlinear component, with a small uptick at advanced age.  Very minor though.  The size relationship appears to have a knee, close to size == 0, around which the relationship is approximately linear.
+The size relationship appears to have a knee, close to size == 0, around which the relationship is approximately linear.
 
-Model age as:  $AgeCent + AgeCent I(AgeCent > 0) \equiv AgeCent+ AgeCent_+$
 Model size as: $SizeCent + SizeCent I(SizeCent > 0) \equiv SizeCent + SizeCent_+$
 
 <<eda-accessory-vars>>=
-data$AgePlus = pmax(data$AgeCent, 0)
 data$SizePlus = pmax(data$SizeCent, 0)
+data.val$SizePlus = pmax(data.val$SizeCent, 0)
 @
 
 
 \subsection{PH assumption: full model}
 <<eda-ph-check-full>>=
-fit.cph = coxph(Surv(Time, DSD) ~ SexM + AgeCent + AgePlus + LocBody + SizeCent + SizePlus + A2 + A4, data = data)
+fit.cph = coxph(Surv(Time, DSD) ~ SexM + AgeCent + LocBody + SizeCent + SizePlus + A2 + A4, data = data)
 cox.zph(fit.cph)
-plot(cox.zph(fit.cph)[1])
-plot(cox.zph(fit.cph)[8])
-@
-Looks OK, just weak possible effects with gender and A4.
 
-
-\subsection{EDA: Variable selection}
-<<eda-varsel-glmulti>>=
-nobs.coxph <<- function(obj, ...) sum(obj$y[,2])
-set.seed(20150201)
-fit.cph.as.bic = glmulti(Surv(Time, DSD) ~ SexM + AgeCent + AgePlus + LocBody + SizeCent + SizePlus + A2 + A4, data = data, marginality = TRUE, method = "g", fitfunction = "coxph", crit = "bic", level = 2, plotty = FALSE, report = TRUE)
-fit.cph.as.aicc = glmulti(Surv(Time, DSD) ~ SexM + AgeCent + AgePlus + LocBody + SizeCent + SizePlus + A2 + A4, data = data, marginality = TRUE, method = "g", fitfunction = "coxph", crit = "aicc", level = 2, plotty = FALSE, report = TRUE)
-fit.cph.as = fit.cph.as.bic
-rm(nobs.coxph)
-@
-
-Also run BIC stepwise, because we can.
-<<eda-varsel-stepwise>>=
-stepAIC(fit.cph, k = log(nrow(data)))
-@
-Consensus, excellent.
-
-\subsection{PH assumption: reduced model}
-<<eda-ph-check-reduced>>=
-fit.cph = coxph(Surv(Time, DSD) ~ SizeCent + A2 + A4, data = data)
+fit.cph = coxph(Surv(Time, DSD) ~ strata(SexM) + AgeCent + LocBody + SizeCent + SizePlus + A2 + A4, data = data)
 cox.zph(fit.cph)
-plot(cox.zph(fit.cph))
 @
-Interesting effect on A4.  Betas for A4+ drop at high times.  Could this suggest that high A4 is a met proxy, but \emph{not always} -- there are some A4+ pts who don't met, and thus once they've made it to 800 days or so (by which point the mets should have killed them), they're proven to have a met-free high-A4 phenotype, and consequently have good survival?
+Using a threshold of 0.1 for the CPH tests, sex is stuffing things up.  Stratification by sex makes good sense, given known variation in survival between the sexes.  It would have been possible to model this with a Sex:Age term in an AFT model, but given this is CPH, a baseline change is needed.
 
-Size also has a bit of a non-PH indication, but I'm not particularly fussed as it's graphically not too worrying.
 
-For now maybe just stratify by A4 and be done with it.
-<<eda-final-fit>>=
-fit.cph = coxph(Surv(Time, DSD) ~ SizeCent + A2 + strata(A4), data = data)
-cox.zph(fit.cph)
-plot(cox.zph(fit.cph))
+\subsection{Date of diagnosis test}
+<<eda-dod-check>>=
+temp1 = coxph(Surv(Time, DSD) ~ strata(SexM) + AgeCent + LocBody + SizeCent + SizePlus + A2 + A4, data = data)
+temp2 = coxph(Surv(Time, DSD) ~ strata(SexM) + AgeCent + LocBody + SizeCent + SizePlus + A2 + A4 + DiagYearCent, data = data)
+anova(temp1, temp2)
 @
+Not significant; good.
 
 
-\subsection{Outliers: reduced model}
-<<eda-outliers-reduced>>=
-scatter.smooth(resid(fit.cph, type = "deviance"), data$SizeCent, xlab = "SizeCent", main = "Deviance vs SizeCent", ylab = "Deviance residuals")
-boxplot(resid(fit.cph, type = "deviance") ~ data$A2, main = "Deviance vs A2", xlab = "A2", ylab = "Deviance residuals")
-boxplot(resid(fit.cph, type = "deviance") ~ data$A4, main = "Deviance vs A4", xlab = "A4", ylab = "Deviance residuals")
-plot(resid(fit.cph, type = "deviance"))
-abline(h = c(-2.5, 2.5))
+\subsection{Outliers}
+<<eda-outliers>>=
+plot(resid(fit.cph, "deviance"))
+abline(h = c(-2, 2))
 data$devresid = resid(fit.cph, type = "deviance")
-temp = data[abs(data$devresid) >= 2.5,]
+temp = data[abs(data$devresid) >= 2,]
 temp[order(temp$Time),]
-@
-Few enough that I'm not particularly concerned.  The DFBETAS will be more telling.
 
-<<eda-dfbetas-reduced>>=
 temp = resid(fit.cph, type = "dfbetas")
 colnames(temp) = names(fit.cph$coefficients)
 temp = melt(temp)
@@ -192,244 +182,144 @@ temp$Patient = gsub("NSWPCN_", "", temp$Patient)
 ggplot(temp, aes(y = abs(dfbetas), x = Patient, col = Coefficient)) + geom_point() + geom_hline(yintercept = 2/sqrt(nrow(data)))
 sort(apply(abs(resid(fit.cph, type = "dfbetas")), 1, max), decreasing = TRUE)
 sum(apply(abs(resid(fit.cph, type = "dfbetas")), 1, max) > 2/sqrt(nrow(data)))
-data$DFBETAS_max = apply(abs(resid(fit.cph, type = "dfbetas")), 1, max)
-temp = data[data$DFBETAS_max >= 2/sqrt(nrow(data)) | abs(data$devresid) >= 2.5,]
+temp = resid(fit.cph, type = "dfbetas")
+data$DFBETAS_max = apply(abs(temp), 1, max)
+data$DFBETAS_vars = apply(abs(temp), 1, function(x) paste(attr(fit.cph$terms, "term.labels")[x > 2/sqrt(nrow(data))], collapse = ","))
+temp = data[data$DFBETAS_max >= 2/sqrt(nrow(data)) | abs(data$devresid) >= 2,]
 temp[order(temp$DFBETAS_max),]
 @
-Some long survivors are causing problems.  Given the data issues, it'd be prudent to remove them -- it's not
-practical to go back to the source data and find out if they're legit or not.  These guys are alive at >10 years,
-according to the data, which is near unheard-of in PDAC.  I propose to remove all pts alive for 3000 days or longer, and
-anything with DFBETAS >= 0.2.
 
-<<eda-remove-outliers>>=
-data = data[data$Time < 3000 & data$DFBETAS_max < 0.2,]
-data.val = data.val[data.val$Time < 3000,]
-@
-
-Now repeat everything...
-\subsection{Functional form}
-<<eda-func-form-age-2,fig.width=4,fig.height=4>>=
-fit.cph.NoAge = coxph(Surv(Time, DSD) ~ SexM + LocBody + SizeCent + A2 + A4, data = data)
-scatter.smooth(data$AgeCent, resid(fit.cph.NoAge, type = "martingale"), xlab = "", ylab = "Martingale residual")
-scatter.smooth(data$AgeCent, resid(fit.cph.NoAge, type = "martingale"), xlab = "", ylab = "Martingale residual", ylim = c(-1, 1))
-@
-
-<<eda-func-form-size-2,fig.width=4,fig.height=4>>=
-fit.cph.NoSize = coxph(Surv(Time, DSD) ~ SexM + AgeCent + LocBody + A2 + A4, data = data)
-scatter.smooth(data$SizeCent, resid(fit.cph.NoSize, type = "martingale"), xlab = "", ylab = "Martingale residual")
-scatter.smooth(data$SizeCent, resid(fit.cph.NoSize, type = "martingale"), xlab = "", ylab = "Martingale residual", ylim = c(-1, 1))
-@
-It looks like age has a minor nonlinear component, with a small uptick at advanced age.  Very minor though.  The size relationship appears to have a knee, close to size == 0, around which the relationship is approximately linear.
-
-Model age as:  $AgeCent + AgeCent I(AgeCent > 0) \equiv AgeCent+ AgeCent_+$
-Model size as: $SizeCent + SizeCent I(SizeCent > 0) \equiv SizeCent + SizeCent_+$
-
-<<eda-accessory-vars-2>>=
-data$AgePlus = pmax(data$AgeCent, 5) - 5
-data$SizePlus = pmax(data$SizeCent, 0)
-@
-
-
-\subsection{PH assumption: full model}
-<<eda-ph-check-full-2>>=
-fit.cph = coxph(Surv(Time, DSD) ~ SexM + AgeCent + AgePlus + LocBody + SizeCent + SizePlus + A2 + A4, data = data)
-cox.zph(fit.cph)
-plot(cox.zph(fit.cph)[1])
+Remove points with deviance residuals > 2.5, or DFBETAS > 0.3.
+<<eda-outlier-removal>>=
+data = data[data$DFBETAS_max <= 0.3 & abs(data$devresid) <= 2.5,]
+fit.cph = coxph(Surv(Time, DSD) ~ strata(SexM) + AgeCent + LocBody + SizeCent + SizePlus + A2 + A4, data = data)
 @
 
 
 \subsection{EDA: Variable selection}
-<<eda-varsel-glmulti-2>>=
+<<eda-varsel-glmulti>>=
 nobs.coxph <<- function(obj, ...) sum(obj$y[,2])
-set.seed(20150201)
-fit.cph.as.bic = glmulti(Surv(Time, DSD) ~ strata(SexM) + AgeCent + AgePlus + LocBody + SizeCent + SizePlus + A2 + A4, data = data, marginality = TRUE, method = "g", fitfunction = "coxph", crit = "bic", level = 2, plotty = FALSE, report = TRUE)
-fit.cph.as.aicc = glmulti(Surv(Time, DSD) ~ strata(SexM) + AgeCent + AgePlus + LocBody + SizeCent + SizePlus + A2 + A4, data = data, marginality = TRUE, method = "g", fitfunction = "coxph", crit = "aicc", level = 2, plotty = FALSE, report = TRUE)
-fit.cph.as = fit.cph.as.bic
+set.seed(20150208)
+fit.cph.as.bic = glmulti(Surv(Time, DSD) ~ strata(SexM) + AgeCent + LocBody + SizeCent + SizePlus + A2 + A4, data = data, marginality = TRUE, method = "g", fitfunction = "coxph", crit = "bic", level = 2, plotty = FALSE, report = TRUE)
+fit.cph.as.bic1 = glmulti(Surv(Time, DSD) ~ strata(SexM) + AgeCent + LocBody + SizeCent + SizePlus + A2 + A4, data = data, marginality = TRUE, method = "h", fitfunction = "coxph", crit = "bic", level = 1, plotty = FALSE, report = TRUE)
+set.seed(20150208)
+fit.cph.as.aicc = glmulti(Surv(Time, DSD) ~ strata(SexM) + AgeCent + LocBody + SizeCent + SizePlus + A2 + A4, data = data, marginality = TRUE, method = "g", fitfunction = "coxph", crit = "aicc", level = 2, plotty = FALSE, report = TRUE)
+fit.cph.as.aicc1 = glmulti(Surv(Time, DSD) ~ strata(SexM) + AgeCent + LocBody + SizeCent + SizePlus + A2 + A4, data = data, marginality = TRUE, method = "h", fitfunction = "coxph", crit = "aicc", level = 1, plotty = FALSE, report = TRUE)
 rm(nobs.coxph)
+summary(fit.cph.as.bic)$bestmodel
+summary(fit.cph.as.aicc)$bestmodel
+summary(fit.cph.as.bic1)$bestmodel
+summary(fit.cph.as.aicc1)$bestmodel
 @
 
 Also run BIC stepwise, because we can.
-<<eda-varsel-stepwise-2>>=
-fit.cph = coxph(Surv(Time, DSD) ~ strata(SexM) + AgeCent + AgePlus + LocBody + SizeCent + SizePlus + A2 + A4, data = data)
+<<eda-varsel-stepwise>>=
 stepAIC(fit.cph, k = log(nrow(data)))
-@
-Consensus, excellent.
-
-\subsection{PH assumption: reduced model}
-<<eda-ph-check-reduced-2>>=
-fit.cph = coxph(Surv(Time, DSD) ~ strata(SexM) + SizeCent + A2 + A4, data = data)
-cox.zph(fit.cph)
-plot(cox.zph(fit.cph))
+stepAIC(fit.cph, k = 2)
 @
 
-
-\subsection{Outliers: reduced model}
-<<eda-outliers-reduced-2>>=
-scatter.smooth(resid(fit.cph, type = "deviance"), data$SizeCent, xlab = "SizeCent", main = "Deviance vs SizeCent", ylab = "Deviance residuals")
-boxplot(resid(fit.cph, type = "deviance") ~ data$A2, main = "Deviance vs A2", xlab = "A2", ylab = "Deviance residuals")
-boxplot(resid(fit.cph, type = "deviance") ~ data$A4, main = "Deviance vs A4", xlab = "A4", ylab = "Deviance residuals")
-plot(resid(fit.cph, type = "deviance"))
-abline(h = c(-2.5, 2.5))
-data$devresid = resid(fit.cph, type = "deviance")
-temp = data[abs(data$devresid) >= 2.5,]
-temp[order(temp$Time),]
-@
-Few enough that I'm not particularly concerned.  The DFBETAS will be more telling.
-
-<<eda-dfbetas-reduced-2>>=
-temp = resid(fit.cph, type = "dfbetas")
-colnames(temp) = names(fit.cph$coefficients)
-temp = melt(temp)
-colnames(temp) = c("Patient", "Coefficient", "dfbetas")
-temp$Patient = gsub("NSWPCN_", "", temp$Patient)
-2/sqrt(nrow(data))      # The classic threshold for concern is 2/sqrt(n).
-ggplot(temp, aes(y = abs(dfbetas), x = Patient, col = Coefficient)) + geom_point() + geom_hline(yintercept = 2/sqrt(nrow(data)))
-sort(apply(abs(resid(fit.cph, type = "dfbetas")), 1, max), decreasing = TRUE)
-sum(apply(abs(resid(fit.cph, type = "dfbetas")), 1, max) > 2/sqrt(nrow(data)))
-data$DFBETAS_max = apply(abs(resid(fit.cph, type = "dfbetas")), 1, max)
-temp = data[data$DFBETAS_max >= 2/sqrt(nrow(data)) | abs(data$devresid) >= 2.5,]
-temp[order(temp$DFBETAS_max),]
-@
-
-
-
-
-
-\subsection{Summary of EDA}
-\begin{enumerate}
-\item On the basis of pre-operative assessability and data availability, variables were filtered down to Sex, AgeCent, LocBody, SizeCent, A2, A4.
-\item Functional forms for the continuous variates AgeCent and SizeCent indicated a possible slight quadratic effect on AgeCent, and a knee on SizeCent.  These were modelled by incorporating additional terms.
-\item Analysis of a full model fit (with additional nonlinear terms included) indicated violation of PH for gender.  This was dealt with by stratification.  A slight PH violation by age was deemed unimportant. 
-\item Variable selection by BIC (both stepwise and genetic all-subset) settled on a final model of Surv(Time,DSD) $\sim$ 1 + strata(SexM) + SizeCent + A2 + A4.  This model was refit by coxph. 
-\item PH was verified on the final model.  Deviance residuals showed no egregious outliers. dfBetaS indicated a number of influential observations, which require checking.
-\end{enumerate}
-
-\section{Final fits}
+\subsection{Final Fits}
 <<final-fits-cph>>=
-fit.cph = coxph(Surv(Time, DSD) ~ strata(SexM) + SizeCent + A2 + A4, data = data)
+fit.cph.as.bic = coxph(Surv(Time, DSD) ~ strata(SexM) + SizePlus + A2 + A4, data = data)
+cox.zph(fit.cph.as.bic)
+
+fit.cph.as.aicc = coxph(Surv(Time, DSD) ~ strata(SexM)+AgeCent+LocBody+SizeCent+A2+A4+SizeCent:AgeCent+strata(SexM):SizeCent, data = data)
+cox.zph(fit.cph.as.aicc)
+
+fit.cph.sw.bic = coxph(Surv(Time, DSD) ~ strata(SexM) + SizeCent + A2 + A4, data = data)
+cox.zph(fit.cph.sw.bic)
+
+fit.cph.sw.aic = coxph(Surv(Time, DSD) ~ strata(SexM) + LocBody + SizeCent + A2 + A4, data = data)
+cox.zph(fit.cph.sw.aic)
+
+fit.cph = fit.cph.sw.aic
 @
 
 <<final-fits-rsf>>=
-set.seed(20150111)
+set.seed(20150208)
 fit.rsf = rfsrc(Surv(Time, DSD) ~ SexM + AgeCent + LocBody + SizeCent + A2 + A4, data = data, mtry = 1, splitrule = "logrankscore", nsplit = 2, ntree = 1000)
+plot(fit.rsf)
 @
 
 <<final-fits-flexsurv-gg1>>=
-fit.gg = flexsurvreg(Surv(Time, DSD) ~ SexM + SizeCent + A2 + A4,
+fit.gg = flexsurvreg(Surv(Time, DSD) ~ SexM + LocBody + SizeCent + A2 + A4,
 	anc = list(
 		sigma = ~ SexM,
 		Q = ~ SexM),
 	data = data, dist = "gengamma")
 
-fit.gf = flexsurvreg(Surv(Time, DSD) ~ SexM + SizeCent + A2 + A4,
+fit.gg2 = flexsurvreg(Surv(Time, DSD) ~ SexM+AgeCent+LocBody+SizeCent+A2+A4+SizeCent:AgeCent+SexM:SizeCent,
 	anc = list(
 		sigma = ~ SexM,
-		Q = ~ SexM,
-		P = ~ SexM),
-	data = data, dist = "genf")
+		Q = ~ SexM),
+	data = data, dist = "gengamma")
 
 fit.gg$loglik
-fit.gf$loglik
-pchisq(2*(fit.gf$loglik - fit.gg$loglik), 2, lower.tail = FALSE)
+fit.gg2$loglik
+pchisq(2*(fit.gg2$loglik - fit.gg$loglik), 3, lower.tail = FALSE)
 
 AIC(fit.gg)
-AIC(fit.gf)
-BIC(fit.gg)
-BIC(fit.gf)
+AIC(fit.gg2)
 
 fit.gg
+fit.gg2
 @
 
 \section{Fit assessment}
 Plot fit stratified by sex, separate curves for A2, A4 status, at median (approx.) Size.
 <<final-fit-assessment>>=
-temp.grid = expand.grid(A4 = c(FALSE, TRUE), A2 = c(FALSE, TRUE), SexM = c(FALSE, TRUE), SizeCent = 0)
-temp.grid$ID = sprintf("SexM=%s, A2=% -5s, A4=% -5s", temp.grid$SexM, temp.grid$A2, temp.grid$A4)
+temp.grid = expand.grid(A4 = c(FALSE, TRUE), A2 = c(FALSE, TRUE), SexM = c(FALSE, TRUE), SizeCent = 0, AgeCent = 0, SizePlus = 0, LocBody = c(FALSE, TRUE))
+temp.grid$ID = sprintf("SexM=%s, A2=% -5s, A4=% -5s, LocBody=%s", temp.grid$SexM, temp.grid$A2, temp.grid$A4, temp.grid$LocBody)
 temp.preds = summary(fit.gg, newdata = temp.grid, type = "survival", t = seq(0, 365*5, 30))
 temp.preds2 = do.call(rbind, temp.preds)
 temp.preds2$group = rep(gsub(".*ID=", "", names(temp.preds)), each = nrow(temp.preds[[1]]))
 temp.preds.cox = survfit(fit.cph, newdata = temp.grid)
+temp.preds.rsf = predict(fit.rsf, newdata = temp.grid)
+
+temp.survfit = survfit(Surv(Time, DSD) ~ SexM + A2 + A4 + LocBody, data)
+temp.data = data.frame(time = temp.survfit$time, surv = temp.survfit$surv, upper = temp.survfit$lower, lower = temp.survfit$upper, group = rep(names(temp.survfit$strata), temp.survfit$strata), model = "KM")
+temp.data = rbind(temp.data, data.frame(time = temp.preds2$time, surv = temp.preds2$est, upper = temp.preds2$ucl, lower = temp.preds2$lcl, group = temp.preds2$group, model = "GG"))
+temp.data = rbind(temp.data, data.frame(time = temp.preds.cox$time, surv = temp.preds.cox$surv, upper = temp.preds.cox$upper, lower = temp.preds.cox$lower, group = rep(temp.grid$ID, temp.preds.cox$strata), model = "CPH"))
+temp.data = rbind(temp.data, data.frame(time = rep(temp.preds.rsf$time.interest, each = nrow(temp.preds.rsf$survival)), surv = as.vector(temp.preds.rsf$survival), upper = NA, lower = NA, group = rep(temp.grid$ID, length(temp.preds.rsf$time.interest)), model = "RSF"))
+
+temp.data$Sex = c("Male", "Female")[grepl("SexM=FALSE", temp.data$group)+1]
+temp.data$A2 = c("A2-", "A2+")[grepl("A2=TRUE", temp.data$group)+1]
+temp.data$A4 = c("A4-", "A4+")[grepl("A4=TRUE", temp.data$group)+1]
+temp.data$Location = c("Head", "Body")[grepl("LocBody=TRUE", temp.data$group)+1]
+
+temp.data$lower[temp.data$model != "KM"] = NA
+temp.data$upper[temp.data$model != "KM"] = NA
+ggplot(temp.data, aes(x = log(time), y = log(-log(surv)), ymin = log(-log(lower)), ymax = log(-log(upper)), colour = model, fill = model)) + 
+	geom_ribbon(alpha = 0.25, colour = NA) + 
+	geom_line() + 
+	xlim(4, 7) + ylim(-4, 2) + 
+	facet_grid(A2 ~ A4 ~ Sex ~ Location)
+ggplot(temp.data, aes(x = time, y = surv, ymin = lower, ymax = upper, colour = model, fill = model)) + 
+	geom_ribbon(alpha = 0.25, colour = NA) + 
+	geom_line() + xlim(0, 2000) + ylim(0, 1) + 
+	facet_grid(A2 ~ A4 ~ Sex ~ Location)
+
+
+temp.grid = expand.grid(A4 = c(FALSE, TRUE), A2 = c(FALSE, TRUE), SexM = c(FALSE, TRUE), SizeCent = 0, AgeCent = 0, SizePlus = 0, LocBody = FALSE)
+temp.grid$ID = sprintf("SexM=%s, A2=% -5s, A4=% -5s, LocBody=%s", temp.grid$SexM, temp.grid$A2, temp.grid$A4, temp.grid$LocBody)
+temp.preds = summary(fit.gg, newdata = temp.grid, type = "survival", t = seq(0, 365*5, 30))
+temp.preds2 = do.call(rbind, temp.preds)
+temp.preds2$group = rep(gsub(".*ID=", "", names(temp.preds)), each = nrow(temp.preds[[1]]))
+temp.preds.cox = survfit(fit.cph, newdata = temp.grid)
+temp.preds.rsf = predict(fit.rsf, newdata = temp.grid)
 
 temp.survfit = survfit(Surv(Time, DSD) ~ SexM + A2 + A4, data)
 temp.data = data.frame(time = temp.survfit$time, surv = temp.survfit$surv, upper = temp.survfit$lower, lower = temp.survfit$upper, group = rep(names(temp.survfit$strata), temp.survfit$strata), model = "KM")
 temp.data = rbind(temp.data, data.frame(time = temp.preds2$time, surv = temp.preds2$est, upper = temp.preds2$ucl, lower = temp.preds2$lcl, group = temp.preds2$group, model = "GG"))
 temp.data = rbind(temp.data, data.frame(time = temp.preds.cox$time, surv = temp.preds.cox$surv, upper = temp.preds.cox$upper, lower = temp.preds.cox$lower, group = rep(temp.grid$ID, temp.preds.cox$strata), model = "CPH"))
+temp.data = rbind(temp.data, data.frame(time = rep(temp.preds.rsf$time.interest, each = nrow(temp.preds.rsf$survival)), surv = as.vector(temp.preds.rsf$survival), upper = NA, lower = NA, group = rep(temp.grid$ID, length(temp.preds.rsf$time.interest)), model = "RSF"))
 
 temp.data$Sex = c("Male", "Female")[grepl("SexM=FALSE", temp.data$group)+1]
 temp.data$A2 = c("A2-", "A2+")[grepl("A2=TRUE", temp.data$group)+1]
 temp.data$A4 = c("A4-", "A4+")[grepl("A4=TRUE", temp.data$group)+1]
 
-ggplot(temp.data, aes(x = log(time), y = log(-log(surv)), ymin = log(-log(lower)), ymax = log(-log(upper)), colour = model, fill = model)) + 
-	geom_ribbon(alpha = 0.25, colour = NA) + 
-	geom_line() + 
-	xlim(4, 7) + ylim(-4, 2) + 
-	facet_grid(A2 ~ A4 ~ Sex)
-ggplot(temp.data, aes(x = time, y = surv, ymin = lower, ymax = upper, colour = model, fill = model)) + 
-	geom_ribbon(alpha = 0.25, colour = NA) + 
-	geom_line() + xlim(0, 2000) + ylim(0, 1) + 
-	facet_grid(A2 ~ A4 ~ Sex)
-@
-
-Some deviation though not significant.  Most concerning is the A2- A4- female group, survival of which is underestimated by the flexsurv model.  To approach this in a modelling sense would require interaction terms between Sex and A2, A4. Overfitting seems likely considering the very few data available for the A2+/A4- group.  Perhaps just add a single "DoubleNegFemale" term.
-<<final-fit-flexsurv-gg2>>=
-fit.gg2 = flexsurvreg(Surv(Time, DSD) ~ SexM + SizeCent + A2 + A4 + I(SexM == FALSE & A2 == FALSE & A4 == FALSE),
-	anc = list(
-		sigma = ~ SexM,
-		Q = ~ SexM),
-	data = data, dist = "gengamma")
-
-fit.gg2
-
-AIC(fit.gg)
-AIC(fit.gg2)
-AIC(fit.gg) - AIC(fit.gg2)
-# Equivocal on AIC.  BIC would favour gg then.
-
-pchisq(-2*(fit.gg$loglik - fit.gg2$loglik), 1, lower.tail = FALSE)
-# Not good evidence on LRT
-@
-
-See how it plots relative to the others.
-<<final-fit-assessment-2>>=
-temp.preds = summary(fit.gg2, newdata = temp.grid, type = "survival", t = seq(0, 365*5, 30))
-temp.preds2 = do.call(rbind, temp.preds)
-temp.preds2$group = rep(gsub(".*ID=", "", names(temp.preds)), each = nrow(temp.preds[[1]]))
-temp.data = rbind(temp.data, data.frame(time = temp.preds2$time, surv = temp.preds2$est, upper = temp.preds2$ucl, lower = temp.preds2$lcl, group = temp.preds2$group, model = "GG2", Sex = NA, A2 = NA, A4 = NA))
-temp.data$Sex = c("Male", "Female")[grepl("SexM=FALSE", temp.data$group)+1]
-temp.data$A2 = c("A2-", "A2+")[grepl("A2=TRUE", temp.data$group)+1]
-temp.data$A4 = c("A4-", "A4+")[grepl("A4=TRUE", temp.data$group)+1]
-
-ggplot(temp.data, aes(x = log(time), y = log(-log(surv)), ymin = log(-log(lower)), ymax = log(-log(upper)), colour = model, fill = model)) + 
-	geom_ribbon(alpha = 0.25, colour = NA) + 
-	geom_line() + 
-	xlim(4, 7) + ylim(-4, 2) + 
-	facet_grid(A2 ~ A4 ~ Sex)
-ggplot(temp.data, aes(x = time, y = surv, ymin = lower, ymax = upper, colour = model, fill = model)) + 
-	geom_ribbon(alpha = 0.25, colour = NA) + 
-	geom_line() + xlim(0, 2000) + ylim(0, 1) + 
-	facet_grid(A2 ~ A4 ~ Sex)
-@
-
-An alternative take, showing errors with the KMs only.
-<<final-fit-assessment-3>>=
 temp.data$lower[temp.data$model != "KM"] = NA
 temp.data$upper[temp.data$model != "KM"] = NA
-ggplot(temp.data, aes(x = log(time), y = log(-log(surv)), ymin = log(-log(lower)), ymax = log(-log(upper)), colour = model, fill = model)) + 
-	geom_ribbon(alpha = 0.25, colour = NA) + 
-	geom_line() + 
-	xlim(4, 7) + ylim(-4, 2) + 
-	facet_grid(A2 ~ A4 ~ Sex)
-ggplot(temp.data, aes(x = time, y = surv, ymin = lower, ymax = upper, colour = model, fill = model)) + 
-	geom_ribbon(alpha = 0.25, colour = NA) + 
-	geom_line() + xlim(0, 2000) + ylim(0, 1) + 
-	facet_grid(A2 ~ A4 ~ Sex)
-@
-
-<<final-fit-assessment-4>>=
-temp.data$lower[temp.data$model != "KM"] = NA
-temp.data$upper[temp.data$model != "KM"] = NA
-temp.data = temp.data[temp.data$model != "GG2",]
-temp.data$model = c("KM" = "Kaplan-Meier", "GG" = "GG1", "CPH" = "CP1")[temp.data$model]
 ggplot(temp.data, aes(x = log(time), y = log(-log(surv)), ymin = log(-log(lower)), ymax = log(-log(upper)), colour = model, fill = model)) + 
 	geom_ribbon(alpha = 0.25, colour = NA) + 
 	geom_line() + 
@@ -447,7 +337,7 @@ It looks like that's as far as we can go with tweaking the fits.  Time to put th
 
 DIY IBS, wooo.
 <<model-selection-ibs-func>>=
-calcIBS = function(surv, pred, pred_times, max_time)
+calcIBS = function(surv, pred, pred_times, max_time, min_time = 0)
 {
 	stopifnot(nrow(surv) == nrow(pred) && length(pred_times) == ncol(pred))
 
@@ -478,7 +368,7 @@ calcIBS = function(surv, pred, pred_times, max_time)
 
 	# Be slack and do trapezoidal int. with a fine grid.  It should be possible 
 	# to calulate the int. exactly but I cbfed.
-	int_grid = seq(0, max_time, length.out = 1e3)
+	int_grid = seq(min_time, max_time, length.out = 1e3)
 	bsc_vals = bsc_func(int_grid)
 	weight_vals = weight_func(int_grid)
 	int_vals = bsc_vals * weight_vals
@@ -575,39 +465,41 @@ summary(coxph(Surv(Time, DSD) ~ offset(val.linpred.rsf) + SexM + AgeCent + LocBo
 TD-ROC AUC
 <<model-selection-auc>>=
 temp.times = seq(0.1, 48, 0.1)
-temp.gg = timeROC(data.val$Time/365.25*12, data.val$DSD, val.linpred.gg, cause = 1, times = temp.times, iid = TRUE)
-temp.gg2 = timeROC(data.val$Time/365.25*12, data.val$DSD, val.linpred.gg2, cause = 1, times = temp.times, iid = TRUE)
-temp.cph = timeROC(data.val$Time/365.25*12, data.val$DSD, val.linpred.cph, cause = 1, times = temp.times, iid = TRUE)
-plotAUCcurve(temp.gg, conf.int = FALSE, add = FALSE, col = "blue")
-plotAUCcurve(temp.gg2, conf.int = FALSE, add = TRUE, col = "green")
-plotAUCcurve(temp.cph, conf.int = FALSE, add = TRUE, col = "red")
-legend("topright", legend = c("GG", "GG2", "CPH"), col = c("blue", "green", "red"), lty = "solid")
+temp.gg = timeROC(T = data.val$Time/365.25*12, delta = data.val$DSD*1, marker = val.linpred.gg, cause = 1, times = temp.times, iid = FALSE)
+temp.gg2 = timeROC(T = data.val$Time/365.25*12, delta = data.val$DSD*1, marker = val.linpred.gg2, cause = 1, times = temp.times, iid = FALSE)
+temp.rsf = timeROC(T = data.val$Time/365.25*12, delta = data.val$DSD*1, marker = val.linpred.rsf, cause = 1, times = temp.times, iid = FALSE)
+temp.cph = timeROC(T = data.val$Time/365.25*12, delta = data.val$DSD*1, marker = val.linpred.cph, cause = 1, times = temp.times, iid = FALSE)
+plotAUCcurve(temp.gg, conf.int = FALSE, add = FALSE, col = pal["GG"])
+plotAUCcurve(temp.gg2, conf.int = FALSE, add = TRUE, col = pal["GG2"])
+plotAUCcurve(temp.rsf, conf.int = FALSE, add = TRUE, col = pal["RSF"])
+plotAUCcurve(temp.cph, conf.int = FALSE, add = TRUE, col = pal["CPH"])
+legend("topright", legend = c("GG", "GG2", "RSF", "CPH"), col = pal[c("GG", "GG2", "RSF", "CPH")], lty = "solid")
+abline(v = c(7, 34))
+
+plot(survfit(Surv(data.val$Time/365.25*12, data.val$DSD) ~ 1))
+abline(v = c(7, 34))
 @
 
 
 Decision curve analysis.
 <<model-selection-dca>>=
+source("stdca.R")
 temp.data = data.frame(Time = data.val$Time, DSD = data.val$DSD*1, 
     gg.1 = 1-val.prob.gg[val.prob.times == 365,], gg.2 = 1-val.prob.gg[val.prob.times == 365*2,], gg.3 = 1-val.prob.gg[val.prob.times == 365*3,], 
     gg2.1 = 1-val.prob.gg2[val.prob.times == 365,], gg2.2 = 1-val.prob.gg2[val.prob.times == 365*2,], gg2.3 = 1-val.prob.gg2[val.prob.times == 365*3,], 
     cph.1 = 1-val.prob.cph[val.prob.times == 365,], cph.2 = 1-val.prob.cph[val.prob.times == 365*2,], cph.3 = 1-val.prob.cph[val.prob.times == 365*3,], 
     rsf.1 = 1-val.prob.rsf[val.prob.times == 365,], rsf.2 = 1-val.prob.rsf[val.prob.times == 365*2,], rsf.3 = 1-val.prob.rsf[val.prob.times == 365*3,])
-stdca(data = temp.data, outcome = "DSD", ttoutcome = "Time", predictors = c("gg.1", "cph.1", "rsf.1"), timepoint = 365, probability = rep(TRUE, 3))
-stdca(data = temp.data, outcome = "DSD", ttoutcome = "Time", predictors = c("gg.2", "cph.2", "rsf.2"), timepoint = 365*2, probability = rep(TRUE, 3))
-stdca(data = temp.data, outcome = "DSD", ttoutcome = "Time", predictors = c("gg.3", "cph.3", "rsf.3"), timepoint = 365*3, probability = rep(TRUE, 3))
+invisible(stdca(data = temp.data, outcome = "DSD", ttoutcome = "Time", predictors = c("gg.1", "gg2.1", "cph.1", "rsf.1"), timepoint = 365, probability = rep(TRUE, 4)))
+invisible(stdca(data = temp.data, outcome = "DSD", ttoutcome = "Time", predictors = c("gg.2", "gg2.2", "cph.2", "rsf.2"), timepoint = 365*2, probability = rep(TRUE, 4)))
+invisible(stdca(data = temp.data, outcome = "DSD", ttoutcome = "Time", predictors = c("gg.3", "gg2.3", "cph.3", "rsf.3"), timepoint = 365*3, probability = rep(TRUE, 4)))
 @
 
 
 Evaluate IBS point estimates.
 BS paths over time on bootstrap samples of the holdout set.
 <<model-selection-bs-boots>>=
-set.seed(20150111)
+set.seed(20150208)
 ibs_eval_times = calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_gg, ibs_times, max(data.val$Time))$eval_times
-# bsc_boot2 = lapply(ibs_preds_all, function(preds) boot(data.val, statistic = function(d, i) calcIBS(Surv(d$Time, d$DSD)[i,], preds[i,], ibs_times, max(d$Time))$bsc, R = 500))
-# bsc_boot2ci = lapply(bsc_boot2, function(single_boot) t(sapply(1:length(ibs_eval_times), function(time_index) {
-# 	temp = try(boot.ci(single_boot, index = time_index, type = "bca")$bca, silent = TRUE)
-# 	if (class(temp) == "try-error" || is.null(temp)) { temp = rep(NA, 5) }
-# 	temp })))
 bsc_boots = laply(1:500, function(i) {
 	if (i %% 50 == 0)	{ message(i) }
 	boot_samp = sample.int(nrow(data.val), replace = TRUE)
@@ -624,81 +516,81 @@ bsc_boots = laply(1:500, function(i) {
 temp = sapply(list(gg = ibs_preds_gg, gg2 = ibs_preds_gg2, cph = ibs_preds_cph, rsf = ibs_preds_rsf, km0 = ibs_preds_km0), function(preds) calcIBS(Surv(data.val$Time, data.val$DSD), preds, ibs_times, max(data.val$Time))$bsc)
 temp = melt(temp)
 colnames(temp) = c("Time", "Model", "BS")
-ggplot(temp, aes(x = Time, y = BS, colour = Model)) + geom_line() + ylab("Brier Score") + geom_hline(yintercept = 0.25)
+ggplot(temp, aes(x = Time/365.25*12, y = BS, colour = Model)) + geom_line() + ylab("Brier Score") + geom_hline(yintercept = 0.25) + geom_vline(xintercept = c(7, 34))
 
 temp = melt(aaply(bsc_boots, 2:3, quantile, probs = c(0.05, 0.5, 0.95)))
 colnames(temp) = c("Model", "Time", "Quantile", "Value")
 temp$Quantile = paste("Q", gsub("%", "", temp$Quantile), sep = "")
 temp = dcast(temp, Model + Time ~ Quantile, value.var = "Value")
-ggplot(temp, aes(x = Time, y = Q50, ymin = Q5, ymax = Q95, colour = Model, fill = Model)) + geom_line() + geom_ribbon(alpha = 0.2, colour = NA) + ylab("Brier Score, 90\\% BI") + geom_hline(yintercept = 0.25)
+ggplot(temp, aes(x = Time/365.25*12, y = Q50, ymin = Q5, ymax = Q95, colour = Model, fill = Model)) + geom_line() + geom_ribbon(alpha = 0.2, colour = NA) + ylab("Brier Score, 90\\% BI") + geom_hline(yintercept = 0.25) + geom_vline(xintercept = c(7, 34))
 
 bsc_boots_diff = aaply(bsc_boots, 2, function(x) x - bsc_boots[,5,])[1:4,,]
 temp = melt(aaply(bsc_boots_diff, c(1,3), quantile, probs = c(0.05, 0.5, 0.95)))
 colnames(temp) = c("Model", "Time", "Quantile", "Value")
 temp$Quantile = paste("Q", gsub("%", "", temp$Quantile), sep = "")
 temp = dcast(temp, Model + Time ~ Quantile, value.var = "Value")
-ggplot(temp, aes(x = Time, y = Q50, ymin = Q5, ymax = Q95, colour = Model, fill = Model)) + geom_line() + geom_ribbon(alpha = 0.2, colour = NA) + ylab("Brier Score: Improvement over KM0. BS median, 90\\% BI") + geom_hline(yintercept = 0)
-ggplot(temp, aes(x = Time, y = Q50, ymin = Q5, ymax = Q95, colour = Model, fill = Model)) + geom_line() + geom_ribbon(alpha = 0.2, colour = NA) + xlim(0, 700) + ylab("Brier Score: Improvement over KM0. BS median, 90\\% BI") + geom_hline(yintercept = 0)
-ggplot(temp, aes(x = Time, y = Q50, colour = Model)) + geom_line() + ylab("Brier Score: Improvement over KM0, BS median") + geom_hline(yintercept = 0)
-ggplot(temp, aes(x = Time, y = Q50, colour = Model)) + geom_line() + ylab("Brier Score: Improvement over KM0, BS median") + xlim(0, 700) + geom_hline(yintercept = 0)
+ggplot(temp, aes(x = Time/365.25*12, y = Q50, ymin = Q5, ymax = Q95, colour = Model, fill = Model)) + geom_line() + geom_ribbon(alpha = 0.2, colour = NA) + ylab("Brier Score: Improvement over KM0. BS median, 90\\% BI") + geom_hline(yintercept = 0)
+ggplot(temp, aes(x = Time/365.25*12, y = Q50, ymin = Q5, ymax = Q95, colour = Model, fill = Model)) + geom_line() + geom_ribbon(alpha = 0.2, colour = NA) + xlim(0, 34) + ylab("Brier Score: Improvement over KM0. BS median, 90\\% BI") + geom_hline(yintercept = 0)
+ggplot(temp, aes(x = Time/365.25*12, y = Q50, colour = Model)) + geom_line() + ylab("Brier Score: Improvement over KM0, BS median") + geom_hline(yintercept = 0) + geom_vline(xintercept = c(7, 34))
+ggplot(temp, aes(x = Time/365.25*12, y = Q50, colour = Model)) + geom_line() + ylab("Brier Score: Improvement over KM0, BS median") + xlim(0, 34) + geom_hline(yintercept = 0) + geom_vline(xintercept = c(7, 34))
 @
 
 IBS comparisons.
 <<model-selection-ibs-boots>>=
-set.seed(20150111)
+set.seed(20150208)
 ibsc_boots = t(sapply(1:5e2, function(i) {
 	if (i %% 5e1 == 0)	{ message(i) }
 	boot_samp = sample.int(nrow(data.val), replace = TRUE)
-	gg = calcIBS(Surv(data.val$Time, data.val$DSD)[boot_samp,], ibs_preds_gg[boot_samp,], ibs_times, max(data.val$Time[boot_samp]))$ibs
-	gg2 = calcIBS(Surv(data.val$Time, data.val$DSD)[boot_samp,], ibs_preds_gg2[boot_samp,], ibs_times, max(data.val$Time[boot_samp]))$ibs
-	cph = calcIBS(Surv(data.val$Time, data.val$DSD)[boot_samp,], ibs_preds_cph[boot_samp,], ibs_times, max(data.val$Time[boot_samp]))$ibs
-	rsf = calcIBS(Surv(data.val$Time, data.val$DSD)[boot_samp,], ibs_preds_rsf[boot_samp,], ibs_times, max(data.val$Time[boot_samp]))$ibs
-	km0 = calcIBS(Surv(data.val$Time, data.val$DSD)[boot_samp,], ibs_preds_km0[boot_samp,], ibs_times, max(data.val$Time[boot_samp]))$ibs
+	gg = calcIBS(Surv(data.val$Time, data.val$DSD)[boot_samp,], ibs_preds_gg[boot_samp,], ibs_times, 34*365.25/12, 7*365.25/12)$ibs
+	gg2 = calcIBS(Surv(data.val$Time, data.val$DSD)[boot_samp,], ibs_preds_gg2[boot_samp,], ibs_times, 34*365.25/12, 7*365.25/12)$ibs
+	cph = calcIBS(Surv(data.val$Time, data.val$DSD)[boot_samp,], ibs_preds_cph[boot_samp,], ibs_times, 34*365.25/12, 7*365.25/12)$ibs
+	rsf = calcIBS(Surv(data.val$Time, data.val$DSD)[boot_samp,], ibs_preds_rsf[boot_samp,], ibs_times, 34*365.25/12, 7*365.25/12)$ibs
+	km0 = calcIBS(Surv(data.val$Time, data.val$DSD)[boot_samp,], ibs_preds_km0[boot_samp,], ibs_times, 34*365.25/12, 7*365.25/12)$ibs
 	c(gg, gg2, cph, rsf, km0)
 }))
 colnames(ibsc_boots) = c("gg", "gg2", "cph", "rsf", "km0")
 @
 
 <<model-selection-ibs>>=
-calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_gg, ibs_times, max(data.val$Time))$ibs
-calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_gg2, ibs_times, max(data.val$Time))$ibs
-calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_cph, ibs_times, max(data.val$Time))$ibs
-calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_rsf, ibs_times, max(data.val$Time))$ibs
-calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_km0, ibs_times, max(data.val$Time))$ibs
+calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_gg, ibs_times, 34*365.25/12, 7*365.25/12)$ibs
+calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_gg2, ibs_times, 34*365.25/12, 7*365.25/12)$ibs
+calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_cph, ibs_times, 34*365.25/12, 7*365.25/12)$ibs
+calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_rsf, ibs_times, 34*365.25/12, 7*365.25/12)$ibs
+calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_km0, ibs_times, 34*365.25/12, 7*365.25/12)$ibs
 
 boxplot(ibsc_boots, main = "IBS BS Distribution", ylab = "IBS")
-plot(density(ibsc_boots[,1]), col = "blue", lwd = 2, main = "IBS BS Distribution", xlab = "IBS")
-lines(density(ibsc_boots[,2]), col = "red", lwd = 2)
-lines(density(ibsc_boots[,3]), col = "green", lwd = 2)
-lines(density(ibsc_boots[,4]), col = "purple", lwd = 2)
-lines(density(ibsc_boots[,5]), col = "black", lwd = 2)
-abline(v = calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_gg, ibs_times, max(data.val$Time))$ibs, col = "blue", lwd = 1)
-abline(v = calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_gg2, ibs_times, max(data.val$Time))$ibs, col = "red", lwd = 1)
-abline(v = calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_cph, ibs_times, max(data.val$Time))$ibs, col = "green", lwd = 1)
-abline(v = calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_rsf, ibs_times, max(data.val$Time))$ibs, col = "purple", lwd = 1)
-abline(v = calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_km0, ibs_times, max(data.val$Time))$ibs, col = "black", lwd = 1)
-legend("topright", legend = c("gg", "gg2", "cph", "rsf", "km0"), col = c("blue", "red", "green", "purple", "black"), lty = "solid", inset = 0.05)
+plot(density(ibsc_boots[,1]), col = pal["GG"], lwd = 2, main = "IBS BS Distribution", xlab = "IBS")
+lines(density(ibsc_boots[,2]), col = pal["GG2"], lwd = 2)
+lines(density(ibsc_boots[,3]), col = pal["CPH"], lwd = 2)
+lines(density(ibsc_boots[,4]), col = pal["RSF"], lwd = 2)
+lines(density(ibsc_boots[,4]), col = pal["KM0"], lwd = 2)
+abline(v = calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_gg, ibs_times, 34*365.25/12, 7*365.25/12)$ibs, col = pal["GG"], lwd = 1)
+abline(v = calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_gg2, ibs_times, 34*365.25/12, 7*365.25/12)$ibs, col = pal["GG2"], lwd = 1)
+abline(v = calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_cph, ibs_times, 34*365.25/12, 7*365.25/12)$ibs, col = pal["CPH"], lwd = 1)
+abline(v = calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_rsf, ibs_times, 34*365.25/12, 7*365.25/12)$ibs, col = pal["RSF"], lwd = 1)
+abline(v = calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_km0, ibs_times, 34*365.25/12, 7*365.25/12)$ibs, col = pal["KM0"], lwd = 1)
+legend("topright", legend = c("GG", "GG2", "CPH", "RSF", "KM0"), col = pal[c("GG", "GG2", "CPH", "RSF", "KM0")], lty = "solid", inset = 0.05)
 
-plot(density(ibsc_boots[,5] - ibsc_boots[,1]), col = "blue", lwd = 2, main = "IBS\\_KM0 - IBS\\_x BS Distribution", xlab = "IBS", ylim = c(0, 0.1))
-lines(density(ibsc_boots[,5] - ibsc_boots[,2]), col = "red", lwd = 2)
-lines(density(ibsc_boots[,5] - ibsc_boots[,3]), col = "green", lwd = 2)
-lines(density(ibsc_boots[,5] - ibsc_boots[,4]), col = "purple", lwd = 2)
-abline(v = (calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_km0, ibs_times, max(data.val$Time))$ibs - calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_gg, ibs_times, max(data.val$Time))$ibs), col = "blue", lwd = 1)
-abline(v = (calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_km0, ibs_times, max(data.val$Time))$ibs - calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_gg2, ibs_times, max(data.val$Time))$ibs), col = "red", lwd = 1)
-abline(v = (calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_km0, ibs_times, max(data.val$Time))$ibs - calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_cph, ibs_times, max(data.val$Time))$ibs), col = "green", lwd = 1)
-abline(v = (calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_km0, ibs_times, max(data.val$Time))$ibs - calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_rsf, ibs_times, max(data.val$Time))$ibs), col = "purple", lwd = 1)
-legend("topright", legend = c("gg", "gg2", "cph", "rsf"), col = c("blue", "red", "green", "purple"), lty = "solid", inset = 0.05)
+plot(density(ibsc_boots[,5] - ibsc_boots[,1]), col = pal["GG"], lwd = 2, main = "IBS\\_KM0 - IBS\\_x BS Distribution", xlab = "IBS", ylim = c(0, 0.1))
+lines(density(ibsc_boots[,5] - ibsc_boots[,2]), col = pal["GG2"], lwd = 2)
+lines(density(ibsc_boots[,5] - ibsc_boots[,3]), col = pal["CPH"], lwd = 2)
+lines(density(ibsc_boots[,5] - ibsc_boots[,4]), col = pal["RSF"], lwd = 2)
+abline(v = (calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_km0, ibs_times, max(data.val$Time))$ibs - calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_gg, ibs_times, max(data.val$Time))$ibs), col = pal["GG"], lwd = 1)
+abline(v = (calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_km0, ibs_times, max(data.val$Time))$ibs - calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_gg2, ibs_times, max(data.val$Time))$ibs), col = pal["GG2"], lwd = 1)
+abline(v = (calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_km0, ibs_times, max(data.val$Time))$ibs - calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_cph, ibs_times, max(data.val$Time))$ibs), col = pal["CPH"], lwd = 1)
+abline(v = (calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_km0, ibs_times, max(data.val$Time))$ibs - calcIBS(Surv(data.val$Time, data.val$DSD), ibs_preds_rsf, ibs_times, max(data.val$Time))$ibs), col = pal["RSF"], lwd = 1)
+legend("topright", legend = c("GG", "GG2", "CPH", "RSF"), col = pal[c("GG", "GG2", "CPH", "RSF")], lty = "solid", inset = 0.05)
 @
 
 Do some proper BCA bootstrapping on the differences, just as a double-check test.
 <<model-selection-ibs-boots-2>>=
-set.seed(20150111)
+set.seed(20150208)
 ibsc_boots2 = boot(data.val, statistic = function(d, i) {
-	gg = calcIBS(Surv(d$Time, d$DSD)[i,], ibs_preds_gg[i,], ibs_times, max(d$Time[i]))$ibs
-	gg2 = calcIBS(Surv(d$Time, d$DSD)[i,], ibs_preds_gg2[i,], ibs_times, max(d$Time[i]))$ibs
-	cph = calcIBS(Surv(d$Time, d$DSD)[i,], ibs_preds_cph[i,], ibs_times, max(d$Time[i]))$ibs
-	rsf = calcIBS(Surv(d$Time, d$DSD)[i,], ibs_preds_rsf[i,], ibs_times, max(d$Time[i]))$ibs
-	km0 = calcIBS(Surv(d$Time, d$DSD)[i,], ibs_preds_km0[i,], ibs_times, max(d$Time[i]))$ibs
+	gg = calcIBS(Surv(d$Time, d$DSD)[i,], ibs_preds_gg[i,], ibs_times, 34*365.25/12, 7*365.25/12)$ibs
+	gg2 = calcIBS(Surv(d$Time, d$DSD)[i,], ibs_preds_gg2[i,], ibs_times, 34*365.25/12, 7*365.25/12)$ibs
+	cph = calcIBS(Surv(d$Time, d$DSD)[i,], ibs_preds_cph[i,], ibs_times, 34*365.25/12, 7*365.25/12)$ibs
+	rsf = calcIBS(Surv(d$Time, d$DSD)[i,], ibs_preds_rsf[i,], ibs_times, 34*365.25/12, 7*365.25/12)$ibs
+	km0 = calcIBS(Surv(d$Time, d$DSD)[i,], ibs_preds_km0[i,], ibs_times, 34*365.25/12, 7*365.25/12)$ibs
 	c(gg - km0, gg2 - km0, cph - km0, rsf - km0, gg - rsf, gg2 - rsf, cph - rsf, gg - cph, gg2 - cph, gg - gg2)
 }, R = 500)
 ibsc_boots2_ci = t(sapply(1:length(ibsc_boots2$t0), function(i) boot.ci(ibsc_boots2, index = i, type = "bca")$bca))
@@ -717,21 +609,18 @@ Final model fitting:
 <<final-model>>=
 data.all = rbind(data[colnames(data.val)], data.val)
 head(data.all)
-fit.final.gg = flexsurvreg(Surv(Time, DSD) ~ SexM + SizeCent + A2 + A4,
+#fit.final.gg = flexsurvreg(Surv(Time, DSD) ~ SexM + AgeCent + LocBody + SizeCent + A2 + A4 + SizeCent:AgeCent + SexM:SizeCent,
+fit.final.gg = flexsurvreg(Surv(Time, DSD) ~ SexM + LocBody + SizeCent + A2 + A4,
 	anc = list(
 		sigma = ~ SexM,
 		Q = ~ SexM),
 	data = data.all, dist = "gengamma")
-fit.final.gg2 = flexsurvreg(Surv(Time, DSD) ~ SexM + SizeCent + A2 + A4 + I(SexM == FALSE & A2 == FALSE & A4 == FALSE),
-    anc = list(
-        sigma = ~ SexM,
-        Q = ~ SexM),
-    data = data.all, dist = "gengamma")
-fit.final.cph = coxph(Surv(Time, DSD) ~ strata(SexM) + SizeCent + A2 + A4, data = data.all, x = TRUE, y = TRUE, model = TRUE)
-set.seed(20150111)
+# fit.final.cph = coxph(Surv(Time, DSD) ~ strata(SexM)+AgeCent+LocBody+SizeCent+A2+A4+SizeCent:AgeCent+strata(SexM):SizeCent, data = data.all, x = TRUE, y = TRUE, model = TRUE)
+fit.final.cph = coxph(Surv(Time, DSD) ~ strata(SexM) + LocBody + SizeCent + A2 + A4, data = data.all, x = TRUE, y = TRUE, model = TRUE)
+set.seed(20150208)
 fit.final.rsf = rfsrc(Surv(Time, DSD) ~ SexM + AgeCent + LocBody + SizeCent + A2 + A4, data = data.all, mtry = 1, splitrule = "logrankscore", nsplit = 2, ntree = 1000)
 fit.final.km0 = survfit(Surv(Time, DSD) ~ 1, data.all)
-saveRDS(list(gg = fit.final.gg, km0 = fit.final.km0, gg2 = fit.final.gg2, cph = fit.final.cph, rsf = fit.final.rsf, data.train = data.all), file = "05_final_model.rds")
+saveRDS(list(gg = fit.final.gg, km0 = fit.final.km0, cph = fit.final.cph, rsf = fit.final.rsf, data.train = data.all), file = "05_final_model.rds")
 @
 
 <<final-save>>=

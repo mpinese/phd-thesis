@@ -8,6 +8,7 @@ all: 01_NSWPCN.rda 03_NSWPCN_subset.rda 05_train_NSWPCN_2.pdf 05_final_model.rds
 
 clean:
 	rm -f 01_NSWPCN.rda 03_NSWPCN_subset.rda 03_NSWPCN_subset.pdf 05_final_model.rds 06_Glasgow.rds 07_validate.pdf *.Rout 07_validate.aux 07_validate.log 07_validate.tex
+	rm -f *.log *.aux *.pdf *.rda glmulti.* *.tex
 
 ultraclean: clean
 	rm -rf figure/ cache/ tikzMetrics
