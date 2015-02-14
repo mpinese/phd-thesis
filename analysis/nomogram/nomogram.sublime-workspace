@@ -4,6 +4,10 @@
 		"selected_items":
 		[
 			[
+				"Preop",
+				"Preoperative"
+			],
+			[
 				"Smok",
 				"SmokingStatus"
 			],
@@ -307,6 +311,22 @@
 	},
 	"buffers":
 	[
+		{
+			"file": "07_validate.Rnw",
+			"settings":
+			{
+				"buffer_size": 36410,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "05_train_NSWPCN_2.Rnw",
+			"settings":
+			{
+				"buffer_size": 29350,
+				"line_ending": "Unix"
+			}
+		}
 	],
 	"build_system": "",
 	"command_palette":
@@ -497,6 +517,16 @@
 		"case_sensitive": true,
 		"find_history":
 		[
+			"y",
+			"x$",
+			"summary",
+			"data.val",
+			"gg2",
+			"GG2",
+			"legend",
+			"est",
+			"nswpcn",
+			"fit.cph",
 			"pal",
 			"stdca",
 			"pal",
@@ -614,17 +644,7 @@
 			"xlin",
 			"temp.x",
 			"ncomp",
-			"temp.nmf",
-			"_rel",
-			"temp.nmf",
-			"sample_data",
-			"gex",
-			"noisePlot(log2(exprs(gex.qc)[,c(\"5624980044_B\", \"5624980044_C\")]), span = 0.05, pch = 16, cex = 0.5, ylim = c(0, 1.5), main = \"APGI_2222 (H) Pre-normalization\",  col = rgb(I(qc.detrate2 < 0.1)*0.7, I(qc.detrate2 < 0.1)*0.7, qc.detrate2 < 0.1, 0.1))\n\nnoisePlot(log2(exprs(gex.qc)[,c(\"5445316014_A\", \"5491021082_B\")]), span = 0.05, pch = 16, cex = 0.5, ylim = c(0, 1.5), main = \"APGI_1959 (H) Pre-normalization\", col = rgb(I(qc.detrate2 < 0.1)*0.7, I(qc.detrate2 < 0.1)*0.7, qc.detrate2 < 0.1, 0.1))\n\nnoisePlot(log2(exprs(gex.qc)[,c(\"8986311029_L\", \"9020374003_H\")]), span = 0.05, pch = 16, cex = 0.5, ylim = c(0, 1.5), main = \"APGI_2315 (L) Pre-normalization\", col = rgb(I(qc.detrate2 < 0.1)*0.7, I(qc.detrate2 < 0.1)*0.7, qc.detrate2 < 0.1, 0.1))\n\nnoisePlot(log2(exprs(gex.qc)[,c(\"7976997017_C\", \"9020374009_B\")]), span = 0.05, pch = 16, cex = 0.5, ylim = c(0, 1.5), main = \"APGI_2340 (L) Pre-normalization\", col = rgb(I(qc.detrate2 < 0.1)*0.7, I(qc.detrate2 < 0.1)*0.7, qc.detrate2 < 0.1, 0.1))\n\n",
-			"temp1",
-			"celllines.",
-			"lines.ha",
-			"primary",
-			"\",\""
+			"temp.nmf"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -632,6 +652,8 @@
 		"regex": false,
 		"replace_history":
 		[
+			"data$",
+			"glasgow",
 			".gg2",
 			"fit.cph",
 			"5",
@@ -757,9 +779,7 @@
 			"/home/marpin",
 			"stream.mode.",
 			"",
-			".val.",
-			".gli.",
-			".imputed"
+			".val."
 		],
 		"reverse": false,
 		"show_context": true,
@@ -770,8 +790,69 @@
 	"groups":
 	[
 		{
+			"selected": 0,
 			"sheets":
 			[
+				{
+					"buffer": 0,
+					"file": "07_validate.Rnw",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 36410,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								12597,
+								12597
+							]
+						],
+						"settings":
+						{
+							"r_box_status": false,
+							"syntax": "Packages/LaTeXing/support/LaTeX (Knitr).tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 3878.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "05_train_NSWPCN_2.Rnw",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 29350,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								20737,
+								20737
+							]
+						],
+						"settings":
+						{
+							"r_box_status": false,
+							"syntax": "Packages/LaTeXing/support/LaTeX (Knitr).tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 7370.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				}
 			]
 		}
 	],

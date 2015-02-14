@@ -31,6 +31,9 @@ data/**.xz
 cache/*
 reports/*/*.rds
 reports/*/*.rda
+figure/*.tex
+figure/*.tikz
+figure/*.log
 
 syntax:regexp
 .*\.o[0-9]+$

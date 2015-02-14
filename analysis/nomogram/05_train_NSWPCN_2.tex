@@ -101,8 +101,8 @@
 \hlkwd{load}\hlstd{(}\hlstr{"03_NSWPCN_subset.rda"}\hlstd{)}
 
 \hlkwd{library}\hlstd{(RColorBrewer)}
-\hlstd{pal} \hlkwb{=} \hlkwd{brewer.pal}\hlstd{(}\hlnum{5}\hlstd{,} \hlstr{"Dark2"}\hlstd{)}
-\hlkwd{names}\hlstd{(pal)} \hlkwb{=} \hlkwd{c}\hlstd{(}\hlstr{"GG"}\hlstd{,} \hlstr{"GG2"}\hlstd{,} \hlstr{"CPH"}\hlstd{,} \hlstr{"RSF"}\hlstd{,} \hlstr{"KM0"}\hlstd{)}
+\hlstd{pal} \hlkwb{=} \hlkwd{brewer.pal}\hlstd{(}\hlnum{4}\hlstd{,} \hlstr{"Dark2"}\hlstd{)}
+\hlkwd{names}\hlstd{(pal)} \hlkwb{=} \hlkwd{c}\hlstd{(}\hlstr{"GG"}\hlstd{,} \hlstr{"CPH"}\hlstd{,} \hlstr{"RSF"}\hlstd{,} \hlstr{"KM0"}\hlstd{)}
 \end{alltt}
 \end{kframe}
 \end{knitrout}
@@ -115,18 +115,24 @@
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{x} \hlkwb{=} \hlstd{data[,}\hlkwd{c}\hlstd{(}\hlstr{"History.Diagnosis.Date"}\hlstd{,} \hlstr{"Patient.Sex"}\hlstd{,} \hlstr{"History.Diagnosis.AgeAt.Cent"}\hlstd{,} \hlstr{"Path.LocationBody"}\hlstd{,} \hlstr{"Path.Size.Cent"}\hlstd{,} \hlstr{"Path.Ca199.Preop"}\hlstd{,} \hlstr{"Molec.S100A2.DCThresh"}\hlstd{,} \hlstr{"Molec.S100A4.DCThresh"}\hlstd{)]}
-\hlkwd{colnames}\hlstd{(x)} \hlkwb{=} \hlkwd{c}\hlstd{(}\hlstr{"DiagYearCent"}\hlstd{,} \hlstr{"SexM"}\hlstd{,} \hlstr{"AgeCent"}\hlstd{,} \hlstr{"LocBody"}\hlstd{,} \hlstr{"SizeCent"}\hlstd{,} \hlstr{"Ca199"}\hlstd{,} \hlstr{"A2"}\hlstd{,} \hlstr{"A4"}\hlstd{)}
-\hlstd{x}\hlopt{$}\hlstd{SexM} \hlkwb{=} \hlstd{x}\hlopt{$}\hlstd{Sex} \hlopt{==} \hlstr{"M"}
-\hlstd{x}\hlopt{$}\hlstd{Ca199} \hlkwb{=} \hlstd{x}\hlopt{$}\hlstd{Ca199} \hlopt{>} \hlnum{100}
-\hlkwd{median}\hlstd{(x}\hlopt{$}\hlstd{DiagYearCent)}
+\hlstd{data}\hlopt{$}\hlstd{SexM} \hlkwb{=} \hlstd{data}\hlopt{$}\hlstd{Patient.Sex} \hlopt{==} \hlstr{"M"}
+\hlstd{data}\hlopt{$}\hlstd{Ca199} \hlkwb{=} \hlstd{data}\hlopt{$}\hlstd{Path.Ca199.Preop} \hlopt{>} \hlnum{100}
+\hlstd{data}\hlopt{$}\hlstd{DiagYearCent} \hlkwb{=} \hlkwd{as.numeric}\hlstd{((data}\hlopt{$}\hlstd{History.Diagnosis.Date} \hlopt{-} \hlkwd{median}\hlstd{(data}\hlopt{$}\hlstd{History.Diagnosis.Date))} \hlopt{/} \hlnum{365.25}\hlstd{)}
+\hlstd{data}\hlopt{$}\hlstd{Time} \hlkwb{=} \hlkwd{as.numeric}\hlstd{(data}\hlopt{$}\hlstd{History.Death.Date} \hlopt{-} \hlstd{data}\hlopt{$}\hlstd{History.Diagnosis.Date)}
+\hlstd{data}\hlopt{$}\hlstd{DSD} \hlkwb{=} \hlstd{data}\hlopt{$}\hlstd{History.DSDeath.Event} \hlopt{==} \hlnum{1}
+\hlstd{data}\hlopt{$}\hlstd{AgeCent} \hlkwb{=} \hlstd{data}\hlopt{$}\hlstd{History.Diagnosis.AgeAt.Cent}
+\hlstd{data}\hlopt{$}\hlstd{LocBody} \hlkwb{=} \hlstd{data}\hlopt{$}\hlstd{Path.LocationBody}
+\hlstd{data}\hlopt{$}\hlstd{SizeCent} \hlkwb{=} \hlstd{data}\hlopt{$}\hlstd{Path.Size.Cent}
+\hlstd{data}\hlopt{$}\hlstd{A2} \hlkwb{=} \hlstd{data}\hlopt{$}\hlstd{Molec.S100A2.DCThresh}
+\hlstd{data}\hlopt{$}\hlstd{A4} \hlkwb{=} \hlstd{data}\hlopt{$}\hlstd{Molec.S100A4.DCThresh}
+
+\hlkwd{median}\hlstd{(data}\hlopt{$}\hlstd{DiagYearCent)}
 \end{alltt}
 \begin{verbatim}
-## [1] "2002-01-13"
+## [1] 0
 \end{verbatim}
 \begin{alltt}
-\hlstd{x}\hlopt{$}\hlstd{DiagYearCent} \hlkwb{=} \hlkwd{as.numeric}\hlstd{((x}\hlopt{$}\hlstd{DiagYearCent} \hlopt{-} \hlkwd{median}\hlstd{(x}\hlopt{$}\hlstd{DiagYearCent))} \hlopt{/} \hlnum{365.25}\hlstd{)}
-\hlkwd{hist}\hlstd{(x}\hlopt{$}\hlstd{DiagYearCent,} \hlkwc{main} \hlstd{=} \hlstr{"Histogram of Median-Centered Diagnosis Year"}\hlstd{,} \hlkwc{xlab} \hlstd{=} \hlstr{""}\hlstd{)}
+\hlkwd{hist}\hlstd{(data}\hlopt{$}\hlstd{DiagYearCent,} \hlkwc{main} \hlstd{=} \hlstr{"Histogram of Median-Centered Diagnosis Year"}\hlstd{,} \hlkwc{xlab} \hlstd{=} \hlstr{""}\hlstd{)}
 \end{alltt}
 \end{kframe}
 
@@ -136,37 +142,272 @@
 
 
 \begin{kframe}\begin{alltt}
-\hlstd{y} \hlkwb{=} \hlkwd{Surv}\hlstd{(}\hlkwd{as.numeric}\hlstd{(data}\hlopt{$}\hlstd{History.Death.Date} \hlopt{-} \hlstd{data}\hlopt{$}\hlstd{History.Diagnosis.Date), data}\hlopt{$}\hlstd{History.DSDeath.Event)}
-\hlcom{# Note no surgery dates, though for almost all pts there were only a few days difference.}
-
 \hlstd{temp} \hlkwb{=} \hlnum{NA}
 \hlstd{temp} \hlkwb{=} \hlkwd{ls}\hlstd{()}
-\hlkwd{rm}\hlstd{(}\hlkwc{list} \hlstd{= temp[}\hlopt{!}\hlstd{(temp} \hlopt{%in%} \hlkwd{c}\hlstd{(}\hlstr{"x"}\hlstd{,} \hlstr{"y"}\hlstd{,} \hlstr{"pal"}\hlstd{))])}
+\hlkwd{rm}\hlstd{(}\hlkwc{list} \hlstd{= temp[}\hlopt{!}\hlstd{(temp} \hlopt{%in%} \hlkwd{c}\hlstd{(}\hlstr{"pal"}\hlstd{,} \hlstr{"data"}\hlstd{))])}
 
-\hlstd{sel} \hlkwb{=} \hlopt{!}\hlkwd{is.na}\hlstd{(y[,}\hlnum{1}\hlstd{])} \hlopt{& !}\hlkwd{is.na}\hlstd{(y[,}\hlnum{2}\hlstd{])} \hlopt{& !}\hlkwd{is.na}\hlstd{(x}\hlopt{$}\hlstd{A2)} \hlopt{& !}\hlkwd{is.na}\hlstd{(x}\hlopt{$}\hlstd{A4)} \hlopt{& !}\hlkwd{is.na}\hlstd{(x}\hlopt{$}\hlstd{LocBody)}
-\hlstd{x} \hlkwb{=} \hlstd{x[sel,]}
-\hlstd{y} \hlkwb{=} \hlstd{y[sel,]}
-\hlkwd{rm}\hlstd{(sel)}
-
-\hlcom{# Remove CA-19-9 measurements as they're mostly missing}
-\hlstd{x} \hlkwb{=} \hlstd{x[,}\hlkwd{colnames}\hlstd{(x)} \hlopt{!=} \hlstr{"Ca199"}\hlstd{]}
-
-\hlstd{data} \hlkwb{=} \hlkwd{as.data.frame}\hlstd{(}\hlkwd{cbind}\hlstd{(}\hlkwc{Time} \hlstd{= y[,}\hlnum{1}\hlstd{],} \hlkwc{DSD} \hlstd{= y[,}\hlnum{2}\hlstd{], x))}
-\hlkwd{rm}\hlstd{(x, y)}
-\hlstd{data}\hlopt{$}\hlstd{DSD} \hlkwb{=} \hlstd{data}\hlopt{$}\hlstd{DSD} \hlopt{==} \hlnum{1}
-
-\hlcom{# Remove long-survivors.  These are very likely to be misdiagnoses, or LTF.}
+\hlkwd{nrow}\hlstd{(data)}
+\end{alltt}
+\begin{verbatim}
+## [1] 404
+\end{verbatim}
+\begin{alltt}
+\hlstd{data} \hlkwb{=} \hlstd{data[}\hlopt{!}\hlkwd{is.na}\hlstd{(data}\hlopt{$}\hlstd{Time)} \hlopt{& !}\hlkwd{is.na}\hlstd{(data}\hlopt{$}\hlstd{DSD)} \hlopt{& !}\hlkwd{is.na}\hlstd{(data}\hlopt{$}\hlstd{A2)} \hlopt{& !}\hlkwd{is.na}\hlstd{(data}\hlopt{$}\hlstd{A4)} \hlopt{& !}\hlkwd{is.na}\hlstd{(data}\hlopt{$}\hlstd{LocBody),]}
 \hlkwd{nrow}\hlstd{(data)}
 \end{alltt}
 \begin{verbatim}
 ## [1] 256
 \end{verbatim}
 \begin{alltt}
-\hlstd{data} \hlkwb{=} \hlstd{data[data}\hlopt{$}\hlstd{Time} \hlopt{<} \hlnum{3000}\hlstd{,]}
+\hlstd{data} \hlkwb{=} \hlstd{data[data}\hlopt{$}\hlstd{Time} \hlopt{<} \hlnum{3000}\hlstd{,]}          \hlcom{# Remove long-term survivors, which are very likely to be data errors}
 \hlkwd{nrow}\hlstd{(data)}
 \end{alltt}
 \begin{verbatim}
 ## [1] 249
+\end{verbatim}
+\begin{alltt}
+\hlstd{data.all} \hlkwb{=} \hlstd{data}
+\hlkwd{nrow}\hlstd{(data.all)}
+\end{alltt}
+\begin{verbatim}
+## [1] 249
+\end{verbatim}
+\begin{alltt}
+\hlkwd{summary}\hlstd{(data.all)}
+\end{alltt}
+\begin{verbatim}
+##    Patient.ID   Patient.Sex Cohort.ICGC     History.PreviousMalignancy
+##  Min.   :   4   F:126       Mode :logical   Mode :logical             
+##  1st Qu.: 305   M:123       FALSE:249       FALSE:227                 
+##  Median : 638               NA's :0         TRUE :22                  
+##  Mean   : 621                               NA's :0                   
+##  3rd Qu.:1031                                                         
+##  Max.   :1453                                                         
+##                                                                       
+##  History.FdrWithPancCancer History.FdrWithAnyCancer History.Diagnosis.Date
+##  Mode :logical             Mode :logical            Min.   :1994-03-09    
+##  FALSE:239                 FALSE:210                1st Qu.:1998-06-11    
+##  TRUE :8                   TRUE :39                 Median :2001-07-28    
+##  NA's :2                   NA's :0                  Mean   :2000-12-26    
+##                                                     3rd Qu.:2003-06-26    
+##                                                     Max.   :2006-08-14    
+##                                                                           
+##  History.Diagnosis.AgeAt History.AlcoholLevel History.Smoking.Status
+##  Min.   :28.0            0:158                Never  :144           
+##  1st Qu.:62.0            1: 46                Ceased : 51           
+##  Median :69.0            2: 22                Current: 54           
+##  Mean   :67.4            3: 23                                      
+##  3rd Qu.:75.0                                                       
+##  Max.   :87.0                                                       
+##                                                                     
+##  History.Smoking.PackYears History.Comorbid.Diabetes
+##  Min.   : 2.0              Mode :logical            
+##  1st Qu.:20.0              FALSE:186                
+##  Median :27.5              TRUE :63                 
+##  Mean   :31.6              NA's :0                  
+##  3rd Qu.:46.2                                       
+##  Max.   :80.0                                       
+##  NA's   :189                                        
+##  History.Comorbid.ChronicPancreatitis History.Recurrence.Event
+##  Mode :logical                        Min.   :0.00            
+##  FALSE:238                            1st Qu.:1.00            
+##  TRUE :11                             Median :1.00            
+##  NA's :0                              Mean   :0.96            
+##                                       3rd Qu.:1.00            
+##                                       Max.   :1.00            
+##                                                               
+##  History.Recurrence.Date History.DSDeath.Event History.Death.Date  
+##  Min.   :1994-07-21      Min.   :0.000         Min.   :1995-01-12  
+##  1st Qu.:2000-01-08      1st Qu.:1.000         1st Qu.:1999-12-01  
+##  Median :2002-06-03      Median :1.000         Median :2002-12-18  
+##  Mean   :2002-03-22      Mean   :0.952         Mean   :2002-09-02  
+##  3rd Qu.:2005-02-04      3rd Qu.:1.000         3rd Qu.:2005-05-21  
+##  Max.   :2009-01-29      Max.   :1.000         Max.   :2011-10-03  
+##  NA's   :85                                                        
+##  History.Followup.Date History.Death.EventTimeDays Treat.Resected
+##  Min.   :2009-10-24    Min.   :  20                Mode:logical  
+##  1st Qu.:2009-10-24    1st Qu.: 270                TRUE:249      
+##  Median :2009-10-24    Median : 479                NA's:0        
+##  Mean   :2009-11-30    Mean   : 617                              
+##  3rd Qu.:2009-10-24    3rd Qu.: 851                              
+##  Max.   :2010-06-03    Max.   :2701                              
+##  NA's   :243                                                     
+##  Treat.ProcedureWhipple Treat.MarginPositive Treat.Chemo.Any
+##  Mode :logical          Mode :logical        Mode :logical  
+##  FALSE:48               FALSE:145            FALSE:101      
+##  TRUE :201              TRUE :104            TRUE :121      
+##  NA's :0                NA's :0              NA's :27       
+##                                                             
+##                                                             
+##                                                             
+##  Treat.Chemo.Adjuvant Treat.Chemo.Adjuvant.GE3Cycles
+##  Mode :logical        Mode :logical                 
+##  FALSE:175            FALSE:204                     
+##  TRUE :74             TRUE :45                      
+##  NA's :0              NA's :0                       
+##                                                     
+##                                                     
+##                                                     
+##  Treat.Chemo.Palliative Treat.Chemo.PalliativeDC Treat.Chemo.GEM
+##  Mode :logical          Mode :logical            Mode :logical  
+##  FALSE:1                FALSE:178                FALSE:156      
+##  TRUE :66               TRUE :71                 TRUE :92       
+##  NA's :182              NA's :0                  NA's :1        
+##                                                                 
+##                                                                 
+##                                                                 
+##  Treat.Radio     Path.LocationBody   Path.Size    Path.Bilirubin.Preop
+##  Mode :logical   Mode :logical     Min.   : 8.0   Min.   : 0.06       
+##  FALSE:205       FALSE:201         1st Qu.:25.0   1st Qu.: 0.64       
+##  TRUE :44        TRUE :48          Median :30.0   Median : 3.45       
+##  NA's :0         NA's :0           Mean   :33.6   Mean   : 7.10       
+##                                    3rd Qu.:40.0   3rd Qu.:10.22       
+##                                    Max.   :90.0   Max.   :45.03       
+##                                                   NA's   :99          
+##  Path.Ca199.Preop Path.Bilirubin.Postop Path.Ca199.Postop
+##  Min.   :     1   Min.   : 0.12         Min.   :    1    
+##  1st Qu.:    67   1st Qu.: 0.47         1st Qu.:   15    
+##  Median :   197   Median : 0.70         Median :   74    
+##  Mean   :  2701   Mean   : 1.92         Mean   : 1528    
+##  3rd Qu.:   802   3rd Qu.: 1.26         3rd Qu.:  271    
+##  Max.   :101075   Max.   :25.38         Max.   :31760    
+##  NA's   :168      NA's   :106           NA's   :143      
+##         Path.Subtype Path.Differentiation Path.LN.Involved
+##  Adenosquamous: 18   1: 16                Min.   : 0.00   
+##  Large Cell   :  0   2:162                1st Qu.: 0.00   
+##  Mucinous     :  5   3: 71                Median : 1.00   
+##  NotSpecified : 39   4:  0                Mean   : 1.72   
+##  Papillary    :  2                        3rd Qu.: 2.00   
+##  Tubular      :185                        Max.   :12.00   
+##                                           NA's   :4       
+##  Path.LN.Inspected Path.Invasion.Vascular Path.Invasion.Perineural
+##  Min.   : 0.0      Mode :logical          Mode :logical           
+##  1st Qu.: 5.0      FALSE:133              FALSE:63                
+##  Median : 8.5      TRUE :116              TRUE :186               
+##  Mean   : 9.8      NA's :0                NA's :0                 
+##  3rd Qu.:13.0                                                     
+##  Max.   :52.0                                                     
+##  NA's   :21                                                       
+##  Stage.pT  Stage.pN   Stage.pM   Molec.BNIP3.NucInt Molec.BNIP3.CytoInt
+##  Tis:  0   N0  : 83   M0  :182   0   :  6           0   :  1           
+##  T1 : 18   N1  :160   M1  :  9   1   :208           1   :130           
+##  T2 : 34   NA's:  6   NA's: 58   2   : 21           2   : 76           
+##  T3 :197                         3   :  2           3   : 30           
+##  T4 :  0                         NA's: 12           NA's: 12           
+##                                                                        
+##                                                                        
+##  Molec.CCND1.CytoLo Molec.CCND1.CytoHi Molec.CCND1.MembLo
+##  0   :159           0   :75            0   :100          
+##  1   : 34           1   :90            1   : 71          
+##  2   :  4           2   :32            2   : 18          
+##  3   :  1           3   : 1            3   :  9          
+##  NA's: 51           NA's:51            NA's: 51          
+##                                                          
+##                                                          
+##  Molec.CCND1.MembHi Molec.Grb7.Int Molec.Grb7.Percent Molec.HCNT3PlusHENT1
+##  0   :32            0   :51        Min.   :  0.0      Mode :logical       
+##  1   :89            1   :94        1st Qu.:  3.0      FALSE:96            
+##  2   :46            2   :42        Median : 18.0      TRUE :98            
+##  3   :31            3   : 7        Mean   : 31.1      NA's :55            
+##  NA's:51            NA's:55        3rd Qu.: 55.0                          
+##                                    Max.   :100.0                          
+##                                    NA's   :55                             
+##  Molec.HENT1.Percent Molec.HENT1.Int Molec.HER2      Molec.HOXB2.Percent
+##  Min.   :  0.0       0   : 19        Mode :logical   Min.   :  0.0      
+##  1st Qu.: 11.2       1   :117        FALSE:37        1st Qu.: 35.0      
+##  Median : 42.5       2   : 53        TRUE :11        Median : 70.0      
+##  Mean   : 44.4       3   : 13        NA's :201       Mean   : 60.8      
+##  3rd Qu.: 75.0       NA's: 47                        3rd Qu.: 90.0      
+##  Max.   :100.0                                       Max.   :100.0      
+##  NA's   :47                                          NA's   :43         
+##  Molec.HOXB2.Int Molec.RON.Int Molec.S100A2.Int Molec.S100A2.Percent
+##  0   : 14        0   : 20      0:88             Min.   :  0.0       
+##  1   :141        1   :111      1:63             1st Qu.:  0.0       
+##  2   : 36        2   : 64      2:57             Median : 10.0       
+##  3   : 15        3   : 10      3:41             Mean   : 28.7       
+##  NA's: 43        NA's: 44                       3rd Qu.: 60.0       
+##                                                 Max.   :100.0       
+##                                                                     
+##  Molec.S100A2.StromaScore Molec.S100A4.CytoInt Molec.S100A4.CytoPercent
+##  Mode :logical            0:72                 Min.   :  0.0           
+##  FALSE:183                1:93                 1st Qu.:  0.0           
+##  TRUE :22                 2:43                 Median : 10.0           
+##  NA's :44                 3:41                 Mean   : 34.6           
+##                                                3rd Qu.: 75.0           
+##                                                Max.   :100.0           
+##                                                                        
+##  Molec.S100A4.NucInt Molec.S100A4.NucPercent Stage.Overall
+##  0:80                Min.   :  0.0           IIB    :120  
+##  1:68                1st Qu.:  0.0           IIA    : 43  
+##  2:65                Median :  5.0           IB     : 12  
+##  3:36                Mean   : 26.4           IV     :  9  
+##                      3rd Qu.: 60.0           IA     :  7  
+##                      Max.   :100.0           (Other):  0  
+##                                              NA's   : 58  
+##  History.Death.Event Molec.S100A4.DCThresh Molec.S100A2.DCThresh
+##  Min.   :0.000       Mode :logical         Mode :logical        
+##  1st Qu.:1.000       FALSE:61              FALSE:209            
+##  Median :1.000       TRUE :188             TRUE :40             
+##  Mean   :0.984       NA's :0               NA's :0              
+##  3rd Qu.:1.000                                                  
+##  Max.   :1.000                                                  
+##                                                                 
+##  Stage.pT.Simplified Path.Ca199.Preop.Cent Path.Ca199.Postop.Cent
+##  T1 : 18             Min.   :-5.38         Min.   :-3.97         
+##  T2 : 34             1st Qu.:-1.18         1st Qu.:-1.25         
+##  T34:197             Median :-0.10         Median : 0.34         
+##                      Mean   : 0.01         Mean   : 0.57         
+##                      3rd Qu.: 1.31         3rd Qu.: 1.63         
+##                      Max.   : 6.14         Max.   : 6.40         
+##                      NA's   :168           NA's   :143           
+##  History.Diagnosis.AgeAt.Cent History.Smoking.PackYears.Cent
+##  Min.   :-40.00               Min.   :-28.00                
+##  1st Qu.: -6.00               1st Qu.:-10.00                
+##  Median :  1.00               Median : -2.50                
+##  Mean   : -0.57               Mean   :  1.65                
+##  3rd Qu.:  7.00               3rd Qu.: 16.25                
+##  Max.   : 19.00               Max.   : 50.00                
+##                               NA's   :189                   
+##  Path.Size.Cent   Path.Bilirubin.Preop.Cent Path.Bilirubin.Postop.Cent
+##  Min.   :-22.00   Min.   :-3.39             Min.   :-0.53             
+##  1st Qu.: -5.00   1st Qu.:-2.81             1st Qu.:-0.18             
+##  Median :  0.00   Median : 0.00             Median : 0.06             
+##  Mean   :  3.57   Mean   : 3.65             Mean   : 1.27             
+##  3rd Qu.: 10.00   3rd Qu.: 6.77             3rd Qu.: 0.61             
+##  Max.   : 60.00   Max.   :41.58             Max.   :24.74             
+##                   NA's   :99                NA's   :106               
+##  History.Diagnosis.Date.Cent Path.LN.InvolvedFraction Path.LN.Negative
+##  Min.   :-2867               Min.   :0.000            Min.   : 0.00   
+##  1st Qu.:-1312               1st Qu.:0.000            1st Qu.: 4.00   
+##  Median : -169               Median :0.143            Median : 7.00   
+##  Mean   : -382               Mean   :0.213            Mean   : 8.01   
+##  3rd Qu.:  529               3rd Qu.:0.333            3rd Qu.:11.00   
+##  Max.   : 1674               Max.   :1.000            Max.   :45.00   
+##                              NA's   :22               NA's   :21      
+##     SexM           Ca199          DiagYearCent         Time     
+##  Mode :logical   Mode :logical   Min.   :-7.849   Min.   :  20  
+##  FALSE:126       FALSE:29        1st Qu.:-3.592   1st Qu.: 270  
+##  TRUE :123       TRUE :52        Median :-0.463   Median : 478  
+##  NA's :0         NA's :168       Mean   :-1.047   Mean   : 615  
+##                                  3rd Qu.: 1.448   3rd Qu.: 804  
+##                                  Max.   : 4.583   Max.   :2701  
+##                                                                 
+##     DSD             AgeCent        LocBody           SizeCent     
+##  Mode :logical   Min.   :-40.00   Mode :logical   Min.   :-22.00  
+##  FALSE:12        1st Qu.: -6.00   FALSE:201       1st Qu.: -5.00  
+##  TRUE :237       Median :  1.00   TRUE :48        Median :  0.00  
+##  NA's :0         Mean   : -0.57   NA's :0         Mean   :  3.57  
+##                  3rd Qu.:  7.00                   3rd Qu.: 10.00  
+##                  Max.   : 19.00                   Max.   : 60.00  
+##                                                                   
+##      A2              A4         
+##  Mode :logical   Mode :logical  
+##  FALSE:209       FALSE:61       
+##  TRUE :40        TRUE :188      
+##  NA's :0         NA's :0        
+##                                 
+##                                 
+## 
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -301,6 +542,7 @@ Model size as: $SizeCent + SizeCent I(SizeCent > 0) \equiv SizeCent + SizeCent_+
 \begin{alltt}
 \hlstd{data}\hlopt{$}\hlstd{SizePlus} \hlkwb{=} \hlkwd{pmax}\hlstd{(data}\hlopt{$}\hlstd{SizeCent,} \hlnum{0}\hlstd{)}
 \hlstd{data.val}\hlopt{$}\hlstd{SizePlus} \hlkwb{=} \hlkwd{pmax}\hlstd{(data.val}\hlopt{$}\hlstd{SizeCent,} \hlnum{0}\hlstd{)}
+\hlstd{data.all}\hlopt{$}\hlstd{SizePlus} \hlkwb{=} \hlkwd{pmax}\hlstd{(data.all}\hlopt{$}\hlstd{SizeCent,} \hlnum{0}\hlstd{)}
 \end{alltt}
 \end{kframe}
 \end{knitrout}
@@ -325,6 +567,16 @@ Model size as: $SizeCent + SizeCent I(SizeCent > 0) \equiv SizeCent + SizeCent_+
 ## GLOBAL            NA 13.17267 0.0680
 \end{verbatim}
 \begin{alltt}
+\hlkwd{plot}\hlstd{(}\hlkwd{cox.zph}\hlstd{(fit.cph)[}\hlnum{1}\hlstd{])}
+\end{alltt}
+\end{kframe}
+
+{\centering \includegraphics[width=\maxwidth]{figure/05-eda-ph-check-full-1} 
+
+}
+
+
+\begin{kframe}\begin{alltt}
 \hlstd{fit.cph} \hlkwb{=} \hlkwd{coxph}\hlstd{(}\hlkwd{Surv}\hlstd{(Time, DSD)} \hlopt{~} \hlkwd{strata}\hlstd{(SexM)} \hlopt{+} \hlstd{AgeCent} \hlopt{+} \hlstd{LocBody} \hlopt{+} \hlstd{SizeCent} \hlopt{+} \hlstd{SizePlus} \hlopt{+} \hlstd{A2} \hlopt{+} \hlstd{A4,} \hlkwc{data} \hlstd{= data)}
 \hlkwd{cox.zph}\hlstd{(fit.cph)}
 \end{alltt}
@@ -360,6 +612,254 @@ Using a threshold of 0.1 for the CPH tests, sex is stuffing things up.  Stratifi
 ## 1   -682                   
 ## 2   -682  0.86  1      0.35
 \end{verbatim}
+\begin{alltt}
+\hlkwd{library}\hlstd{(energy)}
+
+\hlkwd{scatter.smooth}\hlstd{(data}\hlopt{$}\hlstd{DiagYearCent, data}\hlopt{$}\hlstd{SexM,} \hlkwc{xlab} \hlstd{=} \hlstr{"DiagYearCent"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"SexM"}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+{\centering \includegraphics[width=\maxwidth]{figure/05-eda-dod-check-1} 
+
+}
+
+
+\begin{kframe}\begin{alltt}
+\hlkwd{boxplot}\hlstd{(DiagYearCent} \hlopt{~} \hlstd{SexM, data)}
+\end{alltt}
+\end{kframe}
+
+{\centering \includegraphics[width=\maxwidth]{figure/05-eda-dod-check-2} 
+
+}
+
+
+\begin{kframe}\begin{alltt}
+\hlkwd{kruskal.test}\hlstd{(data}\hlopt{$}\hlstd{DiagYearCent, data}\hlopt{$}\hlstd{SexM)}
+\end{alltt}
+\begin{verbatim}
+## 
+## 	Kruskal-Wallis rank sum test
+## 
+## data:  data$DiagYearCent and data$SexM
+## Kruskal-Wallis chi-squared = 0.4306, df = 1, p-value = 0.5117
+\end{verbatim}
+\begin{alltt}
+\hlkwd{dcov.test}\hlstd{(data}\hlopt{$}\hlstd{DiagYearCent, data}\hlopt{$}\hlstd{SexM,} \hlkwc{R} \hlstd{=} \hlnum{499}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## 
+## 	dCov test of independence
+## 
+## data:  index 1, replicates 499
+## nV^2 = 0.7729, p-value = 0.784
+## sample estimates:
+##    dCov 
+## 0.06217
+\end{verbatim}
+\begin{alltt}
+\hlkwd{scatter.smooth}\hlstd{(data}\hlopt{$}\hlstd{DiagYearCent, data}\hlopt{$}\hlstd{AgeCent,} \hlkwc{xlab} \hlstd{=} \hlstr{"DiagYearCent"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"AgeCent"}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+{\centering \includegraphics[width=\maxwidth]{figure/05-eda-dod-check-3} 
+
+}
+
+
+\begin{kframe}\begin{alltt}
+\hlkwd{cor.test}\hlstd{(data}\hlopt{$}\hlstd{DiagYearCent, data}\hlopt{$}\hlstd{AgeCent,} \hlkwc{method} \hlstd{=} \hlstr{"kendall"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## 
+## 	Kendall's rank correlation tau
+## 
+## data:  data$DiagYearCent and data$AgeCent
+## z = 1.026, p-value = 0.3049
+## alternative hypothesis: true tau is not equal to 0
+## sample estimates:
+##     tau 
+## 0.04952
+\end{verbatim}
+\begin{alltt}
+\hlkwd{dcov.test}\hlstd{(data}\hlopt{$}\hlstd{DiagYearCent, data}\hlopt{$}\hlstd{AgeCent,} \hlkwc{R} \hlstd{=} \hlnum{499}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## 
+## 	dCov test of independence
+## 
+## data:  index 1, replicates 499
+## nV^2 = 36.72, p-value = 0.448
+## sample estimates:
+##   dCov 
+## 0.4285
+\end{verbatim}
+\begin{alltt}
+\hlkwd{scatter.smooth}\hlstd{(data}\hlopt{$}\hlstd{DiagYearCent, data}\hlopt{$}\hlstd{LocBody,} \hlkwc{xlab} \hlstd{=} \hlstr{"DiagYearCent"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"LocBody"}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+{\centering \includegraphics[width=\maxwidth]{figure/05-eda-dod-check-4} 
+
+}
+
+
+\begin{kframe}\begin{alltt}
+\hlkwd{boxplot}\hlstd{(DiagYearCent} \hlopt{~} \hlstd{LocBody, data)}
+\end{alltt}
+\end{kframe}
+
+{\centering \includegraphics[width=\maxwidth]{figure/05-eda-dod-check-5} 
+
+}
+
+
+\begin{kframe}\begin{alltt}
+\hlkwd{kruskal.test}\hlstd{(data}\hlopt{$}\hlstd{DiagYearCent, data}\hlopt{$}\hlstd{LocBody)}
+\end{alltt}
+\begin{verbatim}
+## 
+## 	Kruskal-Wallis rank sum test
+## 
+## data:  data$DiagYearCent and data$LocBody
+## Kruskal-Wallis chi-squared = 0.2357, df = 1, p-value = 0.6273
+\end{verbatim}
+\begin{alltt}
+\hlkwd{dcov.test}\hlstd{(data}\hlopt{$}\hlstd{DiagYearCent, data}\hlopt{$}\hlstd{LocBody,} \hlkwc{R} \hlstd{=} \hlnum{499}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## 
+## 	dCov test of independence
+## 
+## data:  index 1, replicates 499
+## nV^2 = 0.4203, p-value = 0.812
+## sample estimates:
+##    dCov 
+## 0.04584
+\end{verbatim}
+\begin{alltt}
+\hlkwd{scatter.smooth}\hlstd{(data}\hlopt{$}\hlstd{DiagYearCent, data}\hlopt{$}\hlstd{SizeCent,} \hlkwc{xlab} \hlstd{=} \hlstr{"DiagYearCent"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"SizeCent"}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+{\centering \includegraphics[width=\maxwidth]{figure/05-eda-dod-check-6} 
+
+}
+
+
+\begin{kframe}\begin{alltt}
+\hlkwd{cor.test}\hlstd{(data}\hlopt{$}\hlstd{DiagYearCent, data}\hlopt{$}\hlstd{SizeCent,} \hlkwc{method} \hlstd{=} \hlstr{"kendall"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## 
+## 	Kendall's rank correlation tau
+## 
+## data:  data$DiagYearCent and data$SizeCent
+## z = -1.095, p-value = 0.2737
+## alternative hypothesis: true tau is not equal to 0
+## sample estimates:
+##      tau 
+## -0.05367
+\end{verbatim}
+\begin{alltt}
+\hlkwd{dcov.test}\hlstd{(data}\hlopt{$}\hlstd{DiagYearCent, data}\hlopt{$}\hlstd{SizeCent,} \hlkwc{R} \hlstd{=} \hlnum{499}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## 
+## 	dCov test of independence
+## 
+## data:  index 1, replicates 499
+## nV^2 = 59.67, p-value = 0.372
+## sample estimates:
+##   dCov 
+## 0.5462
+\end{verbatim}
+\begin{alltt}
+\hlkwd{scatter.smooth}\hlstd{(data}\hlopt{$}\hlstd{DiagYearCent, data}\hlopt{$}\hlstd{A2,} \hlkwc{xlab} \hlstd{=} \hlstr{"DiagYearCent"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"A2"}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+{\centering \includegraphics[width=\maxwidth]{figure/05-eda-dod-check-7} 
+
+}
+
+
+\begin{kframe}\begin{alltt}
+\hlkwd{boxplot}\hlstd{(DiagYearCent} \hlopt{~} \hlstd{A2, data)}
+\end{alltt}
+\end{kframe}
+
+{\centering \includegraphics[width=\maxwidth]{figure/05-eda-dod-check-8} 
+
+}
+
+
+\begin{kframe}\begin{alltt}
+\hlkwd{kruskal.test}\hlstd{(data}\hlopt{$}\hlstd{DiagYearCent, data}\hlopt{$}\hlstd{A2)}
+\end{alltt}
+\begin{verbatim}
+## 
+## 	Kruskal-Wallis rank sum test
+## 
+## data:  data$DiagYearCent and data$A2
+## Kruskal-Wallis chi-squared = 0.5693, df = 1, p-value = 0.4505
+\end{verbatim}
+\begin{alltt}
+\hlkwd{dcov.test}\hlstd{(data}\hlopt{$}\hlstd{DiagYearCent, data}\hlopt{$}\hlstd{A2,} \hlkwc{R} \hlstd{=} \hlnum{499}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## 
+## 	dCov test of independence
+## 
+## data:  index 1, replicates 499
+## nV^2 = 0.6903, p-value = 0.558
+## sample estimates:
+##    dCov 
+## 0.05875
+\end{verbatim}
+\begin{alltt}
+\hlkwd{scatter.smooth}\hlstd{(data}\hlopt{$}\hlstd{DiagYearCent, data}\hlopt{$}\hlstd{A4,} \hlkwc{xlab} \hlstd{=} \hlstr{"DiagYearCent"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"A4"}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+{\centering \includegraphics[width=\maxwidth]{figure/05-eda-dod-check-9} 
+
+}
+
+
+\begin{kframe}\begin{alltt}
+\hlkwd{boxplot}\hlstd{(DiagYearCent} \hlopt{~} \hlstd{A4, data)}
+\end{alltt}
+\end{kframe}
+
+{\centering \includegraphics[width=\maxwidth]{figure/05-eda-dod-check-10} 
+
+}
+
+
+\begin{kframe}\begin{alltt}
+\hlkwd{kruskal.test}\hlstd{(data}\hlopt{$}\hlstd{DiagYearCent, data}\hlopt{$}\hlstd{A4)}
+\end{alltt}
+\begin{verbatim}
+## 
+## 	Kruskal-Wallis rank sum test
+## 
+## data:  data$DiagYearCent and data$A4
+## Kruskal-Wallis chi-squared = 0.0055, df = 1, p-value = 0.9411
+\end{verbatim}
+\begin{alltt}
+\hlkwd{dcov.test}\hlstd{(data}\hlopt{$}\hlstd{DiagYearCent, data}\hlopt{$}\hlstd{A4,} \hlkwc{R} \hlstd{=} \hlnum{499}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## 
+## 	dCov test of independence
+## 
+## data:  index 1, replicates 499
+## nV^2 = 0.1731, p-value = 0.998
+## sample estimates:
+##    dCov 
+## 0.02942
+\end{verbatim}
 \end{kframe}
 \end{knitrout}
 Not significant; good.
@@ -382,41 +882,8 @@ Not significant; good.
 \begin{kframe}\begin{alltt}
 \hlstd{data}\hlopt{$}\hlstd{devresid} \hlkwb{=} \hlkwd{resid}\hlstd{(fit.cph,} \hlkwc{type} \hlstd{=} \hlstr{"deviance"}\hlstd{)}
 \hlstd{temp} \hlkwb{=} \hlstd{data[}\hlkwd{abs}\hlstd{(data}\hlopt{$}\hlstd{devresid)} \hlopt{>=} \hlnum{2}\hlstd{,]}
-\hlstd{temp[}\hlkwd{order}\hlstd{(temp}\hlopt{$}\hlstd{Time),]}
-\end{alltt}
-\begin{verbatim}
-##             Time   DSD DiagYearCent  SexM AgeCent LocBody SizeCent    A2
-## NSWPCN_315    26  TRUE      -0.4627  TRUE       3    TRUE       25  TRUE
-## NSWPCN_374    63  TRUE      -3.5921  TRUE       5   FALSE      -10  TRUE
-## NSWPCN_1177   68  TRUE      -4.6845 FALSE       1   FALSE        5 FALSE
-## NSWPCN_333    90  TRUE      -0.1396  TRUE      10    TRUE       25 FALSE
-## NSWPCN_779    96  TRUE       2.9076 FALSE       3   FALSE       12 FALSE
-## NSWPCN_1165   97  TRUE       4.5640  TRUE      -6   FALSE       15 FALSE
-## NSWPCN_324   100  TRUE       1.5688 FALSE     -10   FALSE       10 FALSE
-## NSWPCN_1017  100  TRUE      -3.4908 FALSE      -5   FALSE        5 FALSE
-## NSWPCN_125   103  TRUE      -6.3847 FALSE      -2   FALSE      -10 FALSE
-## NSWPCN_133  1304 FALSE      -5.3279  TRUE       5   FALSE        6 FALSE
-## NSWPCN_655  1723  TRUE       0.3368  TRUE      11    TRUE       10 FALSE
-## NSWPCN_1095 1836 FALSE       2.7461  TRUE      -8   FALSE        0  TRUE
-## NSWPCN_668  2106 FALSE       2.0068 FALSE      -2   FALSE       30 FALSE
-## NSWPCN_667  2415 FALSE       1.1608 FALSE     -14   FALSE      -15 FALSE
-##                A4 SizePlus devresid
-## NSWPCN_315   TRUE       25    2.379
-## NSWPCN_374   TRUE        0    2.361
-## NSWPCN_1177  TRUE        5    2.701
-## NSWPCN_333   TRUE       25    2.119
-## NSWPCN_779   TRUE       12    2.243
-## NSWPCN_1165  TRUE       15    2.076
-## NSWPCN_324   TRUE       10    2.022
-## NSWPCN_1017  TRUE        5    2.055
-## NSWPCN_125  FALSE        0    2.260
-## NSWPCN_133   TRUE        6   -2.292
-## NSWPCN_655   TRUE       10   -2.031
-## NSWPCN_1095 FALSE        0   -2.765
-## NSWPCN_668   TRUE       30   -2.806
-## NSWPCN_667   TRUE        0   -2.336
-\end{verbatim}
-\begin{alltt}
+\hlcom{#temp[order(temp$Time),]}
+
 \hlstd{temp} \hlkwb{=} \hlkwd{resid}\hlstd{(fit.cph,} \hlkwc{type} \hlstd{=} \hlstr{"dfbetas"}\hlstd{)}
 \hlkwd{colnames}\hlstd{(temp)} \hlkwb{=} \hlkwd{names}\hlstd{(fit.cph}\hlopt{$}\hlstd{coefficients)}
 \hlstd{temp} \hlkwb{=} \hlkwd{melt}\hlstd{(temp)}
@@ -438,79 +905,7 @@ Not significant; good.
 
 
 \begin{kframe}\begin{alltt}
-\hlkwd{sort}\hlstd{(}\hlkwd{apply}\hlstd{(}\hlkwd{abs}\hlstd{(}\hlkwd{resid}\hlstd{(fit.cph,} \hlkwc{type} \hlstd{=} \hlstr{"dfbetas"}\hlstd{)),} \hlnum{1}\hlstd{, max),} \hlkwc{decreasing} \hlstd{=} \hlnum{TRUE}\hlstd{)}
-\end{alltt}
-\begin{verbatim}
-## NSWPCN_1095  NSWPCN_655 NSWPCN_1182  NSWPCN_667  NSWPCN_144  NSWPCN_668 
-##    0.608593    0.605502    0.530888    0.407716    0.398158    0.327457 
-##  NSWPCN_310 NSWPCN_1212  NSWPCN_784  NSWPCN_192  NSWPCN_313 NSWPCN_1253 
-##    0.295058    0.273608    0.273058    0.257139    0.257021    0.248100 
-##  NSWPCN_799  NSWPCN_195  NSWPCN_674  NSWPCN_788  NSWPCN_154  NSWPCN_145 
-##    0.247494    0.233634    0.229905    0.213230    0.209001    0.196503 
-##  NSWPCN_142 NSWPCN_1186  NSWPCN_794  NSWPCN_320  NSWPCN_349  NSWPCN_639 
-##    0.195590    0.185655    0.176847    0.172566    0.172120    0.169714 
-##  NSWPCN_795  NSWPCN_374  NSWPCN_445  NSWPCN_802  NSWPCN_194  NSWPCN_163 
-##    0.168470    0.164443    0.151616    0.151183    0.151178    0.146712 
-##  NSWPCN_316  NSWPCN_801  NSWPCN_654  NSWPCN_307 NSWPCN_1147  NSWPCN_135 
-##    0.141622    0.141212    0.139981    0.139227    0.138642    0.137147 
-##  NSWPCN_152 NSWPCN_1187  NSWPCN_317  NSWPCN_125  NSWPCN_315 NSWPCN_1145 
-##    0.134638    0.131048    0.130750    0.129984    0.127999    0.125567 
-##  NSWPCN_777  NSWPCN_141  NSWPCN_182  NSWPCN_333  NSWPCN_337 NSWPCN_1083 
-##    0.125524    0.125370    0.125309    0.123862    0.121565    0.120246 
-##  NSWPCN_321  NSWPCN_133 NSWPCN_1453  NSWPCN_269  NSWPCN_318  NSWPCN_296 
-##    0.116968    0.116092    0.115398    0.111797    0.109297    0.108507 
-##  NSWPCN_335  NSWPCN_132  NSWPCN_647 NSWPCN_1188  NSWPCN_354 NSWPCN_1168 
-##    0.107926    0.105932    0.104040    0.103771    0.101211    0.098668 
-##  NSWPCN_305 NSWPCN_1160 NSWPCN_1179 NSWPCN_1169  NSWPCN_151 NSWPCN_1071 
-##    0.096994    0.095425    0.095199    0.095118    0.093520    0.092355 
-##  NSWPCN_331  NSWPCN_267  NSWPCN_138  NSWPCN_276   NSWPCN_17  NSWPCN_789 
-##    0.091974    0.089754    0.089265    0.089051    0.088914    0.088141 
-## NSWPCN_1141 NSWPCN_1072  NSWPCN_257  NSWPCN_664 NSWPCN_1189 NSWPCN_1155 
-##    0.087304    0.080513    0.080219    0.079865    0.079050    0.077529 
-##  NSWPCN_303 NSWPCN_1088  NSWPCN_200  NSWPCN_798  NSWPCN_663 NSWPCN_1158 
-##    0.075390    0.075103    0.074720    0.073281    0.072910    0.072736 
-##  NSWPCN_364 NSWPCN_1177  NSWPCN_312  NSWPCN_375  NSWPCN_324 NSWPCN_1028 
-##    0.070600    0.069807    0.069320    0.068858    0.067746    0.067618 
-## NSWPCN_1183  NSWPCN_657 NSWPCN_1031 NSWPCN_1198  NSWPCN_637 NSWPCN_1222 
-##    0.067251    0.066525    0.066068    0.065549    0.065423    0.065069 
-##  NSWPCN_336 NSWPCN_1157  NSWPCN_790    NSWPCN_4   NSWPCN_13  NSWPCN_665 
-##    0.064764    0.064604    0.064267    0.063796    0.063341    0.062318 
-## NSWPCN_1213  NSWPCN_648  NSWPCN_636  NSWPCN_281   NSWPCN_20  NSWPCN_347 
-##    0.062295    0.062010    0.061429    0.061039    0.060975    0.060948 
-##  NSWPCN_769  NSWPCN_268 NSWPCN_1167 NSWPCN_1017 NSWPCN_1022  NSWPCN_804 
-##    0.060504    0.059817    0.059415    0.058835    0.058110    0.057379 
-##  NSWPCN_661  NSWPCN_779  NSWPCN_640  NSWPCN_164 NSWPCN_1066  NSWPCN_813 
-##    0.056829    0.055459    0.052953    0.052737    0.052580    0.051966 
-## NSWPCN_1165  NSWPCN_643 NSWPCN_1019 NSWPCN_1190  NSWPCN_376 NSWPCN_1026 
-##    0.051250    0.049904    0.049674    0.049013    0.048787    0.048713 
-##  NSWPCN_282  NSWPCN_815 NSWPCN_1089  NSWPCN_308  NSWPCN_284   NSWPCN_10 
-##    0.048235    0.047547    0.047147    0.046789    0.046011    0.045675 
-##  NSWPCN_811  NSWPCN_372 NSWPCN_1146 NSWPCN_1016 NSWPCN_1023  NSWPCN_653 
-##    0.045397    0.044821    0.043795    0.043085    0.042856    0.041802 
-##  NSWPCN_283  NSWPCN_270  NSWPCN_162  NSWPCN_306  NSWPCN_662  NSWPCN_363 
-##    0.041402    0.040900    0.040385    0.040045    0.039252    0.038086 
-## NSWPCN_1227  NSWPCN_369  NSWPCN_770 NSWPCN_1153  NSWPCN_796  NSWPCN_332 
-##    0.038003    0.035265    0.034983    0.034467    0.032432    0.032422 
-##  NSWPCN_373 NSWPCN_1148  NSWPCN_272 NSWPCN_1075  NSWPCN_149 NSWPCN_1139 
-##    0.032184    0.031468    0.031391    0.030774    0.030526    0.030104 
-## NSWPCN_1021  NSWPCN_352 NSWPCN_1171  NSWPCN_325  NSWPCN_362  NSWPCN_360 
-##    0.030095    0.030008    0.029728    0.027767    0.026652    0.026516 
-##  NSWPCN_309  NSWPCN_646  NSWPCN_348   NSWPCN_36  NSWPCN_384  NSWPCN_256 
-##    0.026444    0.026071    0.025947    0.025334    0.024514    0.024298 
-##  NSWPCN_143  NSWPCN_319  NSWPCN_366  NSWPCN_358  NSWPCN_775  NSWPCN_370 
-##    0.023931    0.022670    0.022058    0.021289    0.021157    0.021082 
-## NSWPCN_1150 NSWPCN_1175  NSWPCN_797 NSWPCN_1152  NSWPCN_350 NSWPCN_1018 
-##    0.020619    0.020474    0.020089    0.019960    0.019915    0.019881 
-## NSWPCN_1211  NSWPCN_656  NSWPCN_781    NSWPCN_9 NSWPCN_1207  NSWPCN_658 
-##    0.018856    0.018714    0.018620    0.017311    0.017230    0.016422 
-## NSWPCN_1176 NSWPCN_1136  NSWPCN_807 NSWPCN_1140 NSWPCN_1027 NSWPCN_1173 
-##    0.015073    0.014981    0.013112    0.012942    0.011384    0.011157 
-## NSWPCN_1215  NSWPCN_638 NSWPCN_1020  NSWPCN_330  NSWPCN_157  NSWPCN_353 
-##    0.010917    0.010175    0.010018    0.009944    0.009637    0.008259 
-##  NSWPCN_806  NSWPCN_136 
-##    0.007888    0.003489
-\end{verbatim}
-\begin{alltt}
+\hlcom{#sort(apply(abs(resid(fit.cph, type = "dfbetas")), 1, max), decreasing = TRUE)}
 \hlkwd{sum}\hlstd{(}\hlkwd{apply}\hlstd{(}\hlkwd{abs}\hlstd{(}\hlkwd{resid}\hlstd{(fit.cph,} \hlkwc{type} \hlstd{=} \hlstr{"dfbetas"}\hlstd{)),} \hlnum{1}\hlstd{, max)} \hlopt{>} \hlnum{2}\hlopt{/}\hlkwd{sqrt}\hlstd{(}\hlkwd{nrow}\hlstd{(data)))}
 \end{alltt}
 \begin{verbatim}
@@ -521,133 +916,8 @@ Not significant; good.
 \hlstd{data}\hlopt{$}\hlstd{DFBETAS_max} \hlkwb{=} \hlkwd{apply}\hlstd{(}\hlkwd{abs}\hlstd{(temp),} \hlnum{1}\hlstd{, max)}
 \hlstd{data}\hlopt{$}\hlstd{DFBETAS_vars} \hlkwb{=} \hlkwd{apply}\hlstd{(}\hlkwd{abs}\hlstd{(temp),} \hlnum{1}\hlstd{,} \hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{)} \hlkwd{paste}\hlstd{(}\hlkwd{attr}\hlstd{(fit.cph}\hlopt{$}\hlstd{terms,} \hlstr{"term.labels"}\hlstd{)[x} \hlopt{>} \hlnum{2}\hlopt{/}\hlkwd{sqrt}\hlstd{(}\hlkwd{nrow}\hlstd{(data))],} \hlkwc{collapse} \hlstd{=} \hlstr{","}\hlstd{))}
 \hlstd{temp} \hlkwb{=} \hlstd{data[data}\hlopt{$}\hlstd{DFBETAS_max} \hlopt{>=} \hlnum{2}\hlopt{/}\hlkwd{sqrt}\hlstd{(}\hlkwd{nrow}\hlstd{(data))} \hlopt{|} \hlkwd{abs}\hlstd{(data}\hlopt{$}\hlstd{devresid)} \hlopt{>=} \hlnum{2}\hlstd{,]}
-\hlstd{temp[}\hlkwd{order}\hlstd{(temp}\hlopt{$}\hlstd{DFBETAS_max),]}
+\hlcom{#temp[order(temp$DFBETAS_max),]}
 \end{alltt}
-\begin{verbatim}
-##             Time   DSD DiagYearCent  SexM AgeCent LocBody SizeCent    A2
-## NSWPCN_1165   97  TRUE       4.5640  TRUE      -6   FALSE       15 FALSE
-## NSWPCN_779    96  TRUE       2.9076 FALSE       3   FALSE       12 FALSE
-## NSWPCN_1017  100  TRUE      -3.4908 FALSE      -5   FALSE        5 FALSE
-## NSWPCN_324   100  TRUE       1.5688 FALSE     -10   FALSE       10 FALSE
-## NSWPCN_1177   68  TRUE      -4.6845 FALSE       1   FALSE        5 FALSE
-## NSWPCN_133  1304 FALSE      -5.3279  TRUE       5   FALSE        6 FALSE
-## NSWPCN_333    90  TRUE      -0.1396  TRUE      10    TRUE       25 FALSE
-## NSWPCN_315    26  TRUE      -0.4627  TRUE       3    TRUE       25  TRUE
-## NSWPCN_125   103  TRUE      -6.3847 FALSE      -2   FALSE      -10 FALSE
-## NSWPCN_316  1698  TRUE      -0.6379 FALSE      -8   FALSE        5 FALSE
-## NSWPCN_163   285  TRUE      -2.5544  TRUE      -2   FALSE        0 FALSE
-## NSWPCN_194  1123  TRUE      -0.4600 FALSE     -16   FALSE       10 FALSE
-## NSWPCN_802  1072  TRUE      -1.0048 FALSE     -14    TRUE       25 FALSE
-## NSWPCN_445   114  TRUE       2.5763 FALSE      14    TRUE        5 FALSE
-## NSWPCN_374    63  TRUE      -3.5921  TRUE       5   FALSE      -10  TRUE
-## NSWPCN_795   128  TRUE       0.7858 FALSE       8   FALSE       -1 FALSE
-## NSWPCN_639  1990  TRUE       2.3053 FALSE       1   FALSE        2 FALSE
-## NSWPCN_349  1412  TRUE       0.6133  TRUE      11   FALSE        5 FALSE
-## NSWPCN_320   804  TRUE      -1.3443 FALSE     -26   FALSE       15 FALSE
-## NSWPCN_794   498 FALSE       0.8186 FALSE      -4    TRUE       10 FALSE
-## NSWPCN_1186 1892  TRUE      -7.8494 FALSE       2   FALSE        0 FALSE
-## NSWPCN_142  1691  TRUE       1.0349  TRUE       4   FALSE        0 FALSE
-## NSWPCN_145   599  TRUE       2.5626  TRUE      -6    TRUE       15  TRUE
-## NSWPCN_154   163  TRUE      -0.8022  TRUE      -2    TRUE       60 FALSE
-## NSWPCN_788  2155 FALSE       1.8727 FALSE       5   FALSE      -10 FALSE
-## NSWPCN_674   345  TRUE       3.5647  TRUE     -40   FALSE      -10 FALSE
-## NSWPCN_195  1969  TRUE      -0.1889  TRUE       8   FALSE      -16 FALSE
-## NSWPCN_799    70  TRUE      -0.4627 FALSE       4    TRUE       60  TRUE
-## NSWPCN_1253 1044  TRUE      -5.9713  TRUE      -2   FALSE       40 FALSE
-## NSWPCN_313  2521  TRUE      -1.2977 FALSE      12   FALSE      -10 FALSE
-## NSWPCN_192   221  TRUE      -0.9008  TRUE      -3    TRUE      -22 FALSE
-## NSWPCN_784  2701  TRUE       2.3244  TRUE      14   FALSE      -19 FALSE
-## NSWPCN_1212 1053  TRUE       3.9644  TRUE      12   FALSE        2  TRUE
-## NSWPCN_310  1093  TRUE       1.8207  TRUE       6    TRUE       -5 FALSE
-## NSWPCN_668  2106 FALSE       2.0068 FALSE      -2   FALSE       30 FALSE
-## NSWPCN_144  1206  TRUE       2.7379 FALSE       0   FALSE       10  TRUE
-## NSWPCN_667  2415 FALSE       1.1608 FALSE     -14   FALSE      -15 FALSE
-## NSWPCN_1182 2178  TRUE      -5.9192 FALSE      -4    TRUE      -10 FALSE
-## NSWPCN_655  1723  TRUE       0.3368  TRUE      11    TRUE       10 FALSE
-## NSWPCN_1095 1836 FALSE       2.7461  TRUE      -8   FALSE        0  TRUE
-##                A4 SizePlus devresid DFBETAS_max
-## NSWPCN_1165  TRUE       15   2.0759     0.05125
-## NSWPCN_779   TRUE       12   2.2425     0.05546
-## NSWPCN_1017  TRUE        5   2.0546     0.05884
-## NSWPCN_324   TRUE       10   2.0218     0.06775
-## NSWPCN_1177  TRUE        5   2.7006     0.06981
-## NSWPCN_133   TRUE        6  -2.2919     0.11609
-## NSWPCN_333   TRUE       25   2.1193     0.12386
-## NSWPCN_315   TRUE       25   2.3787     0.12800
-## NSWPCN_125  FALSE        0   2.2600     0.12998
-## NSWPCN_316   TRUE        5  -1.3567     0.14162
-## NSWPCN_163  FALSE        0   1.6387     0.14671
-## NSWPCN_194   TRUE       10  -0.9807     0.15118
-## NSWPCN_802  FALSE       25  -0.7492     0.15118
-## NSWPCN_445   TRUE        5   1.7057     0.15162
-## NSWPCN_374   TRUE        0   2.3607     0.16444
-## NSWPCN_795  FALSE        0   1.8566     0.16847
-## NSWPCN_639   TRUE        2  -1.4115     0.16971
-## NSWPCN_349   TRUE        5  -1.1860     0.17212
-## NSWPCN_320   TRUE       15  -0.6732     0.17257
-## NSWPCN_794   TRUE       10  -1.4822     0.17685
-## NSWPCN_1186  TRUE        0  -1.2863     0.18566
-## NSWPCN_142  FALSE        0  -0.7903     0.19559
-## NSWPCN_145   TRUE       15  -1.0032     0.19650
-## NSWPCN_154   TRUE       60   1.4178     0.20900
-## NSWPCN_788  FALSE        0  -1.7288     0.21323
-## NSWPCN_674  FALSE        0   1.3545     0.22991
-## NSWPCN_195  FALSE        0  -0.7925     0.23363
-## NSWPCN_799   TRUE       60   1.9544     0.24749
-## NSWPCN_1253  TRUE       40  -1.0703     0.24810
-## NSWPCN_313   TRUE        0  -1.6122     0.25702
-## NSWPCN_192   TRUE        0   1.8036     0.25714
-## NSWPCN_784  FALSE        0  -1.2444     0.27306
-## NSWPCN_1212  TRUE        2  -1.2600     0.27361
-## NSWPCN_310   TRUE        0  -1.0326     0.29506
-## NSWPCN_668   TRUE       30  -2.8060     0.32746
-## NSWPCN_144   TRUE       10  -1.5652     0.39816
-## NSWPCN_667   TRUE        0  -2.3357     0.40772
-## NSWPCN_1182  TRUE        0  -1.6309     0.53089
-## NSWPCN_655   TRUE       10  -2.0313     0.60550
-## NSWPCN_1095 FALSE        0  -2.7651     0.60859
-##                                                  DFBETAS_vars
-## NSWPCN_1165                                                  
-## NSWPCN_779                                                   
-## NSWPCN_1017                                                  
-## NSWPCN_324                                                   
-## NSWPCN_1177                                                  
-## NSWPCN_133                                                   
-## NSWPCN_333                                                   
-## NSWPCN_315                                                   
-## NSWPCN_125                                                   
-## NSWPCN_316                                           SizeCent
-## NSWPCN_163                                                 A2
-## NSWPCN_194                                    strata(SexM),A4
-## NSWPCN_802                                                 A2
-## NSWPCN_445                                            AgeCent
-## NSWPCN_374                                           SizePlus
-## NSWPCN_795                                                 A2
-## NSWPCN_639                                   LocBody,SizeCent
-## NSWPCN_349                                    strata(SexM),A4
-## NSWPCN_320                                    strata(SexM),A4
-## NSWPCN_794                                            AgeCent
-## NSWPCN_1186                                  LocBody,SizeCent
-## NSWPCN_142                                                 A2
-## NSWPCN_145                                   AgeCent,SizePlus
-## NSWPCN_154                                           SizeCent
-## NSWPCN_788                                                 A2
-## NSWPCN_674                                    strata(SexM),A4
-## NSWPCN_195                                   LocBody,SizeCent
-## NSWPCN_799                                   LocBody,SizeCent
-## NSWPCN_1253                                  AgeCent,SizeCent
-## NSWPCN_313                                    strata(SexM),A4
-## NSWPCN_192                           AgeCent,LocBody,SizeCent
-## NSWPCN_784                                   LocBody,SizeCent
-## NSWPCN_1212                          strata(SexM),SizePlus,A4
-## NSWPCN_310                                            AgeCent
-## NSWPCN_668                                AgeCent,SizeCent,A2
-## NSWPCN_144                                   AgeCent,SizePlus
-## NSWPCN_667                strata(SexM),LocBody,SizeCent,A2,A4
-## NSWPCN_1182                                   AgeCent,LocBody
-## NSWPCN_655  strata(SexM),AgeCent,LocBody,SizeCent,SizePlus,A4
-## NSWPCN_1095      strata(SexM),LocBody,SizeCent,SizePlus,A2,A4
-\end{verbatim}
 \end{kframe}
 \end{knitrout}
 
@@ -655,7 +925,19 @@ Remove points with deviance residuals > 2.5, or DFBETAS > 0.3.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
+\hlkwd{nrow}\hlstd{(data)}
+\end{alltt}
+\begin{verbatim}
+## [1] 200
+\end{verbatim}
+\begin{alltt}
 \hlstd{data} \hlkwb{=} \hlstd{data[data}\hlopt{$}\hlstd{DFBETAS_max} \hlopt{<=} \hlnum{0.3} \hlopt{&} \hlkwd{abs}\hlstd{(data}\hlopt{$}\hlstd{devresid)} \hlopt{<=} \hlnum{2.5}\hlstd{,]}
+\hlkwd{nrow}\hlstd{(data)}
+\end{alltt}
+\begin{verbatim}
+## [1] 193
+\end{verbatim}
+\begin{alltt}
 \hlstd{fit.cph} \hlkwb{=} \hlkwd{coxph}\hlstd{(}\hlkwd{Surv}\hlstd{(Time, DSD)} \hlopt{~} \hlkwd{strata}\hlstd{(SexM)} \hlopt{+} \hlstd{AgeCent} \hlopt{+} \hlstd{LocBody} \hlopt{+} \hlstd{SizeCent} \hlopt{+} \hlstd{SizePlus} \hlopt{+} \hlstd{A2} \hlopt{+} \hlstd{A4,} \hlkwc{data} \hlstd{= data)}
 \end{alltt}
 \end{kframe}
@@ -667,380 +949,6 @@ Remove points with deviance residuals > 2.5, or DFBETAS > 0.3.
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlstd{nobs.coxph} \hlkwb{<<-} \hlkwa{function}\hlstd{(}\hlkwc{obj}\hlstd{,} \hlkwc{...}\hlstd{)} \hlkwd{sum}\hlstd{(obj}\hlopt{$}\hlstd{y[,}\hlnum{2}\hlstd{])}
-\hlkwd{set.seed}\hlstd{(}\hlnum{20150208}\hlstd{)}
-\hlstd{fit.cph.as.bic} \hlkwb{=} \hlkwd{glmulti}\hlstd{(}\hlkwd{Surv}\hlstd{(Time, DSD)} \hlopt{~} \hlkwd{strata}\hlstd{(SexM)} \hlopt{+} \hlstd{AgeCent} \hlopt{+} \hlstd{LocBody} \hlopt{+} \hlstd{SizeCent} \hlopt{+} \hlstd{SizePlus} \hlopt{+} \hlstd{A2} \hlopt{+} \hlstd{A4,} \hlkwc{data} \hlstd{= data,} \hlkwc{marginality} \hlstd{=} \hlnum{TRUE}\hlstd{,} \hlkwc{method} \hlstd{=} \hlstr{"g"}\hlstd{,} \hlkwc{fitfunction} \hlstd{=} \hlstr{"coxph"}\hlstd{,} \hlkwc{crit} \hlstd{=} \hlstr{"bic"}\hlstd{,} \hlkwc{level} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{plotty} \hlstd{=} \hlnum{FALSE}\hlstd{,} \hlkwc{report} \hlstd{=} \hlnum{TRUE}\hlstd{)}
-\end{alltt}
-\begin{verbatim}
-## Initialization...
-## TASK: Genetic algorithm in the candidate set.
-## Initialization...
-## Algorithm started...
-## 
-## After 10 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+AgeCent+LocBody+SizePlus+A2+A4+SizePlus:LocBody
-## Crit= 1330.74207056839
-## Mean crit= 1371.32076533565
-## Change in best IC: -8669.25792943161 / Change in mean IC: -8628.67923466435
-## 
-## After 20 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+AgeCent+LocBody+SizePlus+A2+A4
-## Crit= 1325.88603606481
-## Mean crit= 1366.36912555198
-## Change in best IC: -4.85603450358053 / Change in mean IC: -4.95163978367555
-## 
-## After 30 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+LocBody+SizePlus+A2+A4
-## Crit= 1322.93145268634
-## Mean crit= 1362.88668812839
-## Change in best IC: -2.95458337846776 / Change in mean IC: -3.48243742359045
-## 
-## After 40 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+SizePlus+A2+A4
-## Crit= 1320.34394231168
-## Mean crit= 1361.35541857129
-## Change in best IC: -2.5875103746539 / Change in mean IC: -1.5312695570924
-## 
-## After 50 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+SizePlus+A2+A4
-## Crit= 1320.34394231168
-## Mean crit= 1360.43151115989
-## Change in best IC: 0 / Change in mean IC: -0.923907411405025
-## 
-## After 60 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+SizePlus+A2+A4
-## Crit= 1320.34394231168
-## Mean crit= 1358.93358477098
-## Change in best IC: 0 / Change in mean IC: -1.49792638890881
-## 
-## After 70 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+SizePlus+A2+A4
-## Crit= 1320.34394231168
-## Mean crit= 1358.18268381061
-## Change in best IC: 0 / Change in mean IC: -0.750900960367289
-## 
-## After 80 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+SizePlus+A2+A4
-## Crit= 1320.34394231168
-## Mean crit= 1357.4704165225
-## Change in best IC: 0 / Change in mean IC: -0.712267288116209
-## 
-## After 90 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+SizePlus+A2+A4
-## Crit= 1320.34394231168
-## Mean crit= 1356.30395902444
-## Change in best IC: 0 / Change in mean IC: -1.16645749806071
-## 
-## After 100 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+SizePlus+A2+A4
-## Crit= 1320.34394231168
-## Mean crit= 1354.62428938053
-## Change in best IC: 0 / Change in mean IC: -1.67966964390826
-## 
-## After 110 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+SizePlus+A2+A4
-## Crit= 1320.34394231168
-## Mean crit= 1354.19848400635
-## Change in best IC: 0 / Change in mean IC: -0.42580537417507
-## 
-## After 120 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+SizePlus+A2+A4
-## Crit= 1320.34394231168
-## Mean crit= 1353.0086120984
-## Change in best IC: 0 / Change in mean IC: -1.1898719079486
-## 
-## After 130 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+SizePlus+A2+A4
-## Crit= 1320.34394231168
-## Mean crit= 1352.69883347707
-## Change in best IC: 0 / Change in mean IC: -0.309778621338637
-## 
-## After 140 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+SizePlus+A2+A4
-## Crit= 1320.34394231168
-## Mean crit= 1352.10200701269
-## Change in best IC: 0 / Change in mean IC: -0.596826464376818
-## 
-## After 150 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+SizePlus+A2+A4
-## Crit= 1320.34394231168
-## Mean crit= 1351.26232706556
-## Change in best IC: 0 / Change in mean IC: -0.839679947126342
-## 
-## After 160 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+SizePlus+A2+A4
-## Crit= 1320.34394231168
-## Mean crit= 1350.70620552145
-## Change in best IC: 0 / Change in mean IC: -0.55612154411574
-## 
-## After 170 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+SizePlus+A2+A4
-## Crit= 1320.34394231168
-## Mean crit= 1349.63847243742
-## Change in best IC: 0 / Change in mean IC: -1.06773308402876
-## 
-## After 180 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+SizePlus+A2+A4
-## Crit= 1320.34394231168
-## Mean crit= 1349.32765297463
-## Change in best IC: 0 / Change in mean IC: -0.310819462789368
-## 
-## After 190 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+SizePlus+A2+A4
-## Crit= 1320.34394231168
-## Mean crit= 1349.1123095406
-## Change in best IC: 0 / Change in mean IC: -0.215343434027773
-## 
-## After 200 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+SizePlus+A2+A4
-## Crit= 1320.34394231168
-## Mean crit= 1348.48239849382
-## Change in best IC: 0 / Change in mean IC: -0.629911046780308
-## 
-## After 210 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+SizePlus+A2+A4
-## Crit= 1320.34394231168
-## Mean crit= 1348.09675034221
-## Change in best IC: 0 / Change in mean IC: -0.385648151610212
-## 
-## After 220 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+SizePlus+A2+A4
-## Crit= 1320.34394231168
-## Mean crit= 1347.89881181048
-## Change in best IC: 0 / Change in mean IC: -0.197938531734735
-## 
-## After 230 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+SizePlus+A2+A4
-## Crit= 1320.34394231168
-## Mean crit= 1347.70964954015
-## Change in best IC: 0 / Change in mean IC: -0.189162270326733
-## 
-## After 240 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+SizePlus+A2+A4
-## Crit= 1320.34394231168
-## Mean crit= 1347.52376089243
-## Change in best IC: 0 / Change in mean IC: -0.185888647723232
-## 
-## After 250 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+SizePlus+A2+A4
-## Crit= 1320.34394231168
-## Mean crit= 1347.16933463019
-## Change in best IC: 0 / Change in mean IC: -0.354426262238576
-## 
-## After 260 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+SizePlus+A2+A4
-## Crit= 1320.34394231168
-## Mean crit= 1347.06409531869
-## Change in best IC: 0 / Change in mean IC: -0.105239311493733
-## 
-## After 270 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+SizePlus+A2+A4
-## Crit= 1320.34394231168
-## Mean crit= 1346.68513179375
-## Change in best IC: 0 / Change in mean IC: -0.378963524947949
-## 
-## After 280 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+SizePlus+A2+A4
-## Crit= 1320.34394231168
-## Mean crit= 1346.5079796517
-## Change in best IC: 0 / Change in mean IC: -0.177152142049408
-\end{verbatim}
-
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in fitter(X, Y, strats, offset, init, control, weights = weights, : Loglik converged before variable\ \ 11 ; beta may be infinite.}}\begin{verbatim}
-## 
-## After 290 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+SizePlus+A2+A4
-## Crit= 1320.34394231168
-## Mean crit= 1346.2390760551
-## Change in best IC: 0 / Change in mean IC: -0.268903596595464
-\end{verbatim}
-
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in fitter(X, Y, strats, offset, init, control, weights = weights, : Loglik converged before variable\ \ 13 ; beta may be infinite.}}\begin{verbatim}
-## 
-## After 300 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+SizePlus+A2+A4
-## Crit= 1320.34394231168
-## Mean crit= 1346.12370292987
-## Change in best IC: 0 / Change in mean IC: -0.115373125235465
-## 
-## After 310 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+SizePlus+A2+A4
-## Crit= 1320.34394231168
-## Mean crit= 1346.06901583365
-## Change in best IC: 0 / Change in mean IC: -0.0546870962198227
-## 
-## After 320 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+SizePlus+A2+A4
-## Crit= 1320.34394231168
-## Mean crit= 1345.88432093358
-## Change in best IC: 0 / Change in mean IC: -0.184694900065324
-## 
-## After 330 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+SizePlus+A2+A4
-## Crit= 1320.34394231168
-## Mean crit= 1345.8052620194
-## Change in best IC: 0 / Change in mean IC: -0.0790589141829514
-## 
-## After 340 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+SizePlus+A2+A4
-## Crit= 1320.34394231168
-## Mean crit= 1345.63375320605
-## Change in best IC: 0 / Change in mean IC: -0.171508813342825
-## 
-## After 350 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+SizePlus+A2+A4
-## Crit= 1320.34394231168
-## Mean crit= 1345.491678869
-## Change in best IC: 0 / Change in mean IC: -0.142074337058375
-## 
-## After 360 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+SizePlus+A2+A4
-## Crit= 1320.34394231168
-## Mean crit= 1345.39303926655
-## Change in best IC: 0 / Change in mean IC: -0.0986396024438818
-## 
-## After 370 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+SizePlus+A2+A4
-## Crit= 1320.34394231168
-## Mean crit= 1344.89485979836
-## Change in best IC: 0 / Change in mean IC: -0.4981794681878
-## 
-## After 380 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+SizePlus+A2+A4
-## Crit= 1320.34394231168
-## Mean crit= 1344.89485979836
-## Change in best IC: 0 / Change in mean IC: 0
-## 
-## After 390 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+SizePlus+A2+A4
-## Crit= 1320.34394231168
-## Mean crit= 1344.88633992423
-## Change in best IC: 0 / Change in mean IC: -0.00851987413284405
-## 
-## After 400 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+SizePlus+A2+A4
-## Crit= 1320.34394231168
-## Mean crit= 1344.76943861035
-## Change in best IC: 0 / Change in mean IC: -0.116901313884
-\end{verbatim}
-
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in fitter(X, Y, strats, offset, init, control, weights = weights, : Loglik converged before variable\ \ 11 ; beta may be infinite.}}\begin{verbatim}
-## 
-## After 410 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+SizePlus+A2+A4
-## Crit= 1320.34394231168
-## Mean crit= 1344.75613241449
-## Change in best IC: 0 / Change in mean IC: -0.0133061958606504
-\end{verbatim}
-
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in fitter(X, Y, strats, offset, init, control, weights = weights, : Loglik converged before variable\ \ 6 ; beta may be infinite.}}\begin{verbatim}
-## 
-## After 420 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+SizePlus+A2+A4
-## Crit= 1320.34394231168
-## Mean crit= 1344.72891317935
-## Change in best IC: 0 / Change in mean IC: -0.0272192351376361
-## 
-## After 430 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+SizePlus+A2+A4
-## Crit= 1320.34394231168
-## Mean crit= 1344.48179978082
-## Change in best IC: 0 / Change in mean IC: -0.247113398531837
-## 
-## After 440 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+SizePlus+A2+A4
-## Crit= 1320.34394231168
-## Mean crit= 1344.3654892015
-## Change in best IC: 0 / Change in mean IC: -0.116310579320498
-## 
-## After 450 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+SizePlus+A2+A4
-## Crit= 1320.34394231168
-## Mean crit= 1344.23789775616
-## Change in best IC: 0 / Change in mean IC: -0.127591445334019
-## 
-## After 460 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+SizePlus+A2+A4
-## Crit= 1320.34394231168
-## Mean crit= 1344.16223922723
-## Change in best IC: 0 / Change in mean IC: -0.075658528930262
-## 
-## After 470 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+SizePlus+A2+A4
-## Crit= 1320.34394231168
-## Mean crit= 1344.08041976008
-## Change in best IC: 0 / Change in mean IC: -0.0818194671489891
-## 
-## After 480 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+SizePlus+A2+A4
-## Crit= 1320.34394231168
-## Mean crit= 1343.98156317992
-## Change in best IC: 0 / Change in mean IC: -0.0988565801608274
-## 
-## After 490 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+SizePlus+A2+A4
-## Crit= 1320.34394231168
-## Mean crit= 1343.88916457382
-## Change in best IC: 0 / Change in mean IC: -0.0923986061065989
-## 
-## After 500 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+SizePlus+A2+A4
-## Crit= 1320.34394231168
-## Mean crit= 1343.84100789474
-## Change in best IC: 0 / Change in mean IC: -0.0481566790765555
-## 
-## After 510 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+SizePlus+A2+A4
-## Crit= 1320.34394231168
-## Mean crit= 1343.84100789474
-## Change in best IC: 0 / Change in mean IC: 0
-## 
-## After 520 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+SizePlus+A2+A4
-## Crit= 1320.34394231168
-## Mean crit= 1343.67859501471
-## Change in best IC: 0 / Change in mean IC: -0.162412880032207
-## 
-## After 530 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+SizePlus+A2+A4
-## Crit= 1320.34394231168
-## Mean crit= 1343.67859501471
-## Change in best IC: 0 / Change in mean IC: 0
-## 
-## After 540 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+SizePlus+A2+A4
-## Crit= 1320.34394231168
-## Mean crit= 1343.63117826687
-## Change in best IC: 0 / Change in mean IC: -0.047416747836678
-\end{verbatim}
-
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in fitter(X, Y, strats, offset, init, control, weights = weights, : Loglik converged before variable\ \ 2 ; beta may be infinite.}}\begin{verbatim}
-## 
-## After 550 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+SizePlus+A2+A4
-## Crit= 1320.34394231168
-## Mean crit= 1343.63117826687
-## Change in best IC: 0 / Change in mean IC: 0
-## 
-## After 560 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+SizePlus+A2+A4
-## Crit= 1320.34394231168
-## Mean crit= 1343.61386596246
-## Change in best IC: 0 / Change in mean IC: -0.0173123044091881
-## 
-## After 570 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+SizePlus+A2+A4
-## Crit= 1320.34394231168
-## Mean crit= 1343.56450517327
-## Improvements in best and average IC have bebingo en below the specified goals.
-## Algorithm is declared to have converged.
-## Completed.
-\end{verbatim}
-\begin{alltt}
 \hlstd{fit.cph.as.bic1} \hlkwb{=} \hlkwd{glmulti}\hlstd{(}\hlkwd{Surv}\hlstd{(Time, DSD)} \hlopt{~} \hlkwd{strata}\hlstd{(SexM)} \hlopt{+} \hlstd{AgeCent} \hlopt{+} \hlstd{LocBody} \hlopt{+} \hlstd{SizeCent} \hlopt{+} \hlstd{SizePlus} \hlopt{+} \hlstd{A2} \hlopt{+} \hlstd{A4,} \hlkwc{data} \hlstd{= data,} \hlkwc{marginality} \hlstd{=} \hlnum{TRUE}\hlstd{,} \hlkwc{method} \hlstd{=} \hlstr{"h"}\hlstd{,} \hlkwc{fitfunction} \hlstd{=} \hlstr{"coxph"}\hlstd{,} \hlkwc{crit} \hlstd{=} \hlstr{"bic"}\hlstd{,} \hlkwc{level} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{plotty} \hlstd{=} \hlnum{FALSE}\hlstd{,} \hlkwc{report} \hlstd{=} \hlnum{TRUE}\hlstd{)}
 \end{alltt}
 \begin{verbatim}
@@ -1062,320 +970,6 @@ Remove points with deviance residuals > 2.5, or DFBETAS > 0.3.
 ## Best model: Surv(Time,DSD)~1+strata(SexM)+SizeCent+A2+A4
 ## Crit= 1319.12027767861
 ## Mean crit= 1416.9645603344
-## Completed.
-\end{verbatim}
-\begin{alltt}
-\hlkwd{set.seed}\hlstd{(}\hlnum{20150208}\hlstd{)}
-\hlstd{fit.cph.as.aicc} \hlkwb{=} \hlkwd{glmulti}\hlstd{(}\hlkwd{Surv}\hlstd{(Time, DSD)} \hlopt{~} \hlkwd{strata}\hlstd{(SexM)} \hlopt{+} \hlstd{AgeCent} \hlopt{+} \hlstd{LocBody} \hlopt{+} \hlstd{SizeCent} \hlopt{+} \hlstd{SizePlus} \hlopt{+} \hlstd{A2} \hlopt{+} \hlstd{A4,} \hlkwc{data} \hlstd{= data,} \hlkwc{marginality} \hlstd{=} \hlnum{TRUE}\hlstd{,} \hlkwc{method} \hlstd{=} \hlstr{"g"}\hlstd{,} \hlkwc{fitfunction} \hlstd{=} \hlstr{"coxph"}\hlstd{,} \hlkwc{crit} \hlstd{=} \hlstr{"aicc"}\hlstd{,} \hlkwc{level} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{plotty} \hlstd{=} \hlnum{FALSE}\hlstd{,} \hlkwc{report} \hlstd{=} \hlnum{TRUE}\hlstd{)}
-\end{alltt}
-\begin{verbatim}
-## Initialization...
-## TASK: Genetic algorithm in the candidate set.
-## Initialization...
-## Algorithm started...
-## 
-## After 10 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+AgeCent+LocBody+SizeCent+SizePlus+A2+A4+SizeCent:AgeCent+SizePlus:LocBody+A2:SizePlus+A4:SizeCent+strata(SexM):LocBody
-## Crit= 1313.81105306946
-## Mean crit= 1325.17057373288
-## Change in best IC: -8686.18894693054 / Change in mean IC: -8674.82942626712
-\end{verbatim}
-
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in fitter(X, Y, strats, offset, init, control, weights = weights, : Loglik converged before variable\ \ 19 ; beta may be infinite.}}\begin{verbatim}
-## 
-## After 20 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+AgeCent+LocBody+SizeCent+SizePlus+A2+A4+SizeCent:AgeCent+A2:SizePlus+strata(SexM):SizeCent
-## Crit= 1308.19951621935
-## Mean crit= 1320.61035775383
-## Change in best IC: -5.611536850113 / Change in mean IC: -4.56021597904987
-\end{verbatim}
-
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in fitter(X, Y, strats, offset, init, control, weights = weights, : Loglik converged before variable\ \ 7 ; beta may be infinite.}}\begin{verbatim}
-## 
-## After 30 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+AgeCent+LocBody+SizeCent+SizePlus+A2+A4+SizeCent:AgeCent+strata(SexM):SizeCent
-## Crit= 1307.12156816122
-## Mean crit= 1319.82661240257
-## Change in best IC: -1.07794805812773 / Change in mean IC: -0.783745351258631
-## 
-## After 40 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+AgeCent+LocBody+SizeCent+SizePlus+A2+A4+SizeCent:AgeCent+strata(SexM):SizeCent
-## Crit= 1307.12156816122
-## Mean crit= 1319.43379198762
-## Change in best IC: 0 / Change in mean IC: -0.392820414949028
-\end{verbatim}
-
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in fitter(X, Y, strats, offset, init, control, weights = weights, : Loglik converged before variable\ \ 8 ; beta may be infinite.}}\begin{verbatim}
-## 
-## After 50 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+AgeCent+LocBody+SizeCent+SizePlus+A2+A4+SizeCent:AgeCent+strata(SexM):SizeCent
-## Crit= 1307.12156816122
-## Mean crit= 1318.98095408489
-## Change in best IC: 0 / Change in mean IC: -0.45283790273561
-## 
-## After 60 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+AgeCent+LocBody+SizeCent+SizePlus+A2+A4+SizeCent:AgeCent+strata(SexM):SizeCent
-## Crit= 1307.12156816122
-## Mean crit= 1318.61910175701
-## Change in best IC: 0 / Change in mean IC: -0.361852327874885
-## 
-## After 70 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+AgeCent+LocBody+SizeCent+A2+A4+SizeCent:AgeCent+strata(SexM):SizeCent
-## Crit= 1305.31222910484
-## Mean crit= 1318.18499444666
-## Change in best IC: -1.80933905638744 / Change in mean IC: -0.434107310358286
-## 
-## After 80 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+AgeCent+LocBody+SizeCent+A2+A4+SizeCent:AgeCent+strata(SexM):SizeCent
-## Crit= 1305.31222910484
-## Mean crit= 1317.59981513137
-## Change in best IC: 0 / Change in mean IC: -0.585179315288087
-## 
-## After 90 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+AgeCent+LocBody+SizeCent+A2+A4+SizeCent:AgeCent+strata(SexM):SizeCent
-## Crit= 1305.31222910484
-## Mean crit= 1317.10893961997
-## Change in best IC: 0 / Change in mean IC: -0.490875511393142
-## 
-## After 100 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+AgeCent+LocBody+SizeCent+A2+A4+SizeCent:AgeCent+strata(SexM):SizeCent
-## Crit= 1305.31222910484
-## Mean crit= 1316.85335637546
-## Change in best IC: 0 / Change in mean IC: -0.255583244515265
-## 
-## After 110 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+AgeCent+LocBody+SizeCent+A2+A4+SizeCent:AgeCent+strata(SexM):SizeCent
-## Crit= 1305.31222910484
-## Mean crit= 1316.23010399055
-## Change in best IC: 0 / Change in mean IC: -0.623252384906664
-## 
-## After 120 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+AgeCent+LocBody+SizeCent+A2+A4+SizeCent:AgeCent+strata(SexM):SizeCent
-## Crit= 1305.31222910484
-## Mean crit= 1316.03826318198
-## Change in best IC: 0 / Change in mean IC: -0.191840808574625
-## 
-## After 130 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+AgeCent+LocBody+SizeCent+A2+A4+SizeCent:AgeCent+strata(SexM):SizeCent
-## Crit= 1305.31222910484
-## Mean crit= 1315.66672272578
-## Change in best IC: 0 / Change in mean IC: -0.371540456202638
-## 
-## After 140 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+AgeCent+LocBody+SizeCent+A2+A4+SizeCent:AgeCent+strata(SexM):SizeCent
-## Crit= 1305.31222910484
-## Mean crit= 1315.505968916
-## Change in best IC: 0 / Change in mean IC: -0.160753809770995
-\end{verbatim}
-
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in fitter(X, Y, strats, offset, init, control, weights = weights, : Loglik converged before variable\ \ 2 ; beta may be infinite.}}\begin{verbatim}
-## 
-## After 150 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+AgeCent+LocBody+SizeCent+A2+A4+SizeCent:AgeCent+strata(SexM):SizeCent
-## Crit= 1305.31222910484
-## Mean crit= 1315.49452986765
-## Change in best IC: 0 / Change in mean IC: -0.011439048359307
-## 
-## After 160 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+AgeCent+LocBody+SizeCent+A2+A4+SizeCent:AgeCent+strata(SexM):SizeCent
-## Crit= 1305.31222910484
-## Mean crit= 1315.32517136395
-## Change in best IC: 0 / Change in mean IC: -0.169358503697822
-## 
-## After 170 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+AgeCent+LocBody+SizeCent+A2+A4+SizeCent:AgeCent+strata(SexM):SizeCent
-## Crit= 1305.31222910484
-## Mean crit= 1315.31273510007
-## Change in best IC: 0 / Change in mean IC: -0.0124362638737239
-\end{verbatim}
-
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in fitter(X, Y, strats, offset, init, control, weights = weights, : Loglik converged before variable\ \ 13 ; beta may be infinite.}}\begin{verbatim}
-## 
-## After 180 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+AgeCent+LocBody+SizeCent+A2+A4+SizeCent:AgeCent+strata(SexM):SizeCent
-## Crit= 1305.31222910484
-## Mean crit= 1315.17172689421
-## Change in best IC: 0 / Change in mean IC: -0.141008205865319
-## 
-## After 190 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+AgeCent+LocBody+SizeCent+A2+A4+SizeCent:AgeCent+strata(SexM):SizeCent
-## Crit= 1305.31222910484
-## Mean crit= 1314.84371970646
-## Change in best IC: 0 / Change in mean IC: -0.328007187751837
-## 
-## After 200 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+AgeCent+LocBody+SizeCent+A2+A4+SizeCent:AgeCent+strata(SexM):SizeCent
-## Crit= 1305.31222910484
-## Mean crit= 1314.64107849843
-## Change in best IC: 0 / Change in mean IC: -0.202641208030172
-## 
-## After 210 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+AgeCent+LocBody+SizeCent+A2+A4+SizeCent:AgeCent+strata(SexM):SizeCent
-## Crit= 1305.31222910484
-## Mean crit= 1314.64107849843
-## Change in best IC: 0 / Change in mean IC: 0
-\end{verbatim}
-
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in fitter(X, Y, strats, offset, init, control, weights = weights, : Loglik converged before variable\ \ 14 ; beta may be infinite.}}\begin{verbatim}
-## 
-## After 220 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+AgeCent+LocBody+SizeCent+A2+A4+SizeCent:AgeCent+strata(SexM):SizeCent
-## Crit= 1305.31222910484
-## Mean crit= 1314.35056497869
-## Change in best IC: 0 / Change in mean IC: -0.290513519736805
-## 
-## After 230 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+AgeCent+LocBody+SizeCent+A2+A4+SizeCent:AgeCent+strata(SexM):SizeCent
-## Crit= 1305.31222910484
-## Mean crit= 1314.2362623868
-## Change in best IC: 0 / Change in mean IC: -0.114302591889782
-## 
-## After 240 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+AgeCent+LocBody+SizeCent+A2+A4+SizeCent:AgeCent+strata(SexM):SizeCent
-## Crit= 1305.31222910484
-## Mean crit= 1314.19582313689
-## Change in best IC: 0 / Change in mean IC: -0.0404392499053756
-## 
-## After 250 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+AgeCent+LocBody+SizeCent+A2+A4+SizeCent:AgeCent+strata(SexM):SizeCent
-## Crit= 1305.31222910484
-## Mean crit= 1314.15373535262
-## Change in best IC: 0 / Change in mean IC: -0.04208778427369
-## 
-## After 260 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+AgeCent+LocBody+SizeCent+A2+A4+SizeCent:AgeCent+strata(SexM):SizeCent
-## Crit= 1305.31222910484
-## Mean crit= 1314.08143718906
-## Change in best IC: 0 / Change in mean IC: -0.0722981635649376
-## 
-## After 270 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+AgeCent+LocBody+SizeCent+A2+A4+SizeCent:AgeCent+strata(SexM):SizeCent
-## Crit= 1305.31222910484
-## Mean crit= 1313.95506323665
-## Change in best IC: 0 / Change in mean IC: -0.126373952406311
-\end{verbatim}
-
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in fitter(X, Y, strats, offset, init, control, weights = weights, : Loglik converged before variable\ \ 2 ; beta may be infinite.}}\begin{verbatim}
-## 
-## After 280 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+AgeCent+LocBody+SizeCent+A2+A4+SizeCent:AgeCent+strata(SexM):SizeCent
-## Crit= 1305.31222910484
-## Mean crit= 1313.94861918451
-## Change in best IC: 0 / Change in mean IC: -0.00644405213938626
-## 
-## After 290 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+AgeCent+LocBody+SizeCent+A2+A4+SizeCent:AgeCent+strata(SexM):SizeCent
-## Crit= 1305.31222910484
-## Mean crit= 1313.74143092418
-## Change in best IC: 0 / Change in mean IC: -0.207188260326802
-## 
-## After 300 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+AgeCent+LocBody+SizeCent+A2+A4+SizeCent:AgeCent+strata(SexM):SizeCent
-## Crit= 1305.31222910484
-## Mean crit= 1313.65811981253
-## Change in best IC: 0 / Change in mean IC: -0.0833111116537566
-## 
-## After 310 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+AgeCent+LocBody+SizeCent+A2+A4+SizeCent:AgeCent+strata(SexM):SizeCent
-## Crit= 1305.31222910484
-## Mean crit= 1313.62936901721
-## Change in best IC: 0 / Change in mean IC: -0.0287507953225941
-## 
-## After 320 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+AgeCent+LocBody+SizeCent+A2+A4+SizeCent:AgeCent+strata(SexM):SizeCent
-## Crit= 1305.31222910484
-## Mean crit= 1313.60873430713
-## Change in best IC: 0 / Change in mean IC: -0.0206347100800031
-## 
-## After 330 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+AgeCent+LocBody+SizeCent+A2+A4+SizeCent:AgeCent+strata(SexM):SizeCent
-## Crit= 1305.31222910484
-## Mean crit= 1313.56773455186
-## Change in best IC: 0 / Change in mean IC: -0.0409997552667392
-## 
-## After 340 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+AgeCent+LocBody+SizeCent+A2+A4+SizeCent:AgeCent+strata(SexM):SizeCent
-## Crit= 1305.31222910484
-## Mean crit= 1313.44352373585
-## Change in best IC: 0 / Change in mean IC: -0.124210816013147
-## 
-## After 350 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+AgeCent+LocBody+SizeCent+A2+A4+SizeCent:AgeCent+strata(SexM):SizeCent
-## Crit= 1305.31222910484
-## Mean crit= 1313.43473888021
-## Change in best IC: 0 / Change in mean IC: -0.00878485563521281
-## 
-## After 360 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+AgeCent+LocBody+SizeCent+A2+A4+SizeCent:AgeCent+strata(SexM):SizeCent
-## Crit= 1305.31222910484
-## Mean crit= 1313.42990089756
-## Change in best IC: 0 / Change in mean IC: -0.00483798264917823
-\end{verbatim}
-
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in fitter(X, Y, strats, offset, init, control, weights = weights, : Loglik converged before variable\ \ 11 ; beta may be infinite.}}\begin{verbatim}
-## 
-## After 370 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+AgeCent+LocBody+SizeCent+A2+A4+SizeCent:AgeCent+strata(SexM):SizeCent
-## Crit= 1305.31222910484
-## Mean crit= 1313.42990089756
-## Change in best IC: 0 / Change in mean IC: 0
-## 
-## After 380 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+AgeCent+LocBody+SizeCent+A2+A4+SizeCent:AgeCent+strata(SexM):SizeCent
-## Crit= 1305.31222910484
-## Mean crit= 1313.3788732276
-## Change in best IC: 0 / Change in mean IC: -0.0510276699585575
-## 
-## After 390 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+AgeCent+LocBody+SizeCent+A2+A4+SizeCent:AgeCent+strata(SexM):SizeCent
-## Crit= 1305.31222910484
-## Mean crit= 1313.3788732276
-## Change in best IC: 0 / Change in mean IC: 0
-## 
-## After 400 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+AgeCent+LocBody+SizeCent+A2+A4+SizeCent:AgeCent+strata(SexM):SizeCent
-## Crit= 1305.31222910484
-## Mean crit= 1313.25933302457
-## Change in best IC: 0 / Change in mean IC: -0.119540203037559
-## 
-## After 410 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+AgeCent+LocBody+SizeCent+A2+A4+SizeCent:AgeCent+strata(SexM):SizeCent
-## Crit= 1305.31222910484
-## Mean crit= 1313.21297633323
-## Change in best IC: 0 / Change in mean IC: -0.0463566913335853
-## 
-## After 420 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+AgeCent+LocBody+SizeCent+A2+A4+SizeCent:AgeCent+strata(SexM):SizeCent
-## Crit= 1305.31222910484
-## Mean crit= 1313.21183234165
-## Change in best IC: 0 / Change in mean IC: -0.00114399158724154
-## 
-## After 430 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+AgeCent+LocBody+SizeCent+A2+A4+SizeCent:AgeCent+strata(SexM):SizeCent
-## Crit= 1305.31222910484
-## Mean crit= 1313.21128427043
-## Change in best IC: 0 / Change in mean IC: -0.000548071215462187
-## 
-## After 440 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+AgeCent+LocBody+SizeCent+A2+A4+SizeCent:AgeCent+strata(SexM):SizeCent
-## Crit= 1305.31222910484
-## Mean crit= 1313.18111206023
-## Change in best IC: 0 / Change in mean IC: -0.0301722101953601
-## 
-## After 450 generations:
-## Best model: Surv(Time,DSD)~1+strata(SexM)+AgeCent+LocBody+SizeCent+A2+A4+SizeCent:AgeCent+strata(SexM):SizeCent
-## Crit= 1305.31222910484
-## Mean crit= 1313.16785543812
-## Improvements in best and average IC have bebingo en below the specified goals.
-## Algorithm is declared to have converged.
 ## Completed.
 \end{verbatim}
 \begin{alltt}
@@ -1404,19 +998,6 @@ Remove points with deviance residuals > 2.5, or DFBETAS > 0.3.
 \end{verbatim}
 \begin{alltt}
 \hlkwd{rm}\hlstd{(nobs.coxph)}
-\hlkwd{summary}\hlstd{(fit.cph.as.bic)}\hlopt{$}\hlstd{bestmodel}
-\end{alltt}
-\begin{verbatim}
-## [1] "Surv(Time, DSD) ~ 1 + strata(SexM) + SizePlus + A2 + A4"
-\end{verbatim}
-\begin{alltt}
-\hlkwd{summary}\hlstd{(fit.cph.as.aicc)}\hlopt{$}\hlstd{bestmodel}
-\end{alltt}
-\begin{verbatim}
-## [1] "Surv(Time, DSD) ~ 1 + strata(SexM) + AgeCent + LocBody + SizeCent + "
-## [2] "    A2 + A4 + SizeCent:AgeCent + strata(SexM):SizeCent"
-\end{verbatim}
-\begin{alltt}
 \hlkwd{summary}\hlstd{(fit.cph.as.bic1)}\hlopt{$}\hlstd{bestmodel}
 \end{alltt}
 \begin{verbatim}
@@ -1605,6 +1186,59 @@ Also run BIC stepwise, because we can.
 \end{alltt}
 \end{kframe}
 \end{knitrout}
+
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{plot}\hlstd{(}\hlkwd{residuals}\hlstd{(fit.cph,} \hlstr{"deviance"}\hlstd{))}
+\end{alltt}
+\end{kframe}
+
+{\centering \includegraphics[width=\maxwidth]{figure/05-final-cph-resids-1} 
+
+}
+
+
+\begin{kframe}\begin{alltt}
+\hlkwd{residuals}\hlstd{(fit.cph,} \hlstr{"deviance"}\hlstd{)[}\hlkwd{abs}\hlstd{(}\hlkwd{residuals}\hlstd{(fit.cph,} \hlstr{"deviance"}\hlstd{))} \hlopt{>=} \hlnum{2}\hlstd{]}
+\end{alltt}
+\begin{verbatim}
+##  NSWPCN_125  NSWPCN_133  NSWPCN_315  NSWPCN_324  NSWPCN_333  NSWPCN_374 
+##       2.370      -2.425       2.233       2.193       2.009       2.282 
+##  NSWPCN_779  NSWPCN_788  NSWPCN_799 NSWPCN_1017 NSWPCN_1165 
+##       2.425      -2.011       2.035       2.220       2.107
+\end{verbatim}
+\begin{alltt}
+\hlstd{temp} \hlkwb{=} \hlkwd{sort}\hlstd{(}\hlkwd{apply}\hlstd{(}\hlkwd{abs}\hlstd{(}\hlkwd{residuals}\hlstd{(fit.cph,} \hlstr{"dfbetas"}\hlstd{)),} \hlnum{1}\hlstd{, max))}
+\hlcom{#temp}
+\hlnum{2}\hlopt{/}\hlkwd{sqrt}\hlstd{(}\hlkwd{nrow}\hlstd{(data))}
+\end{alltt}
+\begin{verbatim}
+## [1] 0.144
+\end{verbatim}
+\begin{alltt}
+\hlkwd{mean}\hlstd{(temp} \hlopt{>} \hlnum{2}\hlopt{/}\hlkwd{sqrt}\hlstd{(}\hlkwd{nrow}\hlstd{(data)))}
+\end{alltt}
+\begin{verbatim}
+## [1] 0.1244
+\end{verbatim}
+\begin{alltt}
+\hlstd{temp[temp} \hlopt{>} \hlnum{2}\hlopt{/}\hlkwd{sqrt}\hlstd{(}\hlkwd{nrow}\hlstd{(data))]}
+\end{alltt}
+\begin{verbatim}
+##  NSWPCN_354  NSWPCN_445  NSWPCN_133  NSWPCN_374  NSWPCN_784  NSWPCN_777 
+##      0.1457      0.1524      0.1566      0.1580      0.1618      0.1637 
+##  NSWPCN_195  NSWPCN_296  NSWPCN_267 NSWPCN_1155  NSWPCN_154  NSWPCN_794 
+##      0.1652      0.1674      0.1711      0.1804      0.1895      0.2037 
+##  NSWPCN_802  NSWPCN_142  NSWPCN_799  NSWPCN_313  NSWPCN_192  NSWPCN_317 
+##      0.2056      0.2174      0.2178      0.2219      0.2225      0.2541 
+##  NSWPCN_318  NSWPCN_788  NSWPCN_145 NSWPCN_1253 NSWPCN_1212  NSWPCN_310 
+##      0.2567      0.2749      0.3006      0.4234      0.4528      0.4926
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
 
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
@@ -2040,7 +1674,10 @@ Calculate survival probability predictions for each of the models, on the valida
 
 \hlstd{temp.coefs} \hlkwb{=} \hlkwd{coef}\hlstd{(fit.gg)}
 \hlstd{val.linpred.gg} \hlkwb{=} \hlkwd{sapply}\hlstd{(}\hlnum{1}\hlopt{:}\hlkwd{length}\hlstd{(temp.coefs),} \hlkwa{function}\hlstd{(}\hlkwc{coef_i}\hlstd{) \{}
-    \hlkwa{if} \hlstd{(}\hlkwd{names}\hlstd{(temp.coefs)[coef_i]} \hlopt{%in%} \hlkwd{colnames}\hlstd{(data.val)) \{}
+        \hlcom{# if (names(temp.coefs)[coef_i] == "SexMTRUE") \{}
+ \hlcom{#        rep(0, nrow(data.val)) }
+        \hlcom{# \} else }
+        \hlkwa{if} \hlstd{(}\hlkwd{names}\hlstd{(temp.coefs)[coef_i]} \hlopt{%in%} \hlkwd{colnames}\hlstd{(data.val)) \{}
         \hlstd{temp.coefs[coef_i]} \hlopt{*} \hlstd{data.val[,}\hlkwd{names}\hlstd{(temp.coefs)[coef_i]]}
     \hlstd{\}} \hlkwa{else if} \hlstd{(}\hlkwd{gsub}\hlstd{(}\hlstr{"TRUE$"}\hlstd{,} \hlstr{""}\hlstd{,} \hlkwd{names}\hlstd{(temp.coefs)[coef_i])} \hlopt{%in%} \hlkwd{colnames}\hlstd{(data.val)) \{}
         \hlstd{temp.coefs[coef_i]} \hlopt{*} \hlstd{data.val[,}\hlkwd{gsub}\hlstd{(}\hlstr{"TRUE$"}\hlstd{,} \hlstr{""}\hlstd{,} \hlkwd{names}\hlstd{(temp.coefs)[coef_i])]}
@@ -2054,7 +1691,10 @@ Calculate survival probability predictions for each of the models, on the valida
 
 \hlstd{temp.coefs} \hlkwb{=} \hlkwd{coef}\hlstd{(fit.gg2)}
 \hlstd{val.linpred.gg2} \hlkwb{=} \hlkwd{sapply}\hlstd{(}\hlnum{1}\hlopt{:}\hlkwd{length}\hlstd{(temp.coefs),} \hlkwa{function}\hlstd{(}\hlkwc{coef_i}\hlstd{) \{}
-    \hlkwa{if} \hlstd{(}\hlkwd{names}\hlstd{(temp.coefs)[coef_i]} \hlopt{%in%} \hlkwd{colnames}\hlstd{(data.val)) \{}
+        \hlcom{# if (names(temp.coefs)[coef_i] == "SexMTRUE") \{}
+ \hlcom{#        rep(0, nrow(data.val)) }
+        \hlcom{# \} else }
+        \hlkwa{if} \hlstd{(}\hlkwd{names}\hlstd{(temp.coefs)[coef_i]} \hlopt{%in%} \hlkwd{colnames}\hlstd{(data.val)) \{}
         \hlstd{temp.coefs[coef_i]} \hlopt{*} \hlstd{data.val[,}\hlkwd{names}\hlstd{(temp.coefs)[coef_i]]}
     \hlstd{\}} \hlkwa{else if} \hlstd{(}\hlkwd{gsub}\hlstd{(}\hlstr{"TRUE$"}\hlstd{,} \hlstr{""}\hlstd{,} \hlkwd{names}\hlstd{(temp.coefs)[coef_i])} \hlopt{%in%} \hlkwd{colnames}\hlstd{(data.val)) \{}
         \hlstd{temp.coefs[coef_i]} \hlopt{*} \hlstd{data.val[,}\hlkwd{gsub}\hlstd{(}\hlstr{"TRUE$"}\hlstd{,} \hlstr{""}\hlstd{,} \hlkwd{names}\hlstd{(temp.coefs)[coef_i])]}
@@ -2315,7 +1955,7 @@ Calculate survival probability predictions for each of the models, on the valida
 \end{knitrout}
 
 
-TD-ROC AUC
+Cumulative-dynamic:
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
@@ -2325,15 +1965,14 @@ TD-ROC AUC
 \hlstd{temp.rsf} \hlkwb{=} \hlkwd{timeROC}\hlstd{(}\hlkwc{T} \hlstd{= data.val}\hlopt{$}\hlstd{Time}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{,} \hlkwc{delta} \hlstd{= data.val}\hlopt{$}\hlstd{DSD}\hlopt{*}\hlnum{1}\hlstd{,} \hlkwc{marker} \hlstd{= val.linpred.rsf,} \hlkwc{cause} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{times} \hlstd{= temp.times,} \hlkwc{iid} \hlstd{=} \hlnum{FALSE}\hlstd{)}
 \hlstd{temp.cph} \hlkwb{=} \hlkwd{timeROC}\hlstd{(}\hlkwc{T} \hlstd{= data.val}\hlopt{$}\hlstd{Time}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{,} \hlkwc{delta} \hlstd{= data.val}\hlopt{$}\hlstd{DSD}\hlopt{*}\hlnum{1}\hlstd{,} \hlkwc{marker} \hlstd{= val.linpred.cph,} \hlkwc{cause} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{times} \hlstd{= temp.times,} \hlkwc{iid} \hlstd{=} \hlnum{FALSE}\hlstd{)}
 \hlkwd{plotAUCcurve}\hlstd{(temp.gg,} \hlkwc{conf.int} \hlstd{=} \hlnum{FALSE}\hlstd{,} \hlkwc{add} \hlstd{=} \hlnum{FALSE}\hlstd{,} \hlkwc{col} \hlstd{= pal[}\hlstr{"GG"}\hlstd{])}
-\hlkwd{plotAUCcurve}\hlstd{(temp.gg2,} \hlkwc{conf.int} \hlstd{=} \hlnum{FALSE}\hlstd{,} \hlkwc{add} \hlstd{=} \hlnum{TRUE}\hlstd{,} \hlkwc{col} \hlstd{= pal[}\hlstr{"GG2"}\hlstd{])}
 \hlkwd{plotAUCcurve}\hlstd{(temp.rsf,} \hlkwc{conf.int} \hlstd{=} \hlnum{FALSE}\hlstd{,} \hlkwc{add} \hlstd{=} \hlnum{TRUE}\hlstd{,} \hlkwc{col} \hlstd{= pal[}\hlstr{"RSF"}\hlstd{])}
 \hlkwd{plotAUCcurve}\hlstd{(temp.cph,} \hlkwc{conf.int} \hlstd{=} \hlnum{FALSE}\hlstd{,} \hlkwc{add} \hlstd{=} \hlnum{TRUE}\hlstd{,} \hlkwc{col} \hlstd{= pal[}\hlstr{"CPH"}\hlstd{])}
-\hlkwd{legend}\hlstd{(}\hlstr{"topright"}\hlstd{,} \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"GG"}\hlstd{,} \hlstr{"GG2"}\hlstd{,} \hlstr{"RSF"}\hlstd{,} \hlstr{"CPH"}\hlstd{),} \hlkwc{col} \hlstd{= pal[}\hlkwd{c}\hlstd{(}\hlstr{"GG"}\hlstd{,} \hlstr{"GG2"}\hlstd{,} \hlstr{"RSF"}\hlstd{,} \hlstr{"CPH"}\hlstd{)],} \hlkwc{lty} \hlstd{=} \hlstr{"solid"}\hlstd{)}
+\hlkwd{legend}\hlstd{(}\hlstr{"topright"}\hlstd{,} \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"GG"}\hlstd{,} \hlstr{"RSF"}\hlstd{,} \hlstr{"CPH"}\hlstd{),} \hlkwc{col} \hlstd{= pal[}\hlkwd{c}\hlstd{(}\hlstr{"GG"}\hlstd{,} \hlstr{"RSF"}\hlstd{,} \hlstr{"CPH"}\hlstd{)],} \hlkwc{lty} \hlstd{=} \hlstr{"solid"}\hlstd{)}
 \hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{7}\hlstd{,} \hlnum{34}\hlstd{))}
 \end{alltt}
 \end{kframe}
 
-{\centering \includegraphics[width=\maxwidth]{figure/05-model-selection-auc-1} 
+{\centering \includegraphics[width=\maxwidth]{figure/05-model-selection-roc-cd-1} 
 
 }
 
@@ -2344,13 +1983,39 @@ TD-ROC AUC
 \end{alltt}
 \end{kframe}
 
-{\centering \includegraphics[width=\maxwidth]{figure/05-model-selection-auc-2} 
+{\centering \includegraphics[width=\maxwidth]{figure/05-model-selection-roc-cd-2} 
 
 }
 
 
 
 \end{knitrout}
+
+
+Incident-dynamic:
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{library}\hlstd{(risksetROC)}
+\hlkwd{invisible}\hlstd{(}\hlkwd{risksetAUC}\hlstd{(data.val}\hlopt{$}\hlstd{Time}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{,} \hlkwc{status} \hlstd{= data.val}\hlopt{$}\hlstd{DSD,} \hlkwc{marker} \hlstd{= val.linpred.gg,} \hlkwc{tmax} \hlstd{=} \hlnum{36}\hlstd{,} \hlkwc{col} \hlstd{= pal[}\hlstr{"GG"}\hlstd{],} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{))}
+\hlkwd{par}\hlstd{(}\hlkwc{new} \hlstd{=} \hlnum{TRUE}\hlstd{)}
+\hlkwd{invisible}\hlstd{(}\hlkwd{risksetAUC}\hlstd{(data.val}\hlopt{$}\hlstd{Time}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{,} \hlkwc{status} \hlstd{= data.val}\hlopt{$}\hlstd{DSD,} \hlkwc{marker} \hlstd{= val.linpred.rsf,} \hlkwc{tmax} \hlstd{=} \hlnum{36}\hlstd{,} \hlkwc{col} \hlstd{= pal[}\hlstr{"RSF"}\hlstd{],} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{))}
+\hlkwd{par}\hlstd{(}\hlkwc{new} \hlstd{=} \hlnum{TRUE}\hlstd{)}
+\hlkwd{invisible}\hlstd{(}\hlkwd{risksetAUC}\hlstd{(data.val}\hlopt{$}\hlstd{Time}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{,} \hlkwc{status} \hlstd{= data.val}\hlopt{$}\hlstd{DSD,} \hlkwc{marker} \hlstd{= val.linpred.cph,} \hlkwc{tmax} \hlstd{=} \hlnum{36}\hlstd{,} \hlkwc{col} \hlstd{= pal[}\hlstr{"CPH"}\hlstd{],} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{))}
+\hlkwd{par}\hlstd{(}\hlkwc{new} \hlstd{=} \hlnum{TRUE}\hlstd{)}
+\hlkwd{legend}\hlstd{(}\hlstr{"top"}\hlstd{,} \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"GG"}\hlstd{,} \hlstr{"RSF"}\hlstd{,} \hlstr{"CPH"}\hlstd{),} \hlkwc{col} \hlstd{= pal[}\hlkwd{c}\hlstd{(}\hlstr{"GG"}\hlstd{,} \hlstr{"RSF"}\hlstd{,} \hlstr{"CPH"}\hlstd{)],} \hlkwc{lty} \hlstd{=} \hlstr{"solid"}\hlstd{)}
+\hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{7}\hlstd{,} \hlnum{31}\hlstd{))}
+\end{alltt}
+\end{kframe}
+
+{\centering \includegraphics[width=\maxwidth]{figure/05-model-selection-roc-id-1} 
+
+}
+
+
+
+\end{knitrout}
+
 
 
 Decision curve analysis.
@@ -2360,16 +2025,14 @@ Decision curve analysis.
 \hlkwd{source}\hlstd{(}\hlstr{"stdca.R"}\hlstd{)}
 \hlstd{temp.data} \hlkwb{=} \hlkwd{data.frame}\hlstd{(}\hlkwc{Time} \hlstd{= data.val}\hlopt{$}\hlstd{Time,} \hlkwc{DSD} \hlstd{= data.val}\hlopt{$}\hlstd{DSD}\hlopt{*}\hlnum{1}\hlstd{,}
     \hlkwc{gg.1} \hlstd{=} \hlnum{1}\hlopt{-}\hlstd{val.prob.gg[val.prob.times} \hlopt{==} \hlnum{365}\hlstd{,],} \hlkwc{gg.2} \hlstd{=} \hlnum{1}\hlopt{-}\hlstd{val.prob.gg[val.prob.times} \hlopt{==} \hlnum{365}\hlopt{*}\hlnum{2}\hlstd{,],} \hlkwc{gg.3} \hlstd{=} \hlnum{1}\hlopt{-}\hlstd{val.prob.gg[val.prob.times} \hlopt{==} \hlnum{365}\hlopt{*}\hlnum{3}\hlstd{,],}
-    \hlkwc{gg2.1} \hlstd{=} \hlnum{1}\hlopt{-}\hlstd{val.prob.gg2[val.prob.times} \hlopt{==} \hlnum{365}\hlstd{,],} \hlkwc{gg2.2} \hlstd{=} \hlnum{1}\hlopt{-}\hlstd{val.prob.gg2[val.prob.times} \hlopt{==} \hlnum{365}\hlopt{*}\hlnum{2}\hlstd{,],} \hlkwc{gg2.3} \hlstd{=} \hlnum{1}\hlopt{-}\hlstd{val.prob.gg2[val.prob.times} \hlopt{==} \hlnum{365}\hlopt{*}\hlnum{3}\hlstd{,],}
     \hlkwc{cph.1} \hlstd{=} \hlnum{1}\hlopt{-}\hlstd{val.prob.cph[val.prob.times} \hlopt{==} \hlnum{365}\hlstd{,],} \hlkwc{cph.2} \hlstd{=} \hlnum{1}\hlopt{-}\hlstd{val.prob.cph[val.prob.times} \hlopt{==} \hlnum{365}\hlopt{*}\hlnum{2}\hlstd{,],} \hlkwc{cph.3} \hlstd{=} \hlnum{1}\hlopt{-}\hlstd{val.prob.cph[val.prob.times} \hlopt{==} \hlnum{365}\hlopt{*}\hlnum{3}\hlstd{,],}
     \hlkwc{rsf.1} \hlstd{=} \hlnum{1}\hlopt{-}\hlstd{val.prob.rsf[val.prob.times} \hlopt{==} \hlnum{365}\hlstd{,],} \hlkwc{rsf.2} \hlstd{=} \hlnum{1}\hlopt{-}\hlstd{val.prob.rsf[val.prob.times} \hlopt{==} \hlnum{365}\hlopt{*}\hlnum{2}\hlstd{,],} \hlkwc{rsf.3} \hlstd{=} \hlnum{1}\hlopt{-}\hlstd{val.prob.rsf[val.prob.times} \hlopt{==} \hlnum{365}\hlopt{*}\hlnum{3}\hlstd{,])}
-\hlkwd{invisible}\hlstd{(}\hlkwd{stdca}\hlstd{(}\hlkwc{data} \hlstd{= temp.data,} \hlkwc{outcome} \hlstd{=} \hlstr{"DSD"}\hlstd{,} \hlkwc{ttoutcome} \hlstd{=} \hlstr{"Time"}\hlstd{,} \hlkwc{predictors} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"gg.1"}\hlstd{,} \hlstr{"gg2.1"}\hlstd{,} \hlstr{"cph.1"}\hlstd{,} \hlstr{"rsf.1"}\hlstd{),} \hlkwc{timepoint} \hlstd{=} \hlnum{365}\hlstd{,} \hlkwc{probability} \hlstd{=} \hlkwd{rep}\hlstd{(}\hlnum{TRUE}\hlstd{,} \hlnum{4}\hlstd{)))}
+\hlkwd{invisible}\hlstd{(}\hlkwd{stdca}\hlstd{(}\hlkwc{data} \hlstd{= temp.data,} \hlkwc{outcome} \hlstd{=} \hlstr{"DSD"}\hlstd{,} \hlkwc{ttoutcome} \hlstd{=} \hlstr{"Time"}\hlstd{,} \hlkwc{predictors} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"gg.1"}\hlstd{,} \hlstr{"cph.1"}\hlstd{,} \hlstr{"rsf.1"}\hlstd{),} \hlkwc{timepoint} \hlstd{=} \hlnum{365}\hlstd{,} \hlkwc{probability} \hlstd{=} \hlkwd{rep}\hlstd{(}\hlnum{TRUE}\hlstd{,} \hlnum{3}\hlstd{)))}
 \end{alltt}
 \begin{verbatim}
 ## [1] "gg.1: No observations with risk greater than 70% that have followup through the timepoint selected, and therefore net benefit not calculable in this range." 
-## [2] "gg2.1: No observations with risk greater than 69% that have followup through the timepoint selected, and therefore net benefit not calculable in this range."
-## [3] "cph.1: No observations with risk greater than 77% that have followup through the timepoint selected, and therefore net benefit not calculable in this range."
-## [4] "rsf.1: No observations with risk greater than 64%, and therefore net benefit not calculable in this range."
+## [2] "cph.1: No observations with risk greater than 77% that have followup through the timepoint selected, and therefore net benefit not calculable in this range."
+## [3] "rsf.1: No observations with risk greater than 64%, and therefore net benefit not calculable in this range."
 \end{verbatim}
 \end{kframe}
 
@@ -2379,13 +2042,12 @@ Decision curve analysis.
 
 
 \begin{kframe}\begin{alltt}
-\hlkwd{invisible}\hlstd{(}\hlkwd{stdca}\hlstd{(}\hlkwc{data} \hlstd{= temp.data,} \hlkwc{outcome} \hlstd{=} \hlstr{"DSD"}\hlstd{,} \hlkwc{ttoutcome} \hlstd{=} \hlstr{"Time"}\hlstd{,} \hlkwc{predictors} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"gg.2"}\hlstd{,} \hlstr{"gg2.2"}\hlstd{,} \hlstr{"cph.2"}\hlstd{,} \hlstr{"rsf.2"}\hlstd{),} \hlkwc{timepoint} \hlstd{=} \hlnum{365}\hlopt{*}\hlnum{2}\hlstd{,} \hlkwc{probability} \hlstd{=} \hlkwd{rep}\hlstd{(}\hlnum{TRUE}\hlstd{,} \hlnum{4}\hlstd{)))}
+\hlkwd{invisible}\hlstd{(}\hlkwd{stdca}\hlstd{(}\hlkwc{data} \hlstd{= temp.data,} \hlkwc{outcome} \hlstd{=} \hlstr{"DSD"}\hlstd{,} \hlkwc{ttoutcome} \hlstd{=} \hlstr{"Time"}\hlstd{,} \hlkwc{predictors} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"gg.2"}\hlstd{,} \hlstr{"cph.2"}\hlstd{,} \hlstr{"rsf.2"}\hlstd{),} \hlkwc{timepoint} \hlstd{=} \hlnum{365}\hlopt{*}\hlnum{2}\hlstd{,} \hlkwc{probability} \hlstd{=} \hlkwd{rep}\hlstd{(}\hlnum{TRUE}\hlstd{,} \hlnum{3}\hlstd{)))}
 \end{alltt}
 \begin{verbatim}
 ## [1] "gg.2: No observations with risk greater than 85% that have followup through the timepoint selected, and therefore net benefit not calculable in this range." 
-## [2] "gg2.2: No observations with risk greater than 88% that have followup through the timepoint selected, and therefore net benefit not calculable in this range."
-## [3] "cph.2: No observations with risk greater than 83% that have followup through the timepoint selected, and therefore net benefit not calculable in this range."
-## [4] "rsf.2: No observations with risk greater than 72% that have followup through the timepoint selected, and therefore net benefit not calculable in this range."
+## [2] "cph.2: No observations with risk greater than 83% that have followup through the timepoint selected, and therefore net benefit not calculable in this range."
+## [3] "rsf.2: No observations with risk greater than 72% that have followup through the timepoint selected, and therefore net benefit not calculable in this range."
 \end{verbatim}
 \end{kframe}
 
@@ -2395,13 +2057,12 @@ Decision curve analysis.
 
 
 \begin{kframe}\begin{alltt}
-\hlkwd{invisible}\hlstd{(}\hlkwd{stdca}\hlstd{(}\hlkwc{data} \hlstd{= temp.data,} \hlkwc{outcome} \hlstd{=} \hlstr{"DSD"}\hlstd{,} \hlkwc{ttoutcome} \hlstd{=} \hlstr{"Time"}\hlstd{,} \hlkwc{predictors} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"gg.3"}\hlstd{,} \hlstr{"gg2.3"}\hlstd{,} \hlstr{"cph.3"}\hlstd{,} \hlstr{"rsf.3"}\hlstd{),} \hlkwc{timepoint} \hlstd{=} \hlnum{365}\hlopt{*}\hlnum{3}\hlstd{,} \hlkwc{probability} \hlstd{=} \hlkwd{rep}\hlstd{(}\hlnum{TRUE}\hlstd{,} \hlnum{4}\hlstd{)))}
+\hlkwd{invisible}\hlstd{(}\hlkwd{stdca}\hlstd{(}\hlkwc{data} \hlstd{= temp.data,} \hlkwc{outcome} \hlstd{=} \hlstr{"DSD"}\hlstd{,} \hlkwc{ttoutcome} \hlstd{=} \hlstr{"Time"}\hlstd{,} \hlkwc{predictors} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"gg.3"}\hlstd{,} \hlstr{"cph.3"}\hlstd{,} \hlstr{"rsf.3"}\hlstd{),} \hlkwc{timepoint} \hlstd{=} \hlnum{365}\hlopt{*}\hlnum{3}\hlstd{,} \hlkwc{probability} \hlstd{=} \hlkwd{rep}\hlstd{(}\hlnum{TRUE}\hlstd{,} \hlnum{3}\hlstd{)))}
 \end{alltt}
 \begin{verbatim}
 ## [1] "gg.3: No observations with risk greater than 97% that have followup through the timepoint selected, and therefore net benefit not calculable in this range." 
-## [2] "gg2.3: No observations with risk greater than 99% that have followup through the timepoint selected, and therefore net benefit not calculable in this range."
-## [3] "cph.3: No observations with risk greater than 97% that have followup through the timepoint selected, and therefore net benefit not calculable in this range."
-## [4] "rsf.3: No observations with risk greater than 90% that have followup through the timepoint selected, and therefore net benefit not calculable in this range."
+## [2] "cph.3: No observations with risk greater than 97% that have followup through the timepoint selected, and therefore net benefit not calculable in this range."
+## [3] "rsf.3: No observations with risk greater than 90% that have followup through the timepoint selected, and therefore net benefit not calculable in this range."
 \end{verbatim}
 \end{kframe}
 
@@ -2414,33 +2075,10 @@ Decision curve analysis.
 \end{knitrout}
 
 
-Evaluate IBS point estimates.
-BS paths over time on bootstrap samples of the holdout set.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlkwd{set.seed}\hlstd{(}\hlnum{20150208}\hlstd{)}
-\hlstd{ibs_eval_times} \hlkwb{=} \hlkwd{calcIBS}\hlstd{(}\hlkwd{Surv}\hlstd{(data.val}\hlopt{$}\hlstd{Time, data.val}\hlopt{$}\hlstd{DSD), ibs_preds_gg, ibs_times,} \hlkwd{max}\hlstd{(data.val}\hlopt{$}\hlstd{Time))}\hlopt{$}\hlstd{eval_times}
-\hlstd{bsc_boots} \hlkwb{=} \hlkwd{laply}\hlstd{(}\hlnum{1}\hlopt{:}\hlnum{500}\hlstd{,} \hlkwa{function}\hlstd{(}\hlkwc{i}\hlstd{) \{}
-        \hlkwa{if} \hlstd{(i} \hlopt{%%} \hlnum{50} \hlopt{==} \hlnum{0}\hlstd{)       \{} \hlkwd{message}\hlstd{(i) \}}
-        \hlstd{boot_samp} \hlkwb{=} \hlkwd{sample.int}\hlstd{(}\hlkwd{nrow}\hlstd{(data.val),} \hlkwc{replace} \hlstd{=} \hlnum{TRUE}\hlstd{)}
-        \hlstd{gg} \hlkwb{=} \hlkwd{calcIBS}\hlstd{(}\hlkwd{Surv}\hlstd{(data.val}\hlopt{$}\hlstd{Time, data.val}\hlopt{$}\hlstd{DSD)[boot_samp,], ibs_preds_gg[boot_samp,], ibs_times,} \hlkwd{max}\hlstd{(data.val}\hlopt{$}\hlstd{Time))}\hlopt{$}\hlstd{bsc}
-        \hlstd{gg2} \hlkwb{=} \hlkwd{calcIBS}\hlstd{(}\hlkwd{Surv}\hlstd{(data.val}\hlopt{$}\hlstd{Time, data.val}\hlopt{$}\hlstd{DSD)[boot_samp,], ibs_preds_gg2[boot_samp,], ibs_times,} \hlkwd{max}\hlstd{(data.val}\hlopt{$}\hlstd{Time))}\hlopt{$}\hlstd{bsc}
-        \hlstd{cph} \hlkwb{=} \hlkwd{calcIBS}\hlstd{(}\hlkwd{Surv}\hlstd{(data.val}\hlopt{$}\hlstd{Time, data.val}\hlopt{$}\hlstd{DSD)[boot_samp,], ibs_preds_cph[boot_samp,], ibs_times,} \hlkwd{max}\hlstd{(data.val}\hlopt{$}\hlstd{Time))}\hlopt{$}\hlstd{bsc}
-        \hlstd{rsf} \hlkwb{=} \hlkwd{calcIBS}\hlstd{(}\hlkwd{Surv}\hlstd{(data.val}\hlopt{$}\hlstd{Time, data.val}\hlopt{$}\hlstd{DSD)[boot_samp,], ibs_preds_rsf[boot_samp,], ibs_times,} \hlkwd{max}\hlstd{(data.val}\hlopt{$}\hlstd{Time))}\hlopt{$}\hlstd{bsc}
-        \hlstd{km0} \hlkwb{=} \hlkwd{calcIBS}\hlstd{(}\hlkwd{Surv}\hlstd{(data.val}\hlopt{$}\hlstd{Time, data.val}\hlopt{$}\hlstd{DSD)[boot_samp,], ibs_preds_km0[boot_samp,], ibs_times,} \hlkwd{max}\hlstd{(data.val}\hlopt{$}\hlstd{Time))}\hlopt{$}\hlstd{bsc}
-        \hlkwd{rbind}\hlstd{(gg, gg2, cph, rsf, km0)}
-\hlstd{\})}
-\end{alltt}
-
-
-{\ttfamily\noindent\itshape\color{messagecolor}{\#\# 50\\\#\# 100\\\#\# 150\\\#\# 200\\\#\# 250\\\#\# 300\\\#\# 350\\\#\# 400\\\#\# 450\\\#\# 500}}\end{kframe}
-\end{knitrout}
-
-\begin{knitrout}
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hlstd{temp} \hlkwb{=} \hlkwd{sapply}\hlstd{(}\hlkwd{list}\hlstd{(}\hlkwc{gg} \hlstd{= ibs_preds_gg,} \hlkwc{gg2} \hlstd{= ibs_preds_gg2,} \hlkwc{cph} \hlstd{= ibs_preds_cph,} \hlkwc{rsf} \hlstd{= ibs_preds_rsf,} \hlkwc{km0} \hlstd{= ibs_preds_km0),} \hlkwa{function}\hlstd{(}\hlkwc{preds}\hlstd{)} \hlkwd{calcIBS}\hlstd{(}\hlkwd{Surv}\hlstd{(data.val}\hlopt{$}\hlstd{Time, data.val}\hlopt{$}\hlstd{DSD), preds, ibs_times,} \hlkwd{max}\hlstd{(data.val}\hlopt{$}\hlstd{Time))}\hlopt{$}\hlstd{bsc)}
+\hlstd{temp} \hlkwb{=} \hlkwd{sapply}\hlstd{(}\hlkwd{list}\hlstd{(}\hlkwc{gg} \hlstd{= ibs_preds_gg,} \hlkwc{cph} \hlstd{= ibs_preds_cph,} \hlkwc{rsf} \hlstd{= ibs_preds_rsf,} \hlkwc{km0} \hlstd{= ibs_preds_km0),} \hlkwa{function}\hlstd{(}\hlkwc{preds}\hlstd{)} \hlkwd{calcIBS}\hlstd{(}\hlkwd{Surv}\hlstd{(data.val}\hlopt{$}\hlstd{Time, data.val}\hlopt{$}\hlstd{DSD), preds, ibs_times,} \hlkwd{max}\hlstd{(data.val}\hlopt{$}\hlstd{Time))}\hlopt{$}\hlstd{bsc)}
 \hlstd{temp} \hlkwb{=} \hlkwd{melt}\hlstd{(temp)}
 \hlkwd{colnames}\hlstd{(temp)} \hlkwb{=} \hlkwd{c}\hlstd{(}\hlstr{"Time"}\hlstd{,} \hlstr{"Model"}\hlstd{,} \hlstr{"BS"}\hlstd{)}
 \hlkwd{ggplot}\hlstd{(temp,} \hlkwd{aes}\hlstd{(}\hlkwc{x} \hlstd{= Time}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{,} \hlkwc{y} \hlstd{= BS,} \hlkwc{colour} \hlstd{= Model))} \hlopt{+} \hlkwd{geom_line}\hlstd{()} \hlopt{+} \hlkwd{ylab}\hlstd{(}\hlstr{"Brier Score"}\hlstd{)} \hlopt{+} \hlkwd{geom_hline}\hlstd{(}\hlkwc{yintercept} \hlstd{=} \hlnum{0.25}\hlstd{)} \hlopt{+} \hlkwd{geom_vline}\hlstd{(}\hlkwc{xintercept} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{7}\hlstd{,} \hlnum{34}\hlstd{))}
@@ -2452,190 +2090,23 @@ BS paths over time on bootstrap samples of the holdout set.
 }
 
 
-\begin{kframe}\begin{alltt}
-\hlstd{temp} \hlkwb{=} \hlkwd{melt}\hlstd{(}\hlkwd{aaply}\hlstd{(bsc_boots,} \hlnum{2}\hlopt{:}\hlnum{3}\hlstd{, quantile,} \hlkwc{probs} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0.05}\hlstd{,} \hlnum{0.5}\hlstd{,} \hlnum{0.95}\hlstd{)))}
-\hlkwd{colnames}\hlstd{(temp)} \hlkwb{=} \hlkwd{c}\hlstd{(}\hlstr{"Model"}\hlstd{,} \hlstr{"Time"}\hlstd{,} \hlstr{"Quantile"}\hlstd{,} \hlstr{"Value"}\hlstd{)}
-\hlstd{temp}\hlopt{$}\hlstd{Quantile} \hlkwb{=} \hlkwd{paste}\hlstd{(}\hlstr{"Q"}\hlstd{,} \hlkwd{gsub}\hlstd{(}\hlstr{"%"}\hlstd{,} \hlstr{""}\hlstd{, temp}\hlopt{$}\hlstd{Quantile),} \hlkwc{sep} \hlstd{=} \hlstr{""}\hlstd{)}
-\hlstd{temp} \hlkwb{=} \hlkwd{dcast}\hlstd{(temp, Model} \hlopt{+} \hlstd{Time} \hlopt{~} \hlstd{Quantile,} \hlkwc{value.var} \hlstd{=} \hlstr{"Value"}\hlstd{)}
-\hlkwd{ggplot}\hlstd{(temp,} \hlkwd{aes}\hlstd{(}\hlkwc{x} \hlstd{= Time}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{,} \hlkwc{y} \hlstd{= Q50,} \hlkwc{ymin} \hlstd{= Q5,} \hlkwc{ymax} \hlstd{= Q95,} \hlkwc{colour} \hlstd{= Model,} \hlkwc{fill} \hlstd{= Model))} \hlopt{+} \hlkwd{geom_line}\hlstd{()} \hlopt{+} \hlkwd{geom_ribbon}\hlstd{(}\hlkwc{alpha} \hlstd{=} \hlnum{0.2}\hlstd{,} \hlkwc{colour} \hlstd{=} \hlnum{NA}\hlstd{)} \hlopt{+} \hlkwd{ylab}\hlstd{(}\hlstr{"Brier Score, 90\textbackslash{}\textbackslash{}% BI"}\hlstd{)} \hlopt{+} \hlkwd{geom_hline}\hlstd{(}\hlkwc{yintercept} \hlstd{=} \hlnum{0.25}\hlstd{)} \hlopt{+} \hlkwd{geom_vline}\hlstd{(}\hlkwc{xintercept} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{7}\hlstd{,} \hlnum{34}\hlstd{))}
-\end{alltt}
-\end{kframe}
-
-{\centering \includegraphics[width=\maxwidth]{figure/05-model-selection-bs-paths-2} 
-
-}
-
-
-\begin{kframe}\begin{alltt}
-\hlstd{bsc_boots_diff} \hlkwb{=} \hlkwd{aaply}\hlstd{(bsc_boots,} \hlnum{2}\hlstd{,} \hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{) x} \hlopt{-} \hlstd{bsc_boots[,}\hlnum{5}\hlstd{,])[}\hlnum{1}\hlopt{:}\hlnum{4}\hlstd{,,]}
-\hlstd{temp} \hlkwb{=} \hlkwd{melt}\hlstd{(}\hlkwd{aaply}\hlstd{(bsc_boots_diff,} \hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,}\hlnum{3}\hlstd{), quantile,} \hlkwc{probs} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0.05}\hlstd{,} \hlnum{0.5}\hlstd{,} \hlnum{0.95}\hlstd{)))}
-\hlkwd{colnames}\hlstd{(temp)} \hlkwb{=} \hlkwd{c}\hlstd{(}\hlstr{"Model"}\hlstd{,} \hlstr{"Time"}\hlstd{,} \hlstr{"Quantile"}\hlstd{,} \hlstr{"Value"}\hlstd{)}
-\hlstd{temp}\hlopt{$}\hlstd{Quantile} \hlkwb{=} \hlkwd{paste}\hlstd{(}\hlstr{"Q"}\hlstd{,} \hlkwd{gsub}\hlstd{(}\hlstr{"%"}\hlstd{,} \hlstr{""}\hlstd{, temp}\hlopt{$}\hlstd{Quantile),} \hlkwc{sep} \hlstd{=} \hlstr{""}\hlstd{)}
-\hlstd{temp} \hlkwb{=} \hlkwd{dcast}\hlstd{(temp, Model} \hlopt{+} \hlstd{Time} \hlopt{~} \hlstd{Quantile,} \hlkwc{value.var} \hlstd{=} \hlstr{"Value"}\hlstd{)}
-\hlkwd{ggplot}\hlstd{(temp,} \hlkwd{aes}\hlstd{(}\hlkwc{x} \hlstd{= Time}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{,} \hlkwc{y} \hlstd{= Q50,} \hlkwc{ymin} \hlstd{= Q5,} \hlkwc{ymax} \hlstd{= Q95,} \hlkwc{colour} \hlstd{= Model,} \hlkwc{fill} \hlstd{= Model))} \hlopt{+} \hlkwd{geom_line}\hlstd{()} \hlopt{+} \hlkwd{geom_ribbon}\hlstd{(}\hlkwc{alpha} \hlstd{=} \hlnum{0.2}\hlstd{,} \hlkwc{colour} \hlstd{=} \hlnum{NA}\hlstd{)} \hlopt{+} \hlkwd{ylab}\hlstd{(}\hlstr{"Brier Score: Improvement over KM0. BS median, 90\textbackslash{}\textbackslash{}% BI"}\hlstd{)} \hlopt{+} \hlkwd{geom_hline}\hlstd{(}\hlkwc{yintercept} \hlstd{=} \hlnum{0}\hlstd{)}
-\end{alltt}
-\end{kframe}
-
-{\centering \includegraphics[width=\maxwidth]{figure/05-model-selection-bs-paths-3} 
-
-}
-
-
-\begin{kframe}\begin{alltt}
-\hlkwd{ggplot}\hlstd{(temp,} \hlkwd{aes}\hlstd{(}\hlkwc{x} \hlstd{= Time}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{,} \hlkwc{y} \hlstd{= Q50,} \hlkwc{ymin} \hlstd{= Q5,} \hlkwc{ymax} \hlstd{= Q95,} \hlkwc{colour} \hlstd{= Model,} \hlkwc{fill} \hlstd{= Model))} \hlopt{+} \hlkwd{geom_line}\hlstd{()} \hlopt{+} \hlkwd{geom_ribbon}\hlstd{(}\hlkwc{alpha} \hlstd{=} \hlnum{0.2}\hlstd{,} \hlkwc{colour} \hlstd{=} \hlnum{NA}\hlstd{)} \hlopt{+} \hlkwd{xlim}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{34}\hlstd{)} \hlopt{+} \hlkwd{ylab}\hlstd{(}\hlstr{"Brier Score: Improvement over KM0. BS median, 90\textbackslash{}\textbackslash{}% BI"}\hlstd{)} \hlopt{+} \hlkwd{geom_hline}\hlstd{(}\hlkwc{yintercept} \hlstd{=} \hlnum{0}\hlstd{)}
-\end{alltt}
-\end{kframe}
-
-{\centering \includegraphics[width=\maxwidth]{figure/05-model-selection-bs-paths-4} 
-
-}
-
-
-\begin{kframe}\begin{alltt}
-\hlkwd{ggplot}\hlstd{(temp,} \hlkwd{aes}\hlstd{(}\hlkwc{x} \hlstd{= Time}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{,} \hlkwc{y} \hlstd{= Q50,} \hlkwc{colour} \hlstd{= Model))} \hlopt{+} \hlkwd{geom_line}\hlstd{()} \hlopt{+} \hlkwd{ylab}\hlstd{(}\hlstr{"Brier Score: Improvement over KM0, BS median"}\hlstd{)} \hlopt{+} \hlkwd{geom_hline}\hlstd{(}\hlkwc{yintercept} \hlstd{=} \hlnum{0}\hlstd{)} \hlopt{+} \hlkwd{geom_vline}\hlstd{(}\hlkwc{xintercept} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{7}\hlstd{,} \hlnum{34}\hlstd{))}
-\end{alltt}
-\end{kframe}
-
-{\centering \includegraphics[width=\maxwidth]{figure/05-model-selection-bs-paths-5} 
-
-}
-
-
-\begin{kframe}\begin{alltt}
-\hlkwd{ggplot}\hlstd{(temp,} \hlkwd{aes}\hlstd{(}\hlkwc{x} \hlstd{= Time}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{,} \hlkwc{y} \hlstd{= Q50,} \hlkwc{colour} \hlstd{= Model))} \hlopt{+} \hlkwd{geom_line}\hlstd{()} \hlopt{+} \hlkwd{ylab}\hlstd{(}\hlstr{"Brier Score: Improvement over KM0, BS median"}\hlstd{)} \hlopt{+} \hlkwd{xlim}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{34}\hlstd{)} \hlopt{+} \hlkwd{geom_hline}\hlstd{(}\hlkwc{yintercept} \hlstd{=} \hlnum{0}\hlstd{)} \hlopt{+} \hlkwd{geom_vline}\hlstd{(}\hlkwc{xintercept} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{7}\hlstd{,} \hlnum{34}\hlstd{))}
-\end{alltt}
-\end{kframe}
-
-{\centering \includegraphics[width=\maxwidth]{figure/05-model-selection-bs-paths-6} 
-
-}
-
-
 
 \end{knitrout}
 
-IBS comparisons.
-\begin{knitrout}
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hlkwd{set.seed}\hlstd{(}\hlnum{20150208}\hlstd{)}
-\hlstd{ibsc_boots} \hlkwb{=} \hlkwd{t}\hlstd{(}\hlkwd{sapply}\hlstd{(}\hlnum{1}\hlopt{:}\hlnum{5e2}\hlstd{,} \hlkwa{function}\hlstd{(}\hlkwc{i}\hlstd{) \{}
-        \hlkwa{if} \hlstd{(i} \hlopt{%%} \hlnum{5e1} \hlopt{==} \hlnum{0}\hlstd{)      \{} \hlkwd{message}\hlstd{(i) \}}
-        \hlstd{boot_samp} \hlkwb{=} \hlkwd{sample.int}\hlstd{(}\hlkwd{nrow}\hlstd{(data.val),} \hlkwc{replace} \hlstd{=} \hlnum{TRUE}\hlstd{)}
-        \hlstd{gg} \hlkwb{=} \hlkwd{calcIBS}\hlstd{(}\hlkwd{Surv}\hlstd{(data.val}\hlopt{$}\hlstd{Time, data.val}\hlopt{$}\hlstd{DSD)[boot_samp,], ibs_preds_gg[boot_samp,], ibs_times,} \hlnum{34}\hlopt{*}\hlnum{365.25}\hlopt{/}\hlnum{12}\hlstd{,} \hlnum{7}\hlopt{*}\hlnum{365.25}\hlopt{/}\hlnum{12}\hlstd{)}\hlopt{$}\hlstd{ibs}
-        \hlstd{gg2} \hlkwb{=} \hlkwd{calcIBS}\hlstd{(}\hlkwd{Surv}\hlstd{(data.val}\hlopt{$}\hlstd{Time, data.val}\hlopt{$}\hlstd{DSD)[boot_samp,], ibs_preds_gg2[boot_samp,], ibs_times,} \hlnum{34}\hlopt{*}\hlnum{365.25}\hlopt{/}\hlnum{12}\hlstd{,} \hlnum{7}\hlopt{*}\hlnum{365.25}\hlopt{/}\hlnum{12}\hlstd{)}\hlopt{$}\hlstd{ibs}
-        \hlstd{cph} \hlkwb{=} \hlkwd{calcIBS}\hlstd{(}\hlkwd{Surv}\hlstd{(data.val}\hlopt{$}\hlstd{Time, data.val}\hlopt{$}\hlstd{DSD)[boot_samp,], ibs_preds_cph[boot_samp,], ibs_times,} \hlnum{34}\hlopt{*}\hlnum{365.25}\hlopt{/}\hlnum{12}\hlstd{,} \hlnum{7}\hlopt{*}\hlnum{365.25}\hlopt{/}\hlnum{12}\hlstd{)}\hlopt{$}\hlstd{ibs}
-        \hlstd{rsf} \hlkwb{=} \hlkwd{calcIBS}\hlstd{(}\hlkwd{Surv}\hlstd{(data.val}\hlopt{$}\hlstd{Time, data.val}\hlopt{$}\hlstd{DSD)[boot_samp,], ibs_preds_rsf[boot_samp,], ibs_times,} \hlnum{34}\hlopt{*}\hlnum{365.25}\hlopt{/}\hlnum{12}\hlstd{,} \hlnum{7}\hlopt{*}\hlnum{365.25}\hlopt{/}\hlnum{12}\hlstd{)}\hlopt{$}\hlstd{ibs}
-        \hlstd{km0} \hlkwb{=} \hlkwd{calcIBS}\hlstd{(}\hlkwd{Surv}\hlstd{(data.val}\hlopt{$}\hlstd{Time, data.val}\hlopt{$}\hlstd{DSD)[boot_samp,], ibs_preds_km0[boot_samp,], ibs_times,} \hlnum{34}\hlopt{*}\hlnum{365.25}\hlopt{/}\hlnum{12}\hlstd{,} \hlnum{7}\hlopt{*}\hlnum{365.25}\hlopt{/}\hlnum{12}\hlstd{)}\hlopt{$}\hlstd{ibs}
-        \hlkwd{c}\hlstd{(gg, gg2, cph, rsf, km0)}
-\hlstd{\}))}
-\end{alltt}
-
-
-{\ttfamily\noindent\itshape\color{messagecolor}{\#\# 50\\\#\# 100\\\#\# 150\\\#\# 200\\\#\# 250\\\#\# 300\\\#\# 350\\\#\# 400\\\#\# 450\\\#\# 500}}\begin{alltt}
-\hlkwd{colnames}\hlstd{(ibsc_boots)} \hlkwb{=} \hlkwd{c}\hlstd{(}\hlstr{"gg"}\hlstd{,} \hlstr{"gg2"}\hlstd{,} \hlstr{"cph"}\hlstd{,} \hlstr{"rsf"}\hlstd{,} \hlstr{"km0"}\hlstd{)}
-\end{alltt}
-\end{kframe}
-\end{knitrout}
-
-\begin{knitrout}
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hlkwd{calcIBS}\hlstd{(}\hlkwd{Surv}\hlstd{(data.val}\hlopt{$}\hlstd{Time, data.val}\hlopt{$}\hlstd{DSD), ibs_preds_gg, ibs_times,} \hlnum{34}\hlopt{*}\hlnum{365.25}\hlopt{/}\hlnum{12}\hlstd{,} \hlnum{7}\hlopt{*}\hlnum{365.25}\hlopt{/}\hlnum{12}\hlstd{)}\hlopt{$}\hlstd{ibs}
-\end{alltt}
-\begin{verbatim}
-## [1] 108
-\end{verbatim}
-\begin{alltt}
-\hlkwd{calcIBS}\hlstd{(}\hlkwd{Surv}\hlstd{(data.val}\hlopt{$}\hlstd{Time, data.val}\hlopt{$}\hlstd{DSD), ibs_preds_gg2, ibs_times,} \hlnum{34}\hlopt{*}\hlnum{365.25}\hlopt{/}\hlnum{12}\hlstd{,} \hlnum{7}\hlopt{*}\hlnum{365.25}\hlopt{/}\hlnum{12}\hlstd{)}\hlopt{$}\hlstd{ibs}
-\end{alltt}
-\begin{verbatim}
-## [1] 110.1
-\end{verbatim}
-\begin{alltt}
-\hlkwd{calcIBS}\hlstd{(}\hlkwd{Surv}\hlstd{(data.val}\hlopt{$}\hlstd{Time, data.val}\hlopt{$}\hlstd{DSD), ibs_preds_cph, ibs_times,} \hlnum{34}\hlopt{*}\hlnum{365.25}\hlopt{/}\hlnum{12}\hlstd{,} \hlnum{7}\hlopt{*}\hlnum{365.25}\hlopt{/}\hlnum{12}\hlstd{)}\hlopt{$}\hlstd{ibs}
-\end{alltt}
-\begin{verbatim}
-## [1] 108.8
-\end{verbatim}
-\begin{alltt}
-\hlkwd{calcIBS}\hlstd{(}\hlkwd{Surv}\hlstd{(data.val}\hlopt{$}\hlstd{Time, data.val}\hlopt{$}\hlstd{DSD), ibs_preds_rsf, ibs_times,} \hlnum{34}\hlopt{*}\hlnum{365.25}\hlopt{/}\hlnum{12}\hlstd{,} \hlnum{7}\hlopt{*}\hlnum{365.25}\hlopt{/}\hlnum{12}\hlstd{)}\hlopt{$}\hlstd{ibs}
-\end{alltt}
-\begin{verbatim}
-## [1] 114.5
-\end{verbatim}
-\begin{alltt}
-\hlkwd{calcIBS}\hlstd{(}\hlkwd{Surv}\hlstd{(data.val}\hlopt{$}\hlstd{Time, data.val}\hlopt{$}\hlstd{DSD), ibs_preds_km0, ibs_times,} \hlnum{34}\hlopt{*}\hlnum{365.25}\hlopt{/}\hlnum{12}\hlstd{,} \hlnum{7}\hlopt{*}\hlnum{365.25}\hlopt{/}\hlnum{12}\hlstd{)}\hlopt{$}\hlstd{ibs}
-\end{alltt}
-\begin{verbatim}
-## [1] 129
-\end{verbatim}
-\begin{alltt}
-\hlkwd{boxplot}\hlstd{(ibsc_boots,} \hlkwc{main} \hlstd{=} \hlstr{"IBS BS Distribution"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"IBS"}\hlstd{)}
-\end{alltt}
-\end{kframe}
-
-{\centering \includegraphics[width=\maxwidth]{figure/05-model-selection-ibs-1} 
-
-}
-
-
-\begin{kframe}\begin{alltt}
-\hlkwd{plot}\hlstd{(}\hlkwd{density}\hlstd{(ibsc_boots[,}\hlnum{1}\hlstd{]),} \hlkwc{col} \hlstd{= pal[}\hlstr{"GG"}\hlstd{],} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{main} \hlstd{=} \hlstr{"IBS BS Distribution"}\hlstd{,} \hlkwc{xlab} \hlstd{=} \hlstr{"IBS"}\hlstd{)}
-\hlkwd{lines}\hlstd{(}\hlkwd{density}\hlstd{(ibsc_boots[,}\hlnum{2}\hlstd{]),} \hlkwc{col} \hlstd{= pal[}\hlstr{"GG2"}\hlstd{],} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
-\hlkwd{lines}\hlstd{(}\hlkwd{density}\hlstd{(ibsc_boots[,}\hlnum{3}\hlstd{]),} \hlkwc{col} \hlstd{= pal[}\hlstr{"CPH"}\hlstd{],} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
-\hlkwd{lines}\hlstd{(}\hlkwd{density}\hlstd{(ibsc_boots[,}\hlnum{4}\hlstd{]),} \hlkwc{col} \hlstd{= pal[}\hlstr{"RSF"}\hlstd{],} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
-\hlkwd{lines}\hlstd{(}\hlkwd{density}\hlstd{(ibsc_boots[,}\hlnum{4}\hlstd{]),} \hlkwc{col} \hlstd{= pal[}\hlstr{"KM0"}\hlstd{],} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
-\hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{calcIBS}\hlstd{(}\hlkwd{Surv}\hlstd{(data.val}\hlopt{$}\hlstd{Time, data.val}\hlopt{$}\hlstd{DSD), ibs_preds_gg, ibs_times,} \hlnum{34}\hlopt{*}\hlnum{365.25}\hlopt{/}\hlnum{12}\hlstd{,} \hlnum{7}\hlopt{*}\hlnum{365.25}\hlopt{/}\hlnum{12}\hlstd{)}\hlopt{$}\hlstd{ibs,} \hlkwc{col} \hlstd{= pal[}\hlstr{"GG"}\hlstd{],} \hlkwc{lwd} \hlstd{=} \hlnum{1}\hlstd{)}
-\hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{calcIBS}\hlstd{(}\hlkwd{Surv}\hlstd{(data.val}\hlopt{$}\hlstd{Time, data.val}\hlopt{$}\hlstd{DSD), ibs_preds_gg2, ibs_times,} \hlnum{34}\hlopt{*}\hlnum{365.25}\hlopt{/}\hlnum{12}\hlstd{,} \hlnum{7}\hlopt{*}\hlnum{365.25}\hlopt{/}\hlnum{12}\hlstd{)}\hlopt{$}\hlstd{ibs,} \hlkwc{col} \hlstd{= pal[}\hlstr{"GG2"}\hlstd{],} \hlkwc{lwd} \hlstd{=} \hlnum{1}\hlstd{)}
-\hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{calcIBS}\hlstd{(}\hlkwd{Surv}\hlstd{(data.val}\hlopt{$}\hlstd{Time, data.val}\hlopt{$}\hlstd{DSD), ibs_preds_cph, ibs_times,} \hlnum{34}\hlopt{*}\hlnum{365.25}\hlopt{/}\hlnum{12}\hlstd{,} \hlnum{7}\hlopt{*}\hlnum{365.25}\hlopt{/}\hlnum{12}\hlstd{)}\hlopt{$}\hlstd{ibs,} \hlkwc{col} \hlstd{= pal[}\hlstr{"CPH"}\hlstd{],} \hlkwc{lwd} \hlstd{=} \hlnum{1}\hlstd{)}
-\hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{calcIBS}\hlstd{(}\hlkwd{Surv}\hlstd{(data.val}\hlopt{$}\hlstd{Time, data.val}\hlopt{$}\hlstd{DSD), ibs_preds_rsf, ibs_times,} \hlnum{34}\hlopt{*}\hlnum{365.25}\hlopt{/}\hlnum{12}\hlstd{,} \hlnum{7}\hlopt{*}\hlnum{365.25}\hlopt{/}\hlnum{12}\hlstd{)}\hlopt{$}\hlstd{ibs,} \hlkwc{col} \hlstd{= pal[}\hlstr{"RSF"}\hlstd{],} \hlkwc{lwd} \hlstd{=} \hlnum{1}\hlstd{)}
-\hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{calcIBS}\hlstd{(}\hlkwd{Surv}\hlstd{(data.val}\hlopt{$}\hlstd{Time, data.val}\hlopt{$}\hlstd{DSD), ibs_preds_km0, ibs_times,} \hlnum{34}\hlopt{*}\hlnum{365.25}\hlopt{/}\hlnum{12}\hlstd{,} \hlnum{7}\hlopt{*}\hlnum{365.25}\hlopt{/}\hlnum{12}\hlstd{)}\hlopt{$}\hlstd{ibs,} \hlkwc{col} \hlstd{= pal[}\hlstr{"KM0"}\hlstd{],} \hlkwc{lwd} \hlstd{=} \hlnum{1}\hlstd{)}
-\hlkwd{legend}\hlstd{(}\hlstr{"topright"}\hlstd{,} \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"GG"}\hlstd{,} \hlstr{"GG2"}\hlstd{,} \hlstr{"CPH"}\hlstd{,} \hlstr{"RSF"}\hlstd{,} \hlstr{"KM0"}\hlstd{),} \hlkwc{col} \hlstd{= pal[}\hlkwd{c}\hlstd{(}\hlstr{"GG"}\hlstd{,} \hlstr{"GG2"}\hlstd{,} \hlstr{"CPH"}\hlstd{,} \hlstr{"RSF"}\hlstd{,} \hlstr{"KM0"}\hlstd{)],} \hlkwc{lty} \hlstd{=} \hlstr{"solid"}\hlstd{,} \hlkwc{inset} \hlstd{=} \hlnum{0.05}\hlstd{)}
-\end{alltt}
-\end{kframe}
-
-{\centering \includegraphics[width=\maxwidth]{figure/05-model-selection-ibs-2} 
-
-}
-
-
-\begin{kframe}\begin{alltt}
-\hlkwd{plot}\hlstd{(}\hlkwd{density}\hlstd{(ibsc_boots[,}\hlnum{5}\hlstd{]} \hlopt{-} \hlstd{ibsc_boots[,}\hlnum{1}\hlstd{]),} \hlkwc{col} \hlstd{= pal[}\hlstr{"GG"}\hlstd{],} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{main} \hlstd{=} \hlstr{"IBS\textbackslash{}\textbackslash{}_KM0 - IBS\textbackslash{}\textbackslash{}_x BS Distribution"}\hlstd{,} \hlkwc{xlab} \hlstd{=} \hlstr{"IBS"}\hlstd{,} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{0.1}\hlstd{))}
-\hlkwd{lines}\hlstd{(}\hlkwd{density}\hlstd{(ibsc_boots[,}\hlnum{5}\hlstd{]} \hlopt{-} \hlstd{ibsc_boots[,}\hlnum{2}\hlstd{]),} \hlkwc{col} \hlstd{= pal[}\hlstr{"GG2"}\hlstd{],} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
-\hlkwd{lines}\hlstd{(}\hlkwd{density}\hlstd{(ibsc_boots[,}\hlnum{5}\hlstd{]} \hlopt{-} \hlstd{ibsc_boots[,}\hlnum{3}\hlstd{]),} \hlkwc{col} \hlstd{= pal[}\hlstr{"CPH"}\hlstd{],} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
-\hlkwd{lines}\hlstd{(}\hlkwd{density}\hlstd{(ibsc_boots[,}\hlnum{5}\hlstd{]} \hlopt{-} \hlstd{ibsc_boots[,}\hlnum{4}\hlstd{]),} \hlkwc{col} \hlstd{= pal[}\hlstr{"RSF"}\hlstd{],} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
-\hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{= (}\hlkwd{calcIBS}\hlstd{(}\hlkwd{Surv}\hlstd{(data.val}\hlopt{$}\hlstd{Time, data.val}\hlopt{$}\hlstd{DSD), ibs_preds_km0, ibs_times,} \hlkwd{max}\hlstd{(data.val}\hlopt{$}\hlstd{Time))}\hlopt{$}\hlstd{ibs} \hlopt{-} \hlkwd{calcIBS}\hlstd{(}\hlkwd{Surv}\hlstd{(data.val}\hlopt{$}\hlstd{Time, data.val}\hlopt{$}\hlstd{DSD), ibs_preds_gg, ibs_times,} \hlkwd{max}\hlstd{(data.val}\hlopt{$}\hlstd{Time))}\hlopt{$}\hlstd{ibs),} \hlkwc{col} \hlstd{= pal[}\hlstr{"GG"}\hlstd{],} \hlkwc{lwd} \hlstd{=} \hlnum{1}\hlstd{)}
-\hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{= (}\hlkwd{calcIBS}\hlstd{(}\hlkwd{Surv}\hlstd{(data.val}\hlopt{$}\hlstd{Time, data.val}\hlopt{$}\hlstd{DSD), ibs_preds_km0, ibs_times,} \hlkwd{max}\hlstd{(data.val}\hlopt{$}\hlstd{Time))}\hlopt{$}\hlstd{ibs} \hlopt{-} \hlkwd{calcIBS}\hlstd{(}\hlkwd{Surv}\hlstd{(data.val}\hlopt{$}\hlstd{Time, data.val}\hlopt{$}\hlstd{DSD), ibs_preds_gg2, ibs_times,} \hlkwd{max}\hlstd{(data.val}\hlopt{$}\hlstd{Time))}\hlopt{$}\hlstd{ibs),} \hlkwc{col} \hlstd{= pal[}\hlstr{"GG2"}\hlstd{],} \hlkwc{lwd} \hlstd{=} \hlnum{1}\hlstd{)}
-\hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{= (}\hlkwd{calcIBS}\hlstd{(}\hlkwd{Surv}\hlstd{(data.val}\hlopt{$}\hlstd{Time, data.val}\hlopt{$}\hlstd{DSD), ibs_preds_km0, ibs_times,} \hlkwd{max}\hlstd{(data.val}\hlopt{$}\hlstd{Time))}\hlopt{$}\hlstd{ibs} \hlopt{-} \hlkwd{calcIBS}\hlstd{(}\hlkwd{Surv}\hlstd{(data.val}\hlopt{$}\hlstd{Time, data.val}\hlopt{$}\hlstd{DSD), ibs_preds_cph, ibs_times,} \hlkwd{max}\hlstd{(data.val}\hlopt{$}\hlstd{Time))}\hlopt{$}\hlstd{ibs),} \hlkwc{col} \hlstd{= pal[}\hlstr{"CPH"}\hlstd{],} \hlkwc{lwd} \hlstd{=} \hlnum{1}\hlstd{)}
-\hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{= (}\hlkwd{calcIBS}\hlstd{(}\hlkwd{Surv}\hlstd{(data.val}\hlopt{$}\hlstd{Time, data.val}\hlopt{$}\hlstd{DSD), ibs_preds_km0, ibs_times,} \hlkwd{max}\hlstd{(data.val}\hlopt{$}\hlstd{Time))}\hlopt{$}\hlstd{ibs} \hlopt{-} \hlkwd{calcIBS}\hlstd{(}\hlkwd{Surv}\hlstd{(data.val}\hlopt{$}\hlstd{Time, data.val}\hlopt{$}\hlstd{DSD), ibs_preds_rsf, ibs_times,} \hlkwd{max}\hlstd{(data.val}\hlopt{$}\hlstd{Time))}\hlopt{$}\hlstd{ibs),} \hlkwc{col} \hlstd{= pal[}\hlstr{"RSF"}\hlstd{],} \hlkwc{lwd} \hlstd{=} \hlnum{1}\hlstd{)}
-\hlkwd{legend}\hlstd{(}\hlstr{"topright"}\hlstd{,} \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"GG"}\hlstd{,} \hlstr{"GG2"}\hlstd{,} \hlstr{"CPH"}\hlstd{,} \hlstr{"RSF"}\hlstd{),} \hlkwc{col} \hlstd{= pal[}\hlkwd{c}\hlstd{(}\hlstr{"GG"}\hlstd{,} \hlstr{"GG2"}\hlstd{,} \hlstr{"CPH"}\hlstd{,} \hlstr{"RSF"}\hlstd{)],} \hlkwc{lty} \hlstd{=} \hlstr{"solid"}\hlstd{,} \hlkwc{inset} \hlstd{=} \hlnum{0.05}\hlstd{)}
-\end{alltt}
-\end{kframe}
-
-{\centering \includegraphics[width=\maxwidth]{figure/05-model-selection-ibs-3} 
-
-}
-
-
-
-\end{knitrout}
-
-Do some proper BCA bootstrapping on the differences, just as a double-check test.
+BCA bootstrapping on the differences.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlkwd{set.seed}\hlstd{(}\hlnum{20150208}\hlstd{)}
 \hlstd{ibsc_boots2} \hlkwb{=} \hlkwd{boot}\hlstd{(data.val,} \hlkwc{statistic} \hlstd{=} \hlkwa{function}\hlstd{(}\hlkwc{d}\hlstd{,} \hlkwc{i}\hlstd{) \{}
         \hlstd{gg} \hlkwb{=} \hlkwd{calcIBS}\hlstd{(}\hlkwd{Surv}\hlstd{(d}\hlopt{$}\hlstd{Time, d}\hlopt{$}\hlstd{DSD)[i,], ibs_preds_gg[i,], ibs_times,} \hlnum{34}\hlopt{*}\hlnum{365.25}\hlopt{/}\hlnum{12}\hlstd{,} \hlnum{7}\hlopt{*}\hlnum{365.25}\hlopt{/}\hlnum{12}\hlstd{)}\hlopt{$}\hlstd{ibs}
-        \hlstd{gg2} \hlkwb{=} \hlkwd{calcIBS}\hlstd{(}\hlkwd{Surv}\hlstd{(d}\hlopt{$}\hlstd{Time, d}\hlopt{$}\hlstd{DSD)[i,], ibs_preds_gg2[i,], ibs_times,} \hlnum{34}\hlopt{*}\hlnum{365.25}\hlopt{/}\hlnum{12}\hlstd{,} \hlnum{7}\hlopt{*}\hlnum{365.25}\hlopt{/}\hlnum{12}\hlstd{)}\hlopt{$}\hlstd{ibs}
         \hlstd{cph} \hlkwb{=} \hlkwd{calcIBS}\hlstd{(}\hlkwd{Surv}\hlstd{(d}\hlopt{$}\hlstd{Time, d}\hlopt{$}\hlstd{DSD)[i,], ibs_preds_cph[i,], ibs_times,} \hlnum{34}\hlopt{*}\hlnum{365.25}\hlopt{/}\hlnum{12}\hlstd{,} \hlnum{7}\hlopt{*}\hlnum{365.25}\hlopt{/}\hlnum{12}\hlstd{)}\hlopt{$}\hlstd{ibs}
         \hlstd{rsf} \hlkwb{=} \hlkwd{calcIBS}\hlstd{(}\hlkwd{Surv}\hlstd{(d}\hlopt{$}\hlstd{Time, d}\hlopt{$}\hlstd{DSD)[i,], ibs_preds_rsf[i,], ibs_times,} \hlnum{34}\hlopt{*}\hlnum{365.25}\hlopt{/}\hlnum{12}\hlstd{,} \hlnum{7}\hlopt{*}\hlnum{365.25}\hlopt{/}\hlnum{12}\hlstd{)}\hlopt{$}\hlstd{ibs}
         \hlstd{km0} \hlkwb{=} \hlkwd{calcIBS}\hlstd{(}\hlkwd{Surv}\hlstd{(d}\hlopt{$}\hlstd{Time, d}\hlopt{$}\hlstd{DSD)[i,], ibs_preds_km0[i,], ibs_times,} \hlnum{34}\hlopt{*}\hlnum{365.25}\hlopt{/}\hlnum{12}\hlstd{,} \hlnum{7}\hlopt{*}\hlnum{365.25}\hlopt{/}\hlnum{12}\hlstd{)}\hlopt{$}\hlstd{ibs}
-        \hlkwd{c}\hlstd{(gg} \hlopt{-} \hlstd{km0, gg2} \hlopt{-} \hlstd{km0, cph} \hlopt{-} \hlstd{km0, rsf} \hlopt{-} \hlstd{km0, gg} \hlopt{-} \hlstd{rsf, gg2} \hlopt{-} \hlstd{rsf, cph} \hlopt{-} \hlstd{rsf, gg} \hlopt{-} \hlstd{cph, gg2} \hlopt{-} \hlstd{cph, gg} \hlopt{-} \hlstd{gg2)}
-\hlstd{\},} \hlkwc{R} \hlstd{=} \hlnum{500}\hlstd{)}
+        \hlkwd{c}\hlstd{(gg} \hlopt{-} \hlstd{km0, cph} \hlopt{-} \hlstd{km0, rsf} \hlopt{-} \hlstd{km0, gg} \hlopt{-} \hlstd{rsf, cph} \hlopt{-} \hlstd{rsf, gg} \hlopt{-} \hlstd{cph)}
+\hlstd{\},} \hlkwc{R} \hlstd{=} \hlnum{1000}\hlstd{)}
 \hlstd{ibsc_boots2_ci} \hlkwb{=} \hlkwd{t}\hlstd{(}\hlkwd{sapply}\hlstd{(}\hlnum{1}\hlopt{:}\hlkwd{length}\hlstd{(ibsc_boots2}\hlopt{$}\hlstd{t0),} \hlkwa{function}\hlstd{(}\hlkwc{i}\hlstd{)} \hlkwd{boot.ci}\hlstd{(ibsc_boots2,} \hlkwc{index} \hlstd{= i,} \hlkwc{type} \hlstd{=} \hlstr{"bca"}\hlstd{)}\hlopt{$}\hlstd{bca))}
-\hlkwd{rownames}\hlstd{(ibsc_boots2_ci)} \hlkwb{=} \hlkwd{c}\hlstd{(}\hlstr{"gg-km0"}\hlstd{,} \hlstr{"gg2-km0"}\hlstd{,} \hlstr{"cph-km0"}\hlstd{,} \hlstr{"rsf-km0"}\hlstd{,} \hlstr{"gg-rsf"}\hlstd{,} \hlstr{"gg2-rsf"}\hlstd{,} \hlstr{"cph-rsf"}\hlstd{,} \hlstr{"gg-cph"}\hlstd{,} \hlstr{"gg2-cph"}\hlstd{,} \hlstr{"gg-gg2"}\hlstd{)}
+\hlkwd{rownames}\hlstd{(ibsc_boots2_ci)} \hlkwb{=} \hlkwd{c}\hlstd{(}\hlstr{"gg-km0"}\hlstd{,} \hlstr{"cph-km0"}\hlstd{,} \hlstr{"rsf-km0"}\hlstd{,} \hlstr{"gg-rsf"}\hlstd{,} \hlstr{"cph-rsf"}\hlstd{,} \hlstr{"gg-cph"}\hlstd{)}
 \hlkwd{colnames}\hlstd{(ibsc_boots2_ci)} \hlkwb{=} \hlkwd{c}\hlstd{(}\hlstr{"level"}\hlstd{,} \hlstr{"orderi1"}\hlstd{,} \hlstr{"orderi2"}\hlstd{,} \hlstr{"lci"}\hlstd{,} \hlstr{"uci"}\hlstd{)}
 \hlstd{ibsc_boots2}
 \end{alltt}
@@ -2648,47 +2119,37 @@ Do some proper BCA bootstrapping on the differences, just as a double-check test
 ## boot(data = data.val, statistic = function(d, i) {
 ##     gg = calcIBS(Surv(d$Time, d$DSD)[i, ], ibs_preds_gg[i, ], 
 ##         ibs_times, 34 * 365.25/12, 7 * 365.25/12)$ibs
-##     gg2 = calcIBS(Surv(d$Time, d$DSD)[i, ], ibs_preds_gg2[i, 
-##         ], ibs_times, 34 * 365.25/12, 7 * 365.25/12)$ibs
 ##     cph = calcIBS(Surv(d$Time, d$DSD)[i, ], ibs_preds_cph[i, 
 ##         ], ibs_times, 34 * 365.25/12, 7 * 365.25/12)$ibs
 ##     rsf = calcIBS(Surv(d$Time, d$DSD)[i, ], ibs_preds_rsf[i, 
 ##         ], ibs_times, 34 * 365.25/12, 7 * 365.25/12)$ibs
 ##     km0 = calcIBS(Surv(d$Time, d$DSD)[i, ], ibs_preds_km0[i, 
 ##         ], ibs_times, 34 * 365.25/12, 7 * 365.25/12)$ibs
-##     c(gg - km0, gg2 - km0, cph - km0, rsf - km0, gg - rsf, gg2 - 
-##         rsf, cph - rsf, gg - cph, gg2 - cph, gg - gg2)
-## }, R = 500)
+##     c(gg - km0, cph - km0, rsf - km0, gg - rsf, cph - rsf, gg - 
+##         cph)
+## }, R = 1000)
 ## 
 ## 
 ## Bootstrap Statistics :
-##      original   bias    std. error
-## t1*   -21.062  1.16153      10.132
-## t2*   -18.895  1.10126       9.319
-## t3*   -20.209  1.14810       9.399
-## t4*   -14.505  0.54879       5.156
-## t5*    -6.557  0.61274       5.820
-## t6*    -4.390  0.55247       5.219
-## t7*    -5.704  0.59930       4.888
-## t8*    -0.853  0.01344       2.103
-## t9*     1.314 -0.04683       4.374
-## t10*   -2.167  0.06027       5.015
+##     original  bias    std. error
+## t1*  -21.062 0.78762       9.856
+## t2*  -20.209 0.72053       9.039
+## t3*  -14.505 0.34307       4.952
+## t4*   -6.557 0.44455       5.798
+## t5*   -5.704 0.37746       4.772
+## t6*   -0.853 0.06709       2.123
 \end{verbatim}
 \begin{alltt}
 \hlstd{ibsc_boots2_ci}
 \end{alltt}
 \begin{verbatim}
 ##         level orderi1 orderi2     lci    uci
-## gg-km0   0.95    8.84   483.4 -42.087 -2.195
-## gg2-km0  0.95    6.04   477.0 -39.834 -2.575
-## cph-km0  0.95    4.95   473.6 -41.625 -4.555
-## rsf-km0  0.95    3.86   469.0 -26.894 -6.234
-## gg-rsf   0.95    9.64   484.5 -17.396  4.837
-## gg2-rsf  0.95   14.55   490.4 -13.874  6.460
-## cph-rsf  0.95    7.02   479.6 -15.948  2.835
-## gg-cph   0.95   19.34   493.6  -4.524  4.448
-## gg2-cph  0.95   13.62   489.5  -6.992 10.142
-## gg-gg2   0.95   16.42   491.8 -11.578  9.249
+## gg-km0   0.95   19.71   969.3 -39.793 -2.523
+## cph-km0  0.95   15.13   961.7 -38.853 -4.508
+## rsf-km0  0.95   14.19   960.0 -24.557 -5.655
+## gg-rsf   0.95   24.04   974.9 -17.721  5.620
+## cph-rsf  0.95   16.32   963.5 -15.865  2.877
+## gg-cph   0.95   37.22   985.5  -4.343  4.087
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -2702,39 +2163,87 @@ Final model fitting:
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{data.all} \hlkwb{=} \hlkwd{rbind}\hlstd{(data[}\hlkwd{colnames}\hlstd{(data.val)], data.val)}
-\hlkwd{head}\hlstd{(data.all)}
+\hlstd{temp} \hlkwb{=} \hlkwd{coxph}\hlstd{(}\hlkwd{Surv}\hlstd{(Time, DSD)} \hlopt{~} \hlkwd{strata}\hlstd{(SexM)} \hlopt{+} \hlstd{AgeCent} \hlopt{+} \hlstd{LocBody} \hlopt{+} \hlstd{SizeCent} \hlopt{+} \hlstd{SizePlus} \hlopt{+} \hlstd{A2} \hlopt{+} \hlstd{A4,} \hlkwc{data} \hlstd{= data.all)}
+\hlstd{sel} \hlkwb{=} \hlkwd{abs}\hlstd{(}\hlkwd{resid}\hlstd{(temp,} \hlkwc{type} \hlstd{=} \hlstr{"deviance"}\hlstd{))} \hlopt{<=} \hlnum{2.5} \hlopt{&} \hlkwd{apply}\hlstd{(}\hlkwd{abs}\hlstd{(}\hlkwd{resid}\hlstd{(temp,} \hlkwc{type} \hlstd{=} \hlstr{"dfbetas"}\hlstd{)),} \hlnum{1}\hlstd{, max)} \hlopt{<=} \hlnum{0.3}
+\hlstd{data.all.polished} \hlkwb{=} \hlstd{data.all[sel,]}
+\hlkwd{nrow}\hlstd{(data.all)}
 \end{alltt}
 \begin{verbatim}
-##           Time  DSD DiagYearCent  SexM AgeCent LocBody SizeCent    A2   A4
-## NSWPCN_4   937 TRUE       -5.717  TRUE     -16   FALSE       -1 FALSE TRUE
-## NSWPCN_9   587 TRUE       -7.173  TRUE       5   FALSE       10 FALSE TRUE
-## NSWPCN_10  177 TRUE       -7.337  TRUE      -9   FALSE       10 FALSE TRUE
-## NSWPCN_13  247 TRUE       -7.532 FALSE     -19    TRUE       20 FALSE TRUE
-## NSWPCN_17  316 TRUE       -7.417 FALSE     -23   FALSE       -5 FALSE TRUE
-## NSWPCN_20  256 TRUE       -3.392 FALSE      -8   FALSE        0 FALSE TRUE
-##           SizePlus
-## NSWPCN_4         0
-## NSWPCN_9        10
-## NSWPCN_10       10
-## NSWPCN_13       20
-## NSWPCN_17        0
-## NSWPCN_20        0
+## [1] 249
 \end{verbatim}
 \begin{alltt}
-\hlcom{#fit.final.gg = flexsurvreg(Surv(Time, DSD) ~ SexM + AgeCent + LocBody + SizeCent + A2 + A4 + SizeCent:AgeCent + SexM:SizeCent,}
+\hlkwd{nrow}\hlstd{(data.all.polished)}
+\end{alltt}
+\begin{verbatim}
+## [1] 240
+\end{verbatim}
+\begin{alltt}
 \hlstd{fit.final.gg} \hlkwb{=} \hlkwd{flexsurvreg}\hlstd{(}\hlkwd{Surv}\hlstd{(Time, DSD)} \hlopt{~} \hlstd{SexM} \hlopt{+} \hlstd{LocBody} \hlopt{+} \hlstd{SizeCent} \hlopt{+} \hlstd{A2} \hlopt{+} \hlstd{A4,}
         \hlkwc{anc} \hlstd{=} \hlkwd{list}\hlstd{(}
                 \hlkwc{sigma} \hlstd{=} \hlopt{~} \hlstd{SexM,}
                 \hlkwc{Q} \hlstd{=} \hlopt{~} \hlstd{SexM),}
-        \hlkwc{data} \hlstd{= data.all,} \hlkwc{dist} \hlstd{=} \hlstr{"gengamma"}\hlstd{)}
-\hlcom{# fit.final.cph = coxph(Surv(Time, DSD) ~ strata(SexM)+AgeCent+LocBody+SizeCent+A2+A4+SizeCent:AgeCent+strata(SexM):SizeCent, data = data.all, x = TRUE, y = TRUE, model = TRUE)}
-\hlstd{fit.final.cph} \hlkwb{=} \hlkwd{coxph}\hlstd{(}\hlkwd{Surv}\hlstd{(Time, DSD)} \hlopt{~} \hlkwd{strata}\hlstd{(SexM)} \hlopt{+} \hlstd{LocBody} \hlopt{+} \hlstd{SizeCent} \hlopt{+} \hlstd{A2} \hlopt{+} \hlstd{A4,} \hlkwc{data} \hlstd{= data.all,} \hlkwc{x} \hlstd{=} \hlnum{TRUE}\hlstd{,} \hlkwc{y} \hlstd{=} \hlnum{TRUE}\hlstd{,} \hlkwc{model} \hlstd{=} \hlnum{TRUE}\hlstd{)}
+        \hlkwc{data} \hlstd{= data.all.polished,} \hlkwc{dist} \hlstd{=} \hlstr{"gengamma"}\hlstd{)}
+
+\hlstd{fit.final.cph} \hlkwb{=} \hlkwd{coxph}\hlstd{(}\hlkwd{Surv}\hlstd{(Time, DSD)} \hlopt{~} \hlkwd{strata}\hlstd{(SexM)} \hlopt{+} \hlstd{LocBody} \hlopt{+} \hlstd{SizeCent} \hlopt{+} \hlstd{A2} \hlopt{+} \hlstd{A4,} \hlkwc{data} \hlstd{= data.all.polished,} \hlkwc{x} \hlstd{=} \hlnum{TRUE}\hlstd{,} \hlkwc{y} \hlstd{=} \hlnum{TRUE}\hlstd{,} \hlkwc{model} \hlstd{=} \hlnum{TRUE}\hlstd{)}
 \hlkwd{set.seed}\hlstd{(}\hlnum{20150208}\hlstd{)}
-\hlstd{fit.final.rsf} \hlkwb{=} \hlkwd{rfsrc}\hlstd{(}\hlkwd{Surv}\hlstd{(Time, DSD)} \hlopt{~} \hlstd{SexM} \hlopt{+} \hlstd{AgeCent} \hlopt{+} \hlstd{LocBody} \hlopt{+} \hlstd{SizeCent} \hlopt{+} \hlstd{A2} \hlopt{+} \hlstd{A4,} \hlkwc{data} \hlstd{= data.all,} \hlkwc{mtry} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{splitrule} \hlstd{=} \hlstr{"logrankscore"}\hlstd{,} \hlkwc{nsplit} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{ntree} \hlstd{=} \hlnum{1000}\hlstd{)}
+\hlstd{fit.final.rsf} \hlkwb{=} \hlkwd{rfsrc}\hlstd{(}\hlkwd{Surv}\hlstd{(Time, DSD)} \hlopt{~} \hlstd{SexM} \hlopt{+} \hlstd{AgeCent} \hlopt{+} \hlstd{LocBody} \hlopt{+} \hlstd{SizeCent} \hlopt{+} \hlstd{A2} \hlopt{+} \hlstd{A4,} \hlkwc{data} \hlstd{= data.all.polished,} \hlkwc{mtry} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{splitrule} \hlstd{=} \hlstr{"logrankscore"}\hlstd{,} \hlkwc{nsplit} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{ntree} \hlstd{=} \hlnum{1000}\hlstd{)}
 \hlstd{fit.final.km0} \hlkwb{=} \hlkwd{survfit}\hlstd{(}\hlkwd{Surv}\hlstd{(Time, DSD)} \hlopt{~} \hlnum{1}\hlstd{, data.all)}
-\hlkwd{saveRDS}\hlstd{(}\hlkwd{list}\hlstd{(}\hlkwc{gg} \hlstd{= fit.final.gg,} \hlkwc{km0} \hlstd{= fit.final.km0,} \hlkwc{cph} \hlstd{= fit.final.cph,} \hlkwc{rsf} \hlstd{= fit.final.rsf,} \hlkwc{data.train} \hlstd{= data.all),} \hlkwc{file} \hlstd{=} \hlstr{"05_final_model.rds"}\hlstd{)}
+\hlkwd{saveRDS}\hlstd{(}\hlkwd{list}\hlstd{(}\hlkwc{gg} \hlstd{= fit.final.gg,} \hlkwc{km0} \hlstd{= fit.final.km0,} \hlkwc{cph} \hlstd{= fit.final.cph,} \hlkwc{rsf} \hlstd{= fit.final.rsf,} \hlkwc{data.train} \hlstd{= data.all.polished,} \hlkwc{data.train.full} \hlstd{= data.all),} \hlkwc{file} \hlstd{=} \hlstr{"05_final_model.rds"}\hlstd{)}
+
+\hlstd{fit.final.gg}
 \end{alltt}
+\begin{verbatim}
+## 
+## Call:
+## flexsurvreg(formula = Surv(Time, DSD) ~ SexM + LocBody + SizeCent +     A2 + A4, anc = list(sigma = ~SexM, Q = ~SexM), data = data.all.polished,     dist = "gengamma")
+## 
+## Estimates: 
+##                  data mean  est       L95%      U95%      se      
+## mu                     NA    6.47851   6.18670   6.77032   0.14889
+## sigma                  NA    0.75029   0.65968   0.85335   0.04927
+## Q                      NA    0.02879  -0.50416   0.56173   0.27192
+## SexMTRUE          0.50000    0.37324   0.07777   0.66872   0.15076
+## LocBodyTRUE       0.18333   -0.21498  -0.45459   0.02464   0.12226
+## SizeCent          3.55833   -0.00887  -0.01480  -0.00295   0.00302
+## A2TRUE            0.15417   -0.37292  -0.61497  -0.13088   0.12349
+## A4TRUE            0.75000   -0.38434  -0.58916  -0.17952   0.10450
+## sigma(SexMTRUE)   0.50000   -0.24520  -0.45420  -0.03621   0.10663
+## Q(SexMTRUE)       0.50000    0.76301   0.07052   1.45551   0.35332
+##                  exp(est)  L95%      U95%    
+## mu                     NA        NA        NA
+## sigma                  NA        NA        NA
+## Q                      NA        NA        NA
+## SexMTRUE          1.45244   1.08087   1.95174
+## LocBodyTRUE       0.80656   0.63471   1.02495
+## SizeCent          0.99117   0.98531   0.99706
+## A2TRUE            0.68872   0.54066   0.87732
+## A4TRUE            0.68090   0.55479   0.83567
+## sigma(SexMTRUE)   0.78255   0.63496   0.96444
+## Q(SexMTRUE)       2.14473   1.07306   4.28668
+## 
+## N = 240,  Events: 231,  Censored: 9
+## Total time at risk: 141440
+## Log-likelihood = -1658, df = 10
+## AIC = 3337
+\end{verbatim}
+\begin{alltt}
+\hlstd{fit.final.cph}
+\end{alltt}
+\begin{verbatim}
+## Call:
+## coxph(formula = Surv(Time, DSD) ~ strata(SexM) + LocBody + SizeCent + 
+##     A2 + A4, data = data.all.polished, model = TRUE, x = TRUE, 
+##     y = TRUE)
+## 
+## 
+##              coef exp(coef) se(coef)    z      p
+## LocBodyTRUE 0.402      1.50   0.1884 2.13 0.0330
+## SizeCent    0.013      1.01   0.0049 2.64 0.0082
+## A2TRUE      0.634      1.89   0.1946 3.26 0.0011
+## A4TRUE      0.519      1.68   0.1637 3.17 0.0015
+## 
+## Likelihood ratio test=47.1  on 4 df, p=1.42e-09  n= 240, number of events= 231
+\end{verbatim}
 \end{kframe}
 \end{knitrout}
 
@@ -2772,12 +2281,13 @@ Final model fitting:
 ## [8] datasets  base     
 ## 
 ## other attached packages:
-##  [1] RColorBrewer_1.0-5    timeROC_0.2           timereg_1.8.6        
-##  [4] mvtnorm_1.0-1         pec_2.4.4             boot_1.3-13          
-##  [7] MASS_7.3-35           ggplot2_1.0.0         plyr_1.8.1           
-## [10] reshape2_1.4          randomForestSRC_1.5.5 flexsurv_0.5         
-## [13] glmulti_1.0.7         rJava_0.9-6           survival_2.37-7      
-## [16] tikzDevice_0.8.1      knitr_1.8            
+##  [1] risksetROC_1.0.4      energy_1.6.2          RColorBrewer_1.0-5   
+##  [4] timeROC_0.2           timereg_1.8.6         mvtnorm_1.0-1        
+##  [7] pec_2.4.4             boot_1.3-13           MASS_7.3-35          
+## [10] ggplot2_1.0.0         plyr_1.8.1            reshape2_1.4         
+## [13] randomForestSRC_1.5.5 flexsurv_0.5          glmulti_1.0.7        
+## [16] rJava_0.9-6           survival_2.37-7       tikzDevice_0.8.1     
+## [19] knitr_1.8            
 ## 
 ## loaded via a namespace (and not attached):
 ##  [1] codetools_0.2-9  colorspace_1.2-4 deSolve_1.11     digest_0.6.4    
