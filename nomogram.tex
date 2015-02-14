@@ -40,32 +40,39 @@ Pre-operative measurements of tumour size (for example, by \gls{CT} X-ray or \gl
 \mpfatal{For the disc: Although the correlation between \gls{CT} and \gls{EUS} estimates of tumour size, and actual size upon resection, is respectable \cite{Arvold2011}, full clinical validation of this prognostic's use in a pre-operative setting will require ...}
 
 \subsection{Cohorts and Characteristics}
-General characteristics of the \gls{NSWPCN}, Glasgow, and Dresden cohorts are summarised in \tref{tab:nomo-cohort-characteristics}.  The \gls{NSWPCN} training cohort contained a small subgroup of patients with abnormally long recorded survival times ($> 3000$ days, TODO/TODO patients), that were strongly suspected to represent data errors, either as a consequence of incorrect coding following loss to follow-up, or misdiagnosis.  Given the age of the cohort, it was deemed impractical to revisit the original records to check these patients, and so all patients with recorded survival times exceeding 3000 days were excluded from the \gls{NSWPCN} training data.  The \gls{NSWPCN} cohort characteristics in \tref{tab:nomo-cohort-characteristics} have been calculated on the TODO patients that passed the 3000 day data quality cutoff.
+General characteristics of the \gls{NSWPCN}, Glasgow, and Dresden cohorts are summarised in \tref{tab:nomo-cohort-characteristics}.  The \gls{NSWPCN} training cohort contained a small subgroup of patients with abnormally long recorded survival times ($> 3000$ days, 7/256 patients), that were strongly suspected to represent data errors, either as a consequence of incorrect coding following loss to follow-up, or misdiagnosis.  Given the age of the cohort, it was deemed impractical to revisit the original records to check these patients, and so all patients with recorded survival times exceeding 3000 days were excluded from the \gls{NSWPCN} training data.  The \gls{NSWPCN} cohort characteristics in \tref{tab:nomo-cohort-characteristics} have been calculated on the 249 patients that passed the 3000 day data quality cutoff.
 
 \begin{table}[h]
 \centering
 \caption[Characteristics of patient cohorts]{Characteristics of the \gls{NSWPCN} training cohort, and the APGI, Dresden, and Glasgow validation cohorts.  Ordinal variables are shown as median, with quartiles in parentheses.  Categorical variables for which percentages do not add up to 100\% indicate the presence of minor unlisted categories.}\label{tab:nomo-cohort-characteristics}
-\begin{tabular}{@{}lllll@{}}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{llllll}
 \toprule
-Characteristic         &         & NSWPCN       & APGI         & Dresden      & Glasgow      \\ \midrule
-Number of patients     &         & xx           & xx           & xx           & xx           \\
-Gender                 & Male    & xx\%         & xx\%         & xx\%         & xx\%         \\
-Age at diagnosis       & (years) & xx (xx - xx) & xx (xx - xx) & xx (xx - xx) & xx (xx - xx) \\
-Tumour location        & Head    & xx\%         & xx\%         & xx\%         & xx\%         \\
-Size of longest axis   & (mm)    & xx (xx - xx) & xx (xx - xx) & xx (xx - xx) & xx (xx - xx) \\
-S100A2 positive        &         & xx (xx - xx) & xx (xx - xx) & xx (xx - xx) & xx (xx - xx) \\
-S100A4 positive        &         & xx (xx - xx) & xx (xx - xx) & xx (xx - xx) & xx (xx - xx) \\
-Excision margin status & R0      & xx\%         & xx\%         & xx\%         & xx\%         \\
-                       & R1      & xx\%         & xx\%         & xx\%         & xx\%         \\
-                       & R2      & xx\%         & xx\%         & xx\%         & xx\%         \\
-Node involvement       &         & xx\%         & xx\%         & xx\%         & xx\%         \\
-Disease-specific death &         & xx\%         & xx\%         & xx\%         & xx\%         \\
-Length of follow-up    & (days)  & xx (xx - xx) & xx (xx - xx) & xx (xx - xx) & xx (xx - xx) \\ \bottomrule
+                       &         & Training      & \multicolumn{3}{c}{Validation} \\ \cmidrule(r){4-6}
+Characteristic         &         & NSWPCN        & APGI         & Dresden      & Glasgow        \\ \midrule
+Number of patients     &         & 249           & 75           & xx           & 189            \\
+Gender                 & Male    & 49.4\%        & 54.7\%       & xx\%         & 52.9\%         \\
+Tumour location        & Head    & 80.7\%        & 85.3\%       & xx\%         & 100\%          \\
+Excision margin status & R0      & 58.2\%        & 32.0\%       & xx\%         & 27.0\%         \\
+Node involvement       &         & 65.8\%        & 78.7\%       & xx\%         & 82.5\%         \\
+S100A2 positive        &         & 16.1\%        & 14.7\%       & xx\%         & 32.8\%         \\
+S100A4 positive        &         & 75.5\%        & 65.3\%       & xx\%         & 70.9\%         \\
+Disease-specific death &         & 95.2\%        & 68.0\%       & xx\%         & 85.2\%         \\[3]
+Size of longest axis   & (mm)    & 30            & 35           & xx           & 30             \\
+                       &         & (25 - 40)     & (28 - 43)    & (xx - xx)    & (25 - 40)      \\[3]
+Age at diagnosis       & (years) & 69            & 67           & xx           & 64.0           \\
+                       &         & (62 - 75)     & (61 - 74)    & (xx - xx)    & (57.8 - 69.4)  \\[3]
+Length of follow-up    & (days)  & 479           & 655          & xx           & 501            \\
+                       &         & (270 - 851)   & (362 - 743)  & (xx - xx)    & (233 - 915)    \\ \bottomrule
 \end{tabular}
+}
 \end{table}
 
 \subsection{Prognostic model building and selection}
-Candidate prognostic models were constructed on the \gls{NSWPCN} training data by iterative model fitting, evaluation, and refinement.  To guard against overfitting caused by this iterative process, the \gls{NSWPCN} cohort was randomly split once into model building and testing sets.  All model fitting and refinement described below was performed on the model building set, to yield three final candidate prognostic predictors.  The performance of each of these three predictors was then assessed on the model test set, and the most parsimonious high-performing model was chosen as the final prognostic predictor, for subsequent external validation.
+Candidate prognostic models were constructed on the \gls{NSWPCN} training data by iterative model fitting, evaluation, and refinement.  To guard against overfitting caused by this iterative process, the \gls{NSWPCN} cohort was randomly split once into model building and testing sets.  All model fitting and refinement described below was performed on the 200-patient model building set, to yield three final candidate prognostic predictors.  The performance of each of these three predictors was then assessed on the 49-patient model test set, and the most parsimonious high-performing model was chosen as the final prognostic predictor, for subsequent external validation.
+
+\paragraph{Cohort shift}
+The \gls{NSWPCN} training cohort was collected over a long period, with patient diagnosis dates spanning the thirteen years from 1994 to 2006.  Over such an extended interval, subtle changes in cohort composition or therapy may cause a shift in cohort characteristics, and reduce the prognostic performance of a model that was built on the historical data, when it is applied to contemporary cases.  Cohort shift was investigated by examining the association between date of diagnosis, and all prognostic and outcome variables: in the absence of shift, no variables would be expected to change significantly over time.  Date of diagnosis was not significantly associated with any other variable (7 tests, lowest $P = 0.35$); there was therefore no indication of cohort shift in the \gls{NSWPCN} training data.
 
 \paragraph{Model functional form and expanded terms}
 The \gls{CPH} framework was used to assess functional form for the two continuous covariates: age at diagnosis, and maximum pathological axis size.  \gls{LOESS} smooths of martingale residuals \cite{Therneau1990} indicated a largely linear relationship for age at diagnosis (\fref{fig:nomo-funcform-age}), and a knee-shaped form for size (\fref{fig:nomo-funcform-size}), with the knee at approximately $0$ in median-centered units.  In subsequent fits this potential nonlinear size effect was modelled by adding a $\mbox{size}_+$ ramp term.  The original set of five linear prognostic terms, plus the additional nonlinear size term, was denoted the expanded term set.
@@ -82,37 +89,34 @@ The \gls{CPH} framework was used to assess functional form for the two continuou
 \label{fig:nomo-funcform}
 \end{figure}
 
-\mpfatal{TODO: Year variable -- exclude as prognostic?  At least model it and then make predictions as at current time}
-\mpfatal{Decide what to do with the models.  At the moment, I have CPH from genetic AS, and GG from stepwise.  This doesn't make sense.  Choose one for both.  I think stepwise AIC is the best option.}
-
 \paragraph{Proportional hazards assumption}
-A Grambsch-Therneau test \cite{Grambsch1994} on the \gls{CPH} model fit using all expanded terms indicated that patient sex violated the \glspl{PH} assumption ($P = 0.0104$, \fref{fig:nomo-ph-plot-sex}) -- in other words, the two sexes had significantly different baseline hazard shapes.  To account for this effect, all subsequent models were stratified by patient sex, so that the survival of male and female patients was modelled by two different baseline hazard functions.  A repeated Grambsch-Thernau test on the stratified model indicated no further significant violations of the \gls{PH} assumption (global $P = 0.4194$).
+A Grambsch-Therneau test \cite{Grambsch1994} on the \gls{CPH} model fit using all expanded terms indicated that patient sex violated the \glspl{PH} assumption ($P = 0.0104$, \fref{fig:nomo-ph-plot-sex}) -- in other words, the two sexes had significantly different baseline hazard shapes.  To account for this effect, all subsequent models were stratified by patient sex, so that the survival of male and female patients was modelled by two different baseline hazard functions.  A Grambsch-Thernau test on the stratified model indicated no further significant violations of the \gls{PH} assumption (global $P = 0.4194$).
 
 \begin{figure}
 \centering
-  \includegraphics[width=.7\linewidth]{analysis/nomogram/figure/05-eda-ph-check-full-sexplot-1}
+  \includegraphics[width=.7\linewidth]{analysis/nomogram/figure/05-eda-ph-check-full-1}
   \caption[Baseline hazard forms differ between patient sexes]{NSWPCN baseline hazard differs between patient sexes.  A natural spline smooth of scaled Schoenfeld residuals for patient sex has a slope obviously differing from zero, suggesting that the baseline hazard forms differ between the two sexes, and that the combined data violates the \acrshort{PH} assumption of Cox regression.  Individual residuals are displayed as points, the natural spline smooth ($\mbox{df}=4$) as a solid line, and approximate $\pm 1\ \mbox{SE}$ bounds as dashed lines.}
 \label{fig:nomo-ph-plot-sex}
 \end{figure}
 
 \paragraph{Outlier removal}
-Strongly influential or outlying samples from the full marginal Cox fit were removed from the \gls{NSWPCN} building set.  I considered this unusual measure to be necessary given known and unresolvable quality issues in the \gls{NSWPCN} cohort data.  For all subsequent work, patients with full marginal Cox model absolute deviance residuals exceeding 2.5, or any absolute DFBETAS score exceeding 0.3, were excluded from the original building set.  This filter removed seven patients, reducing the size of the model building set to TODO patients.	
+Strongly influential or outlying samples from the full marginal Cox fit were removed from the \gls{NSWPCN} building set.  I considered this unusual measure to be necessary given known and unresolvable quality issues in the \gls{NSWPCN} cohort data.  For all subsequent work, patients with full marginal Cox model absolute deviance residuals exceeding 2.5, or any absolute DFBETAS score exceeding 0.3, were excluded from the original building set.  This filter removed seven patients, reducing the size of the model building set to 193 patients.	
 
 \paragraph{Variable selection}
-Genetic selection was used to identify a model with optimal \gls{BIC} from the set of all \gls{CPH} models that use any combination of the expanded terms.  Models with interactions between terms of up to degree two were considered, and a marginal term constraint was enforced, to ensure that interaction effects were only present in the model specification if the associated main effects were also.  Stratification of baseline hazard by patient sex was used in all models.  The identified optimal \gls{CPH} model used three variables: tumour size (linear term only), S100A2 status, and S100A4 status, in addition to the sex stratum.  This model was also identified by stepwise backward selection for optimal BIC, starting from the marginal \gls{CPH} fit using all expanded terms.  The final \gls{BIC}-selected set of prognostic terms (tumour size linear term, S100A2 binary status, S100A4 binary status, and a patient sex stratum) was denoted the reduced term set.
+Stepwise variable elimination was used to select an AIC-optimal model starting from the full marginal \gls{CPH} model containing all expanded terms and a sex stratum.  The identified optimal \gls{CPH} model used four variables: tumour location (head vs body), tumour size (linear term only), S100A2 status, and S100A4 status, in addition to the sex stratum.  The final \gls{AIC}-selected set of prognostic terms (tumour location, size linear term, S100A2 binary status, S100A4 binary status, and a patient sex stratum) was denoted the reduced term set.
 
 \paragraph{Model CP1}
-A final prognostic \acrshort{CPH} regression model was fit to the \gls{NSWPCN} model building data using only the reduced term set; this model was termed CP1.  CP1 did not violate the \gls{PH} assumption by the Grambsch-Therneau test (global P = TODO).  Model residuals were inspected to identify possible outlier patients, and assess overall fit stability.  Deviance residuals indicated no egregious outlier patients, and DFBETAS indicated TODO influential patients with $|\mbox{DFBETAS}_{i,j}| > \frac{2}{\sqrt{n}}$, where $n = TODO$.  TODO: Stuff on these outliers.  Predictions from model CP1 were broadly concordant with stratified \gls{KM} estimates across all covariate subgroups, indicating no serious lack of fit of the model (\fref{fig:nomo-cp1-gg1-fitplot}).
+A final prognostic \acrshort{CPH} regression model was fit to the \gls{NSWPCN} model building data using only the reduced term set; this model was termed CP1.  CP1 did not violate the \gls{PH} assumption by the Grambsch-Therneau test (global $P = 0.794$).  Predictions from model CP1 were broadly concordant with stratified \gls{KM} estimates across all covariate subgroups, indicating no serious lack of fit of the model (\fref{fig:nomo-cp1-gg1-fitplot}).
 
 \paragraph{Model GG1}
 Semiparametric Cox \gls{PH} models such as CP1 provide a convenient framework for covariate testing and model diagnostics, but their unspecified baseline hazard term significantly complicates their use as prognostic predictors: patients can only be ranked by relative hazard, and absolute estimates of survival probabilities are unavailable.  Although it is possible to approximate the baseline hazard in the Cox model, a more robust alternative is to use fully parametric models, in which the baseline hazard distribution is explicity specified.  The advantages of parametric models in terms of robustness and interpretability are offset by their more stringent assumptions: if the chosen baseline distribution is unsuited to the particular data to be fit, predictions from parametric models can be very poor.  Given the potential benefits of parametric models for survival prediction, a parametric alternative to model CP1 was developed, and its fit assessed.  This parametric model was termed GG1.
 
-Model GG1, employing a \gls{GG} survival distribution \cite{Cox2007}, was fit to the \gls{NSWPCN} model building data by maximum likelihood.  Guided by the model functional form and baseline hazard stratification indicated by the Cox model diagnostics, the \gls{GG} distribution location parameter $\beta$ was made linearly dependent on all terms in the reduced set, but the shape parameters $\sigma$ and $\lambda$ were modelled as dependent on patient sex only.  The goodness of fit of GG1 was investigated by examination of residuals, and graphical assessment of prediction accuracy.  Deviance and DFBETAS residuals indicated no extreme outliers or unduly influential samples, but comparisons between GG1 predictions and \gls{KM} estimates of survival indicated that the GG1 baseline distribution could not accurately model survival in some cohort subsets, particularly the S100A2 negative male group (\fref{fig:nomo-cp1-gg1-fitplot})
+Model GG1, employing a \gls{GG} survival distribution \cite{Cox2007}, was fit to the \gls{NSWPCN} model building data by maximum likelihood.  Guided by the model functional form and baseline hazard stratification indicated by the Cox model diagnostics, the \gls{GG} distribution location parameter $\beta$ was made linearly dependent on all terms in the reduced set, but the shape parameters $\sigma$ and $\lambda$ were modelled as dependent on patient sex only.  The goodness of fit of GG1 was investigated by and graphical assessment of prediction accuracy.  Comparisons between GG1 predictions and \gls{KM} estimates of survival indicated that the GG1 baseline distribution could not accurately model survival in some cohort subsets, particularly the S100A2 negative male group (\fref{fig:nomo-cp1-gg1-fitplot})
 
 \begin{figure}
 \centering
-  \includegraphics[width=.7\linewidth]{analysis/nomogram/figure/05-final-fit-assessment-4-2}
-  \caption[Model survival predictions agree with stratified \acrshort{KM} estimates]{Model survival predictions agree with stratified \gls{KM} estimates.  \gls{KM} estimates of survival probability for each combination of patient sex and biomarker status are shown as solid blue lines, with 95\% confidence intervals indicated by blue ribbons.  Estimates of survival probability generated by both models CP1 (red) and GG1 (green) broadly followed the form of the \gls{KM} estimator, and lay within its bounds at all times, although the GG1 fit was relatively poor in some strata.  Both model fitting and prediction used the \gls{NSWPCN} model building set, and so these plots illustrate model goodness-of-fit, but cannot indicate possible overfitting.  \gls{KM} traces for the S100A2 positive, S100A4 negative group were omitted, as there were insufficient patients in this group for reliable \gls{KM} estimates to be available.}
+  \includegraphics[width=.7\linewidth]{analysis/nomogram/figure/05-final-fit-assessment-4}
+  \caption[Model survival predictions agree with stratified \acrshort{KM} estimates]{Model survival predictions agree with stratified \gls{KM} estimates.  \gls{KM} estimates of survival probability for each combination of patient sex and biomarker status are shown as solid blue lines, with 95\% confidence intervals indicated by blue ribbons.  Estimates of survival probability generated by both models CP1 (red) and GG1 (green) broadly followed the form of the \gls{KM} estimator, and lay within its bounds at all times, although the GG1 fit was relatively poor in some strata.  Both model fitting and prediction used the \gls{NSWPCN} model building set, and so these plots illustrate model goodness-of-fit, but cannot indicate possible overfitting.  \gls{KM} traces for the S100A2 positive, S100A4 negative group were omitted, as there were insufficient patients in this group for reliable \gls{KM} estimates to be available.  For all plots, tumour location, and size, were set to cohort median values.}
 \label{fig:nomo-cp1-gg1-fitplot}
 \end{figure}
 
@@ -122,23 +126,27 @@ Regression models like CP1 and GG1 are familiar and readily interpretable, but a
 To investigate whether tree ensemble models could provide improved performance over classical approaches, a random survival forest model, termed RSF, was fit to the \gls{NSWPCN} model building data.  In contrast to CP1 and GG1, which used the reduced set of terms as covariates, RSF was supplied all preoperatively-assessable variables as candidate predictors.
 
 \paragraph{Model selection}
-Predictive performance of the three prognostic models (CP1, GG1, and RSF) was compared on the holdout \gls{NSWPCN} model test set, to select a single high-performing parsimonious model for external validation.  For each model, predictor discrimination and overall accuracy over time were assessed by the Brier score for censored data \cite{Graf1999}, and the \gls{AUC} of the cumulative/dynamic \gls{TDROC} \cite{Blanche2013}.  The Brier score provides an overall measure of predictive performance, but it assesses both model discrimination and calibration, whereas it has been argued that high model discrimination is the far more relevant criterion in most clinical applications (TODO cite).  Model discrimination alone can be measured by the \gls{TDROC}-\gls{AUC}, an extension of the familiar \gls{AUC} concept to censored data, that is reflective of the use of prognostic models in clinical practice \cite{Heagerty2005}.  
+Predictive performance of the three prognostic models (CP1, GG1, and RSF) was compared on the holdout \gls{NSWPCN} model test set, to select a single high-performing parsimonious model for external validation.  Performance in the interval from seven to 34 months post-diagnosis was of particular interest, as the majority of patients in the \gls{NSWPCN} training set died during this period.  Model GG1 was the overall best-performing model in this $7-34$ month interval, as assessed by both cumulative/dynamic \gls{TDROC} \cite{Blanche2013} (\fref{nomo-tdauc-paths}) and Brier score \cite{Graf1999} (\fref{nomo-brier-paths}).  There was no significant difference between the $7-34$ month \gls{IBS} of competing models, as estimated using 95\% bootstrap confidence intervals, although all models had significantly better \gls{IBS} than a marginal Kaplan-Meier survival estimator (\tref{TODO}).  
+%The Brier score provides an overall measure of predictive performance, but it assesses both model discrimination and calibration, whereas it has been argued that high model discrimination is the far more relevant criterion in most clinical applications (TODO cite).  Model discrimination alone can be measured by the \gls{TDROC}-\gls{AUC}, an extension of the familiar \gls{AUC} concept to censored data, that is reflective of the use of prognostic models in clinical practice \cite{Heagerty2005}.
+As there was no significant difference in performance between the prognostic models, the simplest model GG1 was selected to form the \gls{PCOP}.
 
-TODO: I'm approximating GG linpred, so why not RSF as well?
+\paragraph{Final \acrshort{PCOP} fit}
+A final fit of GG1 to the full \gls{NSWPCN} training data (both model building and validation patients) was made, and is summarised in \tref{tab:nomo-final-fit}.  This fit defined the \gls{PCOP}, which predicts post-resection outcome using a generalized gamma model \cite{Cox2007}, as
+\begin{align*}
+T \sim GG(\beta   = &\ 6.7446 + 0.3732[\mbox{Sex = Male}] - 0.2150[\mbox{Location = Body}] \\
+                    &\ -0.0887\;\mbox{Size} - 0.3729[\mbox{S100A2 = Positive}] \\
+                    &\ -0.3843[\mbox{S100A4 = Positive}], \\ 
+          \sigma  = &\ 0.7503 - 0.2452[\mbox{Sex = Male}],\\
+          \lambda = &\ 0.0288 - 0.7630[\mbox{Sex = Male}])
+\end{align*}
+where $T$ is an individual's failure time, $GG$ is the generalized gamma distribution, $\mbox{Size}$ is in centimetres, and $[\;]$ is the Iverson bracket.
 
-Model discrimination alone over time can be measured by the , which provides an assessment of prognostic model performance that is appropriate to the way these models are applied in clinical practice \cite{Blanche2013a}.
-
-In addition, interpretation of the Brier score is complicated by the presence of an unknown model-independent 'data inseparability' term
-
-can be dominated by an unknown model-independent 'data inseparability' term, making it insensitive to predictive differences between models \cite{Graf1999}.  A relative performance measure that is insensitive to 
-
-
-
-
-overall accuracy was measured by the \gls{IBS}.  All predictors were also compared against a no-information control predictor, formed as the \gls{KM} estimate of the marginal survival function in the \gls{NSWPCN} model building set.  This no-information estimate, here denoted KM0, is the optimal survival predictor in the absence of any prognostic information or patient stratification; the prognostic models developed here must at least outperform KM0 to be of any clinical utility.
-
-Predictive performance of the three prognostic models (CP1, GG1, and RSF) was compared on the holdout \gls{NSWPCN} model test set, to select a single high-performing parsimonious model for external validation.  For each model, prediction accuracy over time was assessed using , 
-
+\begin{figure}
+\centering
+  \includegraphics[width=.7\linewidth]{analysis/nomogram/figure/05-model-selection-roc-cd-1}
+  \caption[Time-dependent \acrshort{AUC} paths for candidate models on holdout data]{Cumulative/dynamic \gls{TDROC} \gls{AUC} paths for candidate models on the holdout \gls{NSWPCN} model test set.}
+\label{fig:nomo-tdauc-paths}
+\end{figure}
 
 \begin{figure}
 \centering
@@ -147,42 +155,37 @@ Predictive performance of the three prognostic models (CP1, GG1, and RSF) was co
 \label{fig:nomo-brier-paths}
 \end{figure}
 
-TODO: Swap out for AUC paths.
 
-Traces of the Brier score over time indicated that all models produced survival estimates superior to KM0 from approximately 100 days to 600 days post-diagnosis (\fref{fig:nomo-brier-paths}).  The performance of the models was similar, with RSF displaying slightly higher error rates at longer follow-up times, and models CP1 and GG1 demonstrating comparable performance.  Bootstrapped differences in \gls{IBS} between KM0 and each prognostic model further highlighted that although all competing models were superior to KM0, the models displayed statistically similar predictive performance on the test set (\fref{fig:nomo-ibs-delta}).  As there was no substantial difference in performance between the prognostic models, the simplest model GG1 was selected for external validation.
-
-\begin{figure}
+\begin{table}
 \centering
-  \includegraphics[width=.7\linewidth]{analysis/nomogram/figure/05-model-selection-ibs-3}
-  \caption[Bootstrapped differences in \acrshort{IBS} between candidate models and KM0]{Distribution of bootstrapped differences in \gls{IBS} between candidate models and null-model KM0.  For each of 500 bootstrap draws from the \gls{NSWPCN} holdout model test data, the difference between the \gls{IBS} of a candidate model, and the \gls{IBS} of KM0, was calculated as $\Delta \mbox{IBS}_{\mbox{Model}} = \mbox{IBS}_{\mbox{KM0}} - \mbox{IBS}_{\mbox{Model}}$.  The smoothed distributions of $\Delta \mbox{IBS}_{\mbox{Model}}$ are shown here for each candidate model.  All models predicted outcome significantly better than KM0, but beyond that had statistically similar performance.}
-\label{fig:nomo-ibs-delta}
-\end{figure}
+\caption[Final PCOP fit]{Coefficients of a final GG1 fit to the \gls{NSWPCN} training data, which defines the \gls{PCOP}.  Coefficient estimates are for a generalized gamma survival model \cite{Cox2007}.}\label{tab:nomo-final-fit}
+\begin{tabular}{llrr}
+\toprule
+Term                   &                & Estimate       & SE      \\ \midrule
+$\beta$ \\
+(Intercept)            &                &  $6.7446$      & $0.1489$ \\
+Sex                    & = Male         &  $0.3732$      & $0.1508$ \\
+Tumour location        & = Body         & $-0.2150$      & $0.1223$ \\
+Size of longest axis   &  (cm)          & $-0.0887$      & $0.0302$ \\
+S100A2                 & = Positive     & $-0.3729$      & $0.1235$ \\
+S100A4                 & = Positive     & $-0.3843$      & $0.1045$ \\[10]
+$\sigma$ \\
+(Intercept)            &                &   $0.7503$     & $0.0493$ \\
+Sex                    & = Male         &  $-0.2452$     & $0.1066$ \\[10]
+$\lambda$ \\
+(Intercept)            &                &  $0.0288$      & $0.2719$ \\
+Sex                    & = Male         &  $0.7630$      & $0.3533$ \\[5] \bottomrule
+\end{tabular}
+\end{table}
 
-%\paragraph{Summary}
-%Exploratory analysis on the training \gls{NSWPCN} cohort data indicated that a BIC-optimal \gls{CPH} fit was achieved by the following model: $T \sim \mbox{Age} + \mbox{S100A2} + \mbox{S100A4} + \mbox{strata}(\mbox{Sex})$.  There was no significant evidence for nonlinear effects in any examined variables, or for any interactions up to degree two.  Male and female patients appeared to have significantly different baseline hazards, a feature that was modelled by stratifiying by patient sex.  The performance of \gls{CPH} and parametric predictors that followed the above model form, and a general \gls{RSF} predictor, were compared on holdout data.  The \gls{RSF} predictor was inferior to the \gls{CPH} and parametric models, which were equivalent.  The parametric model, termed GG1, had the optimal combination of performance and parsimony, and was selected for external validation.
 
 \subsection{External validation}
-
 
 
 \subsection{Web tool}
 \hyperref[http://54.66.150.159:3277/]{http://54.66.150.159:3277/}
 
-
-%* Summary of analysis
-%* Variables that are both available and reasonably pre-operatively assessable:
-%  # Patient:   Age, Sex
-%  # Imaging:   Size, Location (head vs tail)
-%  # Biomarker: A2, A4, CA-19-9 (thresh 100 U/mL)
-%* Cohort subsetting and characteristics (all of them)
-%* Exploration.
-%  # Functional forms.  Martingale residual smooths of marginal model.
-%  # Perform CPH fit of marginal model using identified forms, examine violations of CPH.  Identify Sex and A4 as violators.  Re-fit with strata to resolve.  Probably just describe this step as a reason for stratification by Sex, A4.
-%* All-subsets search for best model, including interactions.
-%
-
-TODO: In app, show +/- margin curves, to guide surgeons as to benefit from aggressive surgery.
-
+TODO: In app, show +/- margin curves, to guide surgeons as to benefit from aggressive surgery?  Definite counfounding potential
 
 \subsection{Cohort characteristics}
 \label{subsec:nomo-results-cohort}
@@ -194,12 +197,22 @@ Intro here on disc \& calib.  Also describe cohorts briefly.
 \subsubsection{Discrimination}
 \subsubsection{Calibration}
 
-\subsection{Web tool TODO -- better name}
+\subsection{PCOP web application}
 
 \section{Discussion}
 
 \section{Methods}
 \subsection{Cohort recruitment and ethics}
 \label{subsec:nomo-methods-cohort}
+
+\subsection{Model building and selection}
+All statistical modelling was performed within the \texttt{R} environment.  \gls{CPH} and \gls{DM} models were fit and analysed using the base package \texttt{survival}, and Cox model stepwise variable elimination was performed using the function \texttt{stepAIC} from package \texttt{MASS}.  Generalised gamma survival models were fit using the implementation in package \texttt{flexsurv}\footnote{Parameter symbols differ between the \texttt{flexsurv} package, and this chapter and \cite{Cox2007}.  In this chapter and \cite{Cox2007}, the generalized gamma location parameter is denoted $\beta$, and shape parameters are $\sigma$, and $\lambda$.  In \texttt{flexsurv}, these parameters are denoted $\mu$, $\sigma$, and $Q$, respectively.}, and package \texttt{randomForestSRC} supplied random survival forest functions.  The random survival forest model was trained with parameters \texttt{splitrule = "logrankscore"}, \texttt{nsplit = 2}, and \texttt{ntree = 1000}, with all other parameters set to defaults.
+
+Both the cumulative/dynamic \gls{TDROC}, and the \gls{IBS}, were used to compare model prognostic performance.  \glspl{TDROC} were estimated using R package \texttt{timeROC}, and Brier score paths and \glspl{IBS} were calculated with custom code, following \cite{Graf1999}.
+
+\subsection{External validation}
+
+\subsection{PCOP web application}
+The \texttt{R} \texttt{shiny} infrastructure was used to create a simple web application to predict patient outcome using the final \gls{PCOP} model.
 
 \end{document}

@@ -52,7 +52,7 @@ ultraclean: clean
 05_final_model.rds 05_train_NSWPCN_2.pdf 05_train_NSWPCN_2.rda: 03_NSWPCN_subset.rda 05_train_NSWPCN_2.Rnw
 	$(RSCRIPT) -e "knitr::knit2pdf('05_train_NSWPCN_2.Rnw')"
 
-06_Glasgow.rds: data/Glasgow_S100A2_minimal_20140414.csv.xz 06_load_Glasgow.R
+06_Glasgow.rds: data/Glasgow_S100A2_minimal_20140414.csv 06_load_Glasgow.R
 	$(RSCRIPT) 06_load_Glasgow.R | tee 06_load_Glasgow.Rout
 
 07_validate.pdf: 05_final_model.rds 06_Glasgow.rds 07_validate.Rnw
