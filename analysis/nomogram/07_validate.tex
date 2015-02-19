@@ -279,7 +279,7 @@ Trained models:
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{data.dresden} \hlkwb{=} \hlkwd{readRDS}\hlstd{(}\hlstr{"06_Dresden2.rds"}\hlstd{)}
+\hlstd{data.dresden} \hlkwb{=} \hlkwd{readRDS}\hlstd{(}\hlstr{"06_Dresden.rds"}\hlstd{)}
 
 \hlstd{data.dresden}\hlopt{$}\hlstd{History.Diagnosis.AgeAt} \hlkwb{=} \hlstd{data.dresden}\hlopt{$}\hlstd{History.Surgery.AgeAtYears}
 \hlstd{data.dresden}\hlopt{$}\hlstd{History.Diagnosis.AgeAt.Cent} \hlkwb{=} \hlstd{data.dresden}\hlopt{$}\hlstd{History.Diagnosis.AgeAt} \hlopt{-} \hlnum{68}
@@ -948,9 +948,9 @@ Trained models:
 ##                                                                       
 ##    Path.Size    Path.Size.Cent   Patient.Sex    SexM        
 ##  Min.   :15.0   Min.   :-15.00   Female:34   Mode :logical  
-##  1st Qu.:28.0   1st Qu.: -2.00   Male  :41   FALSE:75       
-##  Median :35.0   Median :  5.00               NA's :0        
-##  Mean   :36.9   Mean   :  6.89                              
+##  1st Qu.:28.0   1st Qu.: -2.00   Male  :41   FALSE:34       
+##  Median :35.0   Median :  5.00               TRUE :41       
+##  Mean   :36.9   Mean   :  6.89               NA's :0        
 ##  3rd Qu.:43.0   3rd Qu.: 13.00                              
 ##  Max.   :90.0   Max.   : 60.00                              
 ##                                                             
@@ -1155,7 +1155,525 @@ Trained models:
 }
 
 
-
+\begin{kframe}\begin{alltt}
+\hlkwd{survdiff}\hlstd{(}\hlkwd{Surv}\hlstd{(temp.time, temp.dsd)} \hlopt{~} \hlstd{temp.cohort)}
+\end{alltt}
+\begin{verbatim}
+## Call:
+## survdiff(formula = Surv(temp.time, temp.dsd) ~ temp.cohort)
+## 
+##                       N Observed Expected (O-E)^2/E (O-E)^2/V
+## temp.cohort=APGI     75       51     74.7     7.495    8.7035
+## temp.cohort=Dresden 150      112    137.3     4.661    6.2829
+## temp.cohort=Glasgow 189      161    163.2     0.031    0.0443
+## temp.cohort=NSWPCN  240      231    179.8    14.581   21.8988
+## 
+##  Chisq= 27.1  on 3 degrees of freedom, p= 5.68e-06
+\end{verbatim}
+\begin{alltt}
+\hlstd{temp.vars} \hlkwb{=} \hlkwd{c}\hlstd{(}\hlstr{"Time"}\hlstd{,} \hlstr{"DSD"}\hlstd{,} \hlstr{"SexM"}\hlstd{,} \hlstr{"AgeCent"}\hlstd{,} \hlstr{"SizeCent"}\hlstd{,} \hlstr{"Stage.pT.Simplified"}\hlstd{,} \hlstr{"LocBody"}\hlstd{,} \hlstr{"Treat.MarginPositive"}\hlstd{,} \hlstr{"Path.Differentiation"}\hlstd{,} \hlstr{"A2"}\hlstd{,} \hlstr{"A4"}\hlstd{)}
+\hlstd{temp.all} \hlkwb{=} \hlkwd{as.data.frame}\hlstd{(}\hlkwd{rbind}\hlstd{(}
+        \hlkwd{cbind}\hlstd{(data.nswpcn[,temp.vars],} \hlkwc{cohort} \hlstd{=} \hlstr{"NSWPCN"}\hlstd{),}
+        \hlkwd{cbind}\hlstd{(data.glasgow[,temp.vars],} \hlkwc{cohort} \hlstd{=} \hlstr{"Glasgow"}\hlstd{),}
+        \hlkwd{cbind}\hlstd{(data.apgi[,temp.vars],} \hlkwc{cohort} \hlstd{=} \hlstr{"APGI"}\hlstd{),}
+        \hlkwd{cbind}\hlstd{(data.dresden[,temp.vars],} \hlkwc{cohort} \hlstd{=} \hlstr{"Dresden"}\hlstd{)))}
+\hlkwd{table}\hlstd{(temp.all}\hlopt{$}\hlstd{SexM, temp.all}\hlopt{$}\hlstd{cohort)}
+\end{alltt}
+\begin{verbatim}
+##        
+##         NSWPCN Glasgow APGI Dresden
+##   FALSE    120      89   34      68
+##   TRUE     120     100   41      82
+\end{verbatim}
+\begin{alltt}
+\hlstd{temp.allfit} \hlkwb{=} \hlkwd{coxph}\hlstd{(}\hlkwd{Surv}\hlstd{(Time, DSD)} \hlopt{~} \hlstd{LocBody} \hlopt{+} \hlstd{cohort}\hlopt{*}\hlstd{(SexM} \hlopt{+} \hlstd{AgeCent} \hlopt{+} \hlstd{SizeCent} \hlopt{+} \hlstd{Treat.MarginPositive} \hlopt{+} \hlkwd{I}\hlstd{(Path.Differentiation} \hlopt{%in%} \hlkwd{c}\hlstd{(}\hlstr{"3"}\hlstd{,} \hlstr{"4"}\hlstd{))} \hlopt{+} \hlstd{A2} \hlopt{+} \hlstd{A4),} \hlkwc{data} \hlstd{= temp.all)}
+\hlstd{temp.allfit2} \hlkwb{=} \hlkwd{coxph}\hlstd{(}\hlkwd{Surv}\hlstd{(Time, DSD)} \hlopt{~} \hlstd{LocBody} \hlopt{+} \hlstd{SexM} \hlopt{+} \hlstd{AgeCent} \hlopt{+} \hlstd{SizeCent} \hlopt{+} \hlstd{Treat.MarginPositive} \hlopt{+} \hlkwd{I}\hlstd{(Path.Differentiation} \hlopt{%in%} \hlkwd{c}\hlstd{(}\hlstr{"3"}\hlstd{,} \hlstr{"4"}\hlstd{))} \hlopt{+} \hlstd{A2} \hlopt{+} \hlstd{A4,} \hlkwc{data} \hlstd{= temp.all)}
+\hlkwd{summary}\hlstd{(temp.allfit)}
+\end{alltt}
+\begin{verbatim}
+## Call:
+## coxph(formula = Surv(Time, DSD) ~ LocBody + cohort * (SexM + 
+##     AgeCent + SizeCent + Treat.MarginPositive + I(Path.Differentiation %in% 
+##     c("3", "4")) + A2 + A4), data = temp.all)
+## 
+##   n= 654, number of events= 555 
+## 
+##                                                                 coef
+## LocBodyTRUE                                                 2.83e-01
+## cohortGlasgow                                              -8.22e-01
+## cohortAPGI                                                 -1.08e+00
+## cohortDresden                                              -6.85e-01
+## SexMTRUE                                                   -9.81e-02
+## AgeCent                                                    -3.10e-03
+## SizeCent                                                    8.51e-03
+## Treat.MarginPositiveTRUE                                    4.91e-01
+## I(Path.Differentiation %in% c("3", "4"))TRUE                1.35e-01
+## A2TRUE                                                      6.88e-01
+## A4TRUE                                                      5.70e-01
+## cohortGlasgow:SexMTRUE                                      2.53e-01
+## cohortAPGI:SexMTRUE                                         5.60e-01
+## cohortDresden:SexMTRUE                                      3.91e-01
+## cohortGlasgow:AgeCent                                      -2.27e-02
+## cohortAPGI:AgeCent                                          2.78e-02
+## cohortDresden:AgeCent                                       1.83e-02
+## cohortGlasgow:SizeCent                                      2.44e-02
+## cohortAPGI:SizeCent                                         8.54e-05
+## cohortDresden:SizeCent                                     -4.15e-04
+## cohortGlasgow:Treat.MarginPositiveTRUE                      1.61e-01
+## cohortAPGI:Treat.MarginPositiveTRUE                         8.27e-01
+## cohortDresden:Treat.MarginPositiveTRUE                      7.85e-02
+## cohortGlasgow:I(Path.Differentiation %in% c("3", "4"))TRUE  1.74e-01
+## cohortAPGI:I(Path.Differentiation %in% c("3", "4"))TRUE     2.71e-01
+## cohortDresden:I(Path.Differentiation %in% c("3", "4"))TRUE  3.62e-01
+## cohortGlasgow:A2TRUE                                        5.56e-02
+## cohortAPGI:A2TRUE                                          -1.99e-01
+## cohortDresden:A2TRUE                                       -4.45e-01
+## cohortGlasgow:A4TRUE                                       -2.69e-01
+## cohortAPGI:A4TRUE                                          -2.65e-01
+## cohortDresden:A4TRUE                                       -3.09e-01
+##                                                            exp(coef)
+## LocBodyTRUE                                                 1.33e+00
+## cohortGlasgow                                               4.40e-01
+## cohortAPGI                                                  3.41e-01
+## cohortDresden                                               5.04e-01
+## SexMTRUE                                                    9.07e-01
+## AgeCent                                                     9.97e-01
+## SizeCent                                                    1.01e+00
+## Treat.MarginPositiveTRUE                                    1.63e+00
+## I(Path.Differentiation %in% c("3", "4"))TRUE                1.14e+00
+## A2TRUE                                                      1.99e+00
+## A4TRUE                                                      1.77e+00
+## cohortGlasgow:SexMTRUE                                      1.29e+00
+## cohortAPGI:SexMTRUE                                         1.75e+00
+## cohortDresden:SexMTRUE                                      1.48e+00
+## cohortGlasgow:AgeCent                                       9.78e-01
+## cohortAPGI:AgeCent                                          1.03e+00
+## cohortDresden:AgeCent                                       1.02e+00
+## cohortGlasgow:SizeCent                                      1.02e+00
+## cohortAPGI:SizeCent                                         1.00e+00
+## cohortDresden:SizeCent                                      1.00e+00
+## cohortGlasgow:Treat.MarginPositiveTRUE                      1.17e+00
+## cohortAPGI:Treat.MarginPositiveTRUE                         2.29e+00
+## cohortDresden:Treat.MarginPositiveTRUE                      1.08e+00
+## cohortGlasgow:I(Path.Differentiation %in% c("3", "4"))TRUE  1.19e+00
+## cohortAPGI:I(Path.Differentiation %in% c("3", "4"))TRUE     1.31e+00
+## cohortDresden:I(Path.Differentiation %in% c("3", "4"))TRUE  1.44e+00
+## cohortGlasgow:A2TRUE                                        1.06e+00
+## cohortAPGI:A2TRUE                                           8.19e-01
+## cohortDresden:A2TRUE                                        6.41e-01
+## cohortGlasgow:A4TRUE                                        7.64e-01
+## cohortAPGI:A4TRUE                                           7.67e-01
+## cohortDresden:A4TRUE                                        7.34e-01
+##                                                             se(coef)     z
+## LocBodyTRUE                                                 1.64e-01  1.73
+## cohortGlasgow                                               2.87e-01 -2.86
+## cohortAPGI                                                  3.59e-01 -2.99
+## cohortDresden                                               3.91e-01 -1.75
+## SexMTRUE                                                    1.33e-01 -0.74
+## AgeCent                                                     7.30e-03 -0.42
+## SizeCent                                                    5.13e-03  1.66
+## Treat.MarginPositiveTRUE                                    1.41e-01  3.48
+## I(Path.Differentiation %in% c("3", "4"))TRUE                1.61e-01  0.84
+## A2TRUE                                                      2.03e-01  3.40
+## A4TRUE                                                      1.59e-01  3.59
+## cohortGlasgow:SexMTRUE                                      2.13e-01  1.18
+## cohortAPGI:SexMTRUE                                         3.41e-01  1.64
+## cohortDresden:SexMTRUE                                      2.38e-01  1.64
+## cohortGlasgow:AgeCent                                       1.12e-02 -2.03
+## cohortAPGI:AgeCent                                          1.94e-02  1.43
+## cohortDresden:AgeCent                                       1.32e-02  1.38
+## cohortGlasgow:SizeCent                                      9.38e-03  2.60
+## cohortAPGI:SizeCent                                         1.01e-02  0.01
+## cohortDresden:SizeCent                                      1.07e-02 -0.04
+## cohortGlasgow:Treat.MarginPositiveTRUE                      2.38e-01  0.68
+## cohortAPGI:Treat.MarginPositiveTRUE                         3.38e-01  2.45
+## cohortDresden:Treat.MarginPositiveTRUE                      2.53e-01  0.31
+## cohortGlasgow:I(Path.Differentiation %in% c("3", "4"))TRUE  2.38e-01  0.73
+## cohortAPGI:I(Path.Differentiation %in% c("3", "4"))TRUE     3.41e-01  0.79
+## cohortDresden:I(Path.Differentiation %in% c("3", "4"))TRUE  2.65e-01  1.36
+## cohortGlasgow:A2TRUE                                        2.71e-01  0.21
+## cohortAPGI:A2TRUE                                           4.36e-01 -0.46
+## cohortDresden:A2TRUE                                        3.07e-01 -1.45
+## cohortGlasgow:A4TRUE                                        2.42e-01 -1.11
+## cohortAPGI:A4TRUE                                           3.73e-01 -0.71
+## cohortDresden:A4TRUE                                        3.64e-01 -0.85
+##                                                            Pr(>|z|)
+## LocBodyTRUE                                                 0.08445
+## cohortGlasgow                                               0.00422
+## cohortAPGI                                                  0.00275
+## cohortDresden                                               0.08017
+## SexMTRUE                                                    0.46098
+## AgeCent                                                     0.67098
+## SizeCent                                                    0.09729
+## Treat.MarginPositiveTRUE                                    0.00050
+## I(Path.Differentiation %in% c("3", "4"))TRUE                0.40055
+## A2TRUE                                                      0.00069
+## A4TRUE                                                      0.00034
+## cohortGlasgow:SexMTRUE                                      0.23670
+## cohortAPGI:SexMTRUE                                         0.10066
+## cohortDresden:SexMTRUE                                      0.10095
+## cohortGlasgow:AgeCent                                       0.04235
+## cohortAPGI:AgeCent                                          0.15134
+## cohortDresden:AgeCent                                       0.16648
+## cohortGlasgow:SizeCent                                      0.00928
+## cohortAPGI:SizeCent                                         0.99325
+## cohortDresden:SizeCent                                      0.96910
+## cohortGlasgow:Treat.MarginPositiveTRUE                      0.49879
+## cohortAPGI:Treat.MarginPositiveTRUE                         0.01431
+## cohortDresden:Treat.MarginPositiveTRUE                      0.75612
+## cohortGlasgow:I(Path.Differentiation %in% c("3", "4"))TRUE  0.46494
+## cohortAPGI:I(Path.Differentiation %in% c("3", "4"))TRUE     0.42668
+## cohortDresden:I(Path.Differentiation %in% c("3", "4"))TRUE  0.17251
+## cohortGlasgow:A2TRUE                                        0.83723
+## cohortAPGI:A2TRUE                                           0.64777
+## cohortDresden:A2TRUE                                        0.14658
+## cohortGlasgow:A4TRUE                                        0.26585
+## cohortAPGI:A4TRUE                                           0.47722
+## cohortDresden:A4TRUE                                        0.39663
+## 
+##                                                            exp(coef)
+## LocBodyTRUE                                                    1.327
+## cohortGlasgow                                                  0.440
+## cohortAPGI                                                     0.341
+## cohortDresden                                                  0.504
+## SexMTRUE                                                       0.907
+## AgeCent                                                        0.997
+## SizeCent                                                       1.009
+## Treat.MarginPositiveTRUE                                       1.633
+## I(Path.Differentiation %in% c("3", "4"))TRUE                   1.145
+## A2TRUE                                                         1.989
+## A4TRUE                                                         1.768
+## cohortGlasgow:SexMTRUE                                         1.287
+## cohortAPGI:SexMTRUE                                            1.751
+## cohortDresden:SexMTRUE                                         1.478
+## cohortGlasgow:AgeCent                                          0.978
+## cohortAPGI:AgeCent                                             1.028
+## cohortDresden:AgeCent                                          1.018
+## cohortGlasgow:SizeCent                                         1.025
+## cohortAPGI:SizeCent                                            1.000
+## cohortDresden:SizeCent                                         1.000
+## cohortGlasgow:Treat.MarginPositiveTRUE                         1.175
+## cohortAPGI:Treat.MarginPositiveTRUE                            2.287
+## cohortDresden:Treat.MarginPositiveTRUE                         1.082
+## cohortGlasgow:I(Path.Differentiation %in% c("3", "4"))TRUE     1.190
+## cohortAPGI:I(Path.Differentiation %in% c("3", "4"))TRUE        1.311
+## cohortDresden:I(Path.Differentiation %in% c("3", "4"))TRUE     1.436
+## cohortGlasgow:A2TRUE                                           1.057
+## cohortAPGI:A2TRUE                                              0.819
+## cohortDresden:A2TRUE                                           0.641
+## cohortGlasgow:A4TRUE                                           0.764
+## cohortAPGI:A4TRUE                                              0.767
+## cohortDresden:A4TRUE                                           0.734
+##                                                            exp(-coef)
+## LocBodyTRUE                                                     0.754
+## cohortGlasgow                                                   2.275
+## cohortAPGI                                                      2.933
+## cohortDresden                                                   1.983
+## SexMTRUE                                                        1.103
+## AgeCent                                                         1.003
+## SizeCent                                                        0.992
+## Treat.MarginPositiveTRUE                                        0.612
+## I(Path.Differentiation %in% c("3", "4"))TRUE                    0.874
+## A2TRUE                                                          0.503
+## A4TRUE                                                          0.566
+## cohortGlasgow:SexMTRUE                                          0.777
+## cohortAPGI:SexMTRUE                                             0.571
+## cohortDresden:SexMTRUE                                          0.676
+## cohortGlasgow:AgeCent                                           1.023
+## cohortAPGI:AgeCent                                              0.973
+## cohortDresden:AgeCent                                           0.982
+## cohortGlasgow:SizeCent                                          0.976
+## cohortAPGI:SizeCent                                             1.000
+## cohortDresden:SizeCent                                          1.000
+## cohortGlasgow:Treat.MarginPositiveTRUE                          0.851
+## cohortAPGI:Treat.MarginPositiveTRUE                             0.437
+## cohortDresden:Treat.MarginPositiveTRUE                          0.924
+## cohortGlasgow:I(Path.Differentiation %in% c("3", "4"))TRUE      0.840
+## cohortAPGI:I(Path.Differentiation %in% c("3", "4"))TRUE         0.763
+## cohortDresden:I(Path.Differentiation %in% c("3", "4"))TRUE      0.696
+## cohortGlasgow:A2TRUE                                            0.946
+## cohortAPGI:A2TRUE                                               1.220
+## cohortDresden:A2TRUE                                            1.560
+## cohortGlasgow:A4TRUE                                            1.309
+## cohortAPGI:A4TRUE                                               1.303
+## cohortDresden:A4TRUE                                            1.362
+##                                                            lower .95
+## LocBodyTRUE                                                    0.962
+## cohortGlasgow                                                  0.250
+## cohortAPGI                                                     0.169
+## cohortDresden                                                  0.234
+## SexMTRUE                                                       0.698
+## AgeCent                                                        0.983
+## SizeCent                                                       0.998
+## Treat.MarginPositiveTRUE                                       1.239
+## I(Path.Differentiation %in% c("3", "4"))TRUE                   0.835
+## A2TRUE                                                         1.337
+## A4TRUE                                                         1.295
+## cohortGlasgow:SexMTRUE                                         0.847
+## cohortAPGI:SexMTRUE                                            0.897
+## cohortDresden:SexMTRUE                                         0.927
+## cohortGlasgow:AgeCent                                          0.956
+## cohortAPGI:AgeCent                                             0.990
+## cohortDresden:AgeCent                                          0.992
+## cohortGlasgow:SizeCent                                         1.006
+## cohortAPGI:SizeCent                                            0.980
+## cohortDresden:SizeCent                                         0.979
+## cohortGlasgow:Treat.MarginPositiveTRUE                         0.737
+## cohortAPGI:Treat.MarginPositiveTRUE                            1.180
+## cohortDresden:Treat.MarginPositiveTRUE                         0.659
+## cohortGlasgow:I(Path.Differentiation %in% c("3", "4"))TRUE     0.746
+## cohortAPGI:I(Path.Differentiation %in% c("3", "4"))TRUE        0.672
+## cohortDresden:I(Path.Differentiation %in% c("3", "4"))TRUE     0.854
+## cohortGlasgow:A2TRUE                                           0.622
+## cohortAPGI:A2TRUE                                              0.349
+## cohortDresden:A2TRUE                                           0.351
+## cohortGlasgow:A4TRUE                                           0.476
+## cohortAPGI:A4TRUE                                              0.370
+## cohortDresden:A4TRUE                                           0.359
+##                                                            upper .95
+## LocBodyTRUE                                                    1.830
+## cohortGlasgow                                                  0.772
+## cohortAPGI                                                     0.689
+## cohortDresden                                                  1.086
+## SexMTRUE                                                       1.177
+## AgeCent                                                        1.011
+## SizeCent                                                       1.019
+## Treat.MarginPositiveTRUE                                       2.153
+## I(Path.Differentiation %in% c("3", "4"))TRUE                   1.568
+## A2TRUE                                                         2.958
+## A4TRUE                                                         2.414
+## cohortGlasgow:SexMTRUE                                         1.956
+## cohortAPGI:SexMTRUE                                            3.419
+## cohortDresden:SexMTRUE                                         2.359
+## cohortGlasgow:AgeCent                                          0.999
+## cohortAPGI:AgeCent                                             1.068
+## cohortDresden:AgeCent                                          1.045
+## cohortGlasgow:SizeCent                                         1.044
+## cohortAPGI:SizeCent                                            1.020
+## cohortDresden:SizeCent                                         1.021
+## cohortGlasgow:Treat.MarginPositiveTRUE                         1.872
+## cohortAPGI:Treat.MarginPositiveTRUE                            4.433
+## cohortDresden:Treat.MarginPositiveTRUE                         1.776
+## cohortGlasgow:I(Path.Differentiation %in% c("3", "4"))TRUE     1.897
+## cohortAPGI:I(Path.Differentiation %in% c("3", "4"))TRUE        2.558
+## cohortDresden:I(Path.Differentiation %in% c("3", "4"))TRUE     2.416
+## cohortGlasgow:A2TRUE                                           1.798
+## cohortAPGI:A2TRUE                                              1.925
+## cohortDresden:A2TRUE                                           1.169
+## cohortGlasgow:A4TRUE                                           1.227
+## cohortAPGI:A4TRUE                                              1.593
+## cohortDresden:A4TRUE                                           1.500
+## 
+## Concordance= 0.681  (se = 0.014 )
+## Rsquare= 0.274   (max possible= 1 )
+## Likelihood ratio test= 209  on 32 df,   p=0
+## Wald test            = 202  on 32 df,   p=0
+## Score (logrank) test = 218  on 32 df,   p=0
+\end{verbatim}
+\begin{alltt}
+\hlkwd{anova}\hlstd{(temp.allfit)}
+\end{alltt}
+\begin{verbatim}
+## Analysis of Deviance Table
+##  Cox model: response is Surv(Time, DSD)
+## Terms added sequentially (first to last)
+## 
+##                                                 loglik Chisq Df Pr(>|Chi|)
+## NULL                                             -3089                    
+## LocBody                                          -3082 14.72  1    0.00013
+## cohort                                           -3069 26.55  3    7.3e-06
+## SexM                                             -3068  1.22  1    0.27016
+## AgeCent                                          -3068  0.15  1    0.70036
+## SizeCent                                         -3054 27.65  1    1.5e-07
+## Treat.MarginPositive                             -3037 33.69  1    6.5e-09
+## I(Path.Differentiation %in% c("3", "4"))         -3026 22.66  1    1.9e-06
+## A2                                               -3011 29.43  1    5.8e-08
+## A4                                               -3003 17.05  1    3.6e-05
+## cohort:SexM                                      -3000  5.32  3    0.14956
+## cohort:AgeCent                                   -2994 12.21  3    0.00671
+## cohort:SizeCent                                  -2990  7.07  3    0.06978
+## cohort:Treat.MarginPositive                      -2987  5.63  3    0.13114
+## cohort:I(Path.Differentiation %in% c("3", "4"))  -2987  1.06  3    0.78686
+## cohort:A2                                        -2985  3.33  3    0.34326
+## cohort:A4                                        -2984  1.67  3    0.64338
+\end{verbatim}
+\begin{alltt}
+\hlkwd{anova}\hlstd{(temp.allfit, temp.allfit2)}
+\end{alltt}
+\begin{verbatim}
+## Analysis of Deviance Table
+##  Cox model: response is  Surv(Time, DSD)
+##  Model 1: ~ LocBody + cohort * (SexM + AgeCent + SizeCent + Treat.MarginPositive + I(Path.Differentiation %in% c("3", "4")) + A2 + A4)
+##  Model 2: ~ LocBody + SexM + AgeCent + SizeCent + Treat.MarginPositive + I(Path.Differentiation %in% c("3", "4")) + A2 + A4
+##   loglik Chisq Df P(>|Chi|)
+## 1  -2984                   
+## 2  -3025  81.3 24   3.8e-08
+\end{verbatim}
+\begin{alltt}
+\hlkwd{cox.zph}\hlstd{(temp.allfit)}
+\end{alltt}
+\begin{verbatim}
+##                                                                 rho
+## LocBodyTRUE                                                 0.03809
+## cohortGlasgow                                               0.06697
+## cohortAPGI                                                  0.01437
+## cohortDresden                                              -0.01345
+## SexMTRUE                                                    0.11035
+## AgeCent                                                    -0.07038
+## SizeCent                                                   -0.05970
+## Treat.MarginPositiveTRUE                                   -0.05022
+## I(Path.Differentiation %in% c("3", "4"))TRUE               -0.00879
+## A2TRUE                                                      0.02464
+## A4TRUE                                                     -0.06118
+## cohortGlasgow:SexMTRUE                                     -0.07548
+## cohortAPGI:SexMTRUE                                        -0.10355
+## cohortDresden:SexMTRUE                                     -0.05615
+## cohortGlasgow:AgeCent                                       0.03511
+## cohortAPGI:AgeCent                                         -0.06395
+## cohortDresden:AgeCent                                       0.00267
+## cohortGlasgow:SizeCent                                     -0.01654
+## cohortAPGI:SizeCent                                         0.02391
+## cohortDresden:SizeCent                                     -0.00991
+## cohortGlasgow:Treat.MarginPositiveTRUE                      0.00379
+## cohortAPGI:Treat.MarginPositiveTRUE                         0.06396
+## cohortDresden:Treat.MarginPositiveTRUE                      0.01213
+## cohortGlasgow:I(Path.Differentiation %in% c("3", "4"))TRUE -0.04754
+## cohortAPGI:I(Path.Differentiation %in% c("3", "4"))TRUE    -0.00593
+## cohortDresden:I(Path.Differentiation %in% c("3", "4"))TRUE  0.06682
+## cohortGlasgow:A2TRUE                                       -0.04746
+## cohortAPGI:A2TRUE                                           0.06970
+## cohortDresden:A2TRUE                                       -0.02126
+## cohortGlasgow:A4TRUE                                       -0.02756
+## cohortAPGI:A4TRUE                                           0.01480
+## cohortDresden:A4TRUE                                       -0.01282
+## GLOBAL                                                           NA
+##                                                               chisq
+## LocBodyTRUE                                                 0.90616
+## cohortGlasgow                                               2.56256
+## cohortAPGI                                                  0.10117
+## cohortDresden                                               0.12785
+## SexMTRUE                                                    6.70881
+## AgeCent                                                     3.28661
+## SizeCent                                                    2.35545
+## Treat.MarginPositiveTRUE                                    1.50171
+## I(Path.Differentiation %in% c("3", "4"))TRUE                0.04807
+## A2TRUE                                                      0.38624
+## A4TRUE                                                      2.05228
+## cohortGlasgow:SexMTRUE                                      3.23367
+## cohortAPGI:SexMTRUE                                         6.67723
+## cohortDresden:SexMTRUE                                      1.91757
+## cohortGlasgow:AgeCent                                       0.71607
+## cohortAPGI:AgeCent                                          2.76090
+## cohortDresden:AgeCent                                       0.00445
+## cohortGlasgow:SizeCent                                      0.18172
+## cohortAPGI:SizeCent                                         0.35473
+## cohortDresden:SizeCent                                      0.07646
+## cohortGlasgow:Treat.MarginPositiveTRUE                      0.00837
+## cohortAPGI:Treat.MarginPositiveTRUE                         2.63651
+## cohortDresden:Treat.MarginPositiveTRUE                      0.09593
+## cohortGlasgow:I(Path.Differentiation %in% c("3", "4"))TRUE  1.29374
+## cohortAPGI:I(Path.Differentiation %in% c("3", "4"))TRUE     0.02202
+## cohortDresden:I(Path.Differentiation %in% c("3", "4"))TRUE  2.94642
+## cohortGlasgow:A2TRUE                                        1.29339
+## cohortAPGI:A2TRUE                                           2.82302
+## cohortDresden:A2TRUE                                        0.28947
+## cohortGlasgow:A4TRUE                                        0.40662
+## cohortAPGI:A4TRUE                                           0.13340
+## cohortDresden:A4TRUE                                        0.10976
+## GLOBAL                                                     58.78746
+##                                                                  p
+## LocBodyTRUE                                                0.34114
+## cohortGlasgow                                              0.10942
+## cohortAPGI                                                 0.75043
+## cohortDresden                                              0.72067
+## SexMTRUE                                                   0.00959
+## AgeCent                                                    0.06985
+## SizeCent                                                   0.12485
+## Treat.MarginPositiveTRUE                                   0.22041
+## I(Path.Differentiation %in% c("3", "4"))TRUE               0.82645
+## A2TRUE                                                     0.53428
+## A4TRUE                                                     0.15198
+## cohortGlasgow:SexMTRUE                                     0.07214
+## cohortAPGI:SexMTRUE                                        0.00977
+## cohortDresden:SexMTRUE                                     0.16613
+## cohortGlasgow:AgeCent                                      0.39744
+## cohortAPGI:AgeCent                                         0.09659
+## cohortDresden:AgeCent                                      0.94683
+## cohortGlasgow:SizeCent                                     0.66990
+## cohortAPGI:SizeCent                                        0.55145
+## cohortDresden:SizeCent                                     0.78216
+## cohortGlasgow:Treat.MarginPositiveTRUE                     0.92710
+## cohortAPGI:Treat.MarginPositiveTRUE                        0.10443
+## cohortDresden:Treat.MarginPositiveTRUE                     0.75677
+## cohortGlasgow:I(Path.Differentiation %in% c("3", "4"))TRUE 0.25536
+## cohortAPGI:I(Path.Differentiation %in% c("3", "4"))TRUE    0.88203
+## cohortDresden:I(Path.Differentiation %in% c("3", "4"))TRUE 0.08607
+## cohortGlasgow:A2TRUE                                       0.25542
+## cohortAPGI:A2TRUE                                          0.09292
+## cohortDresden:A2TRUE                                       0.59056
+## cohortGlasgow:A4TRUE                                       0.52369
+## cohortAPGI:A4TRUE                                          0.71493
+## cohortDresden:A4TRUE                                       0.74042
+## GLOBAL                                                     0.00267
+\end{verbatim}
+\begin{alltt}
+\hlstd{temp} \hlkwb{=} \hlkwd{cox.zph}\hlstd{(temp.allfit)}\hlopt{$}\hlstd{table}
+\hlkwd{sort}\hlstd{(}\hlkwd{p.adjust}\hlstd{(temp[}\hlkwd{grepl}\hlstd{(}\hlstr{"^cohort"}\hlstd{,} \hlkwd{rownames}\hlstd{(temp)),} \hlstr{"p"}\hlstd{],} \hlstr{"holm"}\hlstd{))}
+\end{alltt}
+\begin{verbatim}
+##                                        cohortAPGI:SexMTRUE 
+##                                                     0.2344 
+##                                              cohortGlasgow 
+##                                                     1.0000 
+##                                                 cohortAPGI 
+##                                                     1.0000 
+##                                              cohortDresden 
+##                                                     1.0000 
+##                                     cohortGlasgow:SexMTRUE 
+##                                                     1.0000 
+##                                     cohortDresden:SexMTRUE 
+##                                                     1.0000 
+##                                      cohortGlasgow:AgeCent 
+##                                                     1.0000 
+##                                         cohortAPGI:AgeCent 
+##                                                     1.0000 
+##                                      cohortDresden:AgeCent 
+##                                                     1.0000 
+##                                     cohortGlasgow:SizeCent 
+##                                                     1.0000 
+##                                        cohortAPGI:SizeCent 
+##                                                     1.0000 
+##                                     cohortDresden:SizeCent 
+##                                                     1.0000 
+##                     cohortGlasgow:Treat.MarginPositiveTRUE 
+##                                                     1.0000 
+##                        cohortAPGI:Treat.MarginPositiveTRUE 
+##                                                     1.0000 
+##                     cohortDresden:Treat.MarginPositiveTRUE 
+##                                                     1.0000 
+## cohortGlasgow:I(Path.Differentiation %in% c("3", "4"))TRUE 
+##                                                     1.0000 
+##    cohortAPGI:I(Path.Differentiation %in% c("3", "4"))TRUE 
+##                                                     1.0000 
+## cohortDresden:I(Path.Differentiation %in% c("3", "4"))TRUE 
+##                                                     1.0000 
+##                                       cohortGlasgow:A2TRUE 
+##                                                     1.0000 
+##                                          cohortAPGI:A2TRUE 
+##                                                     1.0000 
+##                                       cohortDresden:A2TRUE 
+##                                                     1.0000 
+##                                       cohortGlasgow:A4TRUE 
+##                                                     1.0000 
+##                                          cohortAPGI:A4TRUE 
+##                                                     1.0000 
+##                                       cohortDresden:A4TRUE 
+##                                                     1.0000
+\end{verbatim}
+\begin{alltt}
+\hlcom{#plot(cox.zph(temp.allfit))}
+\end{alltt}
+\end{kframe}
 \end{knitrout}
 
 
@@ -1420,13 +1938,14 @@ Get approximate linear predictors from the GG model, by just calculating the loc
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlkwd{par}\hlstd{(}\hlkwc{mfrow} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{4}\hlstd{,} \hlnum{1}\hlstd{))}
-\hlkwd{hist}\hlstd{(gg.linpred.nswpcn,} \hlkwc{main} \hlstd{=} \hlstr{"NSWPCN GG scores"}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{range}\hlstd{(}\hlkwd{c}\hlstd{(gg.linpred.nswpcn, gg.linpred.glasgow, gg.linpred.apgi)),} \hlkwc{breaks} \hlstd{=} \hlnum{20}\hlstd{,} \hlkwc{col} \hlstd{=} \hlstr{"grey"}\hlstd{)}
+\hlstd{temp.breaks} \hlkwb{=} \hlkwd{seq}\hlstd{(}\hlkwd{min}\hlstd{(}\hlkwd{c}\hlstd{(gg.linpred.nswpcn, gg.linpred.glasgow, gg.linpred.apgi, gg.linpred.dresden)),} \hlkwd{max}\hlstd{(}\hlkwd{c}\hlstd{(gg.linpred.nswpcn, gg.linpred.glasgow, gg.linpred.apgi, gg.linpred.dresden)),} \hlkwc{length.out} \hlstd{=} \hlnum{29}\hlstd{)}
+\hlkwd{hist}\hlstd{(gg.linpred.nswpcn,} \hlkwc{main} \hlstd{=} \hlstr{"NSWPCN"}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{range}\hlstd{(}\hlkwd{c}\hlstd{(gg.linpred.nswpcn, gg.linpred.glasgow, gg.linpred.apgi, gg.linpred.dresden)),} \hlkwc{breaks} \hlstd{= temp.breaks,} \hlkwc{col} \hlstd{=} \hlstr{"grey"}\hlstd{,} \hlkwc{xlab} \hlstd{=} \hlstr{""}\hlstd{)}
 \hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{quantile}\hlstd{(gg.linpred.nswpcn,} \hlkwc{probs} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0.25}\hlstd{,} \hlnum{0.5}\hlstd{,} \hlnum{0.75}\hlstd{)),} \hlkwc{col} \hlstd{=} \hlstr{"red"}\hlstd{)}
-\hlkwd{hist}\hlstd{(gg.linpred.glasgow,} \hlkwc{main} \hlstd{=} \hlstr{"Glasgow GG scores"}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{range}\hlstd{(}\hlkwd{c}\hlstd{(gg.linpred.nswpcn, gg.linpred.glasgow, gg.linpred.apgi)),} \hlkwc{breaks} \hlstd{=} \hlnum{20}\hlstd{,} \hlkwc{col} \hlstd{=} \hlstr{"grey"}\hlstd{)}
+\hlkwd{hist}\hlstd{(gg.linpred.glasgow,} \hlkwc{main} \hlstd{=} \hlstr{"Glasgow"}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{range}\hlstd{(}\hlkwd{c}\hlstd{(gg.linpred.nswpcn, gg.linpred.glasgow, gg.linpred.apgi, gg.linpred.dresden)),} \hlkwc{breaks} \hlstd{= temp.breaks,} \hlkwc{col} \hlstd{=} \hlstr{"grey"}\hlstd{,} \hlkwc{xlab} \hlstd{=} \hlstr{""}\hlstd{)}
 \hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{quantile}\hlstd{(gg.linpred.glasgow,} \hlkwc{probs} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0.25}\hlstd{,} \hlnum{0.5}\hlstd{,} \hlnum{0.75}\hlstd{)),} \hlkwc{col} \hlstd{=} \hlstr{"red"}\hlstd{)}
-\hlkwd{hist}\hlstd{(gg.linpred.apgi,} \hlkwc{main} \hlstd{=} \hlstr{"APGI GG scores"}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{range}\hlstd{(}\hlkwd{c}\hlstd{(gg.linpred.nswpcn, gg.linpred.glasgow, gg.linpred.apgi)),} \hlkwc{breaks} \hlstd{=} \hlnum{20}\hlstd{,} \hlkwc{col} \hlstd{=} \hlstr{"grey"}\hlstd{)}
+\hlkwd{hist}\hlstd{(gg.linpred.apgi,} \hlkwc{main} \hlstd{=} \hlstr{"APGI"}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{range}\hlstd{(}\hlkwd{c}\hlstd{(gg.linpred.nswpcn, gg.linpred.glasgow, gg.linpred.apgi, gg.linpred.dresden)),} \hlkwc{breaks} \hlstd{= temp.breaks,} \hlkwc{col} \hlstd{=} \hlstr{"grey"}\hlstd{,} \hlkwc{xlab} \hlstd{=} \hlstr{""}\hlstd{)}
 \hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{quantile}\hlstd{(gg.linpred.apgi,} \hlkwc{probs} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0.25}\hlstd{,} \hlnum{0.5}\hlstd{,} \hlnum{0.75}\hlstd{)),} \hlkwc{col} \hlstd{=} \hlstr{"red"}\hlstd{)}
-\hlkwd{hist}\hlstd{(gg.linpred.dresden,} \hlkwc{main} \hlstd{=} \hlstr{"Dresden GG scores"}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{range}\hlstd{(}\hlkwd{c}\hlstd{(gg.linpred.nswpcn, gg.linpred.glasgow, gg.linpred.dresden)),} \hlkwc{breaks} \hlstd{=} \hlnum{20}\hlstd{,} \hlkwc{col} \hlstd{=} \hlstr{"grey"}\hlstd{)}
+\hlkwd{hist}\hlstd{(gg.linpred.dresden,} \hlkwc{main} \hlstd{=} \hlstr{"Dresden"}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{range}\hlstd{(}\hlkwd{c}\hlstd{(gg.linpred.nswpcn, gg.linpred.glasgow, gg.linpred.apgi, gg.linpred.dresden)),} \hlkwc{breaks} \hlstd{= temp.breaks,} \hlkwc{col} \hlstd{=} \hlstr{"grey"}\hlstd{,} \hlkwc{xlab} \hlstd{=} \hlstr{""}\hlstd{)}
 \hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{quantile}\hlstd{(gg.linpred.dresden,} \hlkwc{probs} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0.25}\hlstd{,} \hlnum{0.5}\hlstd{,} \hlnum{0.75}\hlstd{)),} \hlkwc{col} \hlstd{=} \hlstr{"red"}\hlstd{)}
 \end{alltt}
 \end{kframe}
@@ -1605,17 +2124,17 @@ Get approximate linear predictors from the GG model, by just calculating the loc
 ## 
 ##   n= 75, number of events= 51 
 ## 
-##                 coef exp(coef) se(coef)    z Pr(>|z|)
-## gg.linpred.apgi 1.79      5.99     0.48 3.73  0.00019
+##                  coef exp(coef) se(coef)    z Pr(>|z|)
+## gg.linpred.apgi 0.894     2.444    0.427 2.09    0.036
 ## 
 ##                 exp(coef) exp(-coef) lower .95 upper .95
-## gg.linpred.apgi      5.99      0.167      2.34      15.4
+## gg.linpred.apgi      2.44      0.409      1.06      5.64
 ## 
-## Concordance= 0.645  (se = 0.044 )
-## Rsquare= 0.169   (max possible= 0.993 )
-## Likelihood ratio test= 13.8  on 1 df,   p=0.000198
-## Wald test            = 13.9  on 1 df,   p=0.000194
-## Score (logrank) test = 14.3  on 1 df,   p=0.000152
+## Concordance= 0.579  (se = 0.044 )
+## Rsquare= 0.057   (max possible= 0.993 )
+## Likelihood ratio test= 4.42  on 1 df,   p=0.0355
+## Wald test            = 4.39  on 1 df,   p=0.0362
+## Score (logrank) test = 4.43  on 1 df,   p=0.0352
 \end{verbatim}
 \begin{alltt}
 \hlkwd{summary}\hlstd{(}\hlkwd{coxph}\hlstd{(}\hlkwd{Surv}\hlstd{(Time, DSD)} \hlopt{~} \hlstd{gg.linpred.dresden, data.dresden))}
@@ -1659,8 +2178,8 @@ Get approximate linear predictors from the GG model, by just calculating the loc
 ## Terms added sequentially (first to last)
 ## 
 ##                 loglik Chisq Df Pr(>|Chi|)
-## NULL              -181                    
-## gg.linpred.apgi   -180  2.71  1      0.099
+## NULL              -185                    
+## gg.linpred.apgi   -185  0.06  1        0.8
 \end{verbatim}
 \begin{alltt}
 \hlkwd{anova}\hlstd{(}\hlkwd{coxph}\hlstd{(}\hlkwd{Surv}\hlstd{(Time, DSD)} \hlopt{~} \hlkwd{offset}\hlstd{(gg.linpred.dresden)} \hlopt{+} \hlstd{gg.linpred.dresden, data.dresden))}
@@ -1766,9 +2285,7 @@ Booyah.
 {\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in fitter(X, Y, strats, offset, init, control, weights = weights, : NA/NaN/Inf in foreign function call (arg 6)}}\begin{alltt}
 \hlkwd{summary}\hlstd{(}\hlkwd{coxph}\hlstd{(}\hlkwd{Surv}\hlstd{(Time, DSD)} \hlopt{~} \hlkwd{offset}\hlstd{(gg.linpred.apgi)} \hlopt{+} \hlstd{AgeCent} \hlopt{+} \hlstd{SexM} \hlopt{+} \hlstd{SizeCent} \hlopt{+} \hlstd{A2} \hlopt{+} \hlstd{A4, data.apgi))}
 \end{alltt}
-
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in coxph(Surv(Time, DSD) \textasciitilde{} offset(gg.linpred.apgi) + AgeCent + SexM + : X matrix deemed to be singular; variable 2}}\begin{verbatim}
+\begin{verbatim}
 ## Call:
 ## coxph(formula = Surv(Time, DSD) ~ offset(gg.linpred.apgi) + AgeCent + 
 ##     SexM + SizeCent + A2 + A4, data = data.apgi)
@@ -1776,24 +2293,24 @@ Booyah.
 ##   n= 75, number of events= 51 
 ## 
 ##             coef exp(coef) se(coef)    z Pr(>|z|)
-## AgeCent  0.02122   1.02145  0.01775 1.20     0.23
-## SexMTRUE      NA        NA  0.00000   NA       NA
-## SizeCent 0.01257   1.01265  0.00833 1.51     0.13
-## A2TRUE   0.05042   1.05171  0.38919 0.13     0.90
-## A4TRUE   0.36722   1.44371  0.32143 1.14     0.25
+## AgeCent  0.02404   1.02433  0.01798 1.34   0.1812
+## SexMTRUE 0.99912   2.71590  0.31918 3.13   0.0017
+## SizeCent 0.01343   1.01352  0.00828 1.62   0.1050
+## A2TRUE   0.22816   1.25628  0.39709 0.57   0.5656
+## A4TRUE   0.17023   1.18558  0.33812 0.50   0.6146
 ## 
 ##          exp(coef) exp(-coef) lower .95 upper .95
-## AgeCent       1.02      0.979     0.987      1.06
-## SexMTRUE        NA         NA        NA        NA
-## SizeCent      1.01      0.988     0.996      1.03
-## A2TRUE        1.05      0.951     0.490      2.26
-## A4TRUE        1.44      0.693     0.769      2.71
+## AgeCent       1.02      0.976     0.989      1.06
+## SexMTRUE      2.72      0.368     1.453      5.08
+## SizeCent      1.01      0.987     0.997      1.03
+## A2TRUE        1.26      0.796     0.577      2.74
+## A4TRUE        1.19      0.843     0.611      2.30
 ## 
-## Concordance= 0.652  (se = 0.044 )
-## Rsquare= 0.064   (max possible= 0.992 )
-## Likelihood ratio test= 4.94  on 4 df,   p=0.293
-## Wald test            = 4.69  on 4 df,   p=0.32
-## Score (logrank) test = 4.74  on 4 df,   p=0.315
+## Concordance= 0.684  (se = 0.044 )
+## Rsquare= 0.189   (max possible= 0.993 )
+## Likelihood ratio test= 15.7  on 5 df,   p=0.00775
+## Wald test            = 14.8  on 5 df,   p=0.0113
+## Score (logrank) test = 15.6  on 5 df,   p=0.00816
 \end{verbatim}
 \begin{alltt}
 \hlkwd{summary}\hlstd{(}\hlkwd{coxph}\hlstd{(}\hlkwd{Surv}\hlstd{(Time, DSD)} \hlopt{~} \hlkwd{offset}\hlstd{(mskcc_pre.linpred.dresden)} \hlopt{+} \hlstd{AgeCent} \hlopt{+} \hlstd{SexM} \hlopt{+} \hlstd{SizeCent} \hlopt{+} \hlstd{A2} \hlopt{+} \hlstd{A4, data.dresden))}
@@ -2142,22 +2659,22 @@ Look at the CIs above.
 ## Call:
 ## coxph(formula = Surv(data.apgi$Time, data.apgi$DSD) ~ factor(gg.groups.apgi))
 ## 
-##   n= 72, number of events= 50 
-##    (3 observations deleted due to missingness)
+##   n= 73, number of events= 50 
+##    (2 observations deleted due to missingness)
 ## 
 ##                          coef exp(coef) se(coef)    z Pr(>|z|)
-## factor(gg.groups.apgi)2 0.784     2.190    0.484 1.62   0.1051
-## factor(gg.groups.apgi)3 1.689     5.413    0.533 3.17   0.0015
+## factor(gg.groups.apgi)2 0.182     1.199    0.421 0.43     0.67
+## factor(gg.groups.apgi)3 0.584     1.793    0.477 1.22     0.22
 ## 
 ##                         exp(coef) exp(-coef) lower .95 upper .95
-## factor(gg.groups.apgi)2      2.19      0.457     0.849      5.65
-## factor(gg.groups.apgi)3      5.41      0.185     1.905     15.38
+## factor(gg.groups.apgi)2      1.20      0.834     0.525      2.74
+## factor(gg.groups.apgi)3      1.79      0.558     0.704      4.56
 ## 
-## Concordance= 0.609  (se = 0.039 )
-## Rsquare= 0.153   (max possible= 0.993 )
-## Likelihood ratio test= 11.9  on 2 df,   p=0.00254
-## Wald test            = 12  on 2 df,   p=0.00249
-## Score (logrank) test = 13.4  on 2 df,   p=0.00124
+## Concordance= 0.533  (se = 0.039 )
+## Rsquare= 0.024   (max possible= 0.993 )
+## Likelihood ratio test= 1.79  on 2 df,   p=0.409
+## Wald test            = 1.89  on 2 df,   p=0.389
+## Score (logrank) test = 1.92  on 2 df,   p=0.383
 \end{verbatim}
 \begin{alltt}
 \hlkwd{summary}\hlstd{(}\hlkwd{coxph}\hlstd{(}\hlkwd{Surv}\hlstd{(data.apgi}\hlopt{$}\hlstd{Time, data.apgi}\hlopt{$}\hlstd{DSD)} \hlopt{~} \hlkwd{factor}\hlstd{(mskcc_pre.groups.apgi)))}
@@ -2405,7 +2922,7 @@ Decision curve analysis.
 \hlkwd{invisible}\hlstd{(}\hlkwd{stdca}\hlstd{(}\hlkwc{data} \hlstd{= temp.data,} \hlkwc{outcome} \hlstd{=} \hlstr{"DSD"}\hlstd{,} \hlkwc{ttoutcome} \hlstd{=} \hlstr{"Time"}\hlstd{,} \hlkwc{predictors} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"gg.1"}\hlstd{,} \hlstr{"mskcc.pre.1"}\hlstd{,} \hlstr{"mskcc.post.1"}\hlstd{),} \hlkwc{timepoint} \hlstd{=} \hlnum{365}\hlstd{,} \hlkwc{probability} \hlstd{=} \hlkwd{rep}\hlstd{(}\hlnum{TRUE}\hlstd{,} \hlnum{3}\hlstd{)))}
 \end{alltt}
 \begin{verbatim}
-## [1] "gg.1: No observations with risk greater than 78%, and therefore net benefit not calculable in this range."        
+## [1] "gg.1: No observations with risk greater than 72%, and therefore net benefit not calculable in this range."        
 ## [2] "mskcc.pre.1: No observations with risk greater than 50%, and therefore net benefit not calculable in this range." 
 ## [3] "mskcc.post.1: No observations with risk greater than 50%, and therefore net benefit not calculable in this range."
 \end{verbatim}
@@ -2435,7 +2952,7 @@ Decision curve analysis.
 \hlkwd{invisible}\hlstd{(}\hlkwd{stdca}\hlstd{(}\hlkwc{data} \hlstd{= temp.data,} \hlkwc{outcome} \hlstd{=} \hlstr{"DSD"}\hlstd{,} \hlkwc{ttoutcome} \hlstd{=} \hlstr{"Time"}\hlstd{,} \hlkwc{predictors} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"gg.3"}\hlstd{,} \hlstr{"mskcc.pre.3"}\hlstd{,} \hlstr{"mskcc.post.3"}\hlstd{),} \hlkwc{timepoint} \hlstd{=} \hlnum{365}\hlopt{*}\hlnum{3}\hlstd{,} \hlkwc{probability} \hlstd{=} \hlkwd{rep}\hlstd{(}\hlnum{TRUE}\hlstd{,} \hlnum{3}\hlstd{)))}
 \end{alltt}
 \begin{verbatim}
-## [1] "gg.3: No observations with risk greater than 92% that have followup through the timepoint selected, and therefore net benefit not calculable in this range."        
+## [1] "gg.3: No observations with risk greater than 93% that have followup through the timepoint selected, and therefore net benefit not calculable in this range."        
 ## [2] "mskcc.pre.3: No observations with risk greater than 95%, and therefore net benefit not calculable in this range."                                                   
 ## [3] "mskcc.post.3: No observations with risk greater than 92% that have followup through the timepoint selected, and therefore net benefit not calculable in this range."
 \end{verbatim}
@@ -3017,31 +3534,31 @@ Decision curve analysis.
 ## 
 ## 
 ## Bootstrap Statistics :
-##     original     bias    std. error
-## t1* -0.00113 -0.0011691    0.015701
-## t2* -0.02190 -0.0009299    0.018710
-## t3*  0.02077 -0.0002392    0.028129
-## t4* -0.01807  0.0005315    0.013458
-## t5* -0.03102 -0.0029566    0.030885
-## t6*  0.01295  0.0034881    0.034386
-## t7* -0.01368  0.0004382    0.008461
-## t8* -0.00230 -0.0019783    0.031044
-## t9* -0.01138  0.0024165    0.031451
+##      original     bias    std. error
+## t1* -0.002467 -9.427e-04     0.01533
+## t2* -0.021902 -9.299e-04     0.01871
+## t3*  0.019435 -1.284e-05     0.02357
+## t4* -0.026163  1.455e-04     0.01626
+## t5* -0.031015 -2.957e-03     0.03088
+## t6*  0.004852  3.102e-03     0.03210
+## t7* -0.013158  5.419e-04     0.01076
+## t8* -0.002300 -1.978e-03     0.03104
+## t9* -0.010858  2.520e-03     0.03157
 \end{verbatim}
 \begin{alltt}
 \hlstd{deltaBrier.boot.apgi.cis}
 \end{alltt}
 \begin{verbatim}
 ##            level lowindex highindex      lci      uci
-## 12:gg-km0   0.95    14.99     490.7 -0.02914 0.029597
+## 12:gg-km0   0.95    19.66     493.6 -0.03018 0.028926
 ## 12:pre-km0  0.95    19.61     493.7 -0.05458 0.021352
-## 12:gg-pre   0.95    11.55     487.5 -0.03594 0.073835
-## 24:gg-km0   0.95    14.16     490.0 -0.04298 0.010080
+## 12:gg-pre   0.95     9.26     484.6 -0.03157 0.063344
+## 24:gg-km0   0.95    11.80     487.7 -0.05845 0.005853
 ## 24:pre-km0  0.95    24.25     495.0 -0.08215 0.036547
-## 24:gg-pre   0.95     6.77     478.8 -0.06156 0.073555
-## 36:gg-km0   0.95     6.89     480.5 -0.03200 0.001481
+## 24:gg-pre   0.95     9.20     484.1 -0.05843 0.066835
+## 36:gg-km0   0.95     7.17     481.3 -0.03799 0.005808
 ## 36:pre-km0  0.95    13.87     489.6 -0.06168 0.053566
-## 36:gg-pre   0.95    15.08     490.8 -0.06278 0.051051
+## 36:gg-pre   0.95    14.34     490.2 -0.06126 0.052894
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -3319,21 +3836,77 @@ Incident-dynamic:
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlcom{# temp = risksetAUC(Stime = data.glasgow$Time/365.25*12, status = data.glasgow$DSD, marker = mskcc_pre.linpred.glasgow, tmax = 60, col = pal["mskcc.pre"], lwd = 1, method = "Cox")}
-\hlcom{# temp$Cindex}
-\hlcom{# IntegrateAUC(temp$AUC, temp$utimes, temp$St, tmax = 60)}
-\hlcom{# IntegrateAUC(temp$AUC, temp$utimes, temp$St, tmax = 34)}
-\hlcom{# par(new = TRUE)}
-\hlcom{# temp = risksetAUC(Stime = data.glasgow$Time/365.25*12, status = data.glasgow$DSD, marker = mskcc_post.linpred.glasgow, tmax = 60, col = pal["mskcc.post"], lwd = 1, method = "Cox")}
-\hlcom{# temp$Cindex}
-\hlcom{# IntegrateAUC(temp$AUC, temp$utimes, temp$St, tmax = 60)}
-\hlcom{# IntegrateAUC(temp$AUC, temp$utimes, temp$St, tmax = 34)}
-\hlcom{# par(new = TRUE)}
-\hlcom{# temp = risksetAUC(Stime = data.glasgow$Time/365.25*12, status = data.glasgow$DSD, marker = gg.linpred.glasgow, tmax = 60, col = pal["gg"], lwd = 1, method = "Cox")}
-\hlcom{# temp$Cindex}
-\hlcom{# IntegrateAUC(temp$AUC, temp$utimes, temp$St, tmax = 60)}
-\hlcom{# IntegrateAUC(temp$AUC, temp$utimes, temp$St, tmax = 34)}
-\hlcom{# par(new = TRUE)}
+\hlstd{risksetROC.boot} \hlkwb{=} \hlkwa{function}\hlstd{(}\hlkwc{time}\hlstd{,} \hlkwc{event}\hlstd{,} \hlkwc{marker}\hlstd{,} \hlkwc{tmin} \hlstd{=} \hlnum{0}\hlstd{,} \hlkwc{tmax}\hlstd{,} \hlkwc{B} \hlstd{=} \hlnum{10000}\hlstd{,} \hlkwc{...}\hlstd{)}
+\hlstd{\{}
+        \hlstd{data} \hlkwb{=} \hlkwd{data.frame}\hlstd{(}\hlkwc{time} \hlstd{= time,} \hlkwc{event} \hlstd{= event,} \hlkwc{marker} \hlstd{= marker)}
+        \hlstd{eval_times} \hlkwb{=} \hlkwd{seq}\hlstd{(tmin, tmax,} \hlkwc{length.out} \hlstd{=} \hlnum{200}\hlstd{)}
+
+        \hlstd{boot_obj} \hlkwb{=} \hlkwd{boot}\hlstd{(data,} \hlkwa{function}\hlstd{(}\hlkwc{data}\hlstd{,} \hlkwc{indices}\hlstd{) \{}
+                \hlstd{data_draw} \hlkwb{=} \hlstd{data[indices,]}
+                \hlstd{rsAUC} \hlkwb{=} \hlkwd{risksetAUC}\hlstd{(}\hlkwc{Stime} \hlstd{= data_draw}\hlopt{$}\hlstd{time,} \hlkwc{status} \hlstd{= data_draw}\hlopt{$}\hlstd{event,} \hlkwc{marker} \hlstd{= data_draw}\hlopt{$}\hlstd{marker,} \hlkwc{tmax} \hlstd{= tmax,} \hlkwc{plot} \hlstd{=} \hlnum{FALSE}\hlstd{, ...)}
+                \hlstd{AUC_at_eval_times} \hlkwb{=} \hlkwd{approx}\hlstd{(rsAUC}\hlopt{$}\hlstd{utimes, rsAUC}\hlopt{$}\hlstd{AUC, eval_times)}\hlopt{$}\hlstd{y}
+                \hlstd{AUC_at_eval_times}
+        \hlstd{\},} \hlkwc{R} \hlstd{= B)}
+
+        \hlstd{res} \hlkwb{=} \hlkwd{list}\hlstd{(}\hlkwc{boot} \hlstd{= boot_obj,} \hlkwc{eval_times} \hlstd{= eval_times)}
+        \hlkwd{class}\hlstd{(res)} \hlkwb{=} \hlstr{"rrROC_boot"}
+        \hlkwd{return}\hlstd{(res)}
+\hlstd{\}}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{plot.rrROC_boot} \hlkwb{=} \hlkwa{function}\hlstd{(}\hlkwc{obj}\hlstd{,} \hlkwc{add} \hlstd{=} \hlnum{FALSE}\hlstd{,} \hlkwc{ci} \hlstd{=} \hlnum{FALSE}\hlstd{,} \hlkwc{ci_conf} \hlstd{=} \hlnum{0.95}\hlstd{,} \hlkwc{ci_type} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"perc"}\hlstd{,} \hlstr{"norm"}\hlstd{,} \hlstr{"basic"}\hlstd{,} \hlstr{"stud"}\hlstd{,} \hlstr{"bca"}\hlstd{),} \hlkwc{...}\hlstd{)}
+\hlstd{\{}
+        \hlstd{ci_type} \hlkwb{=} \hlkwd{match.arg}\hlstd{(ci_type)}
+        \hlstd{boot_ci} \hlkwb{=} \hlkwd{t}\hlstd{(}\hlkwd{sapply}\hlstd{(}\hlnum{1}\hlopt{:}\hlkwd{length}\hlstd{(obj}\hlopt{$}\hlstd{boot}\hlopt{$}\hlstd{t0),} \hlkwa{function}\hlstd{(}\hlkwc{i}\hlstd{) \{}
+                \hlstd{ci} \hlkwb{=} \hlkwd{try}\hlstd{(}\hlkwd{boot.ci}\hlstd{(obj}\hlopt{$}\hlstd{boot,} \hlkwc{index} \hlstd{=} \hlkwd{c}\hlstd{(i, i),} \hlkwc{type} \hlstd{= ci_type,} \hlkwc{conf} \hlstd{= ci_conf))}
+                \hlkwa{if} \hlstd{(}\hlkwd{class}\hlstd{(ci)} \hlopt{==} \hlstr{"try-error"}\hlstd{) \{}
+                        \hlkwa{if} \hlstd{(ci_type} \hlopt{==} \hlstr{"norm"}\hlstd{)  \{} \hlkwd{return}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{)) \}} \hlkwa{else} \hlstd{\{} \hlkwd{return}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{)) \}}
+                \hlstd{\}}
+                \hlkwd{return}\hlstd{(ci[[}\hlkwd{c}\hlstd{(}\hlstr{"bca"} \hlstd{=} \hlstr{"bca"}\hlstd{,} \hlstr{"norm"} \hlstd{=} \hlstr{"normal"}\hlstd{,} \hlstr{"basic"} \hlstd{=} \hlstr{"basic"}\hlstd{,} \hlstr{"stud"} \hlstd{=} \hlstr{"student"}\hlstd{,} \hlstr{"perc"} \hlstd{=} \hlstr{"percent"}\hlstd{)[ci_type]]])}
+        \hlstd{\}))}
+        \hlkwa{if} \hlstd{(ci_type} \hlopt{==} \hlstr{"norm"}\hlstd{)  \{} \hlkwd{colnames}\hlstd{(boot_ci)} \hlkwb{=} \hlkwd{c}\hlstd{(}\hlstr{"level"}\hlstd{,} \hlstr{"lci"}\hlstd{,} \hlstr{"uci"}\hlstd{) \}} \hlkwa{else} \hlstd{\{} \hlkwd{colnames}\hlstd{(boot_ci)} \hlkwb{=} \hlkwd{c}\hlstd{(}\hlstr{"level"}\hlstd{,} \hlstr{"ind1"}\hlstd{,} \hlstr{"ind2"}\hlstd{,} \hlstr{"lci"}\hlstd{,} \hlstr{"uci"}\hlstd{) \}}
+        \hlstd{summ} \hlkwb{=} \hlkwd{as.data.frame}\hlstd{(}\hlkwd{cbind}\hlstd{(}\hlkwc{time} \hlstd{= obj}\hlopt{$}\hlstd{eval_times,} \hlkwc{mean} \hlstd{= obj}\hlopt{$}\hlstd{boot}\hlopt{$}\hlstd{t0, boot_ci))}
+
+        \hlkwa{if} \hlstd{(}\hlopt{!}\hlstd{add) \{}
+                \hlkwd{plot}\hlstd{(mean} \hlopt{~} \hlstd{time, summ,} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0.4}\hlstd{,} \hlnum{1}\hlstd{),} \hlkwc{type} \hlstd{=} \hlstr{"l"}\hlstd{, ...)}
+        \hlstd{\}} \hlkwa{else} \hlstd{\{}
+                \hlkwd{lines}\hlstd{(mean} \hlopt{~} \hlstd{time, summ, ...)}
+        \hlstd{\}}
+        \hlkwa{if} \hlstd{(ci) \{}
+                \hlkwd{lines}\hlstd{(lci} \hlopt{~} \hlstd{time, summ,} \hlkwc{lty} \hlstd{=} \hlstr{"dotted"}\hlstd{, ...)}
+                \hlkwd{lines}\hlstd{(uci} \hlopt{~} \hlstd{time, summ,} \hlkwc{lty} \hlstd{=} \hlstr{"dotted"}\hlstd{, ...)}
+        \hlstd{\}}
+        \hlkwd{abline}\hlstd{(}\hlkwc{h} \hlstd{=} \hlnum{0.5}\hlstd{)}
+\hlstd{\}}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{set.seed}\hlstd{(}\hlnum{20150216}\hlstd{)}
+\hlstd{rrROC_boot.mskcc_pre.glasgow} \hlkwb{=} \hlkwd{risksetROC.boot}\hlstd{(}\hlkwc{time} \hlstd{= data.glasgow}\hlopt{$}\hlstd{Time}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{,} \hlkwc{event} \hlstd{= data.glasgow}\hlopt{$}\hlstd{DSD,} \hlkwc{marker} \hlstd{= mskcc_pre.linpred.glasgow,} \hlkwc{tmax} \hlstd{=} \hlnum{60}\hlstd{,} \hlkwc{method} \hlstd{=} \hlstr{"Schoenfeld"}\hlstd{,} \hlkwc{span} \hlstd{=} \hlnum{0.4}\hlstd{)}
+\end{alltt}
+
+
+{\ttfamily\noindent\color{warningcolor}{\#\# Warning in fitter(X, Y, strats, offset, init, control, weights = weights, : Loglik converged before variable\ \ 1 ; beta may be infinite.}}
+
+{\ttfamily\noindent\color{warningcolor}{\#\# Warning in fitter(X, Y, strats, offset, init, control, weights = weights, : Loglik converged before variable\ \ 1 ; beta may be infinite.}}\begin{alltt}
+\hlstd{rrROC_boot.mskcc_post.glasgow} \hlkwb{=} \hlkwd{risksetROC.boot}\hlstd{(}\hlkwc{time} \hlstd{= data.glasgow}\hlopt{$}\hlstd{Time}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{,} \hlkwc{event} \hlstd{= data.glasgow}\hlopt{$}\hlstd{DSD,} \hlkwc{marker} \hlstd{= mskcc_post.linpred.glasgow,} \hlkwc{tmax} \hlstd{=} \hlnum{60}\hlstd{,} \hlkwc{method} \hlstd{=} \hlstr{"Schoenfeld"}\hlstd{,} \hlkwc{span} \hlstd{=} \hlnum{0.4}\hlstd{)}
+\hlstd{rrROC_boot.gg.glasgow} \hlkwb{=} \hlkwd{risksetROC.boot}\hlstd{(}\hlkwc{time} \hlstd{= data.glasgow}\hlopt{$}\hlstd{Time}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{,} \hlkwc{event} \hlstd{= data.glasgow}\hlopt{$}\hlstd{DSD,} \hlkwc{marker} \hlstd{= gg.linpred.glasgow,} \hlkwc{tmax} \hlstd{=} \hlnum{60}\hlstd{,} \hlkwc{method} \hlstd{=} \hlstr{"Schoenfeld"}\hlstd{,} \hlkwc{span} \hlstd{=} \hlnum{0.4}\hlstd{)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
 \hlstd{temp} \hlkwb{=} \hlkwd{risksetAUC}\hlstd{(}\hlkwc{Stime} \hlstd{= data.glasgow}\hlopt{$}\hlstd{Time}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{,} \hlkwc{status} \hlstd{= data.glasgow}\hlopt{$}\hlstd{DSD,} \hlkwc{marker} \hlstd{= mskcc_pre.linpred.glasgow,} \hlkwc{tmax} \hlstd{=} \hlnum{60}\hlstd{,} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.pre"}\hlstd{],} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{method} \hlstd{=} \hlstr{"Schoenfeld"}\hlstd{,} \hlkwc{span} \hlstd{=} \hlnum{0.4}\hlstd{)}
 \hlstd{temp}\hlopt{$}\hlstd{Cindex}
 \end{alltt}
@@ -3398,7 +3971,21 @@ Incident-dynamic:
 \end{alltt}
 \end{kframe}
 
-{\centering \includegraphics[width=\maxwidth]{figure/07-risksetROC-glasgow-1} 
+{\centering \includegraphics[width=\maxwidth]{figure/07-risksetROC-plot-glasgow-1} 
+
+}
+
+
+\begin{kframe}\begin{alltt}
+\hlkwd{plot}\hlstd{(rrROC_boot.mskcc_pre.glasgow,} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.pre"}\hlstd{],} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (months)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"AUC"}\hlstd{)}
+\hlkwd{plot}\hlstd{(rrROC_boot.mskcc_post.glasgow,} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.post"}\hlstd{],} \hlkwc{add} \hlstd{=} \hlnum{TRUE}\hlstd{)}
+\hlkwd{plot}\hlstd{(rrROC_boot.gg.glasgow,} \hlkwc{col} \hlstd{= pal[}\hlstr{"gg"}\hlstd{],} \hlkwc{add} \hlstd{=} \hlnum{TRUE}\hlstd{,} \hlkwc{ci} \hlstd{=} \hlnum{TRUE}\hlstd{)}
+\hlkwd{legend}\hlstd{(}\hlstr{"topright"}\hlstd{,} \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"Glasgow Preop"}\hlstd{,} \hlstr{"Glasgow Postop"}\hlstd{,} \hlstr{"GG"}\hlstd{),} \hlkwc{col} \hlstd{=} \hlkwd{c}\hlstd{(pal[}\hlstr{"mskcc.pre"}\hlstd{], pal[}\hlstr{"mskcc.post"}\hlstd{], pal[}\hlstr{"gg"}\hlstd{]),} \hlkwc{lty} \hlstd{=} \hlstr{"solid"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
+\hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{7}\hlstd{,} \hlnum{31}\hlstd{))}
+\end{alltt}
+\end{kframe}
+
+{\centering \includegraphics[width=\maxwidth]{figure/07-risksetROC-plot-glasgow-2} 
 
 }
 
@@ -3409,21 +3996,17 @@ Incident-dynamic:
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlcom{# temp = risksetAUC(Stime = data.apgi$Time/365.25*12, status = data.apgi$DSD, marker = mskcc_pre.linpred.apgi, tmax = 60, col = pal["mskcc.pre"], lwd = 1)}
-\hlcom{# temp$Cindex}
-\hlcom{# IntegrateAUC(temp$AUC, temp$utimes, temp$St, tmax = 60)}
-\hlcom{# IntegrateAUC(temp$AUC, temp$utimes, temp$St, tmax = 34)}
-\hlcom{# par(new = TRUE)}
-\hlcom{# temp = risksetAUC(Stime = data.apgi$Time/365.25*12, status = data.apgi$DSD, marker = mskcc_post.linpred.apgi, tmax = 60, col = pal["mskcc.post"], lwd = 1)}
-\hlcom{# temp$Cindex}
-\hlcom{# IntegrateAUC(temp$AUC, temp$utimes, temp$St, tmax = 60)}
-\hlcom{# IntegrateAUC(temp$AUC, temp$utimes, temp$St, tmax = 34)}
-\hlcom{# par(new = TRUE)}
-\hlcom{# temp = risksetAUC(Stime = data.apgi$Time/365.25*12, status = data.apgi$DSD, marker = gg.linpred.apgi, tmax = 60, col = pal["gg"], lwd = 1)}
-\hlcom{# temp$Cindex}
-\hlcom{# IntegrateAUC(temp$AUC, temp$utimes, temp$St, tmax = 60)}
-\hlcom{# IntegrateAUC(temp$AUC, temp$utimes, temp$St, tmax = 34)}
-\hlcom{# par(new = TRUE)}
+\hlkwd{set.seed}\hlstd{(}\hlnum{20150216}\hlstd{)}
+\hlstd{rrROC_boot.mskcc_pre.apgi} \hlkwb{=} \hlkwd{risksetROC.boot}\hlstd{(}\hlkwc{time} \hlstd{= data.apgi}\hlopt{$}\hlstd{Time}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{,} \hlkwc{event} \hlstd{= data.apgi}\hlopt{$}\hlstd{DSD,} \hlkwc{marker} \hlstd{= mskcc_pre.linpred.apgi,} \hlkwc{tmax} \hlstd{=} \hlnum{60}\hlstd{,} \hlkwc{method} \hlstd{=} \hlstr{"Schoenfeld"}\hlstd{,} \hlkwc{span} \hlstd{=} \hlnum{0.4}\hlstd{)}
+\hlstd{rrROC_boot.mskcc_post.apgi} \hlkwb{=} \hlkwd{risksetROC.boot}\hlstd{(}\hlkwc{time} \hlstd{= data.apgi}\hlopt{$}\hlstd{Time}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{,} \hlkwc{event} \hlstd{= data.apgi}\hlopt{$}\hlstd{DSD,} \hlkwc{marker} \hlstd{= mskcc_post.linpred.apgi,} \hlkwc{tmax} \hlstd{=} \hlnum{60}\hlstd{,} \hlkwc{method} \hlstd{=} \hlstr{"Schoenfeld"}\hlstd{,} \hlkwc{span} \hlstd{=} \hlnum{0.4}\hlstd{)}
+\hlstd{rrROC_boot.gg.apgi} \hlkwb{=} \hlkwd{risksetROC.boot}\hlstd{(}\hlkwc{time} \hlstd{= data.apgi}\hlopt{$}\hlstd{Time}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{,} \hlkwc{event} \hlstd{= data.apgi}\hlopt{$}\hlstd{DSD,} \hlkwc{marker} \hlstd{= gg.linpred.apgi,} \hlkwc{tmax} \hlstd{=} \hlnum{60}\hlstd{,} \hlkwc{method} \hlstd{=} \hlstr{"Schoenfeld"}\hlstd{,} \hlkwc{span} \hlstd{=} \hlnum{0.4}\hlstd{)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
 \hlstd{temp} \hlkwb{=} \hlkwd{risksetAUC}\hlstd{(}\hlkwc{Stime} \hlstd{= data.apgi}\hlopt{$}\hlstd{Time}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{,} \hlkwc{status} \hlstd{= data.apgi}\hlopt{$}\hlstd{DSD,} \hlkwc{marker} \hlstd{= mskcc_pre.linpred.apgi,} \hlkwc{tmax} \hlstd{=} \hlnum{60}\hlstd{,} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.pre"}\hlstd{],} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{method} \hlstd{=} \hlstr{"Schoenfeld"}\hlstd{,} \hlkwc{span} \hlstd{=} \hlnum{0.4}\hlstd{)}
 \hlstd{temp}\hlopt{$}\hlstd{Cindex}
 \end{alltt}
@@ -3468,19 +4051,19 @@ Incident-dynamic:
 \hlstd{temp}\hlopt{$}\hlstd{Cindex}
 \end{alltt}
 \begin{verbatim}
-## [1] 0.6439
+## [1] 0.5934
 \end{verbatim}
 \begin{alltt}
 \hlkwd{IntegrateAUC}\hlstd{(temp}\hlopt{$}\hlstd{AUC, temp}\hlopt{$}\hlstd{utimes, temp}\hlopt{$}\hlstd{St,} \hlkwc{tmax} \hlstd{=} \hlnum{60}\hlstd{)}
 \end{alltt}
 \begin{verbatim}
-## [1] 0.6439
+## [1] 0.5934
 \end{verbatim}
 \begin{alltt}
 \hlkwd{IntegrateAUC}\hlstd{(temp}\hlopt{$}\hlstd{AUC, temp}\hlopt{$}\hlstd{utimes, temp}\hlopt{$}\hlstd{St,} \hlkwc{tmax} \hlstd{=} \hlnum{34}\hlstd{)}
 \end{alltt}
 \begin{verbatim}
-## [1] 0.6427
+## [1] 0.59
 \end{verbatim}
 \begin{alltt}
 \hlkwd{legend}\hlstd{(}\hlstr{"topright"}\hlstd{,} \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"APGI Preop"}\hlstd{,} \hlstr{"APGI Postop"}\hlstd{,} \hlstr{"GG"}\hlstd{),} \hlkwc{col} \hlstd{=} \hlkwd{c}\hlstd{(pal[}\hlstr{"mskcc.pre"}\hlstd{], pal[}\hlstr{"mskcc.post"}\hlstd{], pal[}\hlstr{"gg"}\hlstd{]),} \hlkwc{lty} \hlstd{=} \hlstr{"solid"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
@@ -3488,7 +4071,21 @@ Incident-dynamic:
 \end{alltt}
 \end{kframe}
 
-{\centering \includegraphics[width=\maxwidth]{figure/07-risksetROC-apgi-1} 
+{\centering \includegraphics[width=\maxwidth]{figure/07-risksetROC-plot-apgi-1} 
+
+}
+
+
+\begin{kframe}\begin{alltt}
+\hlkwd{plot}\hlstd{(rrROC_boot.mskcc_pre.apgi,} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.pre"}\hlstd{],} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (months)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"AUC"}\hlstd{)}
+\hlkwd{plot}\hlstd{(rrROC_boot.mskcc_post.apgi,} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.post"}\hlstd{],} \hlkwc{add} \hlstd{=} \hlnum{TRUE}\hlstd{)}
+\hlkwd{plot}\hlstd{(rrROC_boot.gg.apgi,} \hlkwc{col} \hlstd{= pal[}\hlstr{"gg"}\hlstd{],} \hlkwc{add} \hlstd{=} \hlnum{TRUE}\hlstd{,} \hlkwc{ci} \hlstd{=} \hlnum{TRUE}\hlstd{)}
+\hlkwd{legend}\hlstd{(}\hlstr{"topright"}\hlstd{,} \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"APGI Preop"}\hlstd{,} \hlstr{"APGI Postop"}\hlstd{,} \hlstr{"GG"}\hlstd{),} \hlkwc{col} \hlstd{=} \hlkwd{c}\hlstd{(pal[}\hlstr{"mskcc.pre"}\hlstd{], pal[}\hlstr{"mskcc.post"}\hlstd{], pal[}\hlstr{"gg"}\hlstd{]),} \hlkwc{lty} \hlstd{=} \hlstr{"solid"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
+\hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{7}\hlstd{,} \hlnum{31}\hlstd{))}
+\end{alltt}
+\end{kframe}
+
+{\centering \includegraphics[width=\maxwidth]{figure/07-risksetROC-plot-apgi-2} 
 
 }
 
@@ -3499,21 +4096,17 @@ Incident-dynamic:
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlcom{# temp = risksetAUC(Stime = data.dresden$Time/365.25*12, status = data.dresden$DSD, marker = mskcc_pre.linpred.dresden, tmax = 60, col = pal["mskcc.pre"], lwd = 1)}
-\hlcom{# temp$Cindex}
-\hlcom{# IntegrateAUC(temp$AUC, temp$utimes, temp$St, tmax = 60)}
-\hlcom{# IntegrateAUC(temp$AUC, temp$utimes, temp$St, tmax = 34)}
-\hlcom{# par(new = TRUE)}
-\hlcom{# temp = risksetAUC(Stime = data.dresden$Time/365.25*12, status = data.dresden$DSD, marker = mskcc_post.linpred.dresden, tmax = 60, col = pal["mskcc.post"], lwd = 1)}
-\hlcom{# temp$Cindex}
-\hlcom{# IntegrateAUC(temp$AUC, temp$utimes, temp$St, tmax = 60)}
-\hlcom{# IntegrateAUC(temp$AUC, temp$utimes, temp$St, tmax = 34)}
-\hlcom{# par(new = TRUE)}
-\hlcom{# temp = risksetAUC(Stime = data.dresden$Time/365.25*12, status = data.dresden$DSD, marker = gg.linpred.dresden, tmax = 60, col = pal["gg"], lwd = 1)}
-\hlcom{# temp$Cindex}
-\hlcom{# IntegrateAUC(temp$AUC, temp$utimes, temp$St, tmax = 60)}
-\hlcom{# IntegrateAUC(temp$AUC, temp$utimes, temp$St, tmax = 34)}
-\hlcom{# par(new = TRUE)}
+\hlkwd{set.seed}\hlstd{(}\hlnum{20150216}\hlstd{)}
+\hlstd{rrROC_boot.mskcc_pre.dresden} \hlkwb{=} \hlkwd{risksetROC.boot}\hlstd{(}\hlkwc{time} \hlstd{= data.dresden}\hlopt{$}\hlstd{Time}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{,} \hlkwc{event} \hlstd{= data.dresden}\hlopt{$}\hlstd{DSD,} \hlkwc{marker} \hlstd{= mskcc_pre.linpred.dresden,} \hlkwc{tmax} \hlstd{=} \hlnum{60}\hlstd{,} \hlkwc{method} \hlstd{=} \hlstr{"Schoenfeld"}\hlstd{,} \hlkwc{span} \hlstd{=} \hlnum{0.4}\hlstd{)}
+\hlstd{rrROC_boot.mskcc_post.dresden} \hlkwb{=} \hlkwd{risksetROC.boot}\hlstd{(}\hlkwc{time} \hlstd{= data.dresden}\hlopt{$}\hlstd{Time}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{,} \hlkwc{event} \hlstd{= data.dresden}\hlopt{$}\hlstd{DSD,} \hlkwc{marker} \hlstd{= mskcc_post.linpred.dresden,} \hlkwc{tmax} \hlstd{=} \hlnum{60}\hlstd{,} \hlkwc{method} \hlstd{=} \hlstr{"Schoenfeld"}\hlstd{,} \hlkwc{span} \hlstd{=} \hlnum{0.4}\hlstd{)}
+\hlstd{rrROC_boot.gg.dresden} \hlkwb{=} \hlkwd{risksetROC.boot}\hlstd{(}\hlkwc{time} \hlstd{= data.dresden}\hlopt{$}\hlstd{Time}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{,} \hlkwc{event} \hlstd{= data.dresden}\hlopt{$}\hlstd{DSD,} \hlkwc{marker} \hlstd{= gg.linpred.dresden,} \hlkwc{tmax} \hlstd{=} \hlnum{60}\hlstd{,} \hlkwc{method} \hlstd{=} \hlstr{"Schoenfeld"}\hlstd{,} \hlkwc{span} \hlstd{=} \hlnum{0.4}\hlstd{)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
 \hlstd{temp} \hlkwb{=} \hlkwd{risksetAUC}\hlstd{(}\hlkwc{Stime} \hlstd{= data.dresden}\hlopt{$}\hlstd{Time}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{,} \hlkwc{status} \hlstd{= data.dresden}\hlopt{$}\hlstd{DSD,} \hlkwc{marker} \hlstd{= mskcc_pre.linpred.dresden,} \hlkwc{tmax} \hlstd{=} \hlnum{60}\hlstd{,} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.pre"}\hlstd{],} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{method} \hlstd{=} \hlstr{"Schoenfeld"}\hlstd{,} \hlkwc{span} \hlstd{=} \hlnum{0.4}\hlstd{)}
 \hlstd{temp}\hlopt{$}\hlstd{Cindex}
 \end{alltt}
@@ -3560,7 +4153,21 @@ Incident-dynamic:
 \end{alltt}
 \end{kframe}
 
-{\centering \includegraphics[width=\maxwidth]{figure/07-risksetROC-dresden-1} 
+{\centering \includegraphics[width=\maxwidth]{figure/07-risksetROC-plot-dresden-1} 
+
+}
+
+
+\begin{kframe}\begin{alltt}
+\hlkwd{plot}\hlstd{(rrROC_boot.mskcc_pre.dresden,} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.pre"}\hlstd{],} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (months)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"AUC"}\hlstd{)}
+\hlkwd{plot}\hlstd{(rrROC_boot.mskcc_post.dresden,} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.post"}\hlstd{],} \hlkwc{add} \hlstd{=} \hlnum{TRUE}\hlstd{)}
+\hlkwd{plot}\hlstd{(rrROC_boot.gg.dresden,} \hlkwc{col} \hlstd{= pal[}\hlstr{"gg"}\hlstd{],} \hlkwc{add} \hlstd{=} \hlnum{TRUE}\hlstd{,} \hlkwc{ci} \hlstd{=} \hlnum{TRUE}\hlstd{)}
+\hlkwd{legend}\hlstd{(}\hlstr{"topright"}\hlstd{,} \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"Dresden Preop"}\hlstd{,} \hlstr{"Dresden Postop"}\hlstd{,} \hlstr{"GG"}\hlstd{),} \hlkwc{col} \hlstd{=} \hlkwd{c}\hlstd{(pal[}\hlstr{"mskcc.pre"}\hlstd{], pal[}\hlstr{"mskcc.post"}\hlstd{], pal[}\hlstr{"gg"}\hlstd{]),} \hlkwc{lty} \hlstd{=} \hlstr{"solid"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
+\hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{7}\hlstd{,} \hlnum{31}\hlstd{))}
+\end{alltt}
+\end{kframe}
+
+{\centering \includegraphics[width=\maxwidth]{figure/07-risksetROC-plot-dresden-2} 
 
 }
 

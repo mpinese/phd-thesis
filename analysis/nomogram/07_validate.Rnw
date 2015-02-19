@@ -18,8 +18,9 @@ options(
 )
 knit_hooks$set(crop = hook_pdfcrop)
 opts_chunk$set(
-	fig.align = 'center', fig.path = "figure/07-", dev = 'tikz', dev.args = list(pointsize = 11), 
-	cache = TRUE, cache.lazy = FALSE, cache.path = "cache/07-", autodep = TRUE, crop = TRUE)
+	fig.align = 'center', fig.path = "figure/07-", dev = 'tikz', dev.args = list(pointsize = 12), 
+	cache = TRUE, cache.lazy = FALSE, cache.path = "cache/07-", autodep = TRUE, crop = TRUE, 
+	fig.width = 6, fig.height = 6)
 opts_knit$set(progress = TRUE, verbose = TRUE)
 options(warn = 1)
 @
@@ -202,7 +203,7 @@ data.apgi = readRDS("06_APGI.rds")
 
 
 <<load-dresden>>=
-data.dresden = readRDS("06_Dresden2.rds")
+data.dresden = readRDS("06_Dresden.rds")
 
 data.dresden$History.Diagnosis.AgeAt = data.dresden$History.Surgery.AgeAtYears
 data.dresden$History.Diagnosis.AgeAt.Cent = data.dresden$History.Diagnosis.AgeAt - 68
@@ -247,6 +248,23 @@ temp.cohort = factor(rep(c("NSWPCN", "Glasgow", "APGI", "Dresden"), c(nrow(data.
 temp.survfit = survfit(Surv(temp.time, temp.dsd) ~ temp.cohort)
 plot(temp.survfit, col = pal[1:4], xlim = c(0, 5), lwd = 2, main = "Cohort marginal survival", xlab = "Time from diagnosis (years)", ylab = "Fraction alive")
 legend("topright", legend = c("APGI", "Dresden", "Glasgow", "NSWPCN"), col = pal[1:4], inset = 0.05, lwd = 2)
+survdiff(Surv(temp.time, temp.dsd) ~ temp.cohort)
+temp.vars = c("Time", "DSD", "SexM", "AgeCent", "SizeCent", "Stage.pT.Simplified", "LocBody", "Treat.MarginPositive", "Path.Differentiation", "A2", "A4")
+temp.all = as.data.frame(rbind(
+	cbind(data.nswpcn[,temp.vars], cohort = "NSWPCN"), 
+	cbind(data.glasgow[,temp.vars], cohort = "Glasgow"), 
+	cbind(data.apgi[,temp.vars], cohort = "APGI"), 
+	cbind(data.dresden[,temp.vars], cohort = "Dresden")))
+table(temp.all$SexM, temp.all$cohort)
+temp.allfit = coxph(Surv(Time, DSD) ~ LocBody + cohort*(SexM + AgeCent + SizeCent + Treat.MarginPositive + I(Path.Differentiation %in% c("3", "4")) + A2 + A4), data = temp.all)
+temp.allfit2 = coxph(Surv(Time, DSD) ~ LocBody + SexM + AgeCent + SizeCent + Treat.MarginPositive + I(Path.Differentiation %in% c("3", "4")) + A2 + A4, data = temp.all)
+summary(temp.allfit)
+anova(temp.allfit)
+anova(temp.allfit, temp.allfit2)
+cox.zph(temp.allfit)
+temp = cox.zph(temp.allfit)$table
+sort(p.adjust(temp[grepl("^cohort", rownames(temp)), "p"], "holm"))
+#plot(cox.zph(temp.allfit))
 @
 
 
@@ -375,15 +393,16 @@ colnames(gg.prob.nswpcn) = rownames(data.nswpcn)
 
 \section{Validation}
 \subsection{Altman diagnostic 1: score histograms}
-<<score-hists>>=
+<<score-hists, fig.height = 10>>=
 par(mfrow = c(4, 1))
-hist(gg.linpred.nswpcn, main = "NSWPCN GG scores", xlim = range(c(gg.linpred.nswpcn, gg.linpred.glasgow, gg.linpred.apgi)), breaks = 20, col = "grey")
+temp.breaks = seq(min(c(gg.linpred.nswpcn, gg.linpred.glasgow, gg.linpred.apgi, gg.linpred.dresden)), max(c(gg.linpred.nswpcn, gg.linpred.glasgow, gg.linpred.apgi, gg.linpred.dresden)), length.out = 29)
+hist(gg.linpred.nswpcn, main = "NSWPCN", xlim = range(c(gg.linpred.nswpcn, gg.linpred.glasgow, gg.linpred.apgi, gg.linpred.dresden)), breaks = temp.breaks, col = "grey", xlab = "")
 abline(v = quantile(gg.linpred.nswpcn, probs = c(0.25, 0.5, 0.75)), col = "red")
-hist(gg.linpred.glasgow, main = "Glasgow GG scores", xlim = range(c(gg.linpred.nswpcn, gg.linpred.glasgow, gg.linpred.apgi)), breaks = 20, col = "grey")
+hist(gg.linpred.glasgow, main = "Glasgow", xlim = range(c(gg.linpred.nswpcn, gg.linpred.glasgow, gg.linpred.apgi, gg.linpred.dresden)), breaks = temp.breaks, col = "grey", xlab = "")
 abline(v = quantile(gg.linpred.glasgow, probs = c(0.25, 0.5, 0.75)), col = "red")
-hist(gg.linpred.apgi, main = "APGI GG scores", xlim = range(c(gg.linpred.nswpcn, gg.linpred.glasgow, gg.linpred.apgi)), breaks = 20, col = "grey")
+hist(gg.linpred.apgi, main = "APGI", xlim = range(c(gg.linpred.nswpcn, gg.linpred.glasgow, gg.linpred.apgi, gg.linpred.dresden)), breaks = temp.breaks, col = "grey", xlab = "")
 abline(v = quantile(gg.linpred.apgi, probs = c(0.25, 0.5, 0.75)), col = "red")
-hist(gg.linpred.dresden, main = "Dresden GG scores", xlim = range(c(gg.linpred.nswpcn, gg.linpred.glasgow, gg.linpred.dresden)), breaks = 20, col = "grey")
+hist(gg.linpred.dresden, main = "Dresden", xlim = range(c(gg.linpred.nswpcn, gg.linpred.glasgow, gg.linpred.apgi, gg.linpred.dresden)), breaks = temp.breaks, col = "grey", xlab = "")
 abline(v = quantile(gg.linpred.dresden, probs = c(0.25, 0.5, 0.75)), col = "red")
 par(mfrow = c(1, 1))
 @
@@ -1125,22 +1144,60 @@ abline(v = c(7, 31))
 @
 
 Incident-dynamic:
-<<risksetROC-glasgow>>=
-# temp = risksetAUC(Stime = data.glasgow$Time/365.25*12, status = data.glasgow$DSD, marker = mskcc_pre.linpred.glasgow, tmax = 60, col = pal["mskcc.pre"], lwd = 1, method = "Cox")
-# temp$Cindex
-# IntegrateAUC(temp$AUC, temp$utimes, temp$St, tmax = 60)
-# IntegrateAUC(temp$AUC, temp$utimes, temp$St, tmax = 34)
-# par(new = TRUE)
-# temp = risksetAUC(Stime = data.glasgow$Time/365.25*12, status = data.glasgow$DSD, marker = mskcc_post.linpred.glasgow, tmax = 60, col = pal["mskcc.post"], lwd = 1, method = "Cox")
-# temp$Cindex
-# IntegrateAUC(temp$AUC, temp$utimes, temp$St, tmax = 60)
-# IntegrateAUC(temp$AUC, temp$utimes, temp$St, tmax = 34)
-# par(new = TRUE)
-# temp = risksetAUC(Stime = data.glasgow$Time/365.25*12, status = data.glasgow$DSD, marker = gg.linpred.glasgow, tmax = 60, col = pal["gg"], lwd = 1, method = "Cox")
-# temp$Cindex
-# IntegrateAUC(temp$AUC, temp$utimes, temp$St, tmax = 60)
-# IntegrateAUC(temp$AUC, temp$utimes, temp$St, tmax = 34)
-# par(new = TRUE)
+<<risksetROC-bootfunc>>=
+risksetROC.boot = function(time, event, marker, tmin = 0, tmax, B = 10000, ...)
+{
+	data = data.frame(time = time, event = event, marker = marker)
+	eval_times = seq(tmin, tmax, length.out = 200)
+
+	boot_obj = boot(data, function(data, indices) {
+		data_draw = data[indices,]
+		rsAUC = risksetAUC(Stime = data_draw$time, status = data_draw$event, marker = data_draw$marker, tmax = tmax, plot = FALSE, ...)
+		AUC_at_eval_times = approx(rsAUC$utimes, rsAUC$AUC, eval_times)$y
+		AUC_at_eval_times
+	}, R = B)
+
+	res = list(boot = boot_obj, eval_times = eval_times)
+	class(res) = "rrROC_boot"
+	return(res)
+}
+@
+
+<<risksetROC-plotfunc>>=
+plot.rrROC_boot = function(obj, add = FALSE, ci = FALSE, ci_conf = 0.95, ci_type = c("perc", "norm", "basic", "stud", "bca"), ...)
+{
+	ci_type = match.arg(ci_type)
+	boot_ci = t(sapply(1:length(obj$boot$t0), function(i) { 
+		ci = try(boot.ci(obj$boot, index = c(i, i), type = ci_type, conf = ci_conf))
+		if (class(ci) == "try-error") {
+			if (ci_type == "norm")	{ return(c(NA, NA, NA)) } else { return(c(NA, NA, NA, NA, NA)) }
+		}
+		return(ci[[c("bca" = "bca", "norm" = "normal", "basic" = "basic", "stud" = "student", "perc" = "percent")[ci_type]]])
+	}))
+	if (ci_type == "norm")	{ colnames(boot_ci) = c("level", "lci", "uci") } else { colnames(boot_ci) = c("level", "ind1", "ind2", "lci", "uci") }
+	summ = as.data.frame(cbind(time = obj$eval_times, mean = obj$boot$t0, boot_ci))
+
+	if (!add) {
+		plot(mean ~ time, summ, ylim = c(0.4, 1), type = "l", ...)
+	} else {
+		lines(mean ~ time, summ, ...)
+	}
+	if (ci) {
+		lines(lci ~ time, summ, lty = "dotted", ...)
+		lines(uci ~ time, summ, lty = "dotted", ...)
+	}
+	abline(h = 0.5)
+}
+@
+
+<<risksetROC-boot-glasgow>>=
+set.seed(20150216)
+rrROC_boot.mskcc_pre.glasgow = risksetROC.boot(time = data.glasgow$Time/365.25*12, event = data.glasgow$DSD, marker = mskcc_pre.linpred.glasgow, tmax = 60, method = "Schoenfeld", span = 0.4)
+rrROC_boot.mskcc_post.glasgow = risksetROC.boot(time = data.glasgow$Time/365.25*12, event = data.glasgow$DSD, marker = mskcc_post.linpred.glasgow, tmax = 60, method = "Schoenfeld", span = 0.4)
+rrROC_boot.gg.glasgow = risksetROC.boot(time = data.glasgow$Time/365.25*12, event = data.glasgow$DSD, marker = gg.linpred.glasgow, tmax = 60, method = "Schoenfeld", span = 0.4)
+@
+
+<<risksetROC-plot-glasgow>>=
 temp = risksetAUC(Stime = data.glasgow$Time/365.25*12, status = data.glasgow$DSD, marker = mskcc_pre.linpred.glasgow, tmax = 60, col = pal["mskcc.pre"], lwd = 2, method = "Schoenfeld", span = 0.4)
 temp$Cindex
 IntegrateAUC(temp$AUC, temp$utimes, temp$St, tmax = 60)
@@ -1157,24 +1214,22 @@ IntegrateAUC(temp$AUC, temp$utimes, temp$St, tmax = 60)
 IntegrateAUC(temp$AUC, temp$utimes, temp$St, tmax = 34)
 legend("topright", legend = c("Glasgow Preop", "Glasgow Postop", "GG"), col = c(pal["mskcc.pre"], pal["mskcc.post"], pal["gg"]), lty = "solid", lwd = 2)
 abline(v = c(7, 31))
+
+plot(rrROC_boot.mskcc_pre.glasgow, col = pal["mskcc.pre"], xlab = "Time from diagnosis (months)", ylab = "AUC")
+plot(rrROC_boot.mskcc_post.glasgow, col = pal["mskcc.post"], add = TRUE)
+plot(rrROC_boot.gg.glasgow, col = pal["gg"], add = TRUE, ci = TRUE)
+legend("topright", legend = c("Glasgow Preop", "Glasgow Postop", "GG"), col = c(pal["mskcc.pre"], pal["mskcc.post"], pal["gg"]), lty = "solid", lwd = 2)
+abline(v = c(7, 31))
 @
 
-<<risksetROC-apgi>>=
-# temp = risksetAUC(Stime = data.apgi$Time/365.25*12, status = data.apgi$DSD, marker = mskcc_pre.linpred.apgi, tmax = 60, col = pal["mskcc.pre"], lwd = 1)
-# temp$Cindex
-# IntegrateAUC(temp$AUC, temp$utimes, temp$St, tmax = 60)
-# IntegrateAUC(temp$AUC, temp$utimes, temp$St, tmax = 34)
-# par(new = TRUE)
-# temp = risksetAUC(Stime = data.apgi$Time/365.25*12, status = data.apgi$DSD, marker = mskcc_post.linpred.apgi, tmax = 60, col = pal["mskcc.post"], lwd = 1)
-# temp$Cindex
-# IntegrateAUC(temp$AUC, temp$utimes, temp$St, tmax = 60)
-# IntegrateAUC(temp$AUC, temp$utimes, temp$St, tmax = 34)
-# par(new = TRUE)
-# temp = risksetAUC(Stime = data.apgi$Time/365.25*12, status = data.apgi$DSD, marker = gg.linpred.apgi, tmax = 60, col = pal["gg"], lwd = 1)
-# temp$Cindex
-# IntegrateAUC(temp$AUC, temp$utimes, temp$St, tmax = 60)
-# IntegrateAUC(temp$AUC, temp$utimes, temp$St, tmax = 34)
-# par(new = TRUE)
+<<risksetROC-boot-apgi>>=
+set.seed(20150216)
+rrROC_boot.mskcc_pre.apgi = risksetROC.boot(time = data.apgi$Time/365.25*12, event = data.apgi$DSD, marker = mskcc_pre.linpred.apgi, tmax = 60, method = "Schoenfeld", span = 0.4)
+rrROC_boot.mskcc_post.apgi = risksetROC.boot(time = data.apgi$Time/365.25*12, event = data.apgi$DSD, marker = mskcc_post.linpred.apgi, tmax = 60, method = "Schoenfeld", span = 0.4)
+rrROC_boot.gg.apgi = risksetROC.boot(time = data.apgi$Time/365.25*12, event = data.apgi$DSD, marker = gg.linpred.apgi, tmax = 60, method = "Schoenfeld", span = 0.4)
+@
+
+<<risksetROC-plot-apgi>>=
 temp = risksetAUC(Stime = data.apgi$Time/365.25*12, status = data.apgi$DSD, marker = mskcc_pre.linpred.apgi, tmax = 60, col = pal["mskcc.pre"], lwd = 2, method = "Schoenfeld", span = 0.4)
 temp$Cindex
 IntegrateAUC(temp$AUC, temp$utimes, temp$St, tmax = 60)
@@ -1191,24 +1246,22 @@ IntegrateAUC(temp$AUC, temp$utimes, temp$St, tmax = 60)
 IntegrateAUC(temp$AUC, temp$utimes, temp$St, tmax = 34)
 legend("topright", legend = c("APGI Preop", "APGI Postop", "GG"), col = c(pal["mskcc.pre"], pal["mskcc.post"], pal["gg"]), lty = "solid", lwd = 2)
 abline(v = c(7, 31))
+
+plot(rrROC_boot.mskcc_pre.apgi, col = pal["mskcc.pre"], xlab = "Time from diagnosis (months)", ylab = "AUC")
+plot(rrROC_boot.mskcc_post.apgi, col = pal["mskcc.post"], add = TRUE)
+plot(rrROC_boot.gg.apgi, col = pal["gg"], add = TRUE, ci = TRUE)
+legend("topright", legend = c("APGI Preop", "APGI Postop", "GG"), col = c(pal["mskcc.pre"], pal["mskcc.post"], pal["gg"]), lty = "solid", lwd = 2)
+abline(v = c(7, 31))
 @
 
-<<risksetROC-dresden>>=
-# temp = risksetAUC(Stime = data.dresden$Time/365.25*12, status = data.dresden$DSD, marker = mskcc_pre.linpred.dresden, tmax = 60, col = pal["mskcc.pre"], lwd = 1)
-# temp$Cindex
-# IntegrateAUC(temp$AUC, temp$utimes, temp$St, tmax = 60)
-# IntegrateAUC(temp$AUC, temp$utimes, temp$St, tmax = 34)
-# par(new = TRUE)
-# temp = risksetAUC(Stime = data.dresden$Time/365.25*12, status = data.dresden$DSD, marker = mskcc_post.linpred.dresden, tmax = 60, col = pal["mskcc.post"], lwd = 1)
-# temp$Cindex
-# IntegrateAUC(temp$AUC, temp$utimes, temp$St, tmax = 60)
-# IntegrateAUC(temp$AUC, temp$utimes, temp$St, tmax = 34)
-# par(new = TRUE)
-# temp = risksetAUC(Stime = data.dresden$Time/365.25*12, status = data.dresden$DSD, marker = gg.linpred.dresden, tmax = 60, col = pal["gg"], lwd = 1)
-# temp$Cindex
-# IntegrateAUC(temp$AUC, temp$utimes, temp$St, tmax = 60)
-# IntegrateAUC(temp$AUC, temp$utimes, temp$St, tmax = 34)
-# par(new = TRUE)
+<<risksetROC-boot-dresden>>=
+set.seed(20150216)
+rrROC_boot.mskcc_pre.dresden = risksetROC.boot(time = data.dresden$Time/365.25*12, event = data.dresden$DSD, marker = mskcc_pre.linpred.dresden, tmax = 60, method = "Schoenfeld", span = 0.4)
+rrROC_boot.mskcc_post.dresden = risksetROC.boot(time = data.dresden$Time/365.25*12, event = data.dresden$DSD, marker = mskcc_post.linpred.dresden, tmax = 60, method = "Schoenfeld", span = 0.4)
+rrROC_boot.gg.dresden = risksetROC.boot(time = data.dresden$Time/365.25*12, event = data.dresden$DSD, marker = gg.linpred.dresden, tmax = 60, method = "Schoenfeld", span = 0.4)
+@
+
+<<risksetROC-plot-dresden>>=
 temp = risksetAUC(Stime = data.dresden$Time/365.25*12, status = data.dresden$DSD, marker = mskcc_pre.linpred.dresden, tmax = 60, col = pal["mskcc.pre"], lwd = 2, method = "Schoenfeld", span = 0.4)
 temp$Cindex
 IntegrateAUC(temp$AUC, temp$utimes, temp$St, tmax = 60)
@@ -1220,6 +1273,12 @@ IntegrateAUC(temp$AUC, temp$utimes, temp$St, tmax = 60)
 IntegrateAUC(temp$AUC, temp$utimes, temp$St, tmax = 34)
 par(new = TRUE)
 temp = risksetAUC(Stime = data.dresden$Time/365.25*12, status = data.dresden$DSD, marker = gg.linpred.dresden, tmax = 60, col = pal["gg"], lwd = 2, method = "Schoenfeld", span = 0.4)
+legend("topright", legend = c("Dresden Preop", "Dresden Postop", "GG"), col = c(pal["mskcc.pre"], pal["mskcc.post"], pal["gg"]), lty = "solid", lwd = 2)
+abline(v = c(7, 31))
+
+plot(rrROC_boot.mskcc_pre.dresden, col = pal["mskcc.pre"], xlab = "Time from diagnosis (months)", ylab = "AUC")
+plot(rrROC_boot.mskcc_post.dresden, col = pal["mskcc.post"], add = TRUE)
+plot(rrROC_boot.gg.dresden, col = pal["gg"], add = TRUE, ci = TRUE)
 legend("topright", legend = c("Dresden Preop", "Dresden Postop", "GG"), col = c(pal["mskcc.pre"], pal["mskcc.post"], pal["gg"]), lty = "solid", lwd = 2)
 abline(v = c(7, 31))
 @

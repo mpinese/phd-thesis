@@ -18,8 +18,9 @@ options(
 )
 knit_hooks$set(crop = hook_pdfcrop)
 opts_chunk$set(
-	fig.align = 'center', fig.path = "figure/05-", dev = 'tikz', dev.args = list(pointsize = 11), 
-	cache = TRUE, cache.lazy = FALSE, cache.path = "cache/05-", autodep = TRUE, crop = TRUE)
+	fig.align = 'center', fig.path = "figure/05-", dev = 'tikz', dev.args = list(pointsize = 12), 
+	cache = TRUE, cache.lazy = FALSE, cache.path = "cache/05-", autodep = TRUE, crop = TRUE,
+	fig.width = 6, fig.height = 6)
 opts_knit$set(progress = TRUE, verbose = TRUE)
 options(warn = 1)
 @
@@ -525,11 +526,11 @@ abline(v = c(7, 34))
 Incident-dynamic:
 <<model-selection-roc-id>>=
 library(risksetROC)
-invisible(risksetAUC(data.val$Time/365.25*12, status = data.val$DSD, marker = val.linpred.gg, tmax = 36, col = pal["GG"], lwd = 2))
+invisible(risksetAUC(data.val$Time/365.25*12, status = data.val$DSD, marker = val.linpred.gg, tmax = 36, col = pal["GG"], lwd = 2, method = "Schoenfeld", span = 0.4))
 par(new = TRUE)
-invisible(risksetAUC(data.val$Time/365.25*12, status = data.val$DSD, marker = val.linpred.rsf, tmax = 36, col = pal["RSF"], lwd = 2))
+invisible(risksetAUC(data.val$Time/365.25*12, status = data.val$DSD, marker = val.linpred.rsf, tmax = 36, col = pal["RSF"], lwd = 2, method = "Schoenfeld", span = 0.4))
 par(new = TRUE)
-invisible(risksetAUC(data.val$Time/365.25*12, status = data.val$DSD, marker = val.linpred.cph, tmax = 36, col = pal["CPH"], lwd = 2))
+invisible(risksetAUC(data.val$Time/365.25*12, status = data.val$DSD, marker = val.linpred.cph, tmax = 36, col = pal["CPH"], lwd = 2, method = "Schoenfeld", span = 0.4))
 par(new = TRUE)
 legend("top", legend = c("GG", "RSF", "CPH"), col = pal[c("GG", "RSF", "CPH")], lty = "solid")
 abline(v = c(7, 31))
