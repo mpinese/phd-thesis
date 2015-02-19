@@ -40,7 +40,13 @@ Pre-operative measurements of tumour size (for example, by \gls{CT} X-ray or \gl
 \mpfatal{For the disc: Although the correlation between \gls{CT} and \gls{EUS} estimates of tumour size, and actual size upon resection, is respectable \cite{Arvold2011}, full clinical validation of this prognostic's use in a pre-operative setting will require ...}
 
 \subsection{Cohorts and Characteristics}
-General characteristics of the \gls{NSWPCN}, Glasgow, and Dresden cohorts are summarised in \tref{tab:nomo-cohort-characteristics}.  The \gls{NSWPCN} training cohort contained a small subgroup of patients with abnormally long recorded survival times ($> 3000$ days, 7/256 patients), that were strongly suspected to represent data errors, either as a consequence of incorrect coding following loss to follow-up, or misdiagnosis.  Given the age of the cohort, it was deemed impractical to revisit the original records to check these patients, and so all patients with recorded survival times exceeding 3000 days were excluded from the \gls{NSWPCN} training data.  The \gls{NSWPCN} cohort characteristics in \tref{tab:nomo-cohort-characteristics} have been calculated on the 249 patients that passed the 3000 day data quality cutoff.
+General characteristics of the \gls{NSWPCN}, Glasgow, and Dresden cohorts are summarised in \tref{tab:nomo-cohort-characteristics}.  Reliable data on adjuvant and neoadjuvant chemotherapy treatment was not available in all cohorts, and may form a confounding factor.  The \gls{NSWPCN} training cohort contained a small subgroup of patients with abnormally long recorded survival times ($> 3000$ days, 7/256 patients), that were strongly suspected to represent data errors, either as a consequence of incorrect coding following loss to follow-up, or misdiagnosis.  Given the age of the cohort, it was deemed impractical to revisit the original records to check these patients, and so all patients with recorded survival times exceeding 3000 days were excluded from the \gls{NSWPCN} training data.  The \gls{NSWPCN} cohort characteristics in \tref{tab:nomo-cohort-characteristics} have been calculated on the 249 patients that passed the 3000 day data quality cutoff.
+
+The four cohorts had broadly similar marginal survival functions (\fref{fig:nomo-cohort-km}), although these were statistically distinct (logrank $P = 5.7 \times 10^{-6}$).  In particular, the \gls{NSWPCN} cohort had the lowest survival rate of all cohorts from one year following resection; the better outcome of the more modern cohorts over \gls{NSWPCN} may be a consequence of differing adjuvant chemotherapy rates between cohorts, or reflect recent improvements in disease management that have yielded slightly improved overall survival.  After correcting for all available covariates, cohort still had a significant effect on survival (likelihood ratio test $P = 3.8 \times 10^{-8}$), although there was no sigificant difference in baseline survival function between cohorts (Grambsch-Thernau test \cite{Grambsch1994} Holm-corrected $P > 0.23$, 24 tests).  Despite there being no significant indication of differences in baseline hazard between cohorts, the presence of a strong and significant cohort effect that independent of all measured variables limits the maximum possible validation performance of any prognostic predictor on these data.
+
+There were significant differences between the cohorts in the distribution of both \glspl{CPV} and biomarker scores.  In particular, large variation was present in the fraction of patients with clear resection margins (range $27\%-65\%$, Fisher exact test $P = 2.2 \times 10^{-15}$), and lymph node involvement ($66\%-83\%$, $P = 8.3 \times 10^{-5}$), suggesting substantial variation in cohort composition.  Biomarker scores were also significantly differently distributed between cohorts (S100A2 $15\%-33\%$, $P = 1.5 \times 10^{-4}$, S100A4 $65\%-88\%$, $P = 1.3 \times 10^{-4}$).  This difference in biomarker scores is likely largely due to cohort-specific technical differences in tissue collection, processing, staining, and scoring, although cohort composition effects may also have contributed.  
+
+The large differences between training and validation cohorts provides a strong test of the ability of a prognostic tool to generalize to new cohorts, laboratory processes, and scoring pathologists.  Residual unexplained effects of cohort on survival will limit the validation calibration performance attainable on these data, but clinically useful accurate discrimination of good- and poor-prognosis patients may still be achievable.
 
 \begin{table}[h]
 \centering
@@ -50,23 +56,30 @@ General characteristics of the \gls{NSWPCN}, Glasgow, and Dresden cohorts are su
 \toprule
                        &         & Training      & \multicolumn{3}{c}{Validation} \\ \cmidrule(r){4-6}
 Characteristic         &         & NSWPCN        & APGI         & Dresden      & Glasgow        \\ \midrule
-Number of patients     &         & 249           & 75           & xx           & 189            \\
-Gender                 & Male    & 49.4\%        & 54.7\%       & xx\%         & 52.9\%         \\
-Tumour location        & Head    & 80.7\%        & 85.3\%       & xx\%         & 100\%          \\
-Excision margin status & R0      & 58.2\%        & 32.0\%       & xx\%         & 27.0\%         \\
-Node involvement       &         & 65.8\%        & 78.7\%       & xx\%         & 82.5\%         \\
-S100A2 positive        &         & 16.1\%        & 14.7\%       & xx\%         & 32.8\%         \\
-S100A4 positive        &         & 75.5\%        & 65.3\%       & xx\%         & 70.9\%         \\
-Disease-specific death &         & 95.2\%        & 68.0\%       & xx\%         & 85.2\%         \\[3]
-Size of longest axis   & (mm)    & 30            & 35           & xx           & 30             \\
-                       &         & (25 - 40)     & (28 - 43)    & (xx - xx)    & (25 - 40)      \\[3]
-Age at diagnosis       & (years) & 69            & 67           & xx           & 64.0           \\
-                       &         & (62 - 75)     & (61 - 74)    & (xx - xx)    & (57.8 - 69.4)  \\[3]
-Length of follow-up    & (days)  & 479           & 655          & xx           & 501            \\
-                       &         & (270 - 851)   & (362 - 743)  & (xx - xx)    & (233 - 915)    \\ \bottomrule
+Number of patients     &         & 249           & 75           & 150          & 189            \\
+Gender                 & Male    & 49.4\%        & 54.7\%       & 54.7\%       & 52.9\%         \\
+Tumour location        & Head    & 80.7\%        & 85.3\%       & 92.7\%       & 100\%          \\
+Excision margin status & R0      & 58.2\%        & 32.0\%       & 65.3\%       & 27.0\%         \\
+Node involvement       &         & 65.8\%        & 78.7\%       & 68.7\%       & 82.5\%         \\
+S100A2 positive        &         & 16.1\%        & 14.7\%       & 25.3\%       & 32.8\%         \\
+S100A4 positive        &         & 75.5\%        & 65.3\%       & 88.0\%       & 70.9\%         \\
+Disease-specific death &         & 95.2\%        & 68.0\%       & 74.7\%       & 85.2\%         \\[3]
+Size of longest axis   & (mm)    & 30            & 35           & 35           & 30             \\
+                       &         & (25 - 40)     & (28 - 43)    & (25 - 40)    & (25 - 40)      \\[3]
+Age at diagnosis       & (years) & 69            & 67           & 68           & 64.0           \\
+                       &         & (62 - 75)     & (61 - 74)    & (59 - 73)    & (57.8 - 69.4)  \\[3]
+Length of follow-up    & (days)  & 479           & 655          & 514          & 501            \\
+                       &         & (270 - 851)   & (362 - 743)  & (311 - 915   & (233 - 915)    \\ \bottomrule
 \end{tabular}
 }
 \end{table}
+
+\begin{figure}
+\centering
+  \includegraphics[width=.7\textwidth]{analysis/nomogram/figure/07-cohort-surv-comparison-1}
+\caption[Cohort marginal survival estimates]{Kaplan-Meier marginal survival function estimates for the cohorts used in this chapter.  Censoring times are indicated by $+$ symbols.}
+\label{fig:nomo-cohort-km}
+\end{figure}
 
 \subsection{Prognostic model building and selection}
 Candidate prognostic models were constructed on the \gls{NSWPCN} training data by iterative model fitting, evaluation, and refinement.  To guard against overfitting caused by this iterative process, the \gls{NSWPCN} cohort was randomly split once into model building and testing sets.  All model fitting and refinement described below was performed on the 200-patient model building set, to yield three final candidate prognostic predictors.  The performance of each of these three predictors was then assessed on the 49-patient model test set, and the most parsimonious high-performing model was chosen as the final prognostic predictor, for subsequent external validation.
@@ -126,7 +139,7 @@ Regression models like CP1 and GG1 are familiar and readily interpretable, but a
 To investigate whether tree ensemble models could provide improved performance over classical approaches, a random survival forest model, termed RSF, was fit to the \gls{NSWPCN} model building data.  In contrast to CP1 and GG1, which used the reduced set of terms as covariates, RSF was supplied all preoperatively-assessable variables as candidate predictors.
 
 \paragraph{Model selection}
-Predictive performance of the three prognostic models (CP1, GG1, and RSF) was compared on the holdout \gls{NSWPCN} model test set, to select a single high-performing parsimonious model for external validation.  Performance in the interval from seven to 34 months post-diagnosis was of particular interest, as the majority of patients in the \gls{NSWPCN} training set died during this period.  Model GG1 was the overall best-performing model in this $7-34$ month interval, as assessed by both cumulative/dynamic \gls{TDROC} \cite{Blanche2013} (\fref{nomo-tdauc-paths}) and Brier score \cite{Graf1999} (\fref{nomo-brier-paths}).  There was no significant difference between the $7-34$ month \gls{IBS} of competing models, as estimated using 95\% bootstrap confidence intervals, although all models had significantly better \gls{IBS} than a marginal Kaplan-Meier survival estimator (\tref{TODO}).  
+Predictive performance of the three prognostic models (CP1, GG1, and RSF) was compared on the holdout \gls{NSWPCN} model test set, to select a single high-performing parsimonious model for external validation.  Performance in the interval from seven to 34 months post-diagnosis was of particular interest, as the majority of patients in the \gls{NSWPCN} training set died during this period.  Model GG1 was the overall best-performing model in this $7-34$ month interval, as assessed by both cumulative/dynamic\mpfatal{Change to ID} \gls{TDROC} \cite{Blanche2013} (\fref{nomo-tdauc-paths}) and Brier score \cite{Graf1999} (\fref{nomo-brier-paths}).  There was no significant difference between the $7-34$ month \gls{IBS} of competing models, as estimated using 95\% bootstrap confidence intervals, although all models had significantly better \gls{IBS} than a marginal Kaplan-Meier survival estimator (\tref{TODO}).
 %The Brier score provides an overall measure of predictive performance, but it assesses both model discrimination and calibration, whereas it has been argued that high model discrimination is the far more relevant criterion in most clinical applications (TODO cite).  Model discrimination alone can be measured by the \gls{TDROC}-\gls{AUC}, an extension of the familiar \gls{AUC} concept to censored data, that is reflective of the use of prognostic models in clinical practice \cite{Heagerty2005}.
 As there was no significant difference in performance between the prognostic models, the simplest model GG1 was selected to form the \gls{PCOP}.
 
@@ -143,8 +156,8 @@ where $T$ is an individual's failure time, $GG$ is the generalized gamma distrib
 
 \begin{figure}
 \centering
-  \includegraphics[width=.7\linewidth]{analysis/nomogram/figure/05-model-selection-roc-cd-1}
-  \caption[Time-dependent \acrshort{AUC} paths for candidate models on holdout data]{Cumulative/dynamic \gls{TDROC} \gls{AUC} paths for candidate models on the holdout \gls{NSWPCN} model test set.}
+  \includegraphics[width=.7\linewidth]{analysis/nomogram/figure/05-model-selection-roc-id-1}
+  \caption[Time-dependent \acrshort{AUC} paths for candidate models on holdout data]{Incident/dynamic \gls{TDROC} \gls{AUC} paths for candidate models on the holdout \gls{NSWPCN} model test set.}
 \label{fig:nomo-tdauc-paths}
 \end{figure}
 
@@ -181,36 +194,79 @@ Sex                    & = Male         &  $0.7630$      & $0.3533$ \\[5] \botto
 
 \subsection{External validation}
 
+\begin{figure}
+\centering
+  \includegraphics[width=.7\linewidth]{analysis/nomogram/figure/07-score-hists-1}
+  \caption[\acrshort{PCOP} \acrshort{PI} distributions in training and validation cohorts]{Distributions of the \acrshort{PCOP} \acrshort{PI} in training and validation cohorts.  Score distributions were broadly similar in all cohorts, with a generally bimodal form.  Empirical quartiles are indicated by red lines.}
+\label{fig:nomo-score-hists}
+\end{figure}
 
-\subsection{Web tool}
-\hyperref[http://54.66.150.159:3277/]{http://54.66.150.159:3277/}
+\begin{figure}
+\centering
+  \includegraphics[width=.7\linewidth]{analysis/nomogram/figure/07-score-hists-1}
+  \caption[\acrshort{PCOP} \acrshort{PI} distributions in training and validation cohorts]{Distributions of the \acrshort{PCOP} \acrshort{PI} in training and validation cohorts.  Score distributions were broadly similar in all cohorts, with a generally bimodal form.  Empirical quartiles are indicated by red lines.}
+\label{fig:nomo-score-hists}
+\end{figure}
 
-TODO: In app, show +/- margin curves, to guide surgeons as to benefit from aggressive surgery?  Definite counfounding potential
+\begin{figure}
+\centering
+  \subbottom[Glasgow]{
+    \includegraphics[width=.45\linewidth]{analysis/nomogram/figure/07-prob-bs-paths-plot-glasgow-2}
+    \label{fig:nomo-val-brier-glasgow}}
+  \subbottom[APGI]{
+    \includegraphics[width=.45\linewidth]{analysis/nomogram/figure/07-prob-bs-paths-plot-apgi-2}
+    \label{fig:nomo-val-brier-apgi}}
+  \subbottom[Dresden]{
+    \includegraphics[width=.45\linewidth]{analysis/nomogram/figure/07-prob-bs-paths-plot-dresden-2}
+    \label{fig:nomo-val-brier-dresden}}
+\caption[Brier score paths for \acrshort{PCOP} on validation cohorts]{Brier score paths for \acrshort{PCOP} on validation cohorts.  The Brier score measures overall prognostic error, as a combination of calibration and discrimination; lower values are better, and the worst-case theoretical value is 0.25.  Brier score paths over time are shown for outcome predictions by \acrshort{PCOP} (green line), and the \acrshort{MSKCC} nomogram on preoperative data (pink dots).  Also shown is a marginal \acrshort{KM} prediction of outcome (orange), and the theoretical no-information Brier score limit (horizontal dotted line) -- outcome predictors must be substantially better than both of these to be usefully prognostic.  The $7-34$ month period in which most patients die is delimited by vertical lines.  \acrshort{PCOP} is substantially better than either the \acrshort{KM} or \acrshort{MSKCC} predictors in the Glasgow cohort, but all predictors are equally poor in the \acrshort{APGI} and Dresden cohorts.}
+\label{fig:val-brier}
+\end{figure}
 
-\subsection{Cohort characteristics}
-\label{subsec:nomo-results-cohort}
+\begin{figure}
+\centering
+  \subbottom[Glasgow]{
+    \includegraphics[width=.45\linewidth]{analysis/nomogram/figure/07-risksetROC-glasgow-2}
+    \label{fig:nomo-val-tdroc-glasgow}}
+  \subbottom[APGI]{
+    \includegraphics[width=.45\linewidth]{analysis/nomogram/figure/07-risksetROC-apgi-2}
+    \label{fig:nomo-val-tdroc-apgi}}
+  \subbottom[Dresden]{
+    \includegraphics[width=.45\linewidth]{analysis/nomogram/figure/07-risksetROC-dresden-2}
+    \label{fig:nomo-val-tdroc-dresden}}
+\caption[]{}
+\label{fig:val-tdroc}
+\end{figure}
 
-\subsection{Development of a preoperative prognostic model}
 
-\subsection{Validation of the prognostic model}
-Intro here on disc \& calib.  Also describe cohorts briefly.
 \subsubsection{Discrimination}
 \subsubsection{Calibration}
+\subsubsection{Summary?}
 
 \subsection{PCOP web application}
+\hyperref[http://54.66.150.159:3277/]{http://54.66.150.159:3277/}
+\mpfatal{Get a proper domain name?}
 
 \section{Discussion}
 
 \section{Methods}
 \subsection{Cohort recruitment and ethics}
 \label{subsec:nomo-methods-cohort}
+\mpfatal{For all cohorts -- get on to DC?}
+
+\subsection{Biomarker staining and scoring}
+\mpfatal{For all cohorts -- get on to DC?}
 
 \subsection{Model building and selection}
 All statistical modelling was performed within the \texttt{R} environment.  \gls{CPH} and \gls{DM} models were fit and analysed using the base package \texttt{survival}, and Cox model stepwise variable elimination was performed using the function \texttt{stepAIC} from package \texttt{MASS}.  Generalised gamma survival models were fit using the implementation in package \texttt{flexsurv}\footnote{Parameter symbols differ between the \texttt{flexsurv} package, and this chapter and \cite{Cox2007}.  In this chapter and \cite{Cox2007}, the generalized gamma location parameter is denoted $\beta$, and shape parameters are $\sigma$, and $\lambda$.  In \texttt{flexsurv}, these parameters are denoted $\mu$, $\sigma$, and $Q$, respectively.}, and package \texttt{randomForestSRC} supplied random survival forest functions.  The random survival forest model was trained with parameters \texttt{splitrule = "logrankscore"}, \texttt{nsplit = 2}, and \texttt{ntree = 1000}, with all other parameters set to defaults.
 
-Both the cumulative/dynamic \gls{TDROC}, and the \gls{IBS}, were used to compare model prognostic performance.  \glspl{TDROC} were estimated using R package \texttt{timeROC}, and Brier score paths and \glspl{IBS} were calculated with custom code, following \cite{Graf1999}.
+Both the incident/dynamic \gls{TDROC}, and the \gls{IBS}, were used to compare model prognostic performance.  \glspl{TDROC} were estimated using R package \texttt{risksetROC}, and Brier score paths and \glspl{IBS} were calculated with custom code, following \cite{Graf1999}.
 
 \subsection{External validation}
+
+
+\subsection{MSKCC nomogram calculation}
+The prognostic nomogram for resected pancreas cancer of \cite{Brennan2004} was digitized and transformed into \texttt{R} code that produced 12-, 24-, and 36-month disease-specific survival estimates given patient \glspl{CPV} (see \Aref{app:nomo-mskcc-code} on \pref{app:nomo-mskcc-code}).  Predictions for patients with data missing for some nomogram variables were generated by marginalizing over the missing predictors, using the variable distributions in \cite{Brennan2004}.
 
 \subsection{PCOP web application}
 The \texttt{R} \texttt{shiny} infrastructure was used to create a simple web application to predict patient outcome using the final \gls{PCOP} model.

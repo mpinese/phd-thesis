@@ -145,71 +145,74 @@ scores$Molec.S100A4.DCThresh = (is.na(scores$Molec.S100A4.CytoAnySignal) | score
 
 # I think a simpler strategy than that proposed by DC in the email will work -- merge
 # by unique coordinate, *then* collapse down to patients.
-merged = merge(cpvs, scores, by.x = "Dresden.UID", by.y = "Dresden.Unique.coordinate", all.x = TRUE, all.y = TRUE)
-table(merged$Patient.Origin, merged$Origin)
-merged$Patient.Origin = merged$Origin
-merged$Origin <- NULL
 
-merged$Dresden.UID = factor(merged$Dresden.UID)
-merged$Dresden.NID = factor(merged$Dresden.NID)
-merged$Dresden.SSID = factor(merged$Dresden.SSID)
-merged$Dresden.NUM = factor(merged$Dresden.NUM)
-merged$Patient.Origin = factor(merged$Patient.Origin)
-merged$Path.Grade = ordered(merged$Path.Grade, levels = 1:4)
-merged$Dresden.Old.coordinate[merged$Dresden.Old.coordinate == ""] = NA
-merged$Dresden.Old.coordinate = factor(merged$Dresden.Old.coordinate)
-merged$Dresden.Numeric.ID[merged$Dresden.Numeric.ID %in% c("", "leer", "unk")] = NA
-merged$Dresden.Numeric.ID = factor(merged$Dresden.Numeric.ID)
-merged$Dresden.TMA.ID = factor(merged$Dresden.TMA.ID)
-merged$Molec.S100A2.CytoInt = ordered(merged$Molec.S100A2.CytoInt, levels = 0:3)
+# FOLLOWING CODE IS BUGGED, USE UN-COMMENTED DRESDEN-ONLY FOR NOW.
+# merged = merge(cpvs, scores, by.x = "Dresden.UID", by.y = "Dresden.Unique.coordinate", all.x = TRUE, all.y = TRUE)
+# table(merged$Patient.Origin, merged$Origin)
+# merged$Patient.Origin = merged$Origin
+# merged$Origin <- NULL
+
+# merged$Dresden.UID = factor(merged$Dresden.UID)
+# merged$Dresden.NID = factor(merged$Dresden.NID)
+# merged$Dresden.SSID = factor(merged$Dresden.SSID)
+# merged$Dresden.NUM = factor(merged$Dresden.NUM)
+# merged$Patient.Origin = factor(merged$Patient.Origin)
+# merged$Path.Grade = ordered(merged$Path.Grade, levels = 1:4)
+# merged$Dresden.Old.coordinate[merged$Dresden.Old.coordinate == ""] = NA
+# merged$Dresden.Old.coordinate = factor(merged$Dresden.Old.coordinate)
+# merged$Dresden.Numeric.ID[merged$Dresden.Numeric.ID %in% c("", "leer", "unk")] = NA
+# merged$Dresden.Numeric.ID = factor(merged$Dresden.Numeric.ID)
+# merged$Dresden.TMA.ID = factor(merged$Dresden.TMA.ID)
+# merged$Molec.S100A2.CytoInt = ordered(merged$Molec.S100A2.CytoInt, levels = 0:3)
 
 
 # Remove all non-cancer samples, as it doesn't make sense to merge across disease states.
 # Do this quite stringently, as I'm not sure exactly how the Dresden samples are coded, 
 # and what data to really use.
-merged = merged[merged$Dresden.Typ2_n == "1" & !is.na(merged$Dresden.Typ2_n) & merged$Dresden.Type2 == "PaCa" & !is.na(merged$Dresden.Type2) & gsub(".*_", "", merged$Dresden.SSID) == "PaCa",]
+# merged = merged[merged$Dresden.Typ2_n == "1" & !is.na(merged$Dresden.Typ2_n) & merged$Dresden.Type2 == "PaCa" & !is.na(merged$Dresden.Type2) & gsub(".*_", "", merged$Dresden.SSID) == "PaCa",]
 
 
-# From my reading of DC's email, patient ID is in the scores "Single_sample_ID" = "Dresden.SSID"
-# field.  Collapse down based on this.
-vector_identical = function(x)
-{
-	length(unique(x)) == 1
-}
+# # From my reading of DC's email, patient ID is in the scores "Single_sample_ID" = "Dresden.SSID"
+# # field.  Collapse down based on this.
+# vector_identical = function(x)
+# {
+# 	length(unique(x)) == 1
+# }
 
-merge_function = function(this)
-{
-	if (nrow(this) == 1)	{ return(this) }
+# merge_function = function(this)
+# {
+# 	if (nrow(this) == 1)	{ return(this) }
 
-	this_cpv = this[,!grepl("(Dresden\\.UID)|(Molec\\.)|(Dresden\\.Old\\.coordinate)|(Dresden\\.NID)|(Dresden\\.Numeric\\.ID)", colnames(this))]
-	this_scores = this[,c("Molec.S100A2.DCThresh", "Molec.S100A4.DCThresh")]
-	cpvs_concordant = all(apply(this_cpv, 2, function(col) vector_identical(col)))
-	if (!cpvs_concordant) { print(this_cpv) }
+# 	this_cpv = this[,!grepl("(Dresden\\.UID)|(Molec\\.)|(Dresden\\.Old\\.coordinate)|(Dresden\\.NID)|(Dresden\\.Numeric\\.ID)", colnames(this))]
+# 	this_scores = this[,c("Molec.S100A2.DCThresh", "Molec.S100A4.DCThresh")]
+# 	cpvs_concordant = all(apply(this_cpv, 2, function(col) vector_identical(col)))
+# 	if (!cpvs_concordant) { print(this_cpv) }
 
-	scores_collapsed = data.frame(apply(this_scores, 2, function(x) {
-		if (all(is.na(x))) { return(NA) }
-		return(max(x, na.rm = TRUE) == 1)
-	}))
+# 	scores_collapsed = data.frame(apply(this_scores, 2, function(x) {
+# 		if (all(is.na(x))) { return(NA) }
+# 		return(max(x, na.rm = TRUE) == 1)
+# 	}))
 
-	na_count = apply(is.na(this_cpv), 1, sum)
-	this_single = this[which.min(na_count),]
+# 	na_count = apply(is.na(this_cpv), 1, sum)
+# 	this_single = this[which.min(na_count),]
 
-	this_single$Molec.S100A2.DCThresh = scores_collapsed$Molec.S100A2.DCThresh
-	this_single$Molec.S100A4.DCThresh = scores_collapsed$Molec.S100A4.DCThresh
-	return(this_single)
-}
+# 	this_single$Molec.S100A2.DCThresh = scores_collapsed$Molec.S100A2.DCThresh
+# 	this_single$Molec.S100A4.DCThresh = scores_collapsed$Molec.S100A4.DCThresh
+# 	return(this_single)
+# }
+
+# library(plyr)
+
+# merged_collapsed = ddply(merged, ~ Dresden.SSID, merge_function)
+
+
+# #write.csv(merged_collapsed, "data/Dresden_20150215.csv")
+# saveRDS(merged_collapsed, "06_Dresden.rds")
+
+
+
 
 library(plyr)
-
-merged_collapsed = ddply(merged, ~ Dresden.SSID, merge_function)
-
-
-#write.csv(merged_collapsed, "data/Dresden_20150215.csv")
-saveRDS(merged_collapsed, "06_Dresden.rds")
-
-
-
-
 
 cpvs = cpvs[cpvs$Patient.Origin == "3",]
 scores = scores[scores$Origin == "Dresden",]
@@ -244,5 +247,5 @@ for (i in 1:ncol(merged))
 }
 merged2 = merged2[merged2$Staging.pM != "M1" & !is.na(merged2$Staging.pM),]
 
-saveRDS(merged2, "06_Dresden2.rds")
+saveRDS(merged2, "06_Dresden.rds")
 write.csv(merged2, "data/Dresden_20150215.csv")

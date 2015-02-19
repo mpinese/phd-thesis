@@ -12,7 +12,7 @@ data.apgi$History.Diagnosis.AgeAt.Cent = data.apgi$History.Diagnosis.AgeAt - 68
 data.apgi$Path.Size = data.apgi$Path.TumourSizeMm
 data.apgi$Path.Size.Cent = data.apgi$Path.Size - 30
 data.apgi$Patient.Sex = data.apgi$Patient.Gender
-data.apgi$SexM = data.apgi$Patient.Sex == "M"
+data.apgi$SexM = data.apgi$Patient.Gender == "Male"
 data.apgi$Treat.MarginPositive = data.apgi$Treat.Surgery.ExcisionStatus != "R0"
 data.apgi$AgeCent = data.apgi$History.Diagnosis.AgeAt.Cent
 data.apgi$SizeCent = data.apgi$Path.Size.Cent
