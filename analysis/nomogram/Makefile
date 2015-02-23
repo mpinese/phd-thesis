@@ -1,4 +1,4 @@
-.PHONY: all clean ultraclean
+.PHONY: all clean ultraclean figclean
 .SECONDARY: 
 
 #RSCRIPT = ~/bin/Rscript
@@ -11,8 +11,11 @@ clean:
 	rm -f *.Rout
 	rm -f *.log *.aux *.pdf *.rda glmulti.* *.tex
 
-ultraclean: clean
-	rm -rf figure/ cache/ tikzMetrics
+ultraclean: clean figclean
+	rm -rf cache/
+
+figclean: clean
+	rm -rf figure/ tikzMetrics
 
 01_NSWPCN.rda: data/Total_cohort_MP_05022013.txt.xz 01_load_NSWPCN.R
 	$(RSCRIPT) 01_load_NSWPCN.R | tee 01_load_NSWPCN.Rout

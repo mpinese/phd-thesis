@@ -7,7 +7,7 @@
 \emph{Thesis: A preoperative prognostic tool for pancreas cancer can be developed to discriminate good between and poor prognosis patients more reliably than current methods.}
 
 \paragraph{Summary}
-For those patients fortunate enough to be diagnosed with a resectable tumour, surgical removal of the primary cancer is the best first-line therapy for pancreas cancer.  However, the significant morbidity associated with pancreas cancer resection makes it cruicially important to only operate on the patients who will derive a net benefit from the procedure.  Identifying just those patients who will respond to resection remains a serious challenge in pancreas cancer treatment: current criteria to select patients for resection perform poorly, and consequently many patients undergo a complex procedure, with serious effects on future quality of life, for little benefit.  Tumour biomarkers have the potential to dramatically refine morphology-based staging criteria by supplying a direct readout of tumour biology, and recent technological developments have enabled the preoperative measurement of tissue biomarkers in pancreas cancer.  The ability to measure pancreas cancer tissue biomarker levels preoperatively, combined with the enhanced information on disease state available from tissue biomarkers, finally enables the development of preoperative staging systems that accurately identify pancreas cancer patients for resection.  This chapter details the development and validation of \gls{PCOP}\glsreset{PCOP}, a two-biomarker prognostic tool for resectable pancreas cancer, that is in principle pre-operatively assessable, and can assist in making personalised treatment decisions.
+For those patients fortunate enough to be diagnosed with a resectable tumour, surgical removal of the primary cancer is the best first-line therapy for pancreas cancer.  However, the significant morbidity associated with pancreas cancer resection makes it cruicially important to only operate on the patients who will derive a net benefit from the procedure.  Identifying just those patients who will respond to resection remains a serious challenge in pancreas cancer treatment: current criteria to select patients for resection perform poorly, and consequently many patients undergo a complex procedure, with serious effects on future quality of life, for little benefit.  Tumour biomarkers have the potential to dramatically refine current morphology-based staging criteria by supplying a direct readout of tumour biology, and recent technological developments have enabled the preoperative measurement of tissue biomarkers in pancreas cancer.  The ability to measure pancreas cancer tissue biomarker levels preoperatively, combined with the enhanced information on disease state available from tissue biomarkers, finally enables the development of preoperative staging systems that accurately identify pancreas cancer patients for resection.  This chapter details the development and validation of \gls{PCOP}\glsreset{PCOP}, a two-biomarker prognostic tool for resectable pancreas cancer, that is in principle pre-operatively assessable, and can assist in making personalised treatment decisions.
 
 
 \section{Introduction}
@@ -15,42 +15,47 @@ For patients with a resectable tumour and no known metastases, surgical removal 
 
 Unfortunately, current practice guidelines recommend that curative-intent surgery be offered to all metastasis-free patients with a resectable tumour, with no consideration of personal benefit \cite{Editors2015}.  This blanket approach to selecting patients for curative resection has proven to be highly inadequate.  Even following pathologically complete tumour removal and adjuvant chemotherapy, more than 70\% of current pancreas ductal carcinoma patients will relapse with, and ultimately succumb to, distant metastases \cite{Barugola2007}.  These occult metastases must have been present prior to removal of the primary tumour, yet were undetectable during initial investigations, and their presence means that any curative-intent resection was futile.  As a result, the majority of `curative' resections that are undertaken based on current selection criteria are performed on patients with occult metastases, have no hope of actually effecting a cure, and would not have been undertaken at all if the presence of metastatic disease had been known prior to surgery.  Better methods to select patients for resection are urgently needed.
 
-The decision of whether or not to resect will always involve close consultation between the patient and doctors, comparing the costs and benefits of surgery as appropriate to each patient's case.  The downsides of resection are well-understood, but the benefit to be gained is challenging to quantify and communicate, being highly dependent on the many particulars of an individual patient's disease.  A simple approach to represent benefit from pancreas cancer resection involves survival curves, which plot the probability that a patient will be alive, at a range of times following resection (TODO example fig).  A survival curve distills the information from an arbitrary number of prognostic factors into a single simple figure, to provide an intuitive overview of a patient's expected disease course.  If accurate, such curves can provide a concrete measure of benefit from resection, and thus provide invaluable input into the treatment decision process.  Survival curves can be involved to calculate, which has likely limited their historical use.  However, the modern prevalence of computers removes this barrier, and even a modest device such as a smart phone can easily run prognostic tools capable of generating accurate personalised patient survival curves.
+The decision of whether or not to resect will always involve close consultation between the patient and doctors, comparing the costs and benefits of surgery as appropriate to each patient's case.  The downsides of resection are well-understood, but the benefit to be gained is challenging to quantify and communicate, being highly dependent on the many particulars of an individual patient's disease.  A simple approach to represent benefit from pancreas cancer resection involves survival curves, which plot the probability that a patient will be alive, at a range of times following resection.  A survival curve distills the information from an arbitrary number of prognostic factors into a single simple figure, to provide an intuitive overview of a patient's expected disease course.  If accurate, such curves can provide a concrete measure of benefit from resection, and thus provide invaluable input into the treatment decision process.  Survival curves can be involved to calculate, which has likely limited their historical use.  However, the modern prevalence of computers removes this barrier, and even a modest device such as a smart phone can easily run prognostic tools capable of generating accurate personalised patient survival curves.
 
-A number of pancreas cancer grading and schemes and prognostic tools have been described, but inconsistent performance, or a reliance on information that can only be known post-operatively, limits their use in pre-operative decisions.  The level of serum \gls{CA-19-9} is a well-characterised biomarker of pancreas cancer, with high levels correlating with increased tumour burden, lower probability of resectability, increased post-resection recurrence, and worse prognosis \cite{Kim2011, Ballehaninna2012, Barugola2007, Lundin1994}.  \Gls{CA-19-9} levels are easily determined pre-operatively, but the use of this marker is complicated by a lack of consensus on threshold concentrations, the elevation of \gls{CA-19-9} levels by a number of conditions other than pancreas cancer, and the complete absence of this marker in approximately 10\% of the general population \cite{Ballehaninna2012}.  Additionally, although \gls{CA-19-9} levels are statistically associated with post-resection recurrence by distant metastasis, a very low \gls{PPV} renders the biomarker unhelpful when deciding whether or not to resect \cite{Kim2011}.
+A number of pancreas cancer grading and schemes and prognostic tools have been described, but inconsistent performance, or a reliance on information that can only be known post-operatively, limits their use in pre-operative decisions.  Two such schemes are based on levels of the biomarker \gls{CA-19-9}, and the \gls{MSKCC} prognostic nomogram.
 
-The current standard prognostic tool for pancreas cancer is the \gls{MSKCC} nomogram \cite{Brennan2004}, which integrates a number of \glspl{CPV} to arrive at point estimates of survival post-resection.  Unfortunately, its clinical utility is small: as it relies on information that is only available following resection, the \gls{MSKCC} nomogram is only useful in a post-operative context, and cannot assist in pre-operative decisions to resect.  This severely limiting reliance on postoperative variables is made necessary by the fact that all strong classical prognostic factors in pancreas cancer (such as lymph node infiltration, resection margin status, or histological grade \cite{Bilici2014}) can only be reliably measured following resection.  Any prognostic tool for pancreas cancer that relies heavily on classical \glspl{CPV} will very likely share this same reliance on post-operative variables, and so an effective pre-operatively assessable prognostic will need to shirk classical \glspl{CPV}, and leverage novel pre-operative measures of prognosis.
+The level of serum \gls{CA-19-9} is a well-characterised biomarker of pancreas cancer, with high levels correlating with increased tumour burden, lower probability of resectability, increased post-resection recurrence, and worse prognosis \cite{Kim2011, Ballehaninna2012, Barugola2007, Lundin1994}.  \Gls{CA-19-9} levels are easily determined pre-operatively, but the use of this marker is complicated by a lack of consensus on threshold concentrations, the elevation of \gls{CA-19-9} levels by a number of conditions other than pancreas cancer, and the complete absence of this marker in approximately 10\% of the general population \cite{Ballehaninna2012}.  Additionally, although \gls{CA-19-9} levels are statistically associated with post-resection recurrence by distant metastasis, a very low \gls{PPV} renders the biomarker unhelpful when deciding whether or not to resect \cite{Kim2011}.
+
+The current standard prognostic tool for pancreas cancer is the \gls{MSKCC} nomogram \cite{Brennan2004}, which integrates a number of \glspl{CPV} to arrive at estimates of survival post-resection.  Unfortunately, its clinical utility is small: as it relies on information that is only available following resection, the \gls{MSKCC} nomogram is only useful in a post-operative context, and cannot assist in pre-operative decisions to resect.  This severely limiting reliance on postoperative variables is made necessary by the fact that all strong classical prognostic factors in pancreas cancer (such as lymph node infiltration, resection margin status, or histological grade \cite{Bilici2014}) can only be reliably measured following resection.  Any prognostic tool for pancreas cancer that relies heavily on classical \glspl{CPV} will very likely share this same reliance on post-operative variables, and so an effective pre-operatively assessable prognostic will need to avoid relying on classical \glspl{CPV}, and leverage novel pre-operative measures of prognosis.
 
 Levels of tissue biomarkers directly reflect cellular state, and thus have the potential to predict cancer behaviour far more reliably than macroscopic \glspl{CPV}.  Given that most pancreas cancer patients who undergo curative resection quickly recur due to occult metastases, biomarkers of metastasis have the potential to identify those patients who are likely to already have occult metastatic disease at the time of surgery, and thus better inform the decision to resect.  Two such biomarkers of metastasis are the cancer cell levels of the \gls{EMT}-related S100A2, and S100A4 proteins, both of which are strongly predictive of outcome following resection, and appear to reflect the presence of a pro-metastatic invasive phenotype in the cancer \cite{Biankin2008, Tsukamoto2013, Lee2014}.  Despite this promise, these tissue biomarkers have to date only been assessed in bulk tissue samples collected during surgery, and their utility, or even measurability, in a pre-operative setting, is untested.
 
 Recent techological developments have made possible the pre-operative measurement of tissue biomarkers during \gls{EUS}, a routine diagnostic modality for pancreas cancer.  \Gls{IHCal} staining has been successfully performed on \gls{FNA} biopsies of pancreas neoplasms collected during \gls{EUS} \cite{Popescu2012, Salla2009, Stelow2005}, and in principle \gls{EUS}-\gls{FNA}-\acrshort{IHCry} could form the basis of a routine pre-operative biomarker measurement methodology in pancreas cancer.  This proposed biomarker measurement approach utilises only techniques that are commonly available in pancreas cancer treatment centres, and thus has the potential to be rapidly integrated into current diagnostic workflows, should biomarker measurements prove to be clinically valuable.
 
-The nexus of known biomarkers of metastatic behaviour, new pre-operatively applicable techniques to measure these biomarkers, and multiple large, clinically annotated cohorts of resected pancreas cancer, presents an opportunity to address the pressing need for better criteria to select patients for pancreas cancer resection.  As part of the \gls{APGI}, as well as other work, the group has collected tissue measurements of S100A2 and S100A4 biomarkers, and detailed patient follow-up, for a large number of cases of pancreas cancer from a range of independent cohorts.  These cases will be used to develop \gls{PCOP}, a tool to predict outcome following resection, using tissue levels of S100A2 and S100A4 as major prognostic factors.  This initial version of \gls{PCOP} is based on biomarker measurements made on tissue collected during resection, and thus will not be directly applicable pre-operatively.  However, pilot study data will be used to demonstrate that levels of S100A2 and S100A4 measured by pre-operative \gls{EUS}-\gls{FNA}-\acrshort{IHCry} correlate well to tissue levels of the biomarkers measured on operative specimens, indicating that a more refined version of \gls{PCOP} trained on pre-operative data will be equally effective.
+The nexus of known biomarkers of metastatic behaviour, new pre-operatively applicable techniques to measure these biomarkers, and multiple large, clinically annotated cohorts of resected pancreas cancer, presents an opportunity to address the pressing need for better criteria to select patients for pancreas cancer resection.  As part of the \gls{APGI}, as well as other work, the group has collected tissue measurements of S100A2 and S100A4 biomarkers, and detailed patient follow-up, for a large number of cases of pancreas cancer from a range of independent cohorts.  These cases will be used to develop \gls{PCOP}, a tool to predict outcome following resection, using tissue levels of S100A2 and S100A4 as major prognostic factors.  This initial version of \gls{PCOP} is based on biomarker measurements made on tissue collected during resection, and thus will not be directly applicable pre-operatively.  However, pilot study data will be used to demonstrate that levels of S100A2 and S100A4 measured by pre-operative \gls{EUS}-\gls{FNA}-\acrshort{IHCry} correlate well to tissue levels of the biomarkers measured on operative specimens, indicating that a more refined version of \gls{PCOP} trained on pre-operative data will likely be equally effective.
 
-The majority of pancreas cancer resection procedures today are performed on patients who should never have been offered surgical resection at all.  These patients have undetected metastases at the time of surgery, and will derive little benefit from a major operation, that has serious impacts on quality of life.  Current tools for patient staging and estimation of prognosis are either ineffective at identifying patients at risk for occult metastases, or only applicable post-operatively, and so cannot be used to inform the decision of whether or not to resect.  Tissue biomarkers of metastatic potential might identify, pre-operatively, those patients who have a high likelihood of metastatic disease, greatly assisting disease management decisions.  This metastasis prediction can be integrated with other clinical variables to yield personalised estimates of prognosis over time, that are well-suited to .  This chapter describes the use of pre-operatively assessable variables, including biomarker measurements, to create \gls{PCOP}, a tool that produces estimates of prognosis.  \Gls{PCOP} provides a natural way to show the influence of risk factors on a patient's personalised prognostic path, and thus can assist in making treatment decisions appropriate for each individual pancreas cancer patient.
+The majority of pancreas cancer resection procedures today are performed on patients who should never have been offered surgical resection at all.  These patients have undetected metastases at the time of surgery, and will derive little benefit from a major operation, that has serious impacts on quality of life.  Current tools for patient staging and estimation of prognosis are either ineffective at identifying patients at risk for occult metastases, or only applicable post-operatively, and so cannot be used to inform the decision of whether or not to resect.  Tissue biomarkers of metastatic potential might identify, pre-operatively, those patients who have a high likelihood of metastatic disease, greatly assisting disease management decisions.  This metastasis prediction can be integrated with other clinical variables to yield personalised estimates of prognosis over time, that can be easily understood by both physicians and laymen.  This chapter describes the use of pre-operatively assessable variables, including biomarker measurements, to create \gls{PCOP}, a tool that produces estimates of prognosis.  \Gls{PCOP} provides a natural way to show the influence of risk factors on a patient's personalised prognostic path, and thus can assist in making treatment decisions appropriate for each individual pancreas cancer patient.
+
 
 \section{Results}
-Data from the large, retrospectively-acquired \gls{NSWPCN} cohort were used to derive \gls{PCOP}, a tool to predict the survival of pancreas cancer patients following curative-intent resection.  Discrimination and calibration of \gls{PCOP} were verified on two independent surgical cohorts.  Data from an \gls{EUS}-\gls{FNA}-\acrshort{IHCry} pilot study established that pre-operatively assessed tissue biomarker levels reflected measurements from operative biopsies, and therefore that \gls{PCOP} could be translated to a pre-operative decision setting.
+Data from the large, retrospectively-acquired \gls{NSWPCN} cohort were used to derive \gls{PCOP}, a tool to predict the survival of pancreas cancer patients following curative-intent resection.  Discrimination and calibration of \gls{PCOP} were tested on three independent surgical cohorts.  Data from an \gls{EUS}-\gls{FNA}-\acrshort{IHCry} pilot study established that pre-operatively assessed tissue biomarker levels reflected measurements from operative biopsies, and therefore that \gls{PCOP} could be translated to a pre-operative decision setting.
 
 \subsection{Prognostic variables and biomarkers}
-As the aim was to develop a prognostic predictor that could be applied pre-operatively, only factors that could be practically measured pre-operatively were considered for inclusion in the \gls{PCOP}.  The traditional \glspl{CPV} that were judged to be pre-operatively assessable were patient sex, patient age at diagnosis, tumour location (dichotomised as head of pancreas vs other location), and size of the tumour's longest pathological axis.  In addition to these traditional factors, the dichotomised tissue levels of S100A2 and S100A4 proteins were included as candidate biomarkers in the construction of the \gls{PCOP}.  Pre-operative blood levels of the biomarker \gls{CA-19-9} were available for a subset of the training cohort, but none of the validation sets; for this reason, and the marker's generally poor performance in isolation \cite{Kim2011}, \gls{CA-19-9} levels were not considered for inclusion in the \gls{PCOP}.
+As the aim was to develop a prognostic predictor that could be applied pre-operatively, only factors that could be practically measured prior to resection were considered for inclusion in the \gls{PCOP}.  The traditional \glspl{CPV} that were judged to be pre-operatively assessable were patient sex, patient age at diagnosis, tumour location (dichotomised as head of pancreas vs other location), and size of the tumour's longest pathological axis.  In addition to these traditional factors, the dichotomised tissue levels of S100A2 and S100A4 proteins were included as candidate biomarkers in the construction of the \gls{PCOP}.  Pre-operative blood levels of the biomarker \gls{CA-19-9} were available for a subset of the training cohort, but none of the validation set patients; for this reason, and the marker's generally poor performance in isolation \cite{Kim2011}, \gls{CA-19-9} levels were not considered for inclusion in the \gls{PCOP}.
 
-Pre-operative measurements of tumour size (for example, by \gls{CT} X-ray or \gls{EUS}) were not available in the training and validation sets, and were approximated by post-operative measurements during the development and testing of this nomogram.  Similarily, biomarker measurements were approximated using \gls{IHCal} staining of tissue collected during resection, as only very limited pre-operative \gls{EUS}-\gls{FNA} samples were available in the cohorts used.  The implications of these approximations for the prognostic tool developed here, as well as for future work, are considered in the discussion.  
+Pre-operative measurements of tumour size (for example, by \gls{CT} X-ray or \gls{EUS}) were not available in the training and validation sets, and were approximated by post-operative measurements for the development and testing of this nomogram.  Similarly, biomarker measurements were approximated using \gls{IHCal} staining of tissue collected during resection, as only very limited pre-operative \gls{EUS}-\gls{FNA} samples were available in the cohorts used.  The implications of these approximations for the prognostic tool developed here, as well as for future work, are considered in the discussion.  
 
 \mpfatal{For the disc: Although the correlation between \gls{CT} and \gls{EUS} estimates of tumour size, and actual size upon resection, is respectable \cite{Arvold2011}, full clinical validation of this prognostic's use in a pre-operative setting will require ...}
 
 \subsection{Cohorts and Characteristics}
-General characteristics of the \gls{NSWPCN}, Glasgow, and Dresden cohorts are summarised in \tref{tab:nomo-cohort-characteristics}.  Reliable data on adjuvant and neoadjuvant chemotherapy treatment was not available in all cohorts, and may form a confounding factor.  The \gls{NSWPCN} training cohort contained a small subgroup of patients with abnormally long recorded survival times ($> 3000$ days, 7/256 patients), that were strongly suspected to represent data errors, either as a consequence of incorrect coding following loss to follow-up, or misdiagnosis.  Given the age of the cohort, it was deemed impractical to revisit the original records to check these patients, and so all patients with recorded survival times exceeding 3000 days were excluded from the \gls{NSWPCN} training data.  The \gls{NSWPCN} cohort characteristics in \tref{tab:nomo-cohort-characteristics} have been calculated on the 249 patients that passed the 3000 day data quality cutoff.
+General characteristics of the \gls{NSWPCN}, Glasgow, \gls{APGI}, and Dresden cohorts are summarised in \tref{tab:nomo-cohort-characteristics}.  The \gls{NSWPCN} training cohort contained a small subgroup of patients with abnormally long recorded survival times ($> 3000$ days, 7/256 patients), that were strongly suspected to represent data errors, either as a consequence of incorrect coding following loss to follow-up, or misdiagnosis.  Given the age of the cohort, it was deemed impractical to revisit the original records to check these patients, and so all patients with recorded survival times exceeding 3000 days were excluded from the \gls{NSWPCN} training data.  The \gls{NSWPCN} cohort characteristics in \tref{tab:nomo-cohort-characteristics} have been calculated on the 249 patients that passed the 3000 day data quality cutoff.
 
-The four cohorts had broadly similar marginal survival functions (\fref{fig:nomo-cohort-km}), although these were statistically distinct (logrank $P = 5.7 \times 10^{-6}$).  In particular, the \gls{NSWPCN} cohort had the lowest survival rate of all cohorts from one year following resection; the better outcome of the more modern cohorts over \gls{NSWPCN} may be a consequence of differing adjuvant chemotherapy rates between cohorts, or reflect recent improvements in disease management that have yielded slightly improved overall survival.  After correcting for all available covariates, cohort still had a significant effect on survival (likelihood ratio test $P = 3.8 \times 10^{-8}$), although there was no sigificant difference in baseline survival function between cohorts (Grambsch-Thernau test \cite{Grambsch1994} Holm-corrected $P > 0.23$, 24 tests).  Despite there being no significant indication of differences in baseline hazard between cohorts, the presence of a strong and significant cohort effect that independent of all measured variables limits the maximum possible validation performance of any prognostic predictor on these data.
+The four cohorts had broadly similar marginal survival functions (\fref{fig:nomo-cohort-km}), although these were statistically distinct (logrank $P = 5.7 \times 10^{-6}$).  There were significant differences between the cohorts in the distribution of prognostic \glspl{CPV}: large variation was present in the fraction of patients with clear resection margins (range $27\%-65\%$, Fisher exact test $P = 2.2 \times 10^{-15}$), tumours in the head of the pancreas ($81\%-100\%$, $P = 8.6 \times 10^{-13}$), and lymph node involvement ($66\%-83\%$, $P = 8.3 \times 10^{-5}$), but these were not sufficient to explain cohort differences in outcome: after correcting for all available covariates, cohort still had a significant effect on survival (likelihood ratio test $P = 3.8 \times 10^{-8}$), with patients from the \gls{NSWPCN} training set displaying worse covariate-corrected prognosis than those from other cohorts (hazard ratios for \gls{NSWPCN} patients over others all $> 1.98$).  
 
-There were significant differences between the cohorts in the distribution of both \glspl{CPV} and biomarker scores.  In particular, large variation was present in the fraction of patients with clear resection margins (range $27\%-65\%$, Fisher exact test $P = 2.2 \times 10^{-15}$), and lymph node involvement ($66\%-83\%$, $P = 8.3 \times 10^{-5}$), suggesting substantial variation in cohort composition.  Biomarker scores were also significantly differently distributed between cohorts (S100A2 $15\%-33\%$, $P = 1.5 \times 10^{-4}$, S100A4 $65\%-88\%$, $P = 1.3 \times 10^{-4}$).  This difference in biomarker scores is likely largely due to cohort-specific technical differences in tissue collection, processing, staining, and scoring, although cohort composition effects may also have contributed.  
+The differences in prognosis between cohorts may be linked to the greater age of the \gls{NSWPCN} cohort, the majority of which contains patients diagnosed between 1998 and 2003, over the more modern validation cohorts.  Improvements in therapy effectiveness over time, particularly with regards to chemotherapy, may  explain the improved overall outcome of the validation patients over the \gls{NSWPCN} cohort.  Unfortunately, as reliable data on chemotherapy were not available in any cohorts, this possibility could not be tested, and could represent a major uncontrolled confounding factor in the data.  After controlling for all measured variables, there was no sigificant difference in baseline survival function between cohorts (Grambsch-Thernau test \cite{Grambsch1994} Holm-corrected $P > 0.23$, 24 tests), indicating that at least the general form of the hazard function was similar across all cohorts.  However, despite this similar baseline function, the presence of a strong and significant cohort effect that is independent of all measured variables will limit the maximum possible validation performance of any prognostic predictor on these data.
+
+Biomarker scores were significantly differently distributed between cohorts (S100A2 $15\%-33\%$, $P = 1.5 \times 10^{-4}$, S100A4 $65\%-88\%$, $P = 1.3 \times 10^{-4}$).  This difference in biomarker scores is likely largely due to cohort-specific technical differences in tissue collection, processing, staining, and scoring, although cohort composition effects may also have contributed.
 
 The large differences between training and validation cohorts provides a strong test of the ability of a prognostic tool to generalize to new cohorts, laboratory processes, and scoring pathologists.  Residual unexplained effects of cohort on survival will limit the validation calibration performance attainable on these data, but clinically useful accurate discrimination of good- and poor-prognosis patients may still be achievable.
 
 \begin{table}[h]
 \centering
-\caption[Characteristics of patient cohorts]{Characteristics of the \gls{NSWPCN} training cohort, and the APGI, Dresden, and Glasgow validation cohorts.  Ordinal variables are shown as median, with quartiles in parentheses.  Categorical variables for which percentages do not add up to 100\% indicate the presence of minor unlisted categories.}\label{tab:nomo-cohort-characteristics}
+\caption[Characteristics of patient cohorts]{Characteristics of the \gls{NSWPCN} training cohort, and the APGI, Dresden, and Glasgow validation cohorts.  Ordinal variables are shown as median, with quartiles in parentheses.}\label{tab:nomo-cohort-characteristics}
 \resizebox{\textwidth}{!}{
 \begin{tabular}{llllll}
 \toprule
@@ -63,7 +68,7 @@ Excision margin status & R0      & 58.2\%        & 32.0\%       & 65.3\%       &
 Node involvement       &         & 65.8\%        & 78.7\%       & 68.7\%       & 82.5\%         \\
 S100A2 positive        &         & 16.1\%        & 14.7\%       & 25.3\%       & 32.8\%         \\
 S100A4 positive        &         & 75.5\%        & 65.3\%       & 88.0\%       & 70.9\%         \\
-Disease-specific death &         & 95.2\%        & 68.0\%       & 74.7\%       & 85.2\%         \\[3]
+Disease-specific death event &         & 95.2\%        & 68.0\%       & 74.7\%       & 85.2\%         \\[3]
 Size of longest axis   & (mm)    & 30            & 35           & 35           & 30             \\
                        &         & (25 - 40)     & (28 - 43)    & (25 - 40)    & (25 - 40)      \\[3]
 Age at diagnosis       & (years) & 69            & 67           & 68           & 64.0           \\
@@ -77,18 +82,18 @@ Length of follow-up    & (days)  & 479           & 655          & 514          &
 \begin{figure}
 \centering
   \includegraphics[width=.7\textwidth]{analysis/nomogram/figure/07-cohort-surv-comparison-1}
-\caption[Cohort marginal survival estimates]{Kaplan-Meier marginal survival function estimates for the cohorts used in this chapter.  Censoring times are indicated by $+$ symbols.}
+\caption[Cohort marginal survival estimates]{Kaplan-Meier marginal survival estimates for the cohorts used in this chapter.  Censoring times are indicated by $+$ symbols.}
 \label{fig:nomo-cohort-km}
 \end{figure}
 
 \subsection{Prognostic model building and selection}
-Candidate prognostic models were constructed on the \gls{NSWPCN} training data by iterative model fitting, evaluation, and refinement.  To guard against overfitting caused by this iterative process, the \gls{NSWPCN} cohort was randomly split once into model building and testing sets.  All model fitting and refinement described below was performed on the 200-patient model building set, to yield three final candidate prognostic predictors.  The performance of each of these three predictors was then assessed on the 49-patient model test set, and the most parsimonious high-performing model was chosen as the final prognostic predictor, for subsequent external validation.
+Candidate prognostic models were constructed on the \gls{NSWPCN} training data by iterative model fitting, evaluation, and refinement.  To guard against overfitting caused by this iterative process, the \gls{NSWPCN} cohort was randomly split once, into model building and testing sets.  All model fitting and refinement described below was performed on the 200-patient model building set, to yield three final candidate prognostic predictors.  The performance of each of these three predictors was then assessed on the 49-patient model test set, and the most parsimonious high-performing model was chosen as the \gls{PCOP} prognostic predictor, for subsequent external validation.
 
 \paragraph{Cohort shift}
-The \gls{NSWPCN} training cohort was collected over a long period, with patient diagnosis dates spanning the thirteen years from 1994 to 2006.  Over such an extended interval, subtle changes in cohort composition or therapy may cause a shift in cohort characteristics, and reduce the prognostic performance of a model that was built on the historical data, when it is applied to contemporary cases.  Cohort shift was investigated by examining the association between date of diagnosis, and all prognostic and outcome variables: in the absence of shift, no variables would be expected to change significantly over time.  Date of diagnosis was not significantly associated with any other variable (7 tests, lowest $P = 0.35$); there was therefore no indication of cohort shift in the \gls{NSWPCN} training data.
+The \gls{NSWPCN} training cohort was collected over a long period, with patient diagnosis dates spanning the thirteen years from 1994 to 2006.  Over such an extended interval, subtle changes in cohort composition or therapy may cause a shift in cohort characteristics, and reduce the prognostic performance of a model that was built on the historical data, when it is applied to contemporary cases.  Cohort shift was investigated by examining the association between date of diagnosis, and all prognostic and outcome variables: in the absence of shift, no variables would be expected to change significantly over time.  Date of diagnosis was not significantly associated with any other variable, or outcome (7 tests, lowest $P = 0.35$); there was therefore no indication of cohort shift in the \gls{NSWPCN} training data.
 
 \paragraph{Model functional form and expanded terms}
-The \gls{CPH} framework was used to assess functional form for the two continuous covariates: age at diagnosis, and maximum pathological axis size.  \gls{LOESS} smooths of martingale residuals \cite{Therneau1990} indicated a largely linear relationship for age at diagnosis (\fref{fig:nomo-funcform-age}), and a knee-shaped form for size (\fref{fig:nomo-funcform-size}), with the knee at approximately $0$ in median-centered units.  In subsequent fits this potential nonlinear size effect was modelled by adding a $\mbox{size}_+$ ramp term.  The original set of five linear prognostic terms, plus the additional nonlinear size term, was denoted the expanded term set.
+The \gls{CPH} framework was used to assess functional form for the two continuous covariates: age at diagnosis, and maximum pathological axis size.  \Gls{LOESS} smooths of martingale residuals \cite{Therneau1990} indicated a largely linear relationship for age at diagnosis (\fref{fig:nomo-funcform-age}), and a knee-shaped form for size (\fref{fig:nomo-funcform-size}), with the knee at approximately $0$ in median-centered units.  In subsequent fits this potential nonlinear size effect was modelled by adding a $\mbox{size}_+$ ramp term.  The original set of five linear prognostic terms, plus the additional nonlinear size term, was denoted the expanded term set.
 
 \begin{figure}
 \centering
@@ -116,32 +121,49 @@ A Grambsch-Therneau test \cite{Grambsch1994} on the \gls{CPH} model fit using al
 Strongly influential or outlying samples from the full marginal Cox fit were removed from the \gls{NSWPCN} building set.  I considered this unusual measure to be necessary given known and unresolvable quality issues in the \gls{NSWPCN} cohort data.  For all subsequent work, patients with full marginal Cox model absolute deviance residuals exceeding 2.5, or any absolute DFBETAS score exceeding 0.3, were excluded from the original building set.  This filter removed seven patients, reducing the size of the model building set to 193 patients.	
 
 \paragraph{Variable selection}
-Stepwise variable elimination was used to select an AIC-optimal model starting from the full marginal \gls{CPH} model containing all expanded terms and a sex stratum.  The identified optimal \gls{CPH} model used four variables: tumour location (head vs body), tumour size (linear term only), S100A2 status, and S100A4 status, in addition to the sex stratum.  The final \gls{AIC}-selected set of prognostic terms (tumour location, size linear term, S100A2 binary status, S100A4 binary status, and a patient sex stratum) was denoted the reduced term set.
+Stepwise variable elimination was used to select a \gls{AIC}-optimal model starting from the full marginal \gls{CPH} model, containing all expanded terms and a sex stratum.  The identified optimal \gls{CPH} model used four variables: tumour location (head vs body), tumour size (linear term only), S100A2 status, and S100A4 status, in addition to the sex stratum.  The \gls{AIC}-selected set of four prognostic terms, and a patient sex stratum, was denoted the reduced term set.
 
 \paragraph{Model CP1}
-A final prognostic \acrshort{CPH} regression model was fit to the \gls{NSWPCN} model building data using only the reduced term set; this model was termed CP1.  CP1 did not violate the \gls{PH} assumption by the Grambsch-Therneau test (global $P = 0.794$).  Predictions from model CP1 were broadly concordant with stratified \gls{KM} estimates across all covariate subgroups, indicating no serious lack of fit of the model (\fref{fig:nomo-cp1-gg1-fitplot}).
+A final prognostic \acrshort{CPH} regression model was fit to the outlier-removed \gls{NSWPCN} model building data using only the reduced term set; this model was termed CP1.  CP1 did not violate the \gls{PH} assumption by the Grambsch-Therneau test (global $P = 0.794$).  Predictions from model CP1 were broadly concordant with stratified \gls{KM} estimates across all covariate subgroups, indicating no serious lack of fit of the model (\fref{fig:nomo-cp1-gg1-fitplot}).
 
 \paragraph{Model GG1}
-Semiparametric Cox \gls{PH} models such as CP1 provide a convenient framework for covariate testing and model diagnostics, but their unspecified baseline hazard term significantly complicates their use as prognostic predictors: patients can only be ranked by relative hazard, and absolute estimates of survival probabilities are unavailable.  Although it is possible to approximate the baseline hazard in the Cox model, a more robust alternative is to use fully parametric models, in which the baseline hazard distribution is explicity specified.  The advantages of parametric models in terms of robustness and interpretability are offset by their more stringent assumptions: if the chosen baseline distribution is unsuited to the particular data to be fit, predictions from parametric models can be very poor.  Given the potential benefits of parametric models for survival prediction, a parametric alternative to model CP1 was developed, and its fit assessed.  This parametric model was termed GG1.
+Semiparametric Cox \gls{PH} models such as CP1 provide a convenient framework for covariate testing and model diagnostics, but their unspecified baseline hazard term significantly complicates their use as prognostic predictors: patients are naturally only scored for relative hazard, and estimates of survival probabilities are unavailable.  Although it is possible to approximate the baseline hazard in the Cox model, a more robust alternative is to use fully parametric models, in which the baseline hazard distribution is explicity specified.  The advantages of parametric models in terms of robustness and interpretability are offset by their more stringent assumptions: if the chosen baseline distribution is unsuited to the particular data to be fit, predictions from parametric models can be very poor.  Given the potential benefits of parametric models for survival prediction, a parametric alternative to model CP1 was developed, and its fit assessed.  This parametric model was termed GG1.
 
-Model GG1, employing a \gls{GG} survival distribution \cite{Cox2007}, was fit to the \gls{NSWPCN} model building data by maximum likelihood.  Guided by the model functional form and baseline hazard stratification indicated by the Cox model diagnostics, the \gls{GG} distribution location parameter $\beta$ was made linearly dependent on all terms in the reduced set, but the shape parameters $\sigma$ and $\lambda$ were modelled as dependent on patient sex only.  The goodness of fit of GG1 was investigated by and graphical assessment of prediction accuracy.  Comparisons between GG1 predictions and \gls{KM} estimates of survival indicated that the GG1 baseline distribution could not accurately model survival in some cohort subsets, particularly the S100A2 negative male group (\fref{fig:nomo-cp1-gg1-fitplot})
+Model GG1, employing a \gls{GG} survival distribution \cite{Cox2007}, was fit to the outlier-removed \gls{NSWPCN} model building data by maximum likelihood.  Guided by the model functional form and baseline hazard stratification indicated by the Cox model diagnostics, the \gls{GG} distribution location parameter $\beta$ was made linearly dependent on all terms in the reduced set, but the shape parameters $\sigma$ and $\lambda$ were modelled as dependent on patient sex only.  Graphical comparisons between GG1 predictions and \gls{KM} estimates of survival indicated that GG1 predicted outcome to within error across major patient subgroups (\fref{fig:nomo-cp1-gg1-fitplot}).
 
 \begin{figure}
 \centering
-  \includegraphics[width=.7\linewidth]{analysis/nomogram/figure/05-final-fit-assessment-4}
-  \caption[Model survival predictions agree with stratified \acrshort{KM} estimates]{Model survival predictions agree with stratified \gls{KM} estimates.  \gls{KM} estimates of survival probability for each combination of patient sex and biomarker status are shown as solid blue lines, with 95\% confidence intervals indicated by blue ribbons.  Estimates of survival probability generated by both models CP1 (red) and GG1 (green) broadly followed the form of the \gls{KM} estimator, and lay within its bounds at all times, although the GG1 fit was relatively poor in some strata.  Both model fitting and prediction used the \gls{NSWPCN} model building set, and so these plots illustrate model goodness-of-fit, but cannot indicate possible overfitting.  \gls{KM} traces for the S100A2 positive, S100A4 negative group were omitted, as there were insufficient patients in this group for reliable \gls{KM} estimates to be available.  For all plots, tumour location, and size, were set to cohort median values.}
+  \includegraphics[width=.85\linewidth]{analysis/nomogram/figure/05-final-fit-assessment-2}
+  \caption[Model survival predictions agree with stratified \acrshort{KM} estimates]{Model survival predictions agree with stratified \gls{KM} estimates.  \gls{KM} estimates of survival probability for each combination of patient sex and biomarker status are shown as solid red lines, with 95\% confidence intervals indicated by red ribbons.  Estimates of survival probability generated by models CP1 (blue), GG1 (green), and RSF (purple), broadly followed the form of the \gls{KM} estimator, and lay within its bounds at all times, although all models consistently overestimated survival of the double positive subgroup.  Both model fitting and prediction used the \gls{NSWPCN} model building set, and so these plots illustrate model goodness-of-fit, but cannot indicate possible overfitting.  \gls{KM} traces for the S100A2 positive, S100A4 negative group were omitted, as there were insufficient patients in this group for reliable \gls{KM} estimates to be available.  For all plots, tumour location, and size, were set to cohort median values.}
 \label{fig:nomo-cp1-gg1-fitplot}
 \end{figure}
 
 \paragraph{Model RSF}
 Regression models like CP1 and GG1 are familiar and readily interpretable, but are heavily dependent on the analyst identifying appropriate variables and functional forms.  Ensemble tree models such as random forests \cite{Breiman2001} naturally and automatically model nonlinearity and arbitrary level interactions, and are tolerant of large numbers of irrelevant or collinear variables, albeit at the cost of very poor interpretability, and large data and computational requirements.  Random forests have been adapted to model censored data \cite{Ishwaran2008}, and can provide an alternative prognostic predictor that is distinct in behaviour from CP1 and GG1, and may be able to exploit data structure not leveraged by these more classical models.
 
-To investigate whether tree ensemble models could provide improved performance over classical approaches, a random survival forest model, termed RSF, was fit to the \gls{NSWPCN} model building data.  In contrast to CP1 and GG1, which used the reduced set of terms as covariates, RSF was supplied all preoperatively-assessable variables as candidate predictors.
+To investigate whether tree ensemble models could provide improved performance over classical approaches, a random survival forest model, termed RSF, was fit to the outlier-removed \gls{NSWPCN} model building data.  In contrast to CP1 and GG1, which used the reduced set of terms as covariates, RSF was supplied all preoperatively-assessable variables as candidate predictors.
 
 \paragraph{Model selection}
-Predictive performance of the three prognostic models (CP1, GG1, and RSF) was compared on the holdout \gls{NSWPCN} model test set, to select a single high-performing parsimonious model for external validation.  Performance in the interval from seven to 34 months post-diagnosis was of particular interest, as the majority of patients in the \gls{NSWPCN} training set died during this period.  Model GG1 was the overall best-performing model in this $7-34$ month interval, as assessed by both cumulative/dynamic\mpfatal{Change to ID} \gls{TDROC} \cite{Blanche2013} (\fref{nomo-tdauc-paths}) and Brier score \cite{Graf1999} (\fref{nomo-brier-paths}).  There was no significant difference between the $7-34$ month \gls{IBS} of competing models, as estimated using 95\% bootstrap confidence intervals, although all models had significantly better \gls{IBS} than a marginal Kaplan-Meier survival estimator (\tref{TODO}).
-%The Brier score provides an overall measure of predictive performance, but it assesses both model discrimination and calibration, whereas it has been argued that high model discrimination is the far more relevant criterion in most clinical applications (TODO cite).  Model discrimination alone can be measured by the \gls{TDROC}-\gls{AUC}, an extension of the familiar \gls{AUC} concept to censored data, that is reflective of the use of prognostic models in clinical practice \cite{Heagerty2005}.
-As there was no significant difference in performance between the prognostic models, the simplest model GG1 was selected to form the \gls{PCOP}.
+Predictive performance of the three prognostic models (CP1, GG1, and RSF) was compared on the holdout \gls{NSWPCN} model test set, to select a single high-performing parsimonious model for external validation.  Model discriminatory ability was assessed over time using the \gls{AUC} of the incident/dynamic \gls{TDROC} \cite{Heagerty2005}, and overall prognostic accuracy (combining both discrimination and calibration) over time by the Brier score \cite{Graf1999}.  The integrated Brier score \cite{Graf1999} was also used to provide an aggregate measure of overall model accuracy.  Performance in the interval from seven to 34 months post-diagnosis was of particular interest, as the majority of patients in the \gls{NSWPCN} training set died during this period (\fref{fig:nomo-cohort-km}).
+
+All models had statistically indistinguishable discriminatory power over the $7-34$ month period, as assessed by pointwise $95\%$ BCa confidence intervals \cite{Efron1987} of the \gls{TDROC} \gls{AUC} (\fref{fig:nomo-tdauc-paths}).  There was also no significant difference between candidate models in Brier score, integrated over $7-34$ months, although all models performed significantly better than a marginal Kaplan-Meier prognostic, KM0 (\tref{tab:nomo-ibs-boot}).  Despite these non-significant differences, models GG1 and CP1 had consistently superior Brier score to RSF over the period of interest (\fref{fig:nomo-brier-paths}).  As there was no significant difference in performance between the prognostic models, the simplest model, GG1, was selected to form the \gls{PCOP}.
+
+\begin{table}
+\centering
+\caption[Prognostic model \acrshort{IBS} comparison]{Competing models do not have significantly different \gls{IBS} performance.  The \gls{IBS} is a combined measure of model predictive ability over a follow-up time interval, which captures both discrimination and calibration; lower numbers are better.  Differences in the $7-34$ month \gls{IBS} of competing models were calculated for each of 1,000 bootstrap samples of the \gls{NSWPCN} holdout test set, and $95\%$ BCa confidence intervals \cite{Efron1987} calculated.  All candidate prognostic models had significantly better \gls{IBS} than the marginal KM0 model, but there was significant no difference between candidate models.}
+\label{tab:nomo-ibs-boot}
+\begin{tabular}{lrrr}
+\toprule
+                             & \multicolumn{2}{c}{Bootstrap}   \\ \cmidrule(r){2-3}
+Comparison                   & Mean          & $95\%$ CI       \\ \midrule
+$\mbox{KM0} - \mbox{GG1}$    & $21.1$        & $[2.5, 39.8]$   \\
+$\mbox{KM0} - \mbox{CPH}$    & $20.2$        & $[4.5, 38.9]$   \\
+$\mbox{KM0} - \mbox{RSF}$    & $14.5$        & $[5.7, 24.6]$   \\
+$\mbox{RSF} - \mbox{GG1}$    &  $6.6$        & $[-5.6, 17.7]$  \\
+$\mbox{RSF} - \mbox{CPH}$    &  $5.7$        & $[-2.9, 15.9]$  \\ 
+$\mbox{CPH} - \mbox{GG1}$    &  $0.9$        & $[-4.1, 4.3]$   \\ \bottomrule
+\end{tabular}
+\end{table}
 
 \paragraph{Final \acrshort{PCOP} fit}
 A final fit of GG1 to the full \gls{NSWPCN} training data (both model building and validation patients) was made, and is summarised in \tref{tab:nomo-final-fit}.  This fit defined the \gls{PCOP}, which predicts post-resection outcome using a generalized gamma model \cite{Cox2007}, as
@@ -157,14 +179,14 @@ where $T$ is an individual's failure time, $GG$ is the generalized gamma distrib
 \begin{figure}
 \centering
   \includegraphics[width=.7\linewidth]{analysis/nomogram/figure/05-model-selection-roc-id-1}
-  \caption[Time-dependent \acrshort{AUC} paths for candidate models on holdout data]{Incident/dynamic \gls{TDROC} \gls{AUC} paths for candidate models on the holdout \gls{NSWPCN} model test set.}
+  \caption[Time-dependent \acrshort{AUC} paths for candidate models on holdout data]{Incident / dynamic \gls{TDROC} \gls{AUC} paths for candidate models on the holdout \gls{NSWPCN} model test set.  Slight differences in performance were evident, with model GG providing superior discrimination up to approximately 15 months post-diagnosis, but models RSF and CPH performing better from approximately 20 months post-diagnosis.  These differences were not significant, as assessed by pointwise $95\%$ bootstrap confidence intervals (confidence bands not shown).}
 \label{fig:nomo-tdauc-paths}
 \end{figure}
 
 \begin{figure}
 \centering
   \includegraphics[width=.7\linewidth]{analysis/nomogram/figure/05-model-selection-bs-paths-1}
-  \caption[Brier score paths for candidate models on holdout data]{Brier score paths for candidate models on the holdout \gls{NSWPCN} model test set.  All models outperformed the no-information KM0 trace from approximately 100 days to 600 days post-diagnosis, and no strong differences were apparent between candidate models.}
+  \caption[Brier score paths for candidate models on holdout data]{Brier score paths for candidate models on the holdout \gls{NSWPCN} model test set.  All models outperformed the no-information KM0 trace from approximately four months to 21 months post-diagnosis, and no strong differences were apparent between candidate models.}
 \label{fig:nomo-brier-paths}
 \end{figure}
 
@@ -174,7 +196,7 @@ where $T$ is an individual's failure time, $GG$ is the generalized gamma distrib
 \caption[Final PCOP fit]{Coefficients of a final GG1 fit to the \gls{NSWPCN} training data, which defines the \gls{PCOP}.  Coefficient estimates are for a generalized gamma survival model \cite{Cox2007}.}\label{tab:nomo-final-fit}
 \begin{tabular}{llrr}
 \toprule
-Term                   &                & Estimate       & SE      \\ \midrule
+Term                   &                & Estimate       & SE       \\ \midrule
 $\beta$ \\
 (Intercept)            &                &  $6.7446$      & $0.1489$ \\
 Sex                    & = Male         &  $0.3732$      & $0.1508$ \\
@@ -183,8 +205,8 @@ Size of longest axis   &  (cm)          & $-0.0887$      & $0.0302$ \\
 S100A2                 & = Positive     & $-0.3729$      & $0.1235$ \\
 S100A4                 & = Positive     & $-0.3843$      & $0.1045$ \\[10]
 $\sigma$ \\
-(Intercept)            &                &   $0.7503$     & $0.0493$ \\
-Sex                    & = Male         &  $-0.2452$     & $0.1066$ \\[10]
+(Intercept)            &                &  $0.7503$      & $0.0493$ \\
+Sex                    & = Male         & $-0.2452$      & $0.1066$ \\[10]
 $\lambda$ \\
 (Intercept)            &                &  $0.0288$      & $0.2719$ \\
 Sex                    & = Male         &  $0.7630$      & $0.3533$ \\[5] \bottomrule
@@ -193,61 +215,144 @@ Sex                    & = Male         &  $0.7630$      & $0.3533$ \\[5] \botto
 
 
 \subsection{External validation}
+Discrimination, calibration, and overall fit of the \gls{PCOP} was tested on three independent validation cohorts, following the guidelines in \cite{Royston2013}.
+
+\subsubsection{Overall assessment of \acrshort{PCOP} fit}
+\paragraph{Distribution of the \acrshort{PCOP} \acrshort{PI}}
+Approximate \glspl{PI} for the \gls{PCOP} showed broadly similar distributions across the training \gls{NSWPCN} cohort, and the three validation cohorts (\fref{fig:nomo-score-hists}).  Vertical lines denote the empirical 20th, 50th, and 80th percentiles, which were also used to define risk groups to visually evaluate \gls{PCOP} fit.
 
 \begin{figure}
 \centering
   \includegraphics[width=.7\linewidth]{analysis/nomogram/figure/07-score-hists-1}
-  \caption[\acrshort{PCOP} \acrshort{PI} distributions in training and validation cohorts]{Distributions of the \acrshort{PCOP} \acrshort{PI} in training and validation cohorts.  Score distributions were broadly similar in all cohorts, with a generally bimodal form.  Empirical quartiles are indicated by red lines.}
+  \caption[\acrshort{PCOP} \acrshort{PI} distributions in training and validation cohorts]{Distributions of the \acrshort{PCOP} \acrshort{PI} in training and validation cohorts.  Score distributions were broadly similar in all cohorts, with an approximately bimodal form.  Empirical 20th, 50th, and 80th percentiles are indicated by red lines.}
 \label{fig:nomo-score-hists}
 \end{figure}
 
+\paragraph{Visual assessment of \acrshort{PCOP} fit}
+Patients within each cohort were divided into broad risk groups based on their \gls{PCOP} approximate \gls{PI}, and observed and predicted outcomes within each group were visually compared to evaluate model fit.  Three risk groups were defined: a high-risk group of patients with \gls{PI} less than the empirical cohort 20th percentile; a low-risk group with \gls{PI} greater than the 80th percentile; and an intermediate risk group with all remaining patients.  Overall model fit was good in the Glasgow validation cohort (\fref{fig:nomo-val-altman4-glasgow}), but poor in the \gls{APGI} and Dresden cohorts (\fref{fig:nomo-val-altman4-apgi}, \fref{fig:nomo-val-altman4-dresden}).  
+
 \begin{figure}
 \centering
-  \includegraphics[width=.7\linewidth]{analysis/nomogram/figure/07-score-hists-1}
-  \caption[\acrshort{PCOP} \acrshort{PI} distributions in training and validation cohorts]{Distributions of the \acrshort{PCOP} \acrshort{PI} in training and validation cohorts.  Score distributions were broadly similar in all cohorts, with a generally bimodal form.  Empirical quartiles are indicated by red lines.}
-\label{fig:nomo-score-hists}
+  \subbottom[NSWPCN]{
+    \includegraphics[width=.45\linewidth]{analysis/nomogram/figure/07-altman-4-nswpcn-1}
+    \label{fig:nomo-val-altman4-nswpcn}}
+  \subbottom[Glasgow]{
+    \includegraphics[width=.45\linewidth]{analysis/nomogram/figure/07-altman-4-glasgow-2}
+    \label{fig:nomo-val-altman4-glasgow}}
+  \subbottom[APGI]{
+    \includegraphics[width=.45\linewidth]{analysis/nomogram/figure/07-altman-4-apgi-2}
+    \label{fig:nomo-val-altman4-apgi}}
+  \subbottom[Dresden]{
+    \includegraphics[width=.45\linewidth]{analysis/nomogram/figure/07-altman-4-dresden-2}
+    \label{fig:nomo-val-altman4-dresden}}
+\caption[Observed and predicted survival of patient risk groups]{Observed and \gls{PCOP} predicted survival of patient risk groups.  Within each cohort, patients were divided into three risk groups: high (red, \gls{PCOP} \gls{PI} $<$ 20th percentile), low (green, \gls{PI} $>$ 80th percentile), and medium (blue, all remaining patients).  For each group, a Kaplan-Meier estimate of empirical survival (dotted lines) was compared to the median of \gls{PCOP} predictions for patients in that group (solid lines).  Excellent fit is seen for the \gls{NSWPCN} training cohort, as expected.  Overall fit is poorer for the validation data, with acceptable fit for extreme risk groups in the Glasgow cohort, and generally poor fit in both the \gls{APGI} and Dresden cohorts.}
+\label{fig:nomo-val-altman4}
 \end{figure}
+
+\paragraph{\acrshort{PCOP} Brier score}
+The Brier score summarises overall model prediction error over time, without requiring patients to be divided into arbitrary risk groups based on approximate \gls{PI}.  To further investigate the poor fit observed in some cohorts, Brier score paths were calculated for the \gls{PCOP} in all three validation cohorts.  The performance of the \gls{MSKCC} nomogram, applied to preoperative variables, was also assessed at its three timepoints to provide a comparison between the \gls{PCOP} and an established prognostic tool.
 
 \begin{figure}
 \centering
   \subbottom[Glasgow]{
-    \includegraphics[width=.45\linewidth]{analysis/nomogram/figure/07-prob-bs-paths-plot-glasgow-2}
+    \includegraphics[width=.6\linewidth]{analysis/nomogram/figure/07-prob-bs-paths-plot-glasgow-2}
     \label{fig:nomo-val-brier-glasgow}}
   \subbottom[APGI]{
-    \includegraphics[width=.45\linewidth]{analysis/nomogram/figure/07-prob-bs-paths-plot-apgi-2}
+    \includegraphics[width=.6\linewidth]{analysis/nomogram/figure/07-prob-bs-paths-plot-apgi-2}
     \label{fig:nomo-val-brier-apgi}}
   \subbottom[Dresden]{
-    \includegraphics[width=.45\linewidth]{analysis/nomogram/figure/07-prob-bs-paths-plot-dresden-2}
+    \includegraphics[width=.6\linewidth]{analysis/nomogram/figure/07-prob-bs-paths-plot-dresden-2}
     \label{fig:nomo-val-brier-dresden}}
 \caption[Brier score paths for \acrshort{PCOP} on validation cohorts]{Brier score paths for \acrshort{PCOP} on validation cohorts.  The Brier score measures overall prognostic error, as a combination of calibration and discrimination; lower values are better, and the worst-case theoretical value is 0.25.  Brier score paths over time are shown for outcome predictions by \acrshort{PCOP} (green line), and the \acrshort{MSKCC} nomogram on preoperative data (pink dots).  Also shown is a marginal \acrshort{KM} prediction of outcome (orange), and the theoretical no-information Brier score limit (horizontal dotted line) -- outcome predictors must be substantially better than both of these to be usefully prognostic.  The $7-34$ month period in which most patients die is delimited by vertical lines.  \acrshort{PCOP} is substantially better than either the \acrshort{KM} or \acrshort{MSKCC} predictors in the Glasgow cohort, but all predictors are equally poor in the \acrshort{APGI} and Dresden cohorts.}
-\label{fig:val-brier}
+\label{fig:nomo-val-brier}
 \end{figure}
+
+In keeping with the general findings from visual assessment of risk groups, the \gls{PCOP} was more prognostic than null models in the Glasgow cohort, but not in the \gls{APGI} or Dresden cohorts, across all times post diagnosis (\fref{fig:nomo-val-brier}).  The significance of the difference between \gls{PCOP} and KM0 Brier score in the Glasgow cohort was assessed by bootstrapping, at 12, 24, and 36 months following diagnosis.  The \gls{PCOP} had a significantly better Brier score than KM0 at 24 months after diagnosis ($95\%$ BCa CI $[0.0024, 0.047]$, 500 rounds), but not 12 or 36 months.
+
+The performance of the \gls{MSKCC} nomogram on preoperative data was poor: in all three cohorts, the performance of \gls{MSKCC} survival estimate was either not significantly different from, or was significantly worse than, that of the null KM0 model (\fref{fig:nomo-val-brier}).  The \gls{MSKCC} nomogram was designed exclusively for use with postoperative data, and it is reasonable to suppose that this is the reason for its poor performance on preoperative data.  However, when all postoperative data were supplied to the \gls{MSKCC} nomogram, its predictions also were not better than the null KM0 model in both the Glasgow and Dresden cohorts, suggesting either poor general discrimination or calibration of the \gls{MSKCC} nomogram in these data sets (data not shown).
+
+\paragraph{Summary}
+The \gls{PCOP} demonstrated acceptable overall fit in only one of the three validation cohorts tested.  Poor fit can be caused by both model miscalibration, and poor discrimination.  Miscalibration of a prognostic model, while not ideal, does not preclude its clinical use \cite{Steyerberg2010}: if discrimination remains good, the model can still be used to place patients into risk groups, which inform decision making.  On the other hand, if a model shows very poor discrimination, it is generally meaningless.  The clinical utility of the \gls{PCOP} was evaluated by formally testing its discrimination, separately from calibration, in the validation cohorts.
+
+\subsubsection{Discrimination}
+Discrimination of the \gls{PCOP} on external cohorts was assessed by Harrell's $c$-index \cite{Harrell1982}, calibration slope tests, and the incident / dynamic \gls{TDROC} \cite{Heagerty2005}.
+
+\paragraph{$c$-index}
+Harrell's $c$-index is defined as the proportion of patients for which the \gls{PI} and outcome are concordant: in other words, the empirical probability that, for a randomly chosen pair of patients in a cohort, the one with the higher \gls{PI} will die sooner.  As such, the $c$-index is an overall measure of the ability of a given \gls{PI} to discriminate between patients with different outcome.  Values of the $c$-index for the \gls{PCOP} and preoperative \gls{MSKCC} \glspl{PI} were calculated in each validation cohort, and are summarised in table \tref{tab:nomo-val-hcis}.  In the Glasgow cohort, the \gls{PCOP} was $c$-index was significantly better than that of a worst case predictor (Penciana test \cite{Penciana2004} $P = 6.67 \times 10^{-6}$), and was also significantly better than the \gls{MSKCC} preoperative nomogram $c$ ($P = 0.041$).  In the remaining two cohorts, both the \gls{PCOP}, and the \gls{MSKCC} preoperative nomogram, showed very poor overall discrimination.
+
+\begin{table}[h]
+\centering
+\caption[Harrell $c$-indices for \acrshort{PCOP} in validation data]{Harrell's $c$-indices for \gls{PCOP} and preoperative \gls{MSKCC} \glspl{PI} in validation cohorts.  Values of Harrell's $c$, and associated P-values testing whether $c$ is significantly different from the no-information value of 0.5 ($P_{0.5$}), are given for both the \gls{PCOP}, and the \gls{MSKCC} nomogram applied to preoperative data.  Both \glspl{PI} are significantly prognostic in the Glasgow cohort, and only weakly so, if at all, in the \gls{APGI} and Dresden cohorts.}\label{tab:nomo-val-hcis}
+\begin{tabular}{@{}lllll@{}}
+\toprule
+          & \multicolumn{2}{c}{PCOP}           & \multicolumn{2}{c}{MSKCC}            \\ 
+\cmidrule(r){2-3} \cmidrule(r){4-5}
+Cohort    & $c$     & $P_{0.5}$                & $c$        & $P_{0.5}$               \\ \midrule
+Glasgow   & 0.609   & $6.67 \times 10^{-6}$    & 0.585      & $6.96 \times 10^{-4}$   \\
+APGI      & 0.580   & $0.045$                  & 0.476      & $0.55$                  \\
+Dresden   & 0.546   & $0.124$                  & 0.518      & $0.50$                  \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Tests of `calibration slope'}
+A common approach to test a prognostic model's fit and discrimination on test data is to verify that a \gls{PI} derived from the model is significantly prognostic when used as the sole predictor in a Cox model, and that the \gls{PI} coefficient is not significantly different from unity.  This validation method was applied to both the \gls{PCOP} and preoperative \gls{MSKCC} prognostics, on the three validation data sets.  The \gls{PCOP} passed this validation test in both the Glasgow and \gls{APGI}, but not the Dresden, cohorts, and the preoperative \gls{MSKCC} did not validate in any cohort (\tref{tab:nomo-val-slope}).  Despite its validating in two cohorts, the fitted \gls{PCOP} \gls{PI} coefficient was consistently less than one, suggesting that overfitting occurred during construction of the \gls{PCOP}.
+
+\begin{table}[h]
+\centering
+\caption[Tests of \acrshort{PCOP} calibration slope]{Calibration slope tests of the \gls{PCOP} and \gls{MSKCC} \gls{PI}.  Coefficients ($\alpha$) of Cox model fits using either the \gls{PCOP} or preoperative \gls{MSKCC} \gls{PI} as sole predictor are given, along with P-values testing whether the coefficients are significantly different from both zero ($P_0$), and one ($P_1$).  A \gls{PI} that passes the test will have results consistent with $\alpha = 1$.  The \gls{PCOP} satisfies this requirement for the Glasgow and \gls{NSWPCN} cohorts, but not the Dresden cohort.  The \gls{MSKCC} nomogram, when applied to preoperative data, fails in all three cohorts.  Despite the successful validation of the \gls{PCOP} in two cohorts, its regression coefficients are consistently smaller than 1, suggesting that the \gls{PCOP} model was overfit during training.}\label{tab:nomo-val-slope}
+\begin{tabular}{@{}llllll@{}}
+\toprule
+          & \multicolumn{3}{c}{PCOP}     & \multicolumn{2}{c}{MSKCC}  \\ \cmidrule(r){2-4} \cmidrule(r){5-6}
+Cohort    & $\alpha$ & $P_0$   & $P_1$   & $\alpha$   & $P_0$         \\ \midrule
+Glasgow   & 0.805    & 0.001   & 0.41    & 0.012      & 0.284         \\
+APGI      & 0.894    & 0.036   & 0.80    & 0.003      & 0.634         \\
+Dresden   & 0.527    & 0.093   & 0.13    & 0.003      & 0.502         \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Incident / dynamic \acrshort{TDROC}}
+Both the $c$-index and calibration slope tests provide single measures of model discrimination, averaged across all observed times.  However, a prognostic model's discrimination is not generally constant, but changes over time, and it is possible that a model with poor average performance could have good discrimination at specific follow-up times.  To address this, plots of \gls{TDROC} \glspl{AUC} were used to assess the \gls{PCOP}'s discriminative ability at a range of times after diagnosis.
+
+In both the Glasgow and \gls{APGI} cohorts, the \gls{PCOP} displayed consistently better discrimination than a null model, and the \gls{MSKCC} nomogram on preoperative data, for a range of times after diagnosis (\fref{fig:nomo-val-tdroc}).  This result was not repeated in the Dresden cohort, for which both the \gls{PCOP} and the \gls{MSKCC} nomogram displayed discrimination that was barely better than baseline.
 
 \begin{figure}
 \centering
   \subbottom[Glasgow]{
-    \includegraphics[width=.45\linewidth]{analysis/nomogram/figure/07-risksetROC-glasgow-2}
+    \includegraphics[width=.6\linewidth]{analysis/nomogram/figure/07-risksetROC-plot-glasgow-1}
     \label{fig:nomo-val-tdroc-glasgow}}
   \subbottom[APGI]{
-    \includegraphics[width=.45\linewidth]{analysis/nomogram/figure/07-risksetROC-apgi-2}
+    \includegraphics[width=.6\linewidth]{analysis/nomogram/figure/07-risksetROC-plot-apgi-1}
     \label{fig:nomo-val-tdroc-apgi}}
   \subbottom[Dresden]{
-    \includegraphics[width=.45\linewidth]{analysis/nomogram/figure/07-risksetROC-dresden-2}
+    \includegraphics[width=.6\linewidth]{analysis/nomogram/figure/07-risksetROC-plot-dresden-1}
     \label{fig:nomo-val-tdroc-dresden}}
-\caption[]{}
-\label{fig:val-tdroc}
+\caption[\acrshort{TDROC} \acrshort{AUC} paths for \acrshort{PCOP} in validation data]{\gls{TDROC} \gls{AUC} over time in validation cohorts.  Bootstrap summaries of the \gls{AUC} are shown for \glspl{PI} from the \gls{PCOP} (mean: green solid lines; BCa $95\%$ confidence intervals: green dotted lines), and the \gls{MSKCC} nomogram on preoperative data (mean: red lines).  The \gls{PCOP} displays consistently superior discrimination to the no-information level (horizontal line at $0.5$) in the Glasgow and \gls{APGI} cohorts, but performs much more poorly in the Dresden cohort.  The \gls{MSKCC} nomogram \gls{PI} performs poorly in all cohorts.}
+\label{fig:nomo-val-tdroc}
 \end{figure}
 
-
-\subsubsection{Discrimination}
-\subsubsection{Calibration}
-\subsubsection{Summary?}
+\subsubsection{Validation summary}
+A range of complementary validation approaches were applied to test the performance of the \gls{PCOP} in external validation cohorts.  In terms of overall fit, the \gls{PCOP} was superior to null models in the Glasgow cohort, but not in the \gls{APGI} or Dresden cohorts.  Specific tests of discrimination were used to check if the poor overall fit was due to poor model discrimination, and indicated that the \gls{PCOP} discriminated between good- and poor-prognosis patients well in the Glasgow and \gls{APGI} cohorts, but poorly in the Dresden cohort.  The preoperative \gls{MSKCC} nomogram was a poor prognostic in all data sets.
 
 \subsection{PCOP web application}
-\hyperref[http://54.66.150.159:3277/]{http://54.66.150.159:3277/}
-\mpfatal{Get a proper domain name?}
+A serious barrier to the use of complex prognostic tools such as the \gls{PCOP} is the difficulty in their calculation.  To address this, a simple web application was created to encapsulate the \gls{PCOP}, and allow its easy evaluation from any web browser.  The \gls{PCOP} web application interface is illustrated in \fref{fig:nomo-web-example}.  In response to user input of basic clinical parameters, the web interface dynamically recalculates survival estimates, and returns them in graph and table form.  Up to two survival curves may be shown simultaneously, to allow the easy comparison of cases.  The demonstration \gls{PCOP} web application resides on the \gls{AWS} framework, and so is straightforward to deploy both publicly, and privately, as required.
+
+A demonstration instance of the \gls{PCOP} web application is available at \url{http://54.66.150.159:3277/}.\mpfatal{Get a real domain name?}\mpfatal{Update the web app with the final PCOP}
+
+\begin{figure}
+\centering
+  \includegraphics[width=1\linewidth]{analysis/nomogram/webapp/PCOP.png}
+\caption[Example screenshot of the \acrshort{PCOP} web application]{Example screenshot of the \gls{PCOP} web application.  The user enters clinical data for up to two cases, and the system dynamically calculates and displays predicted survival curves, optionally with confidence intervals.}
+\label{fig:nomo-web-example}
+\end{figure}
+
+\subsection{Correlation of \acrshort{EUS}-\acrshort{FNA} and resection biopsy biomarker scores}
+\mpfatal{I just got the data on this recently, but it's just a spreadsheet vom and I can't figure it out.  I need to either chase up Nam and find out what the hell it all means, or just ditch this bit.}
 
 \section{Discussion}
+Discussion points:
+  * Overview: Describe the 
+  * 
+  * 
 
 \section{Methods}
 \subsection{Cohort recruitment and ethics}
@@ -262,10 +367,12 @@ All statistical modelling was performed within the \texttt{R} environment.  \gls
 
 Both the incident/dynamic \gls{TDROC}, and the \gls{IBS}, were used to compare model prognostic performance.  \glspl{TDROC} were estimated using R package \texttt{risksetROC}, and Brier score paths and \glspl{IBS} were calculated with custom code, following \cite{Graf1999}.
 
+
 \subsection{External validation}
+\subsubsection{Calculation of a \acrshort{PCOP} \acrlong{PI}}
+As the \gls{PCOP} integrates non-proportional hazards in its survival predictions, it cannot be summarised into a \gls{PI} as for a proportional hazards Cox model.  However, validation methods such as Harrell's $c$-index, Cox calibration fits, and \glspl{TDROC}, require a patient hazard ranking, as is supplied by the \gls{PI}.  For these methods, each patient's value of the \gls{PCOP} \gls{GG} distribution $\beta$ parameter was used as an approximation to the \gls{PI}.
 
-
-\subsection{MSKCC nomogram calculation}
+\subsubsection{MSKCC nomogram calculation}
 The prognostic nomogram for resected pancreas cancer of \cite{Brennan2004} was digitized and transformed into \texttt{R} code that produced 12-, 24-, and 36-month disease-specific survival estimates given patient \glspl{CPV} (see \Aref{app:nomo-mskcc-code} on \pref{app:nomo-mskcc-code}).  Predictions for patients with data missing for some nomogram variables were generated by marginalizing over the missing predictors, using the variable distributions in \cite{Brennan2004}.
 
 \subsection{PCOP web application}

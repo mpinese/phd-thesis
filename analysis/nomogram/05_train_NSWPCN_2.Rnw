@@ -145,9 +145,88 @@ data.all$SizePlus = pmax(data.all$SizeCent, 0)
 
 \subsection{PH assumption: full model}
 <<eda-ph-check-full>>=
-fit.cph = coxph(Surv(Time, DSD) ~ SexM + AgeCent + LocBody + SizeCent + SizePlus + A2 + A4, data = data)
+data.temp = data
+data.temp$Time = data.time$Time/365.25*12
+fit.cph = coxph(Surv(Time, DSD) ~ SexM + AgeCent + LocBody + SizeCent + SizePlus + A2 + A4, data = data.temp)
 cox.zph(fit.cph)
-plot(cox.zph(fit.cph)[1])
+
+myplot.cox.zph = function(x, resid = TRUE, se = TRUE, df = 4, nsmo = 40, var, ...) 
+{
+    xx <- x$x
+    yy <- x$y
+    d <- nrow(yy)
+    df <- max(df)
+    nvar <- ncol(yy)
+    pred.x <- seq(from = min(xx), to = max(xx), length = nsmo)
+    temp <- c(pred.x, xx)
+    lmat <- ns(temp, df = df, intercept = TRUE)
+    pmat <- lmat[1:nsmo, ]
+    xmat <- lmat[-(1:nsmo), ]
+    qmat <- qr(xmat)
+    if (qmat$rank < df) 
+        stop("Spline fit is singular, try a smaller degrees of freedom")
+    if (se) {
+        bk <- backsolve(qmat$qr[1:df, 1:df], diag(df))
+        xtx <- bk %*% t(bk)
+        seval <- d * ((pmat %*% xtx) * pmat) %*% rep(1, df)
+    }
+    if (missing(var)) 
+        var <- 1:nvar
+    else {
+        if (is.character(var)) 
+            var <- match(var, dimnames(yy)[[2]])
+        if (any(is.na(var)) || max(var) > nvar || min(var) < 
+            1) 
+            stop("Invalid variable requested")
+    }
+    if (x$transform == "log") {
+        xx <- exp(xx)
+        pred.x <- exp(pred.x)
+    }
+    else if (x$transform != "identity") {
+        xtime <- as.numeric(dimnames(yy)[[1]])
+        indx <- !duplicated(xx)
+        apr1 <- approx(xx[indx], xtime[indx], seq(min(xx), max(xx), 
+            length = 17)[2 * (1:8)])
+        temp <- signif(apr1$y, 2)
+        apr2 <- approx(xtime[indx], xx[indx], temp)
+        xaxisval <- apr2$y
+        xaxislab <- rep("", 8)
+        for (i in 1:8) xaxislab[i] <- format(temp[i])
+    }
+    for (i in var) {
+        y <- yy[, i]
+        yhat <- pmat %*% qr.coef(qmat, y)
+        if (resid) 
+            yr <- range(yhat, y)
+        else yr <- range(yhat)
+        if (se) {
+            temp <- 2 * sqrt(x$var[i, i] * seval)
+            yup <- yhat + temp
+            ylow <- yhat - temp
+            yr <- range(yr, yup, ylow)
+        }
+        if (x$transform == "identity") 
+            plot(range(xx), yr, type = "n", ...)
+        else if (x$transform == "log") 
+            plot(range(xx), yr, type = "n", log = "x", ...)
+        else {
+            plot(range(xx), yr, type = "n", axes = FALSE, ...)
+            axis(1, xaxisval, xaxislab)
+            axis(2)
+            box()
+        }
+        if (resid) 
+            points(xx, y)
+        lines(pred.x, yhat)
+        if (se) {
+            lines(pred.x, yup, lty = 2)
+            lines(pred.x, ylow, lty = 2)
+        }
+    }
+}
+
+myplot.cox.zph(cox.zph(fit.cph)[1], xlab = "Time (months)", ylab = "Beta(t) for Sex = Male")
 
 fit.cph = coxph(Surv(Time, DSD) ~ strata(SexM) + AgeCent + LocBody + SizeCent + SizePlus + A2 + A4, data = data)
 cox.zph(fit.cph)
@@ -208,7 +287,7 @@ temp = melt(temp)
 colnames(temp) = c("Patient", "Coefficient", "dfbetas")
 temp$Patient = gsub("NSWPCN_", "", temp$Patient)
 2/sqrt(nrow(data))		# The classic threshold for concern is 2/sqrt(n).
-ggplot(temp, aes(y = abs(dfbetas), x = Patient, col = Coefficient)) + geom_point() + geom_hline(yintercept = 2/sqrt(nrow(data)))
+ggplot(temp, aes(y = abs(dfbetas), x = Patient, col = Coefficient)) + geom_point() + geom_hline(yintercept = 2/sqrt(nrow(data))) + theme_bw()
 #sort(apply(abs(resid(fit.cph, type = "dfbetas")), 1, max), decreasing = TRUE)
 sum(apply(abs(resid(fit.cph, type = "dfbetas")), 1, max) > 2/sqrt(nrow(data)))
 temp = resid(fit.cph, type = "dfbetas")
@@ -314,10 +393,10 @@ temp.preds.cox = survfit(fit.cph, newdata = temp.grid)
 temp.preds.rsf = predict(fit.rsf, newdata = temp.grid)
 
 temp.survfit = survfit(Surv(Time, DSD) ~ SexM + A2 + A4 + LocBody, data)
-temp.data = data.frame(time = temp.survfit$time, surv = temp.survfit$surv, upper = temp.survfit$lower, lower = temp.survfit$upper, group = rep(names(temp.survfit$strata), temp.survfit$strata), model = "KM")
-temp.data = rbind(temp.data, data.frame(time = temp.preds2$time, surv = temp.preds2$est, upper = temp.preds2$ucl, lower = temp.preds2$lcl, group = temp.preds2$group, model = "GG"))
-temp.data = rbind(temp.data, data.frame(time = temp.preds.cox$time, surv = temp.preds.cox$surv, upper = temp.preds.cox$upper, lower = temp.preds.cox$lower, group = rep(temp.grid$ID, temp.preds.cox$strata), model = "CPH"))
-temp.data = rbind(temp.data, data.frame(time = rep(temp.preds.rsf$time.interest, each = nrow(temp.preds.rsf$survival)), surv = as.vector(temp.preds.rsf$survival), upper = NA, lower = NA, group = rep(temp.grid$ID, length(temp.preds.rsf$time.interest)), model = "RSF"))
+temp.data = data.frame(time = temp.survfit$time/365.25*12, surv = temp.survfit$surv, upper = temp.survfit$lower, lower = temp.survfit$upper, group = rep(names(temp.survfit$strata), temp.survfit$strata), Model = "KM")
+temp.data = rbind(temp.data, data.frame(time = temp.preds2$time/365.25*12, surv = temp.preds2$est, upper = temp.preds2$ucl, lower = temp.preds2$lcl, group = temp.preds2$group, Model = "GG1"))
+temp.data = rbind(temp.data, data.frame(time = temp.preds.cox$time/365.25*12, surv = temp.preds.cox$surv, upper = temp.preds.cox$upper, lower = temp.preds.cox$lower, group = rep(temp.grid$ID, temp.preds.cox$strata), Model = "CP1"))
+temp.data = rbind(temp.data, data.frame(time = rep(temp.preds.rsf$time.interest/365.25*12, each = nrow(temp.preds.rsf$survival)), surv = as.vector(temp.preds.rsf$survival), upper = NA, lower = NA, group = rep(temp.grid$ID, length(temp.preds.rsf$time.interest)), Model = "RSF"))
 
 temp.data$Sex = c("Male", "Female")[grepl("SexM=FALSE", temp.data$group)+1]
 temp.data$A2 = c("A2-", "A2+")[grepl("A2=TRUE", temp.data$group)+1]
@@ -326,15 +405,11 @@ temp.data$Location = c("Head", "Body")[grepl("LocBody=TRUE", temp.data$group)+1]
 
 temp.data$lower[temp.data$model != "KM"] = NA
 temp.data$upper[temp.data$model != "KM"] = NA
-ggplot(temp.data, aes(x = log(time), y = log(-log(surv)), ymin = log(-log(lower)), ymax = log(-log(upper)), colour = model, fill = model)) + 
+ggplot(temp.data, aes(x = time, y = surv, ymin = lower, ymax = upper, colour = Model, fill = Model)) + 
 	geom_ribbon(alpha = 0.25, colour = NA) + 
-	geom_line() + 
-	xlim(4, 7) + ylim(-4, 2) + 
-	facet_grid(A2 ~ A4 ~ Sex ~ Location)
-ggplot(temp.data, aes(x = time, y = surv, ymin = lower, ymax = upper, colour = model, fill = model)) + 
-	geom_ribbon(alpha = 0.25, colour = NA) + 
-	geom_line() + xlim(0, 2000) + ylim(0, 1) + 
-	facet_grid(A2 ~ A4 ~ Sex ~ Location)
+	geom_line() + xlim(0, 60) + ylim(0, 1) + xlab("Time (months)") + ylab("Fraction surviving") + 
+	facet_grid(A2 ~ A4 ~ Sex ~ Location) +
+    theme_bw()
 
 
 temp.grid = expand.grid(A4 = c(FALSE, TRUE), A2 = c(FALSE, TRUE), SexM = c(FALSE, TRUE), SizeCent = 0, AgeCent = 0, SizePlus = 0, LocBody = FALSE)
@@ -346,26 +421,23 @@ temp.preds.cox = survfit(fit.cph, newdata = temp.grid)
 temp.preds.rsf = predict(fit.rsf, newdata = temp.grid)
 
 temp.survfit = survfit(Surv(Time, DSD) ~ SexM + A2 + A4, data)
-temp.data = data.frame(time = temp.survfit$time, surv = temp.survfit$surv, upper = temp.survfit$lower, lower = temp.survfit$upper, group = rep(names(temp.survfit$strata), temp.survfit$strata), model = "KM")
-temp.data = rbind(temp.data, data.frame(time = temp.preds2$time, surv = temp.preds2$est, upper = temp.preds2$ucl, lower = temp.preds2$lcl, group = temp.preds2$group, model = "GG"))
-temp.data = rbind(temp.data, data.frame(time = temp.preds.cox$time, surv = temp.preds.cox$surv, upper = temp.preds.cox$upper, lower = temp.preds.cox$lower, group = rep(temp.grid$ID, temp.preds.cox$strata), model = "CPH"))
-temp.data = rbind(temp.data, data.frame(time = rep(temp.preds.rsf$time.interest, each = nrow(temp.preds.rsf$survival)), surv = as.vector(temp.preds.rsf$survival), upper = NA, lower = NA, group = rep(temp.grid$ID, length(temp.preds.rsf$time.interest)), model = "RSF"))
+temp.data = data.frame(time = temp.survfit$time/365.25*12, surv = temp.survfit$surv, upper = temp.survfit$lower, lower = temp.survfit$upper, group = rep(names(temp.survfit$strata), temp.survfit$strata), Model = "KM")
+temp.data = rbind(temp.data, data.frame(time = temp.preds2$time/365.25*12, surv = temp.preds2$est, upper = temp.preds2$ucl, lower = temp.preds2$lcl, group = temp.preds2$group, Model = "GG1"))
+temp.data = rbind(temp.data, data.frame(time = temp.preds.cox$time/365.25*12, surv = temp.preds.cox$surv, upper = temp.preds.cox$upper, lower = temp.preds.cox$lower, group = rep(temp.grid$ID, temp.preds.cox$strata), Model = "CP1"))
+temp.data = rbind(temp.data, data.frame(time = rep(temp.preds.rsf$time.interest/365.25*12, each = nrow(temp.preds.rsf$survival)), surv = as.vector(temp.preds.rsf$survival), upper = NA, lower = NA, group = rep(temp.grid$ID, length(temp.preds.rsf$time.interest)), Model = "RSF"))
 
 temp.data$Sex = c("Male", "Female")[grepl("SexM=FALSE", temp.data$group)+1]
 temp.data$A2 = c("A2-", "A2+")[grepl("A2=TRUE", temp.data$group)+1]
 temp.data$A4 = c("A4-", "A4+")[grepl("A4=TRUE", temp.data$group)+1]
 
-temp.data$lower[temp.data$model != "KM"] = NA
-temp.data$upper[temp.data$model != "KM"] = NA
-ggplot(temp.data, aes(x = log(time), y = log(-log(surv)), ymin = log(-log(lower)), ymax = log(-log(upper)), colour = model, fill = model)) + 
+temp.data$lower[temp.data$Model != "KM"] = NA
+temp.data$upper[temp.data$Model != "KM"] = NA
+ggplot(temp.data, aes(x = time, y = surv, ymin = lower, ymax = upper, colour = Model, fill = Model)) + 
 	geom_ribbon(alpha = 0.25, colour = NA) + 
-	geom_line() + 
-	xlim(4, 7) + ylim(-4, 2) + 
-	facet_grid(A2 ~ A4 ~ Sex)
-ggplot(temp.data, aes(x = time, y = surv, ymin = lower, ymax = upper, colour = model, fill = model)) + 
-	geom_ribbon(alpha = 0.25, colour = NA) + 
-	geom_line() + xlim(0, 2000) + ylim(0, 1) + 
-	facet_grid(A2 ~ A4 ~ Sex)
+	geom_line() + xlim(0, 60) + ylim(0, 1) + xlab("Time (months)") + ylab("Fraction surviving") + 
+	facet_grid(A2 ~ A4 ~ Sex) +
+    theme_bw()
+
 @
 
 
@@ -551,11 +623,12 @@ invisible(stdca(data = temp.data, outcome = "DSD", ttoutcome = "Time", predictor
 @
 
 
-<<model-selection-bs-paths>>=
-temp = sapply(list(gg = ibs_preds_gg, cph = ibs_preds_cph, rsf = ibs_preds_rsf, km0 = ibs_preds_km0), function(preds) calcIBS(Surv(data.val$Time, data.val$DSD), preds, ibs_times, max(data.val$Time))$bsc)
+<<model-selection-bs-paths, fig.height = 5>>=
+temp = sapply(list(GG1 = ibs_preds_gg, CP1 = ibs_preds_cph, RSF = ibs_preds_rsf, KM0 = ibs_preds_km0), function(preds) calcIBS(Surv(data.val$Time, data.val$DSD), preds, ibs_times, max(data.val$Time))$bsc)
 temp = melt(temp)
 colnames(temp) = c("Time", "Model", "BS")
-ggplot(temp, aes(x = Time/365.25*12, y = BS, colour = Model)) + geom_line() + ylab("Brier Score") + geom_hline(yintercept = 0.25) + geom_vline(xintercept = c(7, 34))
+temp$Time = temp$Time/365.25*12
+ggplot(temp, aes(x = Time, y = BS, colour = Model)) + geom_line() + ylab("Brier Score") + geom_hline(yintercept = 0.25) + geom_vline(xintercept = c(7, 34)) + theme_bw()
 @
 
 BCA bootstrapping on the differences.

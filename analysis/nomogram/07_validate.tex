@@ -92,8 +92,15 @@
 
 {\ttfamily\noindent\itshape\color{messagecolor}{\#\# Loading required package: methods}}\begin{alltt}
 \hlkwd{library}\hlstd{(RColorBrewer)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
 \hlstd{pal} \hlkwb{=} \hlkwd{brewer.pal}\hlstd{(}\hlnum{4}\hlstd{,} \hlstr{"Dark2"}\hlstd{)}
-\hlkwd{names}\hlstd{(pal)} \hlkwb{=} \hlkwd{c}\hlstd{(}\hlstr{"gg"}\hlstd{,} \hlstr{"km0"}\hlstd{,} \hlstr{"mskcc.pre"}\hlstd{,} \hlstr{"mskcc.post"}\hlstd{)}
+\hlkwd{names}\hlstd{(pal)} \hlkwb{=} \hlkwd{c}\hlstd{(}\hlstr{"gg"}\hlstd{,} \hlstr{"km0"}\hlstd{,} \hlstr{"mskcc.post"}\hlstd{,} \hlstr{"mskcc.pre"}\hlstd{)}
 \end{alltt}
 \end{kframe}
 \end{knitrout}
@@ -1145,8 +1152,8 @@ Trained models:
 \hlstd{temp.dsd} \hlkwb{=} \hlkwd{c}\hlstd{(data.nswpcn}\hlopt{$}\hlstd{DSD, data.glasgow}\hlopt{$}\hlstd{DSD, data.apgi}\hlopt{$}\hlstd{DSD, data.dresden}\hlopt{$}\hlstd{DSD)}
 \hlstd{temp.cohort} \hlkwb{=} \hlkwd{factor}\hlstd{(}\hlkwd{rep}\hlstd{(}\hlkwd{c}\hlstd{(}\hlstr{"NSWPCN"}\hlstd{,} \hlstr{"Glasgow"}\hlstd{,} \hlstr{"APGI"}\hlstd{,} \hlstr{"Dresden"}\hlstd{),} \hlkwd{c}\hlstd{(}\hlkwd{nrow}\hlstd{(data.nswpcn),} \hlkwd{nrow}\hlstd{(data.glasgow),} \hlkwd{nrow}\hlstd{(data.apgi),} \hlkwd{nrow}\hlstd{(data.dresden))))}
 \hlstd{temp.survfit} \hlkwb{=} \hlkwd{survfit}\hlstd{(}\hlkwd{Surv}\hlstd{(temp.time, temp.dsd)} \hlopt{~} \hlstd{temp.cohort)}
-\hlkwd{plot}\hlstd{(temp.survfit,} \hlkwc{col} \hlstd{= pal[}\hlnum{1}\hlopt{:}\hlnum{4}\hlstd{],} \hlkwc{xlim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{5}\hlstd{),} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{main} \hlstd{=} \hlstr{"Cohort marginal survival"}\hlstd{,} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (years)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Fraction alive"}\hlstd{)}
-\hlkwd{legend}\hlstd{(}\hlstr{"topright"}\hlstd{,} \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"APGI"}\hlstd{,} \hlstr{"Dresden"}\hlstd{,} \hlstr{"Glasgow"}\hlstd{,} \hlstr{"NSWPCN"}\hlstd{),} \hlkwc{col} \hlstd{= pal[}\hlnum{1}\hlopt{:}\hlnum{4}\hlstd{],} \hlkwc{inset} \hlstd{=} \hlnum{0.05}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
+\hlkwd{plot}\hlstd{(temp.survfit,} \hlkwc{col} \hlstd{= pal[}\hlnum{1}\hlopt{:}\hlnum{4}\hlstd{],} \hlkwc{xlim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{5}\hlstd{),} \hlkwc{lwd} \hlstd{=} \hlnum{3}\hlstd{,} \hlkwc{main} \hlstd{=} \hlstr{""}\hlstd{,} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (years)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Fraction alive"}\hlstd{)}
+\hlkwd{legend}\hlstd{(}\hlstr{"topright"}\hlstd{,} \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"APGI"}\hlstd{,} \hlstr{"Dresden"}\hlstd{,} \hlstr{"Glasgow"}\hlstd{,} \hlstr{"NSWPCN"}\hlstd{),} \hlkwc{col} \hlstd{= pal[}\hlnum{1}\hlopt{:}\hlnum{4}\hlstd{],} \hlkwc{inset} \hlstd{=} \hlnum{0.05}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{3}\hlstd{)}
 \end{alltt}
 \end{kframe}
 
@@ -1940,13 +1947,13 @@ Get approximate linear predictors from the GG model, by just calculating the loc
 \hlkwd{par}\hlstd{(}\hlkwc{mfrow} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{4}\hlstd{,} \hlnum{1}\hlstd{))}
 \hlstd{temp.breaks} \hlkwb{=} \hlkwd{seq}\hlstd{(}\hlkwd{min}\hlstd{(}\hlkwd{c}\hlstd{(gg.linpred.nswpcn, gg.linpred.glasgow, gg.linpred.apgi, gg.linpred.dresden)),} \hlkwd{max}\hlstd{(}\hlkwd{c}\hlstd{(gg.linpred.nswpcn, gg.linpred.glasgow, gg.linpred.apgi, gg.linpred.dresden)),} \hlkwc{length.out} \hlstd{=} \hlnum{29}\hlstd{)}
 \hlkwd{hist}\hlstd{(gg.linpred.nswpcn,} \hlkwc{main} \hlstd{=} \hlstr{"NSWPCN"}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{range}\hlstd{(}\hlkwd{c}\hlstd{(gg.linpred.nswpcn, gg.linpred.glasgow, gg.linpred.apgi, gg.linpred.dresden)),} \hlkwc{breaks} \hlstd{= temp.breaks,} \hlkwc{col} \hlstd{=} \hlstr{"grey"}\hlstd{,} \hlkwc{xlab} \hlstd{=} \hlstr{""}\hlstd{)}
-\hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{quantile}\hlstd{(gg.linpred.nswpcn,} \hlkwc{probs} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0.25}\hlstd{,} \hlnum{0.5}\hlstd{,} \hlnum{0.75}\hlstd{)),} \hlkwc{col} \hlstd{=} \hlstr{"red"}\hlstd{)}
+\hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{quantile}\hlstd{(gg.linpred.nswpcn,} \hlkwc{probs} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0.2}\hlstd{,} \hlnum{0.5}\hlstd{,} \hlnum{0.8}\hlstd{)),} \hlkwc{col} \hlstd{=} \hlstr{"red"}\hlstd{)}
 \hlkwd{hist}\hlstd{(gg.linpred.glasgow,} \hlkwc{main} \hlstd{=} \hlstr{"Glasgow"}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{range}\hlstd{(}\hlkwd{c}\hlstd{(gg.linpred.nswpcn, gg.linpred.glasgow, gg.linpred.apgi, gg.linpred.dresden)),} \hlkwc{breaks} \hlstd{= temp.breaks,} \hlkwc{col} \hlstd{=} \hlstr{"grey"}\hlstd{,} \hlkwc{xlab} \hlstd{=} \hlstr{""}\hlstd{)}
-\hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{quantile}\hlstd{(gg.linpred.glasgow,} \hlkwc{probs} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0.25}\hlstd{,} \hlnum{0.5}\hlstd{,} \hlnum{0.75}\hlstd{)),} \hlkwc{col} \hlstd{=} \hlstr{"red"}\hlstd{)}
+\hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{quantile}\hlstd{(gg.linpred.glasgow,} \hlkwc{probs} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0.2}\hlstd{,} \hlnum{0.5}\hlstd{,} \hlnum{0.8}\hlstd{)),} \hlkwc{col} \hlstd{=} \hlstr{"red"}\hlstd{)}
 \hlkwd{hist}\hlstd{(gg.linpred.apgi,} \hlkwc{main} \hlstd{=} \hlstr{"APGI"}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{range}\hlstd{(}\hlkwd{c}\hlstd{(gg.linpred.nswpcn, gg.linpred.glasgow, gg.linpred.apgi, gg.linpred.dresden)),} \hlkwc{breaks} \hlstd{= temp.breaks,} \hlkwc{col} \hlstd{=} \hlstr{"grey"}\hlstd{,} \hlkwc{xlab} \hlstd{=} \hlstr{""}\hlstd{)}
-\hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{quantile}\hlstd{(gg.linpred.apgi,} \hlkwc{probs} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0.25}\hlstd{,} \hlnum{0.5}\hlstd{,} \hlnum{0.75}\hlstd{)),} \hlkwc{col} \hlstd{=} \hlstr{"red"}\hlstd{)}
+\hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{quantile}\hlstd{(gg.linpred.apgi,} \hlkwc{probs} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0.2}\hlstd{,} \hlnum{0.5}\hlstd{,} \hlnum{0.8}\hlstd{)),} \hlkwc{col} \hlstd{=} \hlstr{"red"}\hlstd{)}
 \hlkwd{hist}\hlstd{(gg.linpred.dresden,} \hlkwc{main} \hlstd{=} \hlstr{"Dresden"}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{range}\hlstd{(}\hlkwd{c}\hlstd{(gg.linpred.nswpcn, gg.linpred.glasgow, gg.linpred.apgi, gg.linpred.dresden)),} \hlkwc{breaks} \hlstd{= temp.breaks,} \hlkwc{col} \hlstd{=} \hlstr{"grey"}\hlstd{,} \hlkwc{xlab} \hlstd{=} \hlstr{""}\hlstd{)}
-\hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{quantile}\hlstd{(gg.linpred.dresden,} \hlkwc{probs} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0.25}\hlstd{,} \hlnum{0.5}\hlstd{,} \hlnum{0.75}\hlstd{)),} \hlkwc{col} \hlstd{=} \hlstr{"red"}\hlstd{)}
+\hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{quantile}\hlstd{(gg.linpred.dresden,} \hlkwc{probs} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0.2}\hlstd{,} \hlnum{0.5}\hlstd{,} \hlnum{0.8}\hlstd{)),} \hlkwc{col} \hlstd{=} \hlstr{"red"}\hlstd{)}
 \end{alltt}
 \end{kframe}
 
@@ -2386,7 +2393,605 @@ Booyah.
 Still strong evidence of misspecification or poor fit.  However, the above calibration slope was not significantly different from 1.  Hmm.  This doesn't necessarily sink the method, but will need checking as we go along.
 
 \subsection{Altman method 3 (D)}
-Look at the CIs above.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{library}\hlstd{(Hmisc)}
+\hlkwd{rcorr.cens}\hlstd{(gg.linpred.glasgow,} \hlkwd{Surv}\hlstd{(data.glasgow}\hlopt{$}\hlstd{Time, data.glasgow}\hlopt{$}\hlstd{DSD))}
+\end{alltt}
+\begin{verbatim}
+##        C Index            Dxy           S.D.              n        missing 
+##      3.928e-01     -2.145e-01      4.883e-02      1.890e+02      0.000e+00 
+##     uncensored Relevant Pairs     Concordant      Uncertain 
+##      1.610e+02      2.891e+04      1.135e+04      6.608e+03
+\end{verbatim}
+\begin{alltt}
+\hlkwd{rcorr.cens}\hlstd{(mskcc_pre.linpred.glasgow,} \hlkwd{Surv}\hlstd{(data.glasgow}\hlopt{$}\hlstd{Time, data.glasgow}\hlopt{$}\hlstd{DSD))}
+\end{alltt}
+\begin{verbatim}
+##        C Index            Dxy           S.D.              n        missing 
+##         0.4150        -0.1699         0.0514       189.0000         0.0000 
+##     uncensored Relevant Pairs     Concordant      Uncertain 
+##       161.0000     28906.0000     11997.0000      6608.0000
+\end{verbatim}
+\begin{alltt}
+\hlkwd{rcorrp.cens}\hlstd{(gg.linpred.glasgow, mskcc_pre.linpred.glasgow,} \hlkwd{Surv}\hlstd{(data.glasgow}\hlopt{$}\hlstd{Time, data.glasgow}\hlopt{$}\hlstd{DSD))}
+\end{alltt}
+\begin{verbatim}
+##                Dxy               S.D. x1 more concordant 
+##          1.272e-01          5.245e-02          5.636e-01 
+## x2 more concordant                  n            missing 
+##          4.364e-01          1.890e+02          0.000e+00 
+##         uncensored     Relevant Pairs          Uncertain 
+##          1.610e+02          2.891e+04          6.608e+03 
+##               C X1               C X2             Dxy X1 
+##          3.928e-01          4.150e-01         -2.145e-01 
+##             Dxy X2 
+##         -1.699e-01
+\end{verbatim}
+\begin{alltt}
+\hlkwd{rcorr.cens}\hlstd{(gg.linpred.apgi,} \hlkwd{Surv}\hlstd{(data.apgi}\hlopt{$}\hlstd{Time, data.apgi}\hlopt{$}\hlstd{DSD))}
+\end{alltt}
+\begin{verbatim}
+##        C Index            Dxy           S.D.              n        missing 
+##        0.42092       -0.15815        0.08359       75.00000        0.00000 
+##     uncensored Relevant Pairs     Concordant      Uncertain 
+##       51.00000     4464.00000     1879.00000     1086.00000
+\end{verbatim}
+\begin{alltt}
+\hlkwd{rcorr.cens}\hlstd{(mskcc_pre.linpred.apgi,} \hlkwd{Surv}\hlstd{(data.apgi}\hlopt{$}\hlstd{Time, data.apgi}\hlopt{$}\hlstd{DSD))}
+\end{alltt}
+\begin{verbatim}
+##        C Index            Dxy           S.D.              n        missing 
+##      5.251e-01      5.018e-02      8.872e-02      7.500e+01      0.000e+00 
+##     uncensored Relevant Pairs     Concordant      Uncertain 
+##      5.100e+01      4.464e+03      2.344e+03      1.086e+03
+\end{verbatim}
+\begin{alltt}
+\hlkwd{rcorrp.cens}\hlstd{(gg.linpred.apgi, mskcc_pre.linpred.apgi,} \hlkwd{Surv}\hlstd{(data.apgi}\hlopt{$}\hlstd{Time, data.apgi}\hlopt{$}\hlstd{DSD))}
+\end{alltt}
+\begin{verbatim}
+##                Dxy               S.D. x1 more concordant 
+##           -0.06855            0.08827            0.46550 
+## x2 more concordant                  n            missing 
+##            0.53405           75.00000            0.00000 
+##         uncensored     Relevant Pairs          Uncertain 
+##           51.00000         4464.00000         1086.00000 
+##               C X1               C X2             Dxy X1 
+##            0.42092            0.52509           -0.15815 
+##             Dxy X2 
+##            0.05018
+\end{verbatim}
+\begin{alltt}
+\hlkwd{rcorr.cens}\hlstd{(gg.linpred.dresden,} \hlkwd{Surv}\hlstd{(data.dresden}\hlopt{$}\hlstd{Time, data.dresden}\hlopt{$}\hlstd{DSD))}
+\end{alltt}
+\begin{verbatim}
+##        C Index            Dxy           S.D.              n        missing 
+##      4.553e-01     -8.942e-02      5.994e-02      1.500e+02      0.000e+00 
+##     uncensored Relevant Pairs     Concordant      Uncertain 
+##      1.120e+02      1.745e+04      7.943e+03      4.890e+03
+\end{verbatim}
+\begin{alltt}
+\hlkwd{rcorr.cens}\hlstd{(mskcc_pre.linpred.dresden,} \hlkwd{Surv}\hlstd{(data.dresden}\hlopt{$}\hlstd{Time, data.dresden}\hlopt{$}\hlstd{DSD))}
+\end{alltt}
+\begin{verbatim}
+##        C Index            Dxy           S.D.              n        missing 
+##      4.823e-01     -3.542e-02      5.516e-02      1.500e+02      0.000e+00 
+##     uncensored Relevant Pairs     Concordant      Uncertain 
+##      1.120e+02      1.745e+04      8.414e+03      4.890e+03
+\end{verbatim}
+\begin{alltt}
+\hlkwd{rcorrp.cens}\hlstd{(gg.linpred.dresden, mskcc_pre.linpred.dresden,} \hlkwd{Surv}\hlstd{(data.dresden}\hlopt{$}\hlstd{Time, data.dresden}\hlopt{$}\hlstd{DSD))}
+\end{alltt}
+\begin{verbatim}
+##                Dxy               S.D. x1 more concordant 
+##          1.765e-02          5.548e-02          5.087e-01 
+## x2 more concordant                  n            missing 
+##          4.910e-01          1.500e+02          0.000e+00 
+##         uncensored     Relevant Pairs          Uncertain 
+##          1.120e+02          1.745e+04          4.890e+03 
+##               C X1               C X2             Dxy X1 
+##          4.553e-01          4.823e-01         -8.942e-02 
+##             Dxy X2 
+##         -3.542e-02
+\end{verbatim}
+\begin{alltt}
+\hlkwd{library}\hlstd{(survcomp)}
+\hlkwd{concordance.index}\hlstd{(gg.linpred.glasgow, data.glasgow}\hlopt{$}\hlstd{Time, data.glasgow}\hlopt{$}\hlstd{DSD,} \hlkwc{method} \hlstd{=} \hlstr{"noether"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## $c.index
+## [1] 0.6086
+## 
+## $se
+## [1] 0.02411
+## 
+## $lower
+## [1] 0.5613
+## 
+## $upper
+## [1] 0.6558
+## 
+## $p.value
+## [1] 6.667e-06
+## 
+## $n
+## [1] 189
+## 
+## $data
+## $data$x
+##   [1]  0.80162  0.34886  0.09981  0.01110 -0.04435  0.18851 -0.28454
+##   [8] -0.03326  0.62420 -0.04435  0.38434  0.51708  0.93468  0.04435
+##  [15] -0.41760  0.38434 -0.28454  0.27789  0.42870  0.56144  0.33967
+##  [22] -0.04435  0.14416  0.04435  0.54402  0.25096  0.65046  0.14416
+##  [29] -0.13306  0.05545  0.01110 -0.08871 -0.03326 -0.09535 -0.15147
+##  [36] -0.28454  0.29563  0.42838  0.51708  0.25096  0.09981 -0.28454
+##  [43] -0.24018  0.56176  0.80162 -0.32002  0.71291  0.33967  0.01110
+##  [50]  0.18851 -0.11532 -0.41760  0.47305  0.13306  0.70404  0.47273
+##  [57] -0.37324  0.71291  0.80162  0.04435  0.28676  0.56144  1.06774
+##  [64] -0.13306  0.71291  0.84597  0.71291  0.38434  0.18851  0.38434
+##  [71]  0.29563 -0.05987  0.47273  0.00000  0.32157 -0.28454  0.36660
+##  [78]  0.19516  0.42838  0.42838  0.42870  0.02884 -0.02439  0.60611
+##  [85] -0.41760  0.71291  0.03771 -0.42647  0.56176 -0.37324  0.32857
+##  [92]  0.73952  0.42838  0.04435 -0.03326  0.01110  0.65014 -0.37324
+##  [99]  0.51740  0.38434  0.51740  0.00000 -0.03548  0.04435 -0.01774
+## [106] -0.04435  0.42838  0.47305  0.71291 -0.46195  0.26870 -0.07761
+## [113]  0.38402 -0.41760  0.75726  0.01110 -0.42647 -0.03326  0.71291
+## [120]  0.47273 -0.20470  0.47273  0.47305  0.00000  0.65969 -0.03326
+## [127]  0.33999 -0.12196 -0.13306  0.38402  0.31306 -0.42647  0.29563
+## [134]  0.27789 -0.05987  0.66856  0.54370  0.51708  0.01110  0.55034
+## [141]  0.38402  0.36660 -0.12196  0.80162 -0.19583  0.33112 -0.03326
+## [148]  0.89033  0.80162  0.14416 -0.04435  0.01110 -0.12196  0.84597
+## [155]  0.35518  0.33999  0.22145  0.62420 -0.37324  0.60579 -0.32889
+## [162]  0.18851  0.14416  0.75726 -0.37324 -0.21067  0.60579  0.29563
+## [169]  0.27722  0.33967  0.78388  0.42838  0.84597 -0.08871  0.52595
+## [176] -0.31115  0.38434  0.05545  0.33999  0.66856  0.05545  0.18851
+## [183] -0.32889 -0.28454 -0.07761 -0.04435  0.33999  0.38434  0.01997
+## 
+## $data$surv.time
+##   [1]  233.456  266.937   40.482  216.106 2611.537  410.906  473.912
+##   [8]  610.881 1380.949 1443.651  959.694  147.013   10.044  915.256
+##  [15]  161.319 2884.562  136.056 3530.750  450.475  143.969   17.349
+##  [22] 1104.881  267.850  655.319   38.656  283.069 1018.743  812.681
+##  [29] 1452.782 1420.518 1342.294  900.950  308.332  336.943 1116.143
+##  [36] 1016.613  423.994  741.762 1921.519  597.488    8.218   25.263
+##  [43]  803.550  350.031  394.774  299.201  148.231 1094.837   25.263
+##  [50]  312.593  436.169  751.806  492.174   11.262  416.994  809.637
+##  [57]  806.594  142.143  621.838  316.550 2749.419  136.056   49.613
+##  [64]  379.556  210.932  256.588  253.544  705.237 1254.938  510.437
+##  [71]  890.906  116.576  178.668  519.568   14.306  702.193  148.231
+##  [78]  560.050  113.532    9.131  152.188 1102.751  375.294  343.944
+##  [85]  353.075 2830.688  185.669 1310.943 1491.438  576.182  663.538
+##  [92]  408.776  548.788  781.331  467.824  636.144   76.094  468.738
+##  [99]    9.131  501.306  248.674  837.944 2221.938 2556.750 2587.188
+## [106]  286.113  542.701  534.787  396.601  856.207  139.099   29.524
+## [113]  629.143 1205.325  868.382  395.688 1046.137   43.526  862.294
+## [120]  235.282  177.451  118.706  553.049  903.081  563.094  404.819
+## [127]  565.224  203.018  190.843  398.731  413.037  786.201  497.044
+## [134]  942.649  883.601  257.806  344.857  191.756   45.656  730.500
+## [141]  103.487 1004.438 1461.000  974.000  118.706 1156.625  703.106
+## [148]  233.151  581.356 1552.312 1156.625 1795.812 2343.688  175.624
+## [155] 1649.712 1978.438  487.000  602.663 1552.312   24.350  608.750
+## [162]  319.594   76.094  730.500 1217.500 1461.000   91.312   30.438
+## [169]  182.625  517.438  213.062  760.938  243.500  943.562  152.188
+## [176] 1126.188  760.938 1068.356 1129.231  243.500  273.938  362.206
+## [183] 1007.481  669.625 1187.062  273.938  608.750 1065.312  426.125
+## 
+## $data$surv.event
+##   [1]  TRUE  TRUE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+##  [12]  TRUE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE  TRUE
+##  [23]  TRUE  TRUE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE  TRUE  TRUE
+##  [34]  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE FALSE  TRUE  TRUE
+##  [45]  TRUE  TRUE  TRUE  TRUE FALSE  TRUE FALSE  TRUE  TRUE FALSE  TRUE
+##  [56]  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+##  [67]  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE  TRUE  TRUE
+##  [78]  TRUE  TRUE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+##  [89]  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE
+## [100]  TRUE  TRUE  TRUE FALSE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+## [111]  TRUE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE  TRUE  TRUE  TRUE
+## [122]  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+## [133]  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE  TRUE  TRUE  TRUE  TRUE
+## [144]  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+## [155] FALSE  TRUE  TRUE  TRUE FALSE  TRUE  TRUE  TRUE FALSE  TRUE FALSE
+## [166] FALSE  TRUE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+## [177]  TRUE  TRUE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE FALSE  TRUE
+## [188] FALSE  TRUE
+## 
+## 
+## $comppairs
+## [1] 28512
+\end{verbatim}
+\begin{alltt}
+\hlkwd{concordance.index}\hlstd{(mskcc_pre.linpred.glasgow, data.glasgow}\hlopt{$}\hlstd{Time, data.glasgow}\hlopt{$}\hlstd{DSD,} \hlkwc{method} \hlstd{=} \hlstr{"noether"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## $c.index
+## [1] 0.5851
+## 
+## $se
+## [1] 0.0251
+## 
+## $lower
+## [1] 0.5359
+## 
+## $upper
+## [1] 0.6343
+## 
+## $p.value
+## [1] 0.0006962
+## 
+## $n
+## [1] 189
+## 
+## $data
+## $data$x
+##   [1] 158.0 160.9 161.6 161.9 158.5 162.1 164.5 164.5 161.4 146.8 159.6
+##  [12] 161.4 161.0 149.4 164.7 158.2 161.7 159.0 157.7 162.4 160.8 158.5
+##  [23] 162.6 159.0 159.1 164.5 146.2 160.7 152.3 160.5 149.3 158.7 161.3
+##  [34] 187.6 162.4 163.1 158.1 151.0 161.3 165.4 160.2 150.4 162.0 161.1
+##  [45] 159.0 162.9 159.4 161.3 161.6 162.4 158.6 162.4 161.2 159.1 160.5
+##  [56] 160.6 162.1 158.5 160.9 160.4 147.4 162.1 159.1 165.0 159.7 158.4
+##  [67] 160.3 158.1 162.0 158.0 161.2 162.6 163.6 161.4 161.5 163.2 158.5
+##  [78] 149.9 160.7 161.3 161.0 154.0 161.3 162.4 162.8 158.5 161.3 160.7
+##  [89] 157.5 161.7 158.7 162.1 161.1 157.4 162.2 161.5 161.0 162.8 159.9
+## [100] 159.7 160.1 158.2 157.7 158.3 159.5 161.6 161.3 158.5 159.7 162.0
+## [111] 162.4 162.8 162.8 161.0 159.6 162.7 161.5 161.0 148.1 161.8 161.3
+## [122] 165.6 159.7 158.8 159.2 160.8 161.3 164.6 165.1 163.6 161.8 162.2
+## [133] 159.5 161.3 163.0 161.4 161.9 160.9 160.4 159.4 161.7 159.6 166.0
+## [144] 157.8 161.9 159.4 163.0 159.8 160.1 160.2 161.3 161.1 166.1 158.7
+## [155] 160.3 149.3 162.2 163.8 164.3 162.6 161.9 159.1 163.9 147.1 161.5
+## [166] 201.9 162.7 157.7 161.5 161.4 158.7 162.9 158.0 162.0 163.3 163.5
+## [177] 158.1 164.6 158.5 159.6 161.7 164.7 162.1 162.3 162.6 160.0 158.7
+## [188] 158.5 160.7
+## 
+## $data$surv.time
+##   [1]  233.456  266.937   40.482  216.106 2611.537  410.906  473.912
+##   [8]  610.881 1380.949 1443.651  959.694  147.013   10.044  915.256
+##  [15]  161.319 2884.562  136.056 3530.750  450.475  143.969   17.349
+##  [22] 1104.881  267.850  655.319   38.656  283.069 1018.743  812.681
+##  [29] 1452.782 1420.518 1342.294  900.950  308.332  336.943 1116.143
+##  [36] 1016.613  423.994  741.762 1921.519  597.488    8.218   25.263
+##  [43]  803.550  350.031  394.774  299.201  148.231 1094.837   25.263
+##  [50]  312.593  436.169  751.806  492.174   11.262  416.994  809.637
+##  [57]  806.594  142.143  621.838  316.550 2749.419  136.056   49.613
+##  [64]  379.556  210.932  256.588  253.544  705.237 1254.938  510.437
+##  [71]  890.906  116.576  178.668  519.568   14.306  702.193  148.231
+##  [78]  560.050  113.532    9.131  152.188 1102.751  375.294  343.944
+##  [85]  353.075 2830.688  185.669 1310.943 1491.438  576.182  663.538
+##  [92]  408.776  548.788  781.331  467.824  636.144   76.094  468.738
+##  [99]    9.131  501.306  248.674  837.944 2221.938 2556.750 2587.188
+## [106]  286.113  542.701  534.787  396.601  856.207  139.099   29.524
+## [113]  629.143 1205.325  868.382  395.688 1046.137   43.526  862.294
+## [120]  235.282  177.451  118.706  553.049  903.081  563.094  404.819
+## [127]  565.224  203.018  190.843  398.731  413.037  786.201  497.044
+## [134]  942.649  883.601  257.806  344.857  191.756   45.656  730.500
+## [141]  103.487 1004.438 1461.000  974.000  118.706 1156.625  703.106
+## [148]  233.151  581.356 1552.312 1156.625 1795.812 2343.688  175.624
+## [155] 1649.712 1978.438  487.000  602.663 1552.312   24.350  608.750
+## [162]  319.594   76.094  730.500 1217.500 1461.000   91.312   30.438
+## [169]  182.625  517.438  213.062  760.938  243.500  943.562  152.188
+## [176] 1126.188  760.938 1068.356 1129.231  243.500  273.938  362.206
+## [183] 1007.481  669.625 1187.062  273.938  608.750 1065.312  426.125
+## 
+## $data$surv.event
+##   [1]  TRUE  TRUE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+##  [12]  TRUE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE  TRUE
+##  [23]  TRUE  TRUE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE  TRUE  TRUE
+##  [34]  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE FALSE  TRUE  TRUE
+##  [45]  TRUE  TRUE  TRUE  TRUE FALSE  TRUE FALSE  TRUE  TRUE FALSE  TRUE
+##  [56]  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+##  [67]  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE  TRUE  TRUE
+##  [78]  TRUE  TRUE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+##  [89]  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE
+## [100]  TRUE  TRUE  TRUE FALSE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+## [111]  TRUE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE  TRUE  TRUE  TRUE
+## [122]  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+## [133]  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE  TRUE  TRUE  TRUE  TRUE
+## [144]  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+## [155] FALSE  TRUE  TRUE  TRUE FALSE  TRUE  TRUE  TRUE FALSE  TRUE FALSE
+## [166] FALSE  TRUE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+## [177]  TRUE  TRUE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE FALSE  TRUE
+## [188] FALSE  TRUE
+## 
+## 
+## $comppairs
+## [1] 28884
+\end{verbatim}
+\begin{alltt}
+\hlkwd{concordance.index}\hlstd{(gg.linpred.apgi, data.apgi}\hlopt{$}\hlstd{Time, data.apgi}\hlopt{$}\hlstd{DSD,} \hlkwc{method} \hlstd{=} \hlstr{"noether"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## $c.index
+## [1] 0.5798
+## 
+## $se
+## [1] 0.03978
+## 
+## $lower
+## [1] 0.5019
+## 
+## $upper
+## [1] 0.6578
+## 
+## $p.value
+## [1] 0.04476
+## 
+## $n
+## [1] 75
+## 
+## $data
+## $data$x
+##  [1]  0.188513  0.384341  0.428695  0.081914  0.115320  0.046581  0.505986
+##  [8]  0.757265  0.543345  0.073193  0.384341  0.314781  0.775007  0.295633
+## [15]  0.055451 -0.195828  0.099805  0.384341  0.314781  0.295633  0.757265
+## [22]  0.046581  0.106449  0.357729 -0.382114  0.159674  0.608188  0.046581
+## [29]  0.011098  0.437246  0.011098  0.099805  0.643351 -0.006644  0.133062
+## [36] -0.122785 -0.044354 -0.444210 -0.390985 -0.104223  0.177416  0.046581
+## [43]  0.126418  0.561437  0.144159  0.295633  0.099805  0.517403 -0.461951
+## [50] -0.077610  0.739172 -0.044354  0.232867  0.569807  0.758320 -0.461951
+## [57]  0.428695  0.339987 -0.328890  0.000000 -0.033256 -0.328890  0.492197
+## [64]  0.845973  0.801619  0.517403  0.170772 -0.088708 -0.070966 -0.113914
+## [71] -0.382114  0.339317  0.676608  0.366280 -0.044354
+## 
+## $data$surv.time
+##  [1]  525 2848 1779 1279   37  436 1048  476  135  315  452  346  858  549
+## [15] 1235  715  949  269  410  516  359  750 1081  835  768  989   71 1574
+## [29]  209  313  312 1504  553  718 1588  237 1268  518 1533 1430  610 1461
+## [43]  106  325  142 1171  365  281 1278  611  976 1407  427 1094  655  913
+## [57]  796  480  162 1176  852  521  482  695  412 1030  305  869  892  241
+## [71]  911  120  950  545  709
+## 
+## $data$surv.event
+##  [1] 1 1 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 1 1 1 0 1 1 0
+## [36] 1 0 1 0 0 1 0 0 1 1 0 1 1 0 0 1 0 1 1 1 1 1 1 1 0 0 1 1 1 1 0 1 0 0 1
+## [71] 0 1 0 1 1
+## 
+## 
+## $comppairs
+## [1] 4422
+\end{verbatim}
+\begin{alltt}
+\hlkwd{concordance.index}\hlstd{(mskcc_pre.linpred.apgi, data.apgi}\hlopt{$}\hlstd{Time, data.apgi}\hlopt{$}\hlstd{DSD,} \hlkwc{method} \hlstd{=} \hlstr{"noether"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## $c.index
+## [1] 0.4745
+## 
+## $se
+## [1] 0.04286
+## 
+## $lower
+## [1] 0.3904
+## 
+## $upper
+## [1] 0.5585
+## 
+## $p.value
+## [1] 0.5511
+## 
+## $n
+## [1] 75
+## 
+## $data
+## $data$x
+##  [1] 159.7 157.3 159.9 240.6 157.7 160.3 159.6 157.5 156.8 158.9 145.4
+## [12] 210.1 157.1 159.2 160.0 159.6 161.1 158.4 210.1 160.3 157.1 158.5
+## [23] 159.5 158.8 160.8 158.5 208.2 148.1 160.0 158.7 157.3 157.7 209.5
+## [34] 160.7 158.0 209.0 158.9 156.5 157.2 157.5 157.9 158.1 157.2 159.3
+## [45] 157.2 159.5 159.1 159.7 158.5 161.3 149.1 158.3 158.8 208.2 210.6
+## [56] 158.3 158.3 158.9 157.1 159.3 159.1 160.3 209.1 157.5 156.5 159.3
+## [67] 158.8 160.7 160.7 209.0 159.3 158.7 209.0 157.3 158.0
+## 
+## $data$surv.time
+##  [1]  525 2848 1779 1279   37  436 1048  476  135  315  452  346  858  549
+## [15] 1235  715  949  269  410  516  359  750 1081  835  768  989   71 1574
+## [29]  209  313  312 1504  553  718 1588  237 1268  518 1533 1430  610 1461
+## [43]  106  325  142 1171  365  281 1278  611  976 1407  427 1094  655  913
+## [57]  796  480  162 1176  852  521  482  695  412 1030  305  869  892  241
+## [71]  911  120  950  545  709
+## 
+## $data$surv.event
+##  [1] 1 1 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 1 1 1 0 1 1 0
+## [36] 1 0 1 0 0 1 0 0 1 1 0 1 1 0 0 1 0 1 1 1 1 1 1 1 0 0 1 1 1 1 0 1 0 0 1
+## [71] 0 1 0 1 1
+## 
+## 
+## $comppairs
+## [1] 4384
+\end{verbatim}
+\begin{alltt}
+\hlkwd{concordance.index}\hlstd{(gg.linpred.dresden, data.dresden}\hlopt{$}\hlstd{Time, data.dresden}\hlopt{$}\hlstd{DSD,} \hlkwc{method} \hlstd{=} \hlstr{"noether"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## $c.index
+## [1] 0.5457
+## 
+## $se
+## [1] 0.0297
+## 
+## $lower
+## [1] 0.4874
+## 
+## $upper
+## [1] 0.6039
+## 
+## $p.value
+## [1] 0.1243
+## 
+## $n
+## [1] 150
+## 
+## $data
+## $data$x
+##   [1] -0.088708  0.099805 -0.461951  0.517083  0.473049  0.428695  0.499342
+##   [8]  0.011098 -0.328890  0.845973  0.295633  0.295314  0.384341  0.099805
+##  [15]  0.011098  0.580905  0.295633  0.286763  0.339987 -0.033256  0.705447
+##  [22]  0.000000  0.561437 -0.417598  0.303364  0.384341  0.428695 -0.033256
+##  [29]  0.525134  0.144159 -0.033256  0.845973  0.490791  0.339987  0.384341
+##  [36]  0.472729  0.845973 -0.133062 -0.088708  0.055451  0.055451  0.554963
+##  [43]  0.677428  0.428695  0.099805 -0.077610 -0.077610 -0.050998  0.801619
+##  [50] -0.033256  0.517403  0.863714  0.250960  0.321575  0.055451  0.384341
+##  [57]  0.428375  0.845973  0.668557 -0.059869  0.082064  0.055451  0.384341
+##  [64]  0.650816  0.144159  0.188513  0.314781  0.517403  0.144159  0.011098
+##  [71]  0.428695  0.384021  0.845973 -0.121964  0.011098  0.561757  0.295633
+##  [78] -0.033256  0.019968  1.087210 -0.006644  0.339667  0.819360  0.561437
+##  [85]  0.055451  0.295314  0.517403  0.384341  0.401763  0.428375  0.428695
+##  [92] -0.033256  1.105303  0.934681  0.490471  0.055451  0.339987  0.419504
+##  [99]  0.073193 -0.033256  0.339987  0.357729 -0.346631 -0.033256  0.472729
+## [106]  0.002227 -0.097579  0.011098 -0.328890  0.402083  0.195157 -0.033256
+## [113]  0.499661  0.473049  0.428375  0.473049  0.446437  0.099805  0.561437
+## [120] -0.006644  0.776733  0.000000  0.339987  0.473049  0.794474  0.159674
+## [127] -0.006644  0.011098  0.055451  0.775007 -0.006644  0.473049  0.339987
+## [134]  0.437566  0.392892  0.011098  0.384341  0.019968 -0.077610  0.055451
+## [141]  0.650145  0.313375  0.561757  0.011098 -0.035483  0.295314 -0.035483
+## [148]  0.099805  0.473049  0.019148
+## 
+## $data$surv.time
+##   [1]  475  319  478  292  266 4190  511 1211 1379  844  737  338  583 1379
+##  [15] 3691  496  360 1173  379  391  522 1486   27  891  356  123 2906  500
+##  [29] 1450  747  357   10 2017 1256 1517  152 1061  317  698  435  987  975
+##  [43]  604  859  427 1632 4059  521  526  471  309  305  559  110  844  389
+##  [57]  349 1098 2353  169  420 1292  648 1022  219  392  540  717  319 1461
+##  [71]  643  293  283   55  781  322  605  981 1920  375  704  886  735   13
+##  [85] 1823  178  802 1096  453   69  288  707  522  254  727  153  652 1177
+##  [99]  348  445  442  239  218  419  392  524  154  614 1727 1422  478  516
+## [113]  184  330  303  502 1383  491  100 1101  138   17  538  278  761 1497
+## [127]   49  698  641   71 1109  597 1204  304 1030  873  467  188   18  338
+## [141]  279  308  448  268  923 1087  376 1084  252  745
+## 
+## $data$surv.event
+##   [1]  TRUE  TRUE  TRUE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+##  [12]  TRUE  TRUE  TRUE FALSE  TRUE  TRUE  TRUE  TRUE FALSE  TRUE  TRUE
+##  [23] FALSE  TRUE  TRUE  TRUE FALSE  TRUE  TRUE FALSE  TRUE FALSE  TRUE
+##  [34] FALSE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE  TRUE  TRUE  TRUE
+##  [45]  TRUE  TRUE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+##  [56]  TRUE FALSE  TRUE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+##  [67]  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+##  [78] FALSE FALSE  TRUE  TRUE  TRUE  TRUE FALSE FALSE  TRUE FALSE FALSE
+##  [89]  TRUE  TRUE  TRUE FALSE  TRUE  TRUE  TRUE FALSE  TRUE FALSE  TRUE
+## [100]  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE FALSE  TRUE FALSE FALSE
+## [111] FALSE  TRUE  TRUE  TRUE  TRUE FALSE FALSE  TRUE  TRUE  TRUE  TRUE
+## [122] FALSE FALSE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE FALSE  TRUE
+## [133] FALSE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE  TRUE  TRUE  TRUE  TRUE
+## [144]  TRUE  TRUE FALSE FALSE  TRUE  TRUE FALSE
+## 
+## 
+## $comppairs
+## [1] 17106
+\end{verbatim}
+\begin{alltt}
+\hlkwd{concordance.index}\hlstd{(mskcc_pre.linpred.dresden, data.dresden}\hlopt{$}\hlstd{Time, data.dresden}\hlopt{$}\hlstd{DSD,} \hlkwc{method} \hlstd{=} \hlstr{"noether"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## $c.index
+## [1] 0.518
+## 
+## $se
+## [1] 0.02694
+## 
+## $lower
+## [1] 0.4652
+## 
+## $upper
+## [1] 0.5708
+## 
+## $p.value
+## [1] 0.5043
+## 
+## $n
+## [1] 150
+## 
+## $data
+## $data$x
+##   [1] 147.5 152.0 150.8 188.4 148.2 147.3 153.6 154.3 150.3 148.5 146.6
+##  [12] 150.5 147.9 149.7 151.7 203.0 146.7 147.9 146.3 149.1 201.5 147.8
+##  [23] 149.6 153.5 202.2 150.9 148.7 150.9 239.0 153.5 150.4 147.9 149.0
+##  [34] 146.5 149.3 149.5 146.9 188.0 148.9 152.9 149.3 198.5 147.5 147.7
+##  [45] 152.3 150.7 152.1 187.5 147.9 150.3 148.2 147.7 154.9 150.1 150.1
+##  [56] 147.9 150.3 149.3 149.3 151.1 150.7 150.7 149.4 148.9 149.3 152.8
+##  [67] 201.7 151.1 150.1 151.9 148.1 152.4 147.5 153.3 152.9 147.4 147.5
+##  [78] 150.3 150.3 199.9 153.3 185.3 146.9 150.9 151.5 151.5 146.7 147.1
+##  [89] 150.5 150.0 147.0 149.1 200.7 182.9 151.2 150.3 146.7 150.3 151.7
+## [100] 151.7 146.2 146.3 151.3 150.0 149.7 150.3 146.5 150.4 150.9 147.3
+## [111] 182.7 153.1 148.9 147.5 150.1 146.3 146.7 150.3 149.7 149.2 197.6
+## [122] 148.2 149.9 146.7 201.2 147.4 148.4 149.5 150.5 145.9 154.3 146.7
+## [133] 147.5 146.7 151.2 149.5 147.3 149.9 149.2 150.8 152.1 146.9 147.3
+## [144] 149.7 146.3 151.3 147.3 152.4 185.3 237.7
+## 
+## $data$surv.time
+##   [1]  475  319  478  292  266 4190  511 1211 1379  844  737  338  583 1379
+##  [15] 3691  496  360 1173  379  391  522 1486   27  891  356  123 2906  500
+##  [29] 1450  747  357   10 2017 1256 1517  152 1061  317  698  435  987  975
+##  [43]  604  859  427 1632 4059  521  526  471  309  305  559  110  844  389
+##  [57]  349 1098 2353  169  420 1292  648 1022  219  392  540  717  319 1461
+##  [71]  643  293  283   55  781  322  605  981 1920  375  704  886  735   13
+##  [85] 1823  178  802 1096  453   69  288  707  522  254  727  153  652 1177
+##  [99]  348  445  442  239  218  419  392  524  154  614 1727 1422  478  516
+## [113]  184  330  303  502 1383  491  100 1101  138   17  538  278  761 1497
+## [127]   49  698  641   71 1109  597 1204  304 1030  873  467  188   18  338
+## [141]  279  308  448  268  923 1087  376 1084  252  745
+## 
+## $data$surv.event
+##   [1]  TRUE  TRUE  TRUE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+##  [12]  TRUE  TRUE  TRUE FALSE  TRUE  TRUE  TRUE  TRUE FALSE  TRUE  TRUE
+##  [23] FALSE  TRUE  TRUE  TRUE FALSE  TRUE  TRUE FALSE  TRUE FALSE  TRUE
+##  [34] FALSE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE  TRUE  TRUE  TRUE
+##  [45]  TRUE  TRUE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+##  [56]  TRUE FALSE  TRUE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+##  [67]  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+##  [78] FALSE FALSE  TRUE  TRUE  TRUE  TRUE FALSE FALSE  TRUE FALSE FALSE
+##  [89]  TRUE  TRUE  TRUE FALSE  TRUE  TRUE  TRUE FALSE  TRUE FALSE  TRUE
+## [100]  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE FALSE  TRUE FALSE FALSE
+## [111] FALSE  TRUE  TRUE  TRUE  TRUE FALSE FALSE  TRUE  TRUE  TRUE  TRUE
+## [122] FALSE FALSE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE FALSE  TRUE
+## [133] FALSE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE  TRUE  TRUE  TRUE  TRUE
+## [144]  TRUE  TRUE FALSE FALSE  TRUE  TRUE FALSE
+## 
+## 
+## $comppairs
+## [1] 17236
+\end{verbatim}
+\begin{alltt}
+\hlkwd{cindex.comp}\hlstd{(}\hlkwd{concordance.index}\hlstd{(gg.linpred.glasgow, data.glasgow}\hlopt{$}\hlstd{Time, data.glasgow}\hlopt{$}\hlstd{DSD,} \hlkwc{method} \hlstd{=} \hlstr{"noether"}\hlstd{),} \hlkwd{concordance.index}\hlstd{(mskcc_pre.linpred.glasgow, data.glasgow}\hlopt{$}\hlstd{Time, data.glasgow}\hlopt{$}\hlstd{DSD,} \hlkwc{method} \hlstd{=} \hlstr{"noether"}\hlstd{))}
+\end{alltt}
+\begin{verbatim}
+## $p.value
+## [1] 0.283
+## 
+## $cindex1
+## [1] 0.6086
+## 
+## $cindex2
+## [1] 0.5851
+\end{verbatim}
+\begin{alltt}
+\hlkwd{cindex.comp}\hlstd{(}\hlkwd{concordance.index}\hlstd{(gg.linpred.apgi, data.apgi}\hlopt{$}\hlstd{Time, data.apgi}\hlopt{$}\hlstd{DSD,} \hlkwc{method} \hlstd{=} \hlstr{"noether"}\hlstd{),} \hlkwd{concordance.index}\hlstd{(mskcc_pre.linpred.apgi, data.apgi}\hlopt{$}\hlstd{Time, data.apgi}\hlopt{$}\hlstd{DSD,} \hlkwc{method} \hlstd{=} \hlstr{"noether"}\hlstd{))}
+\end{alltt}
+\begin{verbatim}
+## $p.value
+## [1] 0.04175
+## 
+## $cindex1
+## [1] 0.5798
+## 
+## $cindex2
+## [1] 0.4745
+\end{verbatim}
+\begin{alltt}
+\hlkwd{cindex.comp}\hlstd{(}\hlkwd{concordance.index}\hlstd{(gg.linpred.dresden, data.dresden}\hlopt{$}\hlstd{Time, data.dresden}\hlopt{$}\hlstd{DSD,} \hlkwc{method} \hlstd{=} \hlstr{"noether"}\hlstd{),} \hlkwd{concordance.index}\hlstd{(mskcc_pre.linpred.dresden, data.dresden}\hlopt{$}\hlstd{Time, data.dresden}\hlopt{$}\hlstd{DSD,} \hlkwc{method} \hlstd{=} \hlstr{"noether"}\hlstd{))}
+\end{alltt}
+\begin{verbatim}
+## $p.value
+## [1] 0.2626
+## 
+## $cindex1
+## [1] 0.5457
+## 
+## $cindex2
+## [1] 0.518
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
 
 \subsection{Altman method 4 (D,C)}
 \begin{knitrout}
@@ -2413,20 +3018,17 @@ Look at the CIs above.
 \hlstd{temp.pred.upper} \hlkwb{=} \hlkwd{sapply}\hlstd{(temp.pred.ests,} \hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{) x[}\hlnum{3}\hlstd{,])}
 \hlstd{temp.pred} \hlkwb{=} \hlkwd{data.frame}\hlstd{(}\hlkwc{surv} \hlstd{=} \hlkwd{as.vector}\hlstd{(temp.pred.meds),} \hlkwc{group} \hlstd{=} \hlkwd{rep}\hlstd{(}\hlkwd{colnames}\hlstd{(temp.pred.meds),} \hlkwc{each} \hlstd{=} \hlkwd{nrow}\hlstd{(temp.pred.meds)),} \hlkwc{time} \hlstd{= temp.pred.times,} \hlkwc{upper} \hlstd{=} \hlkwd{as.vector}\hlstd{(temp.pred.upper),} \hlkwc{lower} \hlstd{=} \hlkwd{as.vector}\hlstd{(temp.pred.lower),} \hlkwc{est} \hlstd{=} \hlstr{"GG1 Prediction"}\hlstd{)}
 \hlstd{temp.data} \hlkwb{=} \hlkwd{rbind}\hlstd{(temp.km, temp.pred)}
-\hlcom{# ggplot(temp.data, aes(x = time, y = surv, colour = group, fill = group, ymax = upper, ymin = lower, lty = est)) + }
-\hlcom{# 	geom_step() + }
-\hlcom{# 	xlim(0, 5*365) + }
-\hlcom{# 	labs(title = "Goodness of fit: model GG1 on NSWPCN training data", x = "Time from diagnosis (days)", y = "Fraction alive", colour = "Risk group", lty = "Data")}
+\hlstd{temp.data}\hlopt{$}\hlstd{time} \hlkwb{=} \hlstd{temp.data}\hlopt{$}\hlstd{time} \hlopt{/} \hlnum{365.25} \hlopt{*} \hlnum{12}
 
-\hlkwd{plot}\hlstd{(}\hlnum{0} \hlopt{~} \hlnum{0}\hlstd{,} \hlkwc{type} \hlstd{=} \hlstr{"n"}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{5}\hlopt{*}\hlnum{365}\hlstd{),} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{1}\hlstd{),} \hlkwc{main} \hlstd{=} \hlstr{"Goodness of fit: model GG1 on NSWPCN training data"}\hlstd{,} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (days)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Fraction alive"}\hlstd{)}
-\hlstd{temp.pal} \hlkwb{=} \hlkwd{brewer.pal}\hlstd{(}\hlkwd{length}\hlstd{(}\hlkwd{unique}\hlstd{(gg.groups.nswpcn)),} \hlstr{"Dark2"}\hlstd{)}
+\hlkwd{plot}\hlstd{(}\hlnum{0} \hlopt{~} \hlnum{0}\hlstd{,} \hlkwc{type} \hlstd{=} \hlstr{"n"}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{5}\hlopt{*}\hlnum{12}\hlstd{),} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{1}\hlstd{),} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (months)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Fraction alive"}\hlstd{,} \hlkwc{cex.lab} \hlstd{=} \hlnum{1.2}\hlstd{,} \hlkwc{cex.axis} \hlstd{=} \hlnum{1.2}\hlstd{)}
+\hlstd{temp.pal} \hlkwb{=} \hlkwd{brewer.pal}\hlstd{(}\hlkwd{length}\hlstd{(}\hlkwd{unique}\hlstd{(gg.groups.nswpcn)),} \hlstr{"Dark2"}\hlstd{)[}\hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{3}\hlstd{,} \hlnum{2}\hlstd{)]}
 \hlkwd{names}\hlstd{(temp.pal)} \hlkwb{=} \hlkwd{sort}\hlstd{(}\hlkwd{unique}\hlstd{(gg.groups.nswpcn))}
 \hlkwa{for} \hlstd{(temp.i} \hlkwa{in} \hlkwd{factor}\hlstd{(}\hlkwd{sort}\hlstd{(}\hlkwd{unique}\hlstd{(gg.groups.nswpcn))))}
 \hlstd{\{}
-        \hlkwd{lines}\hlstd{(surv} \hlopt{~} \hlstd{time, temp.data[}\hlkwd{as.character}\hlstd{(temp.data}\hlopt{$}\hlstd{group)} \hlopt{==} \hlkwd{as.character}\hlstd{(temp.i)} \hlopt{&} \hlstd{temp.data}\hlopt{$}\hlstd{est} \hlopt{==} \hlstr{"NSWPCN Observed"}\hlstd{,],} \hlkwc{type} \hlstd{=} \hlstr{"s"}\hlstd{,} \hlkwc{lty} \hlstd{=} \hlstr{"dotted"}\hlstd{,} \hlkwc{col} \hlstd{= temp.pal[}\hlkwd{as.character}\hlstd{(temp.i)],} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
-        \hlkwd{lines}\hlstd{(surv} \hlopt{~} \hlstd{time, temp.data[}\hlkwd{as.character}\hlstd{(temp.data}\hlopt{$}\hlstd{group)} \hlopt{==} \hlkwd{as.character}\hlstd{(temp.i)} \hlopt{&} \hlstd{temp.data}\hlopt{$}\hlstd{est} \hlopt{==} \hlstr{"GG1 Prediction"}\hlstd{,],} \hlkwc{type} \hlstd{=} \hlstr{"l"}\hlstd{,} \hlkwc{lty} \hlstd{=} \hlstr{"solid"}\hlstd{,} \hlkwc{col} \hlstd{= temp.pal[}\hlkwd{as.character}\hlstd{(temp.i)],} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
+        \hlkwd{lines}\hlstd{(surv} \hlopt{~} \hlstd{time, temp.data[}\hlkwd{as.character}\hlstd{(temp.data}\hlopt{$}\hlstd{group)} \hlopt{==} \hlkwd{as.character}\hlstd{(temp.i)} \hlopt{&} \hlstd{temp.data}\hlopt{$}\hlstd{est} \hlopt{==} \hlstr{"NSWPCN Observed"}\hlstd{,],} \hlkwc{type} \hlstd{=} \hlstr{"s"}\hlstd{,} \hlkwc{lty} \hlstd{=} \hlstr{"dotted"}\hlstd{,} \hlkwc{col} \hlstd{= temp.pal[}\hlkwd{as.character}\hlstd{(temp.i)],} \hlkwc{lwd} \hlstd{=} \hlnum{4}\hlstd{)}
+        \hlkwd{lines}\hlstd{(surv} \hlopt{~} \hlstd{time, temp.data[}\hlkwd{as.character}\hlstd{(temp.data}\hlopt{$}\hlstd{group)} \hlopt{==} \hlkwd{as.character}\hlstd{(temp.i)} \hlopt{&} \hlstd{temp.data}\hlopt{$}\hlstd{est} \hlopt{==} \hlstr{"GG1 Prediction"}\hlstd{,],} \hlkwc{type} \hlstd{=} \hlstr{"l"}\hlstd{,} \hlkwc{lty} \hlstd{=} \hlstr{"solid"}\hlstd{,} \hlkwc{col} \hlstd{= temp.pal[}\hlkwd{as.character}\hlstd{(temp.i)],} \hlkwc{lwd} \hlstd{=} \hlnum{4}\hlstd{)}
 \hlstd{\}}
-\hlkwd{legend}\hlstd{(}\hlstr{"topright"}\hlstd{,} \hlkwc{inset} \hlstd{=} \hlnum{0.05}\hlstd{,} \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"GG1 Prediction"}\hlstd{,} \hlstr{"NSWPCN Observed"}\hlstd{,} \hlstr{"Low predicted risk"}\hlstd{,} \hlstr{"Medium predicted risk"}\hlstd{,} \hlstr{"High predicted risk"}\hlstd{),} \hlkwc{lty} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"solid"}\hlstd{,} \hlstr{"dotted"}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{),} \hlkwc{col} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"black"}\hlstd{,} \hlstr{"black"}\hlstd{, temp.pal[}\hlnum{1}\hlopt{:}\hlnum{3}\hlstd{]),} \hlkwc{pch} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{15}\hlstd{,} \hlnum{15}\hlstd{,} \hlnum{15}\hlstd{),} \hlkwc{pt.cex} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{1}\hlstd{,} \hlnum{2}\hlstd{,} \hlnum{2}\hlstd{,} \hlnum{2}\hlstd{))}
+\hlkwd{legend}\hlstd{(}\hlstr{"topright"}\hlstd{,} \hlkwc{inset} \hlstd{=} \hlnum{0.05}\hlstd{,} \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"PCOP Prediction"}\hlstd{,} \hlstr{"NSWPCN Observed"}\hlstd{,} \hlstr{"Low predicted risk"}\hlstd{,} \hlstr{"Medium predicted risk"}\hlstd{,} \hlstr{"High predicted risk"}\hlstd{),} \hlkwc{lty} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"solid"}\hlstd{,} \hlstr{"dotted"}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{),} \hlkwc{lwd} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{4}\hlstd{,} \hlnum{4}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{),} \hlkwc{col} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"black"}\hlstd{,} \hlstr{"black"}\hlstd{, temp.pal[}\hlnum{1}\hlopt{:}\hlnum{3}\hlstd{]),} \hlkwc{pch} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{15}\hlstd{,} \hlnum{15}\hlstd{,} \hlnum{15}\hlstd{),} \hlkwc{cex} \hlstd{=} \hlnum{1.2}\hlstd{,} \hlkwc{pt.cex} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{1}\hlstd{,} \hlnum{2}\hlstd{,} \hlnum{2}\hlstd{,} \hlnum{2}\hlstd{))}
 \end{alltt}
 \end{kframe}
 
@@ -2480,6 +3082,7 @@ Look at the CIs above.
 \hlstd{temp.pred.upper} \hlkwb{=} \hlkwd{sapply}\hlstd{(temp.pred.ests,} \hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{) x[}\hlnum{3}\hlstd{,])}
 \hlstd{temp.pred} \hlkwb{=} \hlkwd{data.frame}\hlstd{(}\hlkwc{surv} \hlstd{=} \hlkwd{as.vector}\hlstd{(temp.pred.meds),} \hlkwc{group} \hlstd{=} \hlkwd{rep}\hlstd{(}\hlkwd{colnames}\hlstd{(temp.pred.meds),} \hlkwc{each} \hlstd{=} \hlkwd{nrow}\hlstd{(temp.pred.meds)),} \hlkwc{time} \hlstd{= temp.pred.times,} \hlkwc{upper} \hlstd{=} \hlkwd{as.vector}\hlstd{(temp.pred.upper),} \hlkwc{lower} \hlstd{=} \hlkwd{as.vector}\hlstd{(temp.pred.lower),} \hlkwc{est} \hlstd{=} \hlstr{"GG1 Prediction"}\hlstd{)}
 \hlstd{temp.data} \hlkwb{=} \hlkwd{rbind}\hlstd{(temp.km, temp.pred)}
+\hlstd{temp.data}\hlopt{$}\hlstd{time} \hlkwb{=} \hlstd{temp.data}\hlopt{$}\hlstd{time} \hlopt{/} \hlnum{365.25} \hlopt{*} \hlnum{12}
 \hlstd{temp.predpre.12mo} \hlkwb{=} \hlkwd{simplify2array}\hlstd{(}\hlkwd{tapply}\hlstd{(mskcc_pre.12mo.glasgow, mskcc_pre.groups.glasgow, quantile,} \hlkwc{probs} \hlstd{=} \hlkwd{c}\hlstd{(temp.alpha}\hlopt{/}\hlnum{2}\hlstd{,} \hlnum{0.5}\hlstd{,} \hlnum{1}\hlopt{-}\hlstd{temp.alpha}\hlopt{/}\hlnum{2}\hlstd{),} \hlkwc{na.rm} \hlstd{=} \hlnum{TRUE}\hlstd{))}
 \hlstd{temp.predpre.24mo} \hlkwb{=} \hlkwd{simplify2array}\hlstd{(}\hlkwd{tapply}\hlstd{(mskcc_pre.24mo.glasgow, mskcc_pre.groups.glasgow, quantile,} \hlkwc{probs} \hlstd{=} \hlkwd{c}\hlstd{(temp.alpha}\hlopt{/}\hlnum{2}\hlstd{,} \hlnum{0.5}\hlstd{,} \hlnum{1}\hlopt{-}\hlstd{temp.alpha}\hlopt{/}\hlnum{2}\hlstd{),} \hlkwc{na.rm} \hlstd{=} \hlnum{TRUE}\hlstd{))}
 \hlstd{temp.predpre.36mo} \hlkwb{=} \hlkwd{simplify2array}\hlstd{(}\hlkwd{tapply}\hlstd{(mskcc_pre.36mo.glasgow, mskcc_pre.groups.glasgow, quantile,} \hlkwc{probs} \hlstd{=} \hlkwd{c}\hlstd{(temp.alpha}\hlopt{/}\hlnum{2}\hlstd{,} \hlnum{0.5}\hlstd{,} \hlnum{1}\hlopt{-}\hlstd{temp.alpha}\hlopt{/}\hlnum{2}\hlstd{),} \hlkwc{na.rm} \hlstd{=} \hlnum{TRUE}\hlstd{))}
@@ -2489,31 +3092,44 @@ Look at the CIs above.
 \hlstd{temp.data2} \hlkwb{=} \hlkwd{data.frame}\hlstd{(}
         \hlkwc{surv} \hlstd{=} \hlkwd{c}\hlstd{(temp.predpre.12mo[}\hlnum{2}\hlstd{,], temp.predpre.24mo[}\hlnum{2}\hlstd{,], temp.predpre.36mo[}\hlnum{2}\hlstd{,], temp.predpost.12mo[}\hlnum{2}\hlstd{,], temp.predpost.24mo[}\hlnum{2}\hlstd{,], temp.predpost.36mo[}\hlnum{2}\hlstd{,]),}
         \hlkwc{group} \hlstd{=} \hlkwd{factor}\hlstd{(}\hlkwd{rep}\hlstd{(}\hlkwd{sort}\hlstd{(}\hlkwd{unique}\hlstd{(mskcc_pre.groups.glasgow)),} \hlnum{6}\hlstd{)),}
-        \hlkwc{time} \hlstd{=} \hlkwd{rep}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{12}\hlstd{,} \hlnum{24}\hlstd{,} \hlnum{36}\hlstd{)}\hlopt{/}\hlnum{12}\hlopt{*}\hlnum{365.25}\hlstd{,} \hlkwc{each} \hlstd{=} \hlnum{3}\hlstd{),}
+        \hlkwc{time} \hlstd{=} \hlkwd{rep}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{12}\hlstd{,} \hlnum{24}\hlstd{,} \hlnum{36}\hlstd{),} \hlkwc{each} \hlstd{=} \hlnum{3}\hlstd{),}
         \hlkwc{upper} \hlstd{=} \hlkwd{c}\hlstd{(temp.predpre.12mo[}\hlnum{3}\hlstd{,], temp.predpre.24mo[}\hlnum{3}\hlstd{,], temp.predpre.36mo[}\hlnum{3}\hlstd{,], temp.predpost.12mo[}\hlnum{3}\hlstd{,], temp.predpost.24mo[}\hlnum{3}\hlstd{,], temp.predpost.36mo[}\hlnum{3}\hlstd{,]),}
         \hlkwc{lower} \hlstd{=} \hlkwd{c}\hlstd{(temp.predpre.12mo[}\hlnum{1}\hlstd{,], temp.predpre.24mo[}\hlnum{1}\hlstd{,], temp.predpre.36mo[}\hlnum{1}\hlstd{,], temp.predpost.12mo[}\hlnum{1}\hlstd{,], temp.predpost.24mo[}\hlnum{1}\hlstd{,], temp.predpost.36mo[}\hlnum{1}\hlstd{,]),}
         \hlkwc{est} \hlstd{=} \hlkwd{rep}\hlstd{(}\hlkwd{c}\hlstd{(}\hlstr{"MSKCC Preoperative"}\hlstd{,} \hlstr{"MSKCC Postoperative"}\hlstd{),} \hlkwc{each} \hlstd{=} \hlnum{9}\hlstd{))}
-\hlcom{# ggplot(temp.data, aes(x = time, y = surv, colour = group, fill = group, ymax = upper, ymin = lower, lty = est)) + }
-\hlcom{# 	geom_step() + }
-\hlcom{# 	xlim(0, 5*365) + }
-\hlcom{# 	geom_line(data = temp.data2) + }
-\hlcom{# 	labs(title = "Goodness of fit: model GG1 on Glasgow validation data", x = "Time from diagnosis (days)", y = "Fraction alive", colour = "Risk group", lty = "Data")}
 
-\hlkwd{plot}\hlstd{(}\hlnum{0} \hlopt{~} \hlnum{0}\hlstd{,} \hlkwc{type} \hlstd{=} \hlstr{"n"}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{5}\hlopt{*}\hlnum{365}\hlstd{),} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{1}\hlstd{),} \hlkwc{main} \hlstd{=} \hlstr{"Goodness of fit: model GG1 on Glasgow validation data"}\hlstd{,} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (days)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Fraction alive"}\hlstd{)}
-\hlstd{temp.pal} \hlkwb{=} \hlkwd{brewer.pal}\hlstd{(}\hlkwd{length}\hlstd{(}\hlkwd{unique}\hlstd{(gg.groups.glasgow)),} \hlstr{"Dark2"}\hlstd{)}
+\hlkwd{plot}\hlstd{(}\hlnum{0} \hlopt{~} \hlnum{0}\hlstd{,} \hlkwc{type} \hlstd{=} \hlstr{"n"}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{5}\hlopt{*}\hlnum{12}\hlstd{),} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{1}\hlstd{),} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (months)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Fraction alive"}\hlstd{,} \hlkwc{cex.lab} \hlstd{=} \hlnum{1.2}\hlstd{,} \hlkwc{cex.axis} \hlstd{=} \hlnum{1.2}\hlstd{)}
+\hlstd{temp.pal} \hlkwb{=} \hlkwd{brewer.pal}\hlstd{(}\hlkwd{length}\hlstd{(}\hlkwd{unique}\hlstd{(gg.groups.glasgow)),} \hlstr{"Dark2"}\hlstd{)[}\hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{3}\hlstd{,} \hlnum{2}\hlstd{)]}
 \hlkwd{names}\hlstd{(temp.pal)} \hlkwb{=} \hlkwd{sort}\hlstd{(}\hlkwd{unique}\hlstd{(gg.groups.glasgow))}
 \hlkwa{for} \hlstd{(temp.i} \hlkwa{in} \hlkwd{factor}\hlstd{(}\hlkwd{sort}\hlstd{(}\hlkwd{unique}\hlstd{(gg.groups.glasgow))))}
 \hlstd{\{}
-        \hlkwd{lines}\hlstd{(surv} \hlopt{~} \hlstd{time, temp.data[}\hlkwd{as.character}\hlstd{(temp.data}\hlopt{$}\hlstd{group)} \hlopt{==} \hlkwd{as.character}\hlstd{(temp.i)} \hlopt{&} \hlstd{temp.data}\hlopt{$}\hlstd{est} \hlopt{==} \hlstr{"Glasgow Observed"}\hlstd{,],} \hlkwc{type} \hlstd{=} \hlstr{"s"}\hlstd{,} \hlkwc{lty} \hlstd{=} \hlstr{"dotted"}\hlstd{,} \hlkwc{col} \hlstd{= temp.pal[}\hlkwd{as.character}\hlstd{(temp.i)],} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
-        \hlkwd{lines}\hlstd{(surv} \hlopt{~} \hlstd{time, temp.data[}\hlkwd{as.character}\hlstd{(temp.data}\hlopt{$}\hlstd{group)} \hlopt{==} \hlkwd{as.character}\hlstd{(temp.i)} \hlopt{&} \hlstd{temp.data}\hlopt{$}\hlstd{est} \hlopt{==} \hlstr{"GG1 Prediction"}\hlstd{,],} \hlkwc{type} \hlstd{=} \hlstr{"l"}\hlstd{,} \hlkwc{lty} \hlstd{=} \hlstr{"solid"}\hlstd{,} \hlkwc{col} \hlstd{= temp.pal[}\hlkwd{as.character}\hlstd{(temp.i)],} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
+        \hlkwd{lines}\hlstd{(surv} \hlopt{~} \hlstd{time, temp.data[}\hlkwd{as.character}\hlstd{(temp.data}\hlopt{$}\hlstd{group)} \hlopt{==} \hlkwd{as.character}\hlstd{(temp.i)} \hlopt{&} \hlstd{temp.data}\hlopt{$}\hlstd{est} \hlopt{==} \hlstr{"Glasgow Observed"}\hlstd{,],} \hlkwc{type} \hlstd{=} \hlstr{"s"}\hlstd{,} \hlkwc{lty} \hlstd{=} \hlstr{"dotted"}\hlstd{,} \hlkwc{col} \hlstd{= temp.pal[}\hlkwd{as.character}\hlstd{(temp.i)],} \hlkwc{lwd} \hlstd{=} \hlnum{4}\hlstd{)}
+        \hlkwd{lines}\hlstd{(surv} \hlopt{~} \hlstd{time, temp.data[}\hlkwd{as.character}\hlstd{(temp.data}\hlopt{$}\hlstd{group)} \hlopt{==} \hlkwd{as.character}\hlstd{(temp.i)} \hlopt{&} \hlstd{temp.data}\hlopt{$}\hlstd{est} \hlopt{==} \hlstr{"GG1 Prediction"}\hlstd{,],} \hlkwc{type} \hlstd{=} \hlstr{"l"}\hlstd{,} \hlkwc{lty} \hlstd{=} \hlstr{"solid"}\hlstd{,} \hlkwc{col} \hlstd{= temp.pal[}\hlkwd{as.character}\hlstd{(temp.i)],} \hlkwc{lwd} \hlstd{=} \hlnum{4}\hlstd{)}
         \hlkwd{points}\hlstd{(surv} \hlopt{~} \hlstd{time, temp.data2[}\hlkwd{as.character}\hlstd{(temp.data2}\hlopt{$}\hlstd{group)} \hlopt{==} \hlkwd{as.character}\hlstd{(temp.i)} \hlopt{&} \hlstd{temp.data2}\hlopt{$}\hlstd{est} \hlopt{==} \hlstr{"MSKCC Preoperative"}\hlstd{,],} \hlkwc{pch} \hlstd{=} \hlnum{21}\hlstd{,} \hlkwc{col} \hlstd{= temp.pal[}\hlkwd{as.character}\hlstd{(temp.i)],} \hlkwc{cex} \hlstd{=} \hlnum{1.5}\hlstd{)}
         \hlkwd{points}\hlstd{(surv} \hlopt{~} \hlstd{time, temp.data2[}\hlkwd{as.character}\hlstd{(temp.data2}\hlopt{$}\hlstd{group)} \hlopt{==} \hlkwd{as.character}\hlstd{(temp.i)} \hlopt{&} \hlstd{temp.data2}\hlopt{$}\hlstd{est} \hlopt{==} \hlstr{"MSKCC Postoperative"}\hlstd{,],} \hlkwc{pch} \hlstd{=} \hlnum{19}\hlstd{,} \hlkwc{col} \hlstd{= temp.pal[}\hlkwd{as.character}\hlstd{(temp.i)],} \hlkwc{cex} \hlstd{=} \hlnum{1.5}\hlstd{)}
 \hlstd{\}}
-\hlkwd{legend}\hlstd{(}\hlstr{"topright"}\hlstd{,} \hlkwc{inset} \hlstd{=} \hlnum{0.05}\hlstd{,} \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"GG1 Prediction"}\hlstd{,} \hlstr{"MSKCC Preoperative Prediction"}\hlstd{,} \hlstr{"MSKCC Postoperative Prediction"}\hlstd{,} \hlstr{"Glasgow Observed"}\hlstd{,} \hlstr{"Low predicted risk"}\hlstd{,} \hlstr{"Medium predicted risk"}\hlstd{,} \hlstr{"High predicted risk"}\hlstd{),} \hlkwc{lty} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"solid"}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{,} \hlstr{"dotted"}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{),} \hlkwc{col} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"black"}\hlstd{,} \hlstr{"black"}\hlstd{,} \hlstr{"black"}\hlstd{,} \hlstr{"black"}\hlstd{, temp.pal[}\hlnum{1}\hlopt{:}\hlnum{3}\hlstd{]),} \hlkwc{pch} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{NA}\hlstd{,} \hlnum{21}\hlstd{,} \hlnum{19}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{15}\hlstd{,} \hlnum{15}\hlstd{,} \hlnum{15}\hlstd{),} \hlkwc{pt.cex} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{1}\hlstd{,} \hlnum{1}\hlstd{,} \hlnum{1}\hlstd{,} \hlnum{2}\hlstd{,} \hlnum{2}\hlstd{,} \hlnum{2}\hlstd{))}
+\hlkwd{legend}\hlstd{(}\hlstr{"topright"}\hlstd{,} \hlkwc{inset} \hlstd{=} \hlnum{0.05}\hlstd{,} \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"PCOP Prediction"}\hlstd{,} \hlstr{"MSKCC Preoperative Prediction"}\hlstd{,} \hlstr{"MSKCC Postoperative Prediction"}\hlstd{,} \hlstr{"Glasgow Observed"}\hlstd{,} \hlstr{"Low predicted risk"}\hlstd{,} \hlstr{"Medium predicted risk"}\hlstd{,} \hlstr{"High predicted risk"}\hlstd{),} \hlkwc{lty} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"solid"}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{,} \hlstr{"dotted"}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{),} \hlkwc{lwd} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{4}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{4}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{),} \hlkwc{col} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"black"}\hlstd{,} \hlstr{"black"}\hlstd{,} \hlstr{"black"}\hlstd{,} \hlstr{"black"}\hlstd{, temp.pal[}\hlnum{1}\hlopt{:}\hlnum{3}\hlstd{]),} \hlkwc{pch} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{NA}\hlstd{,} \hlnum{21}\hlstd{,} \hlnum{19}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{15}\hlstd{,} \hlnum{15}\hlstd{,} \hlnum{15}\hlstd{),} \hlkwc{cex} \hlstd{=} \hlnum{0.7}\hlstd{,} \hlkwc{pt.cex} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{1}\hlstd{,} \hlnum{1}\hlstd{,} \hlnum{1}\hlstd{,} \hlnum{2}\hlstd{,} \hlnum{2}\hlstd{,} \hlnum{2}\hlstd{))}
 \end{alltt}
 \end{kframe}
 
 {\centering \includegraphics[width=\maxwidth]{figure/07-altman-4-glasgow-1} 
+
+}
+
+
+\begin{kframe}\begin{alltt}
+\hlkwd{plot}\hlstd{(}\hlnum{0} \hlopt{~} \hlnum{0}\hlstd{,} \hlkwc{type} \hlstd{=} \hlstr{"n"}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{5}\hlopt{*}\hlnum{12}\hlstd{),} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{1}\hlstd{),} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (months)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Fraction alive"}\hlstd{,} \hlkwc{cex.lab} \hlstd{=} \hlnum{1.2}\hlstd{,} \hlkwc{cex.axis} \hlstd{=} \hlnum{1.2}\hlstd{)}
+\hlstd{temp.pal} \hlkwb{=} \hlkwd{brewer.pal}\hlstd{(}\hlkwd{length}\hlstd{(}\hlkwd{unique}\hlstd{(gg.groups.glasgow)),} \hlstr{"Dark2"}\hlstd{)[}\hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{3}\hlstd{,} \hlnum{2}\hlstd{)]}
+\hlkwd{names}\hlstd{(temp.pal)} \hlkwb{=} \hlkwd{sort}\hlstd{(}\hlkwd{unique}\hlstd{(gg.groups.glasgow))}
+\hlkwa{for} \hlstd{(temp.i} \hlkwa{in} \hlkwd{factor}\hlstd{(}\hlkwd{sort}\hlstd{(}\hlkwd{unique}\hlstd{(gg.groups.glasgow))))}
+\hlstd{\{}
+        \hlkwd{lines}\hlstd{(surv} \hlopt{~} \hlstd{time, temp.data[}\hlkwd{as.character}\hlstd{(temp.data}\hlopt{$}\hlstd{group)} \hlopt{==} \hlkwd{as.character}\hlstd{(temp.i)} \hlopt{&} \hlstd{temp.data}\hlopt{$}\hlstd{est} \hlopt{==} \hlstr{"Glasgow Observed"}\hlstd{,],} \hlkwc{type} \hlstd{=} \hlstr{"s"}\hlstd{,} \hlkwc{lty} \hlstd{=} \hlstr{"dotted"}\hlstd{,} \hlkwc{col} \hlstd{= temp.pal[}\hlkwd{as.character}\hlstd{(temp.i)],} \hlkwc{lwd} \hlstd{=} \hlnum{4}\hlstd{)}
+        \hlkwd{lines}\hlstd{(surv} \hlopt{~} \hlstd{time, temp.data[}\hlkwd{as.character}\hlstd{(temp.data}\hlopt{$}\hlstd{group)} \hlopt{==} \hlkwd{as.character}\hlstd{(temp.i)} \hlopt{&} \hlstd{temp.data}\hlopt{$}\hlstd{est} \hlopt{==} \hlstr{"GG1 Prediction"}\hlstd{,],} \hlkwc{type} \hlstd{=} \hlstr{"l"}\hlstd{,} \hlkwc{lty} \hlstd{=} \hlstr{"solid"}\hlstd{,} \hlkwc{col} \hlstd{= temp.pal[}\hlkwd{as.character}\hlstd{(temp.i)],} \hlkwc{lwd} \hlstd{=} \hlnum{4}\hlstd{)}
+\hlstd{\}}
+\hlkwd{legend}\hlstd{(}\hlstr{"topright"}\hlstd{,} \hlkwc{inset} \hlstd{=} \hlnum{0.05}\hlstd{,} \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"PCOP Prediction"}\hlstd{,} \hlstr{"Glasgow Observed"}\hlstd{,} \hlstr{"Low predicted risk"}\hlstd{,} \hlstr{"Medium predicted risk"}\hlstd{,} \hlstr{"High predicted risk"}\hlstd{),} \hlkwc{lty} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"solid"}\hlstd{,} \hlstr{"dotted"}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{),} \hlkwc{lwd} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{4}\hlstd{,} \hlnum{4}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{),} \hlkwc{col} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"black"}\hlstd{,} \hlstr{"black"}\hlstd{, temp.pal[}\hlnum{1}\hlopt{:}\hlnum{3}\hlstd{]),} \hlkwc{pch} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{15}\hlstd{,} \hlnum{15}\hlstd{,} \hlnum{15}\hlstd{),} \hlkwc{cex} \hlstd{=} \hlnum{1.2}\hlstd{,} \hlkwc{pt.cex} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{1}\hlstd{,} \hlnum{2}\hlstd{,} \hlnum{2}\hlstd{,} \hlnum{2}\hlstd{))}
+\end{alltt}
+\end{kframe}
+
+{\centering \includegraphics[width=\maxwidth]{figure/07-altman-4-glasgow-2} 
 
 }
 
@@ -2614,6 +3230,7 @@ Look at the CIs above.
 \hlstd{temp.pred.upper} \hlkwb{=} \hlkwd{sapply}\hlstd{(temp.pred.ests,} \hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{) x[}\hlnum{3}\hlstd{,])}
 \hlstd{temp.pred} \hlkwb{=} \hlkwd{data.frame}\hlstd{(}\hlkwc{surv} \hlstd{=} \hlkwd{as.vector}\hlstd{(temp.pred.meds),} \hlkwc{group} \hlstd{=} \hlkwd{rep}\hlstd{(}\hlkwd{colnames}\hlstd{(temp.pred.meds),} \hlkwc{each} \hlstd{=} \hlkwd{nrow}\hlstd{(temp.pred.meds)),} \hlkwc{time} \hlstd{= temp.pred.times,} \hlkwc{upper} \hlstd{=} \hlkwd{as.vector}\hlstd{(temp.pred.upper),} \hlkwc{lower} \hlstd{=} \hlkwd{as.vector}\hlstd{(temp.pred.lower),} \hlkwc{est} \hlstd{=} \hlstr{"GG1 Prediction"}\hlstd{)}
 \hlstd{temp.data} \hlkwb{=} \hlkwd{rbind}\hlstd{(temp.km, temp.pred)}
+\hlstd{temp.data}\hlopt{$}\hlstd{time} \hlkwb{=} \hlstd{temp.data}\hlopt{$}\hlstd{time} \hlopt{/} \hlnum{365.25} \hlopt{*} \hlnum{12}
 \hlstd{temp.predpre.12mo} \hlkwb{=} \hlkwd{simplify2array}\hlstd{(}\hlkwd{tapply}\hlstd{(mskcc_pre.12mo.apgi, mskcc_pre.groups.apgi, quantile,} \hlkwc{probs} \hlstd{=} \hlkwd{c}\hlstd{(temp.alpha}\hlopt{/}\hlnum{2}\hlstd{,} \hlnum{0.5}\hlstd{,} \hlnum{1}\hlopt{-}\hlstd{temp.alpha}\hlopt{/}\hlnum{2}\hlstd{),} \hlkwc{na.rm} \hlstd{=} \hlnum{TRUE}\hlstd{))}
 \hlstd{temp.predpre.24mo} \hlkwb{=} \hlkwd{simplify2array}\hlstd{(}\hlkwd{tapply}\hlstd{(mskcc_pre.24mo.apgi, mskcc_pre.groups.apgi, quantile,} \hlkwc{probs} \hlstd{=} \hlkwd{c}\hlstd{(temp.alpha}\hlopt{/}\hlnum{2}\hlstd{,} \hlnum{0.5}\hlstd{,} \hlnum{1}\hlopt{-}\hlstd{temp.alpha}\hlopt{/}\hlnum{2}\hlstd{),} \hlkwc{na.rm} \hlstd{=} \hlnum{TRUE}\hlstd{))}
 \hlstd{temp.predpre.36mo} \hlkwb{=} \hlkwd{simplify2array}\hlstd{(}\hlkwd{tapply}\hlstd{(mskcc_pre.36mo.apgi, mskcc_pre.groups.apgi, quantile,} \hlkwc{probs} \hlstd{=} \hlkwd{c}\hlstd{(temp.alpha}\hlopt{/}\hlnum{2}\hlstd{,} \hlnum{0.5}\hlstd{,} \hlnum{1}\hlopt{-}\hlstd{temp.alpha}\hlopt{/}\hlnum{2}\hlstd{),} \hlkwc{na.rm} \hlstd{=} \hlnum{TRUE}\hlstd{))}
@@ -2623,31 +3240,44 @@ Look at the CIs above.
 \hlstd{temp.data2} \hlkwb{=} \hlkwd{data.frame}\hlstd{(}
         \hlkwc{surv} \hlstd{=} \hlkwd{c}\hlstd{(temp.predpre.12mo[}\hlnum{2}\hlstd{,], temp.predpre.24mo[}\hlnum{2}\hlstd{,], temp.predpre.36mo[}\hlnum{2}\hlstd{,], temp.predpost.12mo[}\hlnum{2}\hlstd{,], temp.predpost.24mo[}\hlnum{2}\hlstd{,], temp.predpost.36mo[}\hlnum{2}\hlstd{,]),}
         \hlkwc{group} \hlstd{=} \hlkwd{factor}\hlstd{(}\hlkwd{rep}\hlstd{(}\hlkwd{sort}\hlstd{(}\hlkwd{unique}\hlstd{(mskcc_pre.groups.apgi)),} \hlnum{6}\hlstd{)),}
-        \hlkwc{time} \hlstd{=} \hlkwd{rep}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{12}\hlstd{,} \hlnum{24}\hlstd{,} \hlnum{36}\hlstd{)}\hlopt{/}\hlnum{12}\hlopt{*}\hlnum{365.25}\hlstd{,} \hlkwc{each} \hlstd{=} \hlnum{3}\hlstd{),}
+        \hlkwc{time} \hlstd{=} \hlkwd{rep}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{12}\hlstd{,} \hlnum{24}\hlstd{,} \hlnum{36}\hlstd{),} \hlkwc{each} \hlstd{=} \hlnum{3}\hlstd{),}
         \hlkwc{upper} \hlstd{=} \hlkwd{c}\hlstd{(temp.predpre.12mo[}\hlnum{3}\hlstd{,], temp.predpre.24mo[}\hlnum{3}\hlstd{,], temp.predpre.36mo[}\hlnum{3}\hlstd{,], temp.predpost.12mo[}\hlnum{3}\hlstd{,], temp.predpost.24mo[}\hlnum{3}\hlstd{,], temp.predpost.36mo[}\hlnum{3}\hlstd{,]),}
         \hlkwc{lower} \hlstd{=} \hlkwd{c}\hlstd{(temp.predpre.12mo[}\hlnum{1}\hlstd{,], temp.predpre.24mo[}\hlnum{1}\hlstd{,], temp.predpre.36mo[}\hlnum{1}\hlstd{,], temp.predpost.12mo[}\hlnum{1}\hlstd{,], temp.predpost.24mo[}\hlnum{1}\hlstd{,], temp.predpost.36mo[}\hlnum{1}\hlstd{,]),}
         \hlkwc{est} \hlstd{=} \hlkwd{rep}\hlstd{(}\hlkwd{c}\hlstd{(}\hlstr{"MSKCC Preoperative"}\hlstd{,} \hlstr{"MSKCC Postoperative"}\hlstd{),} \hlkwc{each} \hlstd{=} \hlnum{9}\hlstd{))}
-\hlcom{# ggplot(temp.data, aes(x = time, y = surv, colour = group, fill = group, ymax = upper, ymin = lower, lty = est)) + }
-\hlcom{# 	geom_step() + }
-\hlcom{# 	xlim(0, 5*365) + }
-\hlcom{# 	geom_line(data = temp.data2) + }
-\hlcom{# 	labs(title = "Goodness of fit: model GG1 on APGI validation data", x = "Time from diagnosis (days)", y = "Fraction alive", colour = "Risk group", lty = "Data")}
 
-\hlkwd{plot}\hlstd{(}\hlnum{0} \hlopt{~} \hlnum{0}\hlstd{,} \hlkwc{type} \hlstd{=} \hlstr{"n"}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{5}\hlopt{*}\hlnum{365}\hlstd{),} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{1}\hlstd{),} \hlkwc{main} \hlstd{=} \hlstr{"Goodness of fit: model GG1 on APGI validation data"}\hlstd{,} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (days)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Fraction alive"}\hlstd{)}
-\hlstd{temp.pal} \hlkwb{=} \hlkwd{brewer.pal}\hlstd{(}\hlkwd{length}\hlstd{(}\hlkwd{unique}\hlstd{(gg.groups.apgi)),} \hlstr{"Dark2"}\hlstd{)}
+\hlkwd{plot}\hlstd{(}\hlnum{0} \hlopt{~} \hlnum{0}\hlstd{,} \hlkwc{type} \hlstd{=} \hlstr{"n"}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{5}\hlopt{*}\hlnum{12}\hlstd{),} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{1}\hlstd{),} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (months)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Fraction alive"}\hlstd{,} \hlkwc{cex.lab} \hlstd{=} \hlnum{1.2}\hlstd{,} \hlkwc{cex.axis} \hlstd{=} \hlnum{1.2}\hlstd{)}
+\hlstd{temp.pal} \hlkwb{=} \hlkwd{brewer.pal}\hlstd{(}\hlkwd{length}\hlstd{(}\hlkwd{unique}\hlstd{(gg.groups.apgi)),} \hlstr{"Dark2"}\hlstd{)[}\hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{3}\hlstd{,} \hlnum{2}\hlstd{)]}
 \hlkwd{names}\hlstd{(temp.pal)} \hlkwb{=} \hlkwd{sort}\hlstd{(}\hlkwd{unique}\hlstd{(gg.groups.apgi))}
 \hlkwa{for} \hlstd{(temp.i} \hlkwa{in} \hlkwd{factor}\hlstd{(}\hlkwd{sort}\hlstd{(}\hlkwd{unique}\hlstd{(gg.groups.apgi))))}
 \hlstd{\{}
-        \hlkwd{lines}\hlstd{(surv} \hlopt{~} \hlstd{time, temp.data[}\hlkwd{as.character}\hlstd{(temp.data}\hlopt{$}\hlstd{group)} \hlopt{==} \hlkwd{as.character}\hlstd{(temp.i)} \hlopt{&} \hlstd{temp.data}\hlopt{$}\hlstd{est} \hlopt{==} \hlstr{"APGI Observed"}\hlstd{,],} \hlkwc{type} \hlstd{=} \hlstr{"s"}\hlstd{,} \hlkwc{lty} \hlstd{=} \hlstr{"dotted"}\hlstd{,} \hlkwc{col} \hlstd{= temp.pal[}\hlkwd{as.character}\hlstd{(temp.i)],} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
-        \hlkwd{lines}\hlstd{(surv} \hlopt{~} \hlstd{time, temp.data[}\hlkwd{as.character}\hlstd{(temp.data}\hlopt{$}\hlstd{group)} \hlopt{==} \hlkwd{as.character}\hlstd{(temp.i)} \hlopt{&} \hlstd{temp.data}\hlopt{$}\hlstd{est} \hlopt{==} \hlstr{"GG1 Prediction"}\hlstd{,],} \hlkwc{type} \hlstd{=} \hlstr{"l"}\hlstd{,} \hlkwc{lty} \hlstd{=} \hlstr{"solid"}\hlstd{,} \hlkwc{col} \hlstd{= temp.pal[}\hlkwd{as.character}\hlstd{(temp.i)],} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
+        \hlkwd{lines}\hlstd{(surv} \hlopt{~} \hlstd{time, temp.data[}\hlkwd{as.character}\hlstd{(temp.data}\hlopt{$}\hlstd{group)} \hlopt{==} \hlkwd{as.character}\hlstd{(temp.i)} \hlopt{&} \hlstd{temp.data}\hlopt{$}\hlstd{est} \hlopt{==} \hlstr{"APGI Observed"}\hlstd{,],} \hlkwc{type} \hlstd{=} \hlstr{"s"}\hlstd{,} \hlkwc{lty} \hlstd{=} \hlstr{"dotted"}\hlstd{,} \hlkwc{col} \hlstd{= temp.pal[}\hlkwd{as.character}\hlstd{(temp.i)],} \hlkwc{lwd} \hlstd{=} \hlnum{4}\hlstd{)}
+        \hlkwd{lines}\hlstd{(surv} \hlopt{~} \hlstd{time, temp.data[}\hlkwd{as.character}\hlstd{(temp.data}\hlopt{$}\hlstd{group)} \hlopt{==} \hlkwd{as.character}\hlstd{(temp.i)} \hlopt{&} \hlstd{temp.data}\hlopt{$}\hlstd{est} \hlopt{==} \hlstr{"GG1 Prediction"}\hlstd{,],} \hlkwc{type} \hlstd{=} \hlstr{"l"}\hlstd{,} \hlkwc{lty} \hlstd{=} \hlstr{"solid"}\hlstd{,} \hlkwc{col} \hlstd{= temp.pal[}\hlkwd{as.character}\hlstd{(temp.i)],} \hlkwc{lwd} \hlstd{=} \hlnum{4}\hlstd{)}
         \hlkwd{points}\hlstd{(surv} \hlopt{~} \hlstd{time, temp.data2[}\hlkwd{as.character}\hlstd{(temp.data2}\hlopt{$}\hlstd{group)} \hlopt{==} \hlkwd{as.character}\hlstd{(temp.i)} \hlopt{&} \hlstd{temp.data2}\hlopt{$}\hlstd{est} \hlopt{==} \hlstr{"MSKCC Preoperative"}\hlstd{,],} \hlkwc{pch} \hlstd{=} \hlnum{21}\hlstd{,} \hlkwc{col} \hlstd{= temp.pal[}\hlkwd{as.character}\hlstd{(temp.i)],} \hlkwc{cex} \hlstd{=} \hlnum{1.5}\hlstd{)}
         \hlkwd{points}\hlstd{(surv} \hlopt{~} \hlstd{time, temp.data2[}\hlkwd{as.character}\hlstd{(temp.data2}\hlopt{$}\hlstd{group)} \hlopt{==} \hlkwd{as.character}\hlstd{(temp.i)} \hlopt{&} \hlstd{temp.data2}\hlopt{$}\hlstd{est} \hlopt{==} \hlstr{"MSKCC Postoperative"}\hlstd{,],} \hlkwc{pch} \hlstd{=} \hlnum{19}\hlstd{,} \hlkwc{col} \hlstd{= temp.pal[}\hlkwd{as.character}\hlstd{(temp.i)],} \hlkwc{cex} \hlstd{=} \hlnum{1.5}\hlstd{)}
 \hlstd{\}}
-\hlkwd{legend}\hlstd{(}\hlstr{"topright"}\hlstd{,} \hlkwc{inset} \hlstd{=} \hlnum{0.05}\hlstd{,} \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"GG1 Prediction"}\hlstd{,} \hlstr{"MSKCC Preoperative Prediction"}\hlstd{,} \hlstr{"MSKCC Postoperative Prediction"}\hlstd{,} \hlstr{"APGI Observed"}\hlstd{,} \hlstr{"Low predicted risk"}\hlstd{,} \hlstr{"Medium predicted risk"}\hlstd{,} \hlstr{"High predicted risk"}\hlstd{),} \hlkwc{lty} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"solid"}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{,} \hlstr{"dotted"}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{),} \hlkwc{col} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"black"}\hlstd{,} \hlstr{"black"}\hlstd{,} \hlstr{"black"}\hlstd{,} \hlstr{"black"}\hlstd{, temp.pal[}\hlnum{1}\hlopt{:}\hlnum{3}\hlstd{]),} \hlkwc{pch} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{NA}\hlstd{,} \hlnum{21}\hlstd{,} \hlnum{19}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{15}\hlstd{,} \hlnum{15}\hlstd{,} \hlnum{15}\hlstd{),} \hlkwc{pt.cex} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{1}\hlstd{,} \hlnum{1}\hlstd{,} \hlnum{1}\hlstd{,} \hlnum{2}\hlstd{,} \hlnum{2}\hlstd{,} \hlnum{2}\hlstd{))}
+\hlkwd{legend}\hlstd{(}\hlstr{"topright"}\hlstd{,} \hlkwc{inset} \hlstd{=} \hlnum{0.05}\hlstd{,} \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"PCOP Prediction"}\hlstd{,} \hlstr{"MSKCC Preoperative Prediction"}\hlstd{,} \hlstr{"MSKCC Postoperative Prediction"}\hlstd{,} \hlstr{"APGI Observed"}\hlstd{,} \hlstr{"Low predicted risk"}\hlstd{,} \hlstr{"Medium predicted risk"}\hlstd{,} \hlstr{"High predicted risk"}\hlstd{),} \hlkwc{lty} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"solid"}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{,} \hlstr{"dotted"}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{),} \hlkwc{lwd} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{4}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{4}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{),} \hlkwc{col} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"black"}\hlstd{,} \hlstr{"black"}\hlstd{,} \hlstr{"black"}\hlstd{,} \hlstr{"black"}\hlstd{, temp.pal[}\hlnum{1}\hlopt{:}\hlnum{3}\hlstd{]),} \hlkwc{pch} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{NA}\hlstd{,} \hlnum{21}\hlstd{,} \hlnum{19}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{15}\hlstd{,} \hlnum{15}\hlstd{,} \hlnum{15}\hlstd{),} \hlkwc{cex} \hlstd{=} \hlnum{0.7}\hlstd{,} \hlkwc{pt.cex} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{1}\hlstd{,} \hlnum{1}\hlstd{,} \hlnum{1}\hlstd{,} \hlnum{2}\hlstd{,} \hlnum{2}\hlstd{,} \hlnum{2}\hlstd{))}
 \end{alltt}
 \end{kframe}
 
 {\centering \includegraphics[width=\maxwidth]{figure/07-altman-4-apgi-1} 
+
+}
+
+
+\begin{kframe}\begin{alltt}
+\hlkwd{plot}\hlstd{(}\hlnum{0} \hlopt{~} \hlnum{0}\hlstd{,} \hlkwc{type} \hlstd{=} \hlstr{"n"}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{5}\hlopt{*}\hlnum{12}\hlstd{),} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{1}\hlstd{),} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (months)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Fraction alive"}\hlstd{,} \hlkwc{cex.lab} \hlstd{=} \hlnum{1.2}\hlstd{,} \hlkwc{cex.axis} \hlstd{=} \hlnum{1.2}\hlstd{)}
+\hlstd{temp.pal} \hlkwb{=} \hlkwd{brewer.pal}\hlstd{(}\hlkwd{length}\hlstd{(}\hlkwd{unique}\hlstd{(gg.groups.apgi)),} \hlstr{"Dark2"}\hlstd{)[}\hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{3}\hlstd{,} \hlnum{2}\hlstd{)]}
+\hlkwd{names}\hlstd{(temp.pal)} \hlkwb{=} \hlkwd{sort}\hlstd{(}\hlkwd{unique}\hlstd{(gg.groups.apgi))}
+\hlkwa{for} \hlstd{(temp.i} \hlkwa{in} \hlkwd{factor}\hlstd{(}\hlkwd{sort}\hlstd{(}\hlkwd{unique}\hlstd{(gg.groups.apgi))))}
+\hlstd{\{}
+        \hlkwd{lines}\hlstd{(surv} \hlopt{~} \hlstd{time, temp.data[}\hlkwd{as.character}\hlstd{(temp.data}\hlopt{$}\hlstd{group)} \hlopt{==} \hlkwd{as.character}\hlstd{(temp.i)} \hlopt{&} \hlstd{temp.data}\hlopt{$}\hlstd{est} \hlopt{==} \hlstr{"APGI Observed"}\hlstd{,],} \hlkwc{type} \hlstd{=} \hlstr{"s"}\hlstd{,} \hlkwc{lty} \hlstd{=} \hlstr{"dotted"}\hlstd{,} \hlkwc{col} \hlstd{= temp.pal[}\hlkwd{as.character}\hlstd{(temp.i)],} \hlkwc{lwd} \hlstd{=} \hlnum{4}\hlstd{)}
+        \hlkwd{lines}\hlstd{(surv} \hlopt{~} \hlstd{time, temp.data[}\hlkwd{as.character}\hlstd{(temp.data}\hlopt{$}\hlstd{group)} \hlopt{==} \hlkwd{as.character}\hlstd{(temp.i)} \hlopt{&} \hlstd{temp.data}\hlopt{$}\hlstd{est} \hlopt{==} \hlstr{"GG1 Prediction"}\hlstd{,],} \hlkwc{type} \hlstd{=} \hlstr{"l"}\hlstd{,} \hlkwc{lty} \hlstd{=} \hlstr{"solid"}\hlstd{,} \hlkwc{col} \hlstd{= temp.pal[}\hlkwd{as.character}\hlstd{(temp.i)],} \hlkwc{lwd} \hlstd{=} \hlnum{4}\hlstd{)}
+\hlstd{\}}
+\hlkwd{legend}\hlstd{(}\hlstr{"topright"}\hlstd{,} \hlkwc{inset} \hlstd{=} \hlnum{0.05}\hlstd{,} \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"PCOP Prediction"}\hlstd{,} \hlstr{"APGI Observed"}\hlstd{,} \hlstr{"Low predicted risk"}\hlstd{,} \hlstr{"Medium predicted risk"}\hlstd{,} \hlstr{"High predicted risk"}\hlstd{),} \hlkwc{lty} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"solid"}\hlstd{,}\hlstr{"dotted"}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{),} \hlkwc{lwd} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{4}\hlstd{,} \hlnum{4}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{),} \hlkwc{col} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"black"}\hlstd{,} \hlstr{"black"}\hlstd{, temp.pal[}\hlnum{1}\hlopt{:}\hlnum{3}\hlstd{]),} \hlkwc{pch} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{15}\hlstd{,} \hlnum{15}\hlstd{,} \hlnum{15}\hlstd{),} \hlkwc{cex} \hlstd{=} \hlnum{1.2}\hlstd{,} \hlkwc{pt.cex} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{1}\hlstd{,} \hlnum{2}\hlstd{,} \hlnum{2}\hlstd{,} \hlnum{2}\hlstd{))}
+\end{alltt}
+\end{kframe}
+
+{\centering \includegraphics[width=\maxwidth]{figure/07-altman-4-apgi-2} 
 
 }
 
@@ -2745,6 +3375,7 @@ Look at the CIs above.
 \hlstd{temp.pred.upper} \hlkwb{=} \hlkwd{sapply}\hlstd{(temp.pred.ests,} \hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{) x[}\hlnum{3}\hlstd{,])}
 \hlstd{temp.pred} \hlkwb{=} \hlkwd{data.frame}\hlstd{(}\hlkwc{surv} \hlstd{=} \hlkwd{as.vector}\hlstd{(temp.pred.meds),} \hlkwc{group} \hlstd{=} \hlkwd{rep}\hlstd{(}\hlkwd{colnames}\hlstd{(temp.pred.meds),} \hlkwc{each} \hlstd{=} \hlkwd{nrow}\hlstd{(temp.pred.meds)),} \hlkwc{time} \hlstd{= temp.pred.times,} \hlkwc{upper} \hlstd{=} \hlkwd{as.vector}\hlstd{(temp.pred.upper),} \hlkwc{lower} \hlstd{=} \hlkwd{as.vector}\hlstd{(temp.pred.lower),} \hlkwc{est} \hlstd{=} \hlstr{"GG1 Prediction"}\hlstd{)}
 \hlstd{temp.data} \hlkwb{=} \hlkwd{rbind}\hlstd{(temp.km, temp.pred)}
+\hlstd{temp.data}\hlopt{$}\hlstd{time} \hlkwb{=} \hlstd{temp.data}\hlopt{$}\hlstd{time} \hlopt{/} \hlnum{365.25} \hlopt{*} \hlnum{12}
 \hlstd{temp.predpre.12mo} \hlkwb{=} \hlkwd{simplify2array}\hlstd{(}\hlkwd{tapply}\hlstd{(mskcc_pre.12mo.dresden, mskcc_pre.groups.dresden, quantile,} \hlkwc{probs} \hlstd{=} \hlkwd{c}\hlstd{(temp.alpha}\hlopt{/}\hlnum{2}\hlstd{,} \hlnum{0.5}\hlstd{,} \hlnum{1}\hlopt{-}\hlstd{temp.alpha}\hlopt{/}\hlnum{2}\hlstd{),} \hlkwc{na.rm} \hlstd{=} \hlnum{TRUE}\hlstd{))}
 \hlstd{temp.predpre.24mo} \hlkwb{=} \hlkwd{simplify2array}\hlstd{(}\hlkwd{tapply}\hlstd{(mskcc_pre.24mo.dresden, mskcc_pre.groups.dresden, quantile,} \hlkwc{probs} \hlstd{=} \hlkwd{c}\hlstd{(temp.alpha}\hlopt{/}\hlnum{2}\hlstd{,} \hlnum{0.5}\hlstd{,} \hlnum{1}\hlopt{-}\hlstd{temp.alpha}\hlopt{/}\hlnum{2}\hlstd{),} \hlkwc{na.rm} \hlstd{=} \hlnum{TRUE}\hlstd{))}
 \hlstd{temp.predpre.36mo} \hlkwb{=} \hlkwd{simplify2array}\hlstd{(}\hlkwd{tapply}\hlstd{(mskcc_pre.36mo.dresden, mskcc_pre.groups.dresden, quantile,} \hlkwc{probs} \hlstd{=} \hlkwd{c}\hlstd{(temp.alpha}\hlopt{/}\hlnum{2}\hlstd{,} \hlnum{0.5}\hlstd{,} \hlnum{1}\hlopt{-}\hlstd{temp.alpha}\hlopt{/}\hlnum{2}\hlstd{),} \hlkwc{na.rm} \hlstd{=} \hlnum{TRUE}\hlstd{))}
@@ -2754,31 +3385,44 @@ Look at the CIs above.
 \hlstd{temp.data2} \hlkwb{=} \hlkwd{data.frame}\hlstd{(}
         \hlkwc{surv} \hlstd{=} \hlkwd{c}\hlstd{(temp.predpre.12mo[}\hlnum{2}\hlstd{,], temp.predpre.24mo[}\hlnum{2}\hlstd{,], temp.predpre.36mo[}\hlnum{2}\hlstd{,], temp.predpost.12mo[}\hlnum{2}\hlstd{,], temp.predpost.24mo[}\hlnum{2}\hlstd{,], temp.predpost.36mo[}\hlnum{2}\hlstd{,]),}
         \hlkwc{group} \hlstd{=} \hlkwd{factor}\hlstd{(}\hlkwd{rep}\hlstd{(}\hlkwd{sort}\hlstd{(}\hlkwd{unique}\hlstd{(mskcc_pre.groups.dresden)),} \hlnum{6}\hlstd{)),}
-        \hlkwc{time} \hlstd{=} \hlkwd{rep}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{12}\hlstd{,} \hlnum{24}\hlstd{,} \hlnum{36}\hlstd{)}\hlopt{/}\hlnum{12}\hlopt{*}\hlnum{365.25}\hlstd{,} \hlkwc{each} \hlstd{=} \hlnum{3}\hlstd{),}
+        \hlkwc{time} \hlstd{=} \hlkwd{rep}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{12}\hlstd{,} \hlnum{24}\hlstd{,} \hlnum{36}\hlstd{),} \hlkwc{each} \hlstd{=} \hlnum{3}\hlstd{),}
         \hlkwc{upper} \hlstd{=} \hlkwd{c}\hlstd{(temp.predpre.12mo[}\hlnum{3}\hlstd{,], temp.predpre.24mo[}\hlnum{3}\hlstd{,], temp.predpre.36mo[}\hlnum{3}\hlstd{,], temp.predpost.12mo[}\hlnum{3}\hlstd{,], temp.predpost.24mo[}\hlnum{3}\hlstd{,], temp.predpost.36mo[}\hlnum{3}\hlstd{,]),}
         \hlkwc{lower} \hlstd{=} \hlkwd{c}\hlstd{(temp.predpre.12mo[}\hlnum{1}\hlstd{,], temp.predpre.24mo[}\hlnum{1}\hlstd{,], temp.predpre.36mo[}\hlnum{1}\hlstd{,], temp.predpost.12mo[}\hlnum{1}\hlstd{,], temp.predpost.24mo[}\hlnum{1}\hlstd{,], temp.predpost.36mo[}\hlnum{1}\hlstd{,]),}
         \hlkwc{est} \hlstd{=} \hlkwd{rep}\hlstd{(}\hlkwd{c}\hlstd{(}\hlstr{"MSKCC Preoperative"}\hlstd{,} \hlstr{"MSKCC Postoperative"}\hlstd{),} \hlkwc{each} \hlstd{=} \hlnum{9}\hlstd{))}
-\hlcom{# ggplot(temp.data, aes(x = time, y = surv, colour = group, fill = group, ymax = upper, ymin = lower, lty = est)) + }
-\hlcom{# 	geom_step() + }
-\hlcom{# 	xlim(0, 5*365) + }
-\hlcom{# 	geom_line(data = temp.data2) + }
-\hlcom{# 	labs(title = "Goodness of fit: model GG1 on Dresden validation data", x = "Time from diagnosis (days)", y = "Fraction alive", colour = "Risk group", lty = "Data")}
 
-\hlkwd{plot}\hlstd{(}\hlnum{0} \hlopt{~} \hlnum{0}\hlstd{,} \hlkwc{type} \hlstd{=} \hlstr{"n"}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{5}\hlopt{*}\hlnum{365}\hlstd{),} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{1}\hlstd{),} \hlkwc{main} \hlstd{=} \hlstr{"Goodness of fit: model GG1 on Dresden validation data"}\hlstd{,} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (days)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Fraction alive"}\hlstd{)}
-\hlstd{temp.pal} \hlkwb{=} \hlkwd{brewer.pal}\hlstd{(}\hlkwd{length}\hlstd{(}\hlkwd{unique}\hlstd{(gg.groups.dresden)),} \hlstr{"Dark2"}\hlstd{)}
+\hlkwd{plot}\hlstd{(}\hlnum{0} \hlopt{~} \hlnum{0}\hlstd{,} \hlkwc{type} \hlstd{=} \hlstr{"n"}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{5}\hlopt{*}\hlnum{12}\hlstd{),} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{1}\hlstd{),} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (months)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Fraction alive"}\hlstd{,} \hlkwc{cex.lab} \hlstd{=} \hlnum{1.2}\hlstd{,} \hlkwc{cex.axis} \hlstd{=} \hlnum{1.2}\hlstd{)}
+\hlstd{temp.pal} \hlkwb{=} \hlkwd{brewer.pal}\hlstd{(}\hlkwd{length}\hlstd{(}\hlkwd{unique}\hlstd{(gg.groups.dresden)),} \hlstr{"Dark2"}\hlstd{)[}\hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{3}\hlstd{,} \hlnum{2}\hlstd{)]}
 \hlkwd{names}\hlstd{(temp.pal)} \hlkwb{=} \hlkwd{sort}\hlstd{(}\hlkwd{unique}\hlstd{(gg.groups.dresden))}
 \hlkwa{for} \hlstd{(temp.i} \hlkwa{in} \hlkwd{factor}\hlstd{(}\hlkwd{sort}\hlstd{(}\hlkwd{unique}\hlstd{(gg.groups.dresden))))}
 \hlstd{\{}
-        \hlkwd{lines}\hlstd{(surv} \hlopt{~} \hlstd{time, temp.data[}\hlkwd{as.character}\hlstd{(temp.data}\hlopt{$}\hlstd{group)} \hlopt{==} \hlkwd{as.character}\hlstd{(temp.i)} \hlopt{&} \hlstd{temp.data}\hlopt{$}\hlstd{est} \hlopt{==} \hlstr{"Dresden Observed"}\hlstd{,],} \hlkwc{type} \hlstd{=} \hlstr{"s"}\hlstd{,} \hlkwc{lty} \hlstd{=} \hlstr{"dotted"}\hlstd{,} \hlkwc{col} \hlstd{= temp.pal[}\hlkwd{as.character}\hlstd{(temp.i)],} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
-        \hlkwd{lines}\hlstd{(surv} \hlopt{~} \hlstd{time, temp.data[}\hlkwd{as.character}\hlstd{(temp.data}\hlopt{$}\hlstd{group)} \hlopt{==} \hlkwd{as.character}\hlstd{(temp.i)} \hlopt{&} \hlstd{temp.data}\hlopt{$}\hlstd{est} \hlopt{==} \hlstr{"GG1 Prediction"}\hlstd{,],} \hlkwc{type} \hlstd{=} \hlstr{"l"}\hlstd{,} \hlkwc{lty} \hlstd{=} \hlstr{"solid"}\hlstd{,} \hlkwc{col} \hlstd{= temp.pal[}\hlkwd{as.character}\hlstd{(temp.i)],} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
+        \hlkwd{lines}\hlstd{(surv} \hlopt{~} \hlstd{time, temp.data[}\hlkwd{as.character}\hlstd{(temp.data}\hlopt{$}\hlstd{group)} \hlopt{==} \hlkwd{as.character}\hlstd{(temp.i)} \hlopt{&} \hlstd{temp.data}\hlopt{$}\hlstd{est} \hlopt{==} \hlstr{"Dresden Observed"}\hlstd{,],} \hlkwc{type} \hlstd{=} \hlstr{"s"}\hlstd{,} \hlkwc{lty} \hlstd{=} \hlstr{"dotted"}\hlstd{,} \hlkwc{col} \hlstd{= temp.pal[}\hlkwd{as.character}\hlstd{(temp.i)],} \hlkwc{lwd} \hlstd{=} \hlnum{4}\hlstd{)}
+        \hlkwd{lines}\hlstd{(surv} \hlopt{~} \hlstd{time, temp.data[}\hlkwd{as.character}\hlstd{(temp.data}\hlopt{$}\hlstd{group)} \hlopt{==} \hlkwd{as.character}\hlstd{(temp.i)} \hlopt{&} \hlstd{temp.data}\hlopt{$}\hlstd{est} \hlopt{==} \hlstr{"GG1 Prediction"}\hlstd{,],} \hlkwc{type} \hlstd{=} \hlstr{"l"}\hlstd{,} \hlkwc{lty} \hlstd{=} \hlstr{"solid"}\hlstd{,} \hlkwc{col} \hlstd{= temp.pal[}\hlkwd{as.character}\hlstd{(temp.i)],} \hlkwc{lwd} \hlstd{=} \hlnum{4}\hlstd{)}
         \hlkwd{points}\hlstd{(surv} \hlopt{~} \hlstd{time, temp.data2[}\hlkwd{as.character}\hlstd{(temp.data2}\hlopt{$}\hlstd{group)} \hlopt{==} \hlkwd{as.character}\hlstd{(temp.i)} \hlopt{&} \hlstd{temp.data2}\hlopt{$}\hlstd{est} \hlopt{==} \hlstr{"MSKCC Preoperative"}\hlstd{,],} \hlkwc{pch} \hlstd{=} \hlnum{21}\hlstd{,} \hlkwc{col} \hlstd{= temp.pal[}\hlkwd{as.character}\hlstd{(temp.i)],} \hlkwc{cex} \hlstd{=} \hlnum{1.5}\hlstd{)}
         \hlkwd{points}\hlstd{(surv} \hlopt{~} \hlstd{time, temp.data2[}\hlkwd{as.character}\hlstd{(temp.data2}\hlopt{$}\hlstd{group)} \hlopt{==} \hlkwd{as.character}\hlstd{(temp.i)} \hlopt{&} \hlstd{temp.data2}\hlopt{$}\hlstd{est} \hlopt{==} \hlstr{"MSKCC Postoperative"}\hlstd{,],} \hlkwc{pch} \hlstd{=} \hlnum{19}\hlstd{,} \hlkwc{col} \hlstd{= temp.pal[}\hlkwd{as.character}\hlstd{(temp.i)],} \hlkwc{cex} \hlstd{=} \hlnum{1.5}\hlstd{)}
 \hlstd{\}}
-\hlkwd{legend}\hlstd{(}\hlstr{"topright"}\hlstd{,} \hlkwc{inset} \hlstd{=} \hlnum{0.05}\hlstd{,} \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"GG1 Prediction"}\hlstd{,} \hlstr{"MSKCC Preoperative Prediction"}\hlstd{,} \hlstr{"MSKCC Postoperative Prediction"}\hlstd{,} \hlstr{"Dresden Observed"}\hlstd{,} \hlstr{"Low predicted risk"}\hlstd{,} \hlstr{"Medium predicted risk"}\hlstd{,} \hlstr{"High predicted risk"}\hlstd{),} \hlkwc{lty} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"solid"}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{,} \hlstr{"dotted"}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{),} \hlkwc{col} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"black"}\hlstd{,} \hlstr{"black"}\hlstd{,} \hlstr{"black"}\hlstd{,} \hlstr{"black"}\hlstd{, temp.pal[}\hlnum{1}\hlopt{:}\hlnum{3}\hlstd{]),} \hlkwc{pch} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{NA}\hlstd{,} \hlnum{21}\hlstd{,} \hlnum{19}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{15}\hlstd{,} \hlnum{15}\hlstd{,} \hlnum{15}\hlstd{),} \hlkwc{pt.cex} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{1}\hlstd{,} \hlnum{1}\hlstd{,} \hlnum{1}\hlstd{,} \hlnum{2}\hlstd{,} \hlnum{2}\hlstd{,} \hlnum{2}\hlstd{))}
+\hlkwd{legend}\hlstd{(}\hlstr{"topright"}\hlstd{,} \hlkwc{inset} \hlstd{=} \hlnum{0.05}\hlstd{,} \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"PCOP Prediction"}\hlstd{,} \hlstr{"MSKCC Preoperative Prediction"}\hlstd{,} \hlstr{"MSKCC Postoperative Prediction"}\hlstd{,} \hlstr{"Dresden Observed"}\hlstd{,} \hlstr{"Low predicted risk"}\hlstd{,} \hlstr{"Medium predicted risk"}\hlstd{,} \hlstr{"High predicted risk"}\hlstd{),} \hlkwc{lty} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"solid"}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{,} \hlstr{"dotted"}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{),} \hlkwc{lwd} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{4}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{4}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{),} \hlkwc{col} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"black"}\hlstd{,} \hlstr{"black"}\hlstd{,} \hlstr{"black"}\hlstd{,} \hlstr{"black"}\hlstd{, temp.pal[}\hlnum{1}\hlopt{:}\hlnum{3}\hlstd{]),} \hlkwc{pch} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{NA}\hlstd{,} \hlnum{21}\hlstd{,} \hlnum{19}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{15}\hlstd{,} \hlnum{15}\hlstd{,} \hlnum{15}\hlstd{),} \hlkwc{cex} \hlstd{=} \hlnum{0.7}\hlstd{,} \hlkwc{pt.cex} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{1}\hlstd{,} \hlnum{1}\hlstd{,} \hlnum{1}\hlstd{,} \hlnum{2}\hlstd{,} \hlnum{2}\hlstd{,} \hlnum{2}\hlstd{))}
 \end{alltt}
 \end{kframe}
 
 {\centering \includegraphics[width=\maxwidth]{figure/07-altman-4-dresden-1} 
+
+}
+
+
+\begin{kframe}\begin{alltt}
+\hlkwd{plot}\hlstd{(}\hlnum{0} \hlopt{~} \hlnum{0}\hlstd{,} \hlkwc{type} \hlstd{=} \hlstr{"n"}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{5}\hlopt{*}\hlnum{12}\hlstd{),} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{1}\hlstd{),} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (months)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Fraction alive"}\hlstd{,} \hlkwc{cex.lab} \hlstd{=} \hlnum{1.2}\hlstd{,} \hlkwc{cex.axis} \hlstd{=} \hlnum{1.2}\hlstd{)}
+\hlstd{temp.pal} \hlkwb{=} \hlkwd{brewer.pal}\hlstd{(}\hlkwd{length}\hlstd{(}\hlkwd{unique}\hlstd{(gg.groups.dresden)),} \hlstr{"Dark2"}\hlstd{)[}\hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{3}\hlstd{,} \hlnum{2}\hlstd{)]}
+\hlkwd{names}\hlstd{(temp.pal)} \hlkwb{=} \hlkwd{sort}\hlstd{(}\hlkwd{unique}\hlstd{(gg.groups.dresden))}
+\hlkwa{for} \hlstd{(temp.i} \hlkwa{in} \hlkwd{factor}\hlstd{(}\hlkwd{sort}\hlstd{(}\hlkwd{unique}\hlstd{(gg.groups.dresden))))}
+\hlstd{\{}
+        \hlkwd{lines}\hlstd{(surv} \hlopt{~} \hlstd{time, temp.data[}\hlkwd{as.character}\hlstd{(temp.data}\hlopt{$}\hlstd{group)} \hlopt{==} \hlkwd{as.character}\hlstd{(temp.i)} \hlopt{&} \hlstd{temp.data}\hlopt{$}\hlstd{est} \hlopt{==} \hlstr{"Dresden Observed"}\hlstd{,],} \hlkwc{type} \hlstd{=} \hlstr{"s"}\hlstd{,} \hlkwc{lty} \hlstd{=} \hlstr{"dotted"}\hlstd{,} \hlkwc{col} \hlstd{= temp.pal[}\hlkwd{as.character}\hlstd{(temp.i)],} \hlkwc{lwd} \hlstd{=} \hlnum{4}\hlstd{)}
+        \hlkwd{lines}\hlstd{(surv} \hlopt{~} \hlstd{time, temp.data[}\hlkwd{as.character}\hlstd{(temp.data}\hlopt{$}\hlstd{group)} \hlopt{==} \hlkwd{as.character}\hlstd{(temp.i)} \hlopt{&} \hlstd{temp.data}\hlopt{$}\hlstd{est} \hlopt{==} \hlstr{"GG1 Prediction"}\hlstd{,],} \hlkwc{type} \hlstd{=} \hlstr{"l"}\hlstd{,} \hlkwc{lty} \hlstd{=} \hlstr{"solid"}\hlstd{,} \hlkwc{col} \hlstd{= temp.pal[}\hlkwd{as.character}\hlstd{(temp.i)],} \hlkwc{lwd} \hlstd{=} \hlnum{4}\hlstd{)}
+\hlstd{\}}
+\hlkwd{legend}\hlstd{(}\hlstr{"topright"}\hlstd{,} \hlkwc{inset} \hlstd{=} \hlnum{0.05}\hlstd{,} \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"PCOP Prediction"}\hlstd{,} \hlstr{"Dresden Observed"}\hlstd{,} \hlstr{"Low predicted risk"}\hlstd{,} \hlstr{"Medium predicted risk"}\hlstd{,} \hlstr{"High predicted risk"}\hlstd{),} \hlkwc{lty} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"solid"}\hlstd{,} \hlstr{"dotted"}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{),} \hlkwc{lwd} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{4}\hlstd{,} \hlnum{4}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{),} \hlkwc{col} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"black"}\hlstd{,} \hlstr{"black"}\hlstd{, temp.pal[}\hlnum{1}\hlopt{:}\hlnum{3}\hlstd{]),} \hlkwc{pch} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{15}\hlstd{,} \hlnum{15}\hlstd{,} \hlnum{15}\hlstd{),} \hlkwc{cex} \hlstd{=} \hlnum{1.2}\hlstd{,} \hlkwc{pt.cex} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{1}\hlstd{,} \hlnum{2}\hlstd{,} \hlnum{2}\hlstd{,} \hlnum{2}\hlstd{))}
+\end{alltt}
+\end{kframe}
+
+{\centering \includegraphics[width=\maxwidth]{figure/07-altman-4-dresden-2} 
 
 }
 
@@ -3149,17 +3793,16 @@ Decision curve analysis.
 
 
 \begin{kframe}\begin{alltt}
-\hlkwd{plot}\hlstd{(gg.path.glasgow.brier}\hlopt{$}\hlstd{eval_times}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{, gg.path.glasgow.brier}\hlopt{$}\hlstd{bsc,} \hlkwc{col} \hlstd{= pal[}\hlstr{"gg"}\hlstd{],} \hlkwc{type} \hlstd{=} \hlstr{"l"}\hlstd{,} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{0.3}\hlstd{),} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (months)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Brier score"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{40}\hlstd{),} \hlkwc{main} \hlstd{=} \hlstr{"Glasgow"}\hlstd{)}
+\hlkwd{plot}\hlstd{(gg.path.glasgow.brier}\hlopt{$}\hlstd{eval_times}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{, gg.path.glasgow.brier}\hlopt{$}\hlstd{bsc,} \hlkwc{col} \hlstd{= pal[}\hlstr{"gg"}\hlstd{],} \hlkwc{type} \hlstd{=} \hlstr{"l"}\hlstd{,} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{0.3}\hlstd{),} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (months)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Brier score"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{40}\hlstd{))}
 \hlkwd{lines}\hlstd{(gg.path.glasgow.brier}\hlopt{$}\hlstd{eval_times}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{, km0.path.glasgow.brier}\hlopt{$}\hlstd{bsc,} \hlkwc{col} \hlstd{= pal[}\hlstr{"km0"}\hlstd{],} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
-\hlkwd{points}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{12}\hlstd{,} \hlnum{24}\hlstd{,} \hlnum{36}\hlstd{),} \hlkwd{c}\hlstd{(mskcc_post.12mo.glasgow.brier, mskcc_post.24mo.glasgow.brier, mskcc_post.36mo.glasgow.brier),} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.pre"}\hlstd{],} \hlkwc{cex} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{pch} \hlstd{=} \hlnum{16}\hlstd{)}
-\hlkwd{points}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{12}\hlstd{,} \hlnum{24}\hlstd{,} \hlnum{36}\hlstd{),} \hlkwd{c}\hlstd{(mskcc_pre.12mo.glasgow.brier, mskcc_pre.24mo.glasgow.brier, mskcc_pre.36mo.glasgow.brier),} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.post"}\hlstd{],} \hlkwc{cex} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{pch} \hlstd{=} \hlnum{16}\hlstd{)}
+\hlkwd{points}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{12}\hlstd{,} \hlnum{24}\hlstd{,} \hlnum{36}\hlstd{),} \hlkwd{c}\hlstd{(mskcc_pre.12mo.glasgow.brier, mskcc_pre.24mo.glasgow.brier, mskcc_pre.36mo.glasgow.brier),} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.pre"}\hlstd{],} \hlkwc{cex} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{pch} \hlstd{=} \hlnum{16}\hlstd{)}
 \hlkwd{abline}\hlstd{(}\hlkwc{h} \hlstd{=} \hlnum{0.25}\hlstd{,} \hlkwc{col} \hlstd{=} \hlstr{"grey"}\hlstd{,} \hlkwc{lty} \hlstd{=} \hlstr{"dotted"}\hlstd{)}
 \hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{7}\hlstd{,} \hlnum{34}\hlstd{))}
 \hlkwd{legend}\hlstd{(}\hlstr{"bottom"}\hlstd{,}
-        \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}     \hlstr{"GG1 Preop"}\hlstd{,}    \hlstr{"KM0"}\hlstd{,}          \hlstr{"MSKCC Postop"}\hlstd{,}         \hlstr{"MSKCC Preop"}\hlstd{),}
-        \hlkwc{pch} \hlstd{=} \hlkwd{c}\hlstd{(}        \hlnum{NA}\hlstd{,}                     \hlnum{NA}\hlstd{,}             \hlnum{16}\hlstd{,}                             \hlnum{16}\hlstd{),}
-        \hlkwc{col} \hlstd{=} \hlkwd{c}\hlstd{(        pal[}\hlstr{"gg"}\hlstd{],              pal[}\hlstr{"km0"}\hlstd{], pal[}\hlstr{"mskcc.pre"}\hlstd{],   pal[}\hlstr{"mskcc.post"}\hlstd{]),}
-        \hlkwc{lty} \hlstd{=} \hlkwd{c}\hlstd{(}        \hlstr{"solid"}\hlstd{,}                \hlstr{"solid"}\hlstd{,}        \hlnum{NA}\hlstd{,}                             \hlnum{NA}\hlstd{),}
+        \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}     \hlstr{"PCOP"}\hlstd{,}                 \hlstr{"KM0"}\hlstd{,}          \hlstr{"MSKCC"}\hlstd{),}
+        \hlkwc{pch} \hlstd{=} \hlkwd{c}\hlstd{(}        \hlnum{NA}\hlstd{,}                     \hlnum{NA}\hlstd{,}             \hlnum{16}\hlstd{),}
+        \hlkwc{col} \hlstd{=} \hlkwd{c}\hlstd{(        pal[}\hlstr{"gg"}\hlstd{],              pal[}\hlstr{"km0"}\hlstd{], pal[}\hlstr{"mskcc.pre"}\hlstd{]),}
+        \hlkwc{lty} \hlstd{=} \hlkwd{c}\hlstd{(}        \hlstr{"solid"}\hlstd{,}                \hlstr{"solid"}\hlstd{,}        \hlnum{NA}\hlstd{),}
         \hlkwc{inset} \hlstd{=} \hlnum{0.05}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
 \end{alltt}
 \end{kframe}
@@ -3239,17 +3882,16 @@ Decision curve analysis.
 
 
 \begin{kframe}\begin{alltt}
-\hlkwd{plot}\hlstd{(gg.path.apgi.brier}\hlopt{$}\hlstd{eval_times}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{, gg.path.apgi.brier}\hlopt{$}\hlstd{bsc,} \hlkwc{col} \hlstd{= pal[}\hlstr{"gg"}\hlstd{],} \hlkwc{type} \hlstd{=} \hlstr{"l"}\hlstd{,} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{0.3}\hlstd{),} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (months)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Brier score"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{40}\hlstd{),} \hlkwc{main} \hlstd{=} \hlstr{"APGI"}\hlstd{)}
+\hlkwd{plot}\hlstd{(gg.path.apgi.brier}\hlopt{$}\hlstd{eval_times}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{, gg.path.apgi.brier}\hlopt{$}\hlstd{bsc,} \hlkwc{col} \hlstd{= pal[}\hlstr{"gg"}\hlstd{],} \hlkwc{type} \hlstd{=} \hlstr{"l"}\hlstd{,} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{0.3}\hlstd{),} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (months)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Brier score"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{40}\hlstd{))}
 \hlkwd{lines}\hlstd{(gg.path.apgi.brier}\hlopt{$}\hlstd{eval_times}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{, km0.path.apgi.brier}\hlopt{$}\hlstd{bsc,} \hlkwc{col} \hlstd{= pal[}\hlstr{"km0"}\hlstd{],} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
-\hlkwd{points}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{12}\hlstd{,} \hlnum{24}\hlstd{,} \hlnum{36}\hlstd{),} \hlkwd{c}\hlstd{(mskcc_post.12mo.apgi.brier, mskcc_post.24mo.apgi.brier, mskcc_post.36mo.apgi.brier),} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.pre"}\hlstd{],} \hlkwc{cex} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{pch} \hlstd{=} \hlnum{16}\hlstd{)}
-\hlkwd{points}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{12}\hlstd{,} \hlnum{24}\hlstd{,} \hlnum{36}\hlstd{),} \hlkwd{c}\hlstd{(mskcc_pre.12mo.apgi.brier, mskcc_pre.24mo.apgi.brier, mskcc_pre.36mo.apgi.brier),} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.post"}\hlstd{],} \hlkwc{cex} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{pch} \hlstd{=} \hlnum{16}\hlstd{)}
+\hlkwd{points}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{12}\hlstd{,} \hlnum{24}\hlstd{,} \hlnum{36}\hlstd{),} \hlkwd{c}\hlstd{(mskcc_pre.12mo.apgi.brier, mskcc_pre.24mo.apgi.brier, mskcc_pre.36mo.apgi.brier),} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.pre"}\hlstd{],} \hlkwc{cex} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{pch} \hlstd{=} \hlnum{16}\hlstd{)}
 \hlkwd{abline}\hlstd{(}\hlkwc{h} \hlstd{=} \hlnum{0.25}\hlstd{,} \hlkwc{col} \hlstd{=} \hlstr{"grey"}\hlstd{,} \hlkwc{lty} \hlstd{=} \hlstr{"dotted"}\hlstd{)}
 \hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{7}\hlstd{,} \hlnum{34}\hlstd{))}
 \hlkwd{legend}\hlstd{(}\hlstr{"bottom"}\hlstd{,}
-        \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}     \hlstr{"GG1 Preop"}\hlstd{,}    \hlstr{"KM0"}\hlstd{,}          \hlstr{"MSKCC Postop"}\hlstd{,}         \hlstr{"MSKCC Preop"}\hlstd{),}
-        \hlkwc{pch} \hlstd{=} \hlkwd{c}\hlstd{(}        \hlnum{NA}\hlstd{,}                     \hlnum{NA}\hlstd{,}             \hlnum{16}\hlstd{,}                             \hlnum{16}\hlstd{),}
-        \hlkwc{col} \hlstd{=} \hlkwd{c}\hlstd{(        pal[}\hlstr{"gg"}\hlstd{],              pal[}\hlstr{"km0"}\hlstd{], pal[}\hlstr{"mskcc.pre"}\hlstd{],   pal[}\hlstr{"mskcc.post"}\hlstd{]),}
-        \hlkwc{lty} \hlstd{=} \hlkwd{c}\hlstd{(}        \hlstr{"solid"}\hlstd{,}                \hlstr{"solid"}\hlstd{,}        \hlnum{NA}\hlstd{,}                             \hlnum{NA}\hlstd{),}
+        \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}     \hlstr{"PCOP"}\hlstd{,}                 \hlstr{"KM0"}\hlstd{,}          \hlstr{"MSKCC"}\hlstd{),}
+        \hlkwc{pch} \hlstd{=} \hlkwd{c}\hlstd{(}        \hlnum{NA}\hlstd{,}                     \hlnum{NA}\hlstd{,}             \hlnum{16}\hlstd{),}
+        \hlkwc{col} \hlstd{=} \hlkwd{c}\hlstd{(        pal[}\hlstr{"gg"}\hlstd{],              pal[}\hlstr{"km0"}\hlstd{], pal[}\hlstr{"mskcc.pre"}\hlstd{]),}
+        \hlkwc{lty} \hlstd{=} \hlkwd{c}\hlstd{(}        \hlstr{"solid"}\hlstd{,}                \hlstr{"solid"}\hlstd{,}        \hlnum{NA}\hlstd{),}
         \hlkwc{inset} \hlstd{=} \hlnum{0.05}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
 \end{alltt}
 \end{kframe}
@@ -3329,17 +3971,16 @@ Decision curve analysis.
 
 
 \begin{kframe}\begin{alltt}
-\hlkwd{plot}\hlstd{(gg.path.dresden.brier}\hlopt{$}\hlstd{eval_times}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{, gg.path.dresden.brier}\hlopt{$}\hlstd{bsc,} \hlkwc{col} \hlstd{= pal[}\hlstr{"gg"}\hlstd{],} \hlkwc{type} \hlstd{=} \hlstr{"l"}\hlstd{,} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{0.3}\hlstd{),} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (months)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Brier score"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{40}\hlstd{),} \hlkwc{main} \hlstd{=} \hlstr{"Dresden"}\hlstd{)}
+\hlkwd{plot}\hlstd{(gg.path.dresden.brier}\hlopt{$}\hlstd{eval_times}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{, gg.path.dresden.brier}\hlopt{$}\hlstd{bsc,} \hlkwc{col} \hlstd{= pal[}\hlstr{"gg"}\hlstd{],} \hlkwc{type} \hlstd{=} \hlstr{"l"}\hlstd{,} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{0.3}\hlstd{),} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (months)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Brier score"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{40}\hlstd{))}
 \hlkwd{lines}\hlstd{(gg.path.dresden.brier}\hlopt{$}\hlstd{eval_times}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{, km0.path.dresden.brier}\hlopt{$}\hlstd{bsc,} \hlkwc{col} \hlstd{= pal[}\hlstr{"km0"}\hlstd{],} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
-\hlkwd{points}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{12}\hlstd{,} \hlnum{24}\hlstd{,} \hlnum{36}\hlstd{),} \hlkwd{c}\hlstd{(mskcc_post.12mo.dresden.brier, mskcc_post.24mo.dresden.brier, mskcc_post.36mo.dresden.brier),} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.pre"}\hlstd{],} \hlkwc{cex} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{pch} \hlstd{=} \hlnum{16}\hlstd{)}
-\hlkwd{points}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{12}\hlstd{,} \hlnum{24}\hlstd{,} \hlnum{36}\hlstd{),} \hlkwd{c}\hlstd{(mskcc_pre.12mo.dresden.brier, mskcc_pre.24mo.dresden.brier, mskcc_pre.36mo.dresden.brier),} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.post"}\hlstd{],} \hlkwc{cex} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{pch} \hlstd{=} \hlnum{16}\hlstd{)}
+\hlkwd{points}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{12}\hlstd{,} \hlnum{24}\hlstd{,} \hlnum{36}\hlstd{),} \hlkwd{c}\hlstd{(mskcc_pre.12mo.dresden.brier, mskcc_pre.24mo.dresden.brier, mskcc_pre.36mo.dresden.brier),} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.pre"}\hlstd{],} \hlkwc{cex} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{pch} \hlstd{=} \hlnum{16}\hlstd{)}
 \hlkwd{abline}\hlstd{(}\hlkwc{h} \hlstd{=} \hlnum{0.25}\hlstd{,} \hlkwc{col} \hlstd{=} \hlstr{"grey"}\hlstd{,} \hlkwc{lty} \hlstd{=} \hlstr{"dotted"}\hlstd{)}
 \hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{7}\hlstd{,} \hlnum{34}\hlstd{))}
 \hlkwd{legend}\hlstd{(}\hlstr{"bottom"}\hlstd{,}
-        \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}     \hlstr{"GG1 Preop"}\hlstd{,}    \hlstr{"KM0"}\hlstd{,}          \hlstr{"MSKCC Postop"}\hlstd{,}         \hlstr{"MSKCC Preop"}\hlstd{),}
-        \hlkwc{pch} \hlstd{=} \hlkwd{c}\hlstd{(}        \hlnum{NA}\hlstd{,}                     \hlnum{NA}\hlstd{,}             \hlnum{16}\hlstd{,}                             \hlnum{16}\hlstd{),}
-        \hlkwc{col} \hlstd{=} \hlkwd{c}\hlstd{(        pal[}\hlstr{"gg"}\hlstd{],              pal[}\hlstr{"km0"}\hlstd{], pal[}\hlstr{"mskcc.pre"}\hlstd{],   pal[}\hlstr{"mskcc.post"}\hlstd{]),}
-        \hlkwc{lty} \hlstd{=} \hlkwd{c}\hlstd{(}        \hlstr{"solid"}\hlstd{,}                \hlstr{"solid"}\hlstd{,}        \hlnum{NA}\hlstd{,}                             \hlnum{NA}\hlstd{),}
+        \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}     \hlstr{"PCOP"}\hlstd{,}                 \hlstr{"KM0"}\hlstd{,}          \hlstr{"MSKCC"}\hlstd{),}
+        \hlkwc{pch} \hlstd{=} \hlkwd{c}\hlstd{(}        \hlnum{NA}\hlstd{,}                     \hlnum{NA}\hlstd{,}             \hlnum{16}\hlstd{),}
+        \hlkwc{col} \hlstd{=} \hlkwd{c}\hlstd{(        pal[}\hlstr{"gg"}\hlstd{],              pal[}\hlstr{"km0"}\hlstd{], pal[}\hlstr{"mskcc.pre"}\hlstd{]),}
+        \hlkwc{lty} \hlstd{=} \hlkwd{c}\hlstd{(}        \hlstr{"solid"}\hlstd{,}                \hlstr{"solid"}\hlstd{,}        \hlnum{NA}\hlstd{),}
         \hlkwc{inset} \hlstd{=} \hlnum{0.05}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
 \end{alltt}
 \end{kframe}
@@ -3836,7 +4477,7 @@ Incident-dynamic:
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{risksetROC.boot} \hlkwb{=} \hlkwa{function}\hlstd{(}\hlkwc{time}\hlstd{,} \hlkwc{event}\hlstd{,} \hlkwc{marker}\hlstd{,} \hlkwc{tmin} \hlstd{=} \hlnum{0}\hlstd{,} \hlkwc{tmax}\hlstd{,} \hlkwc{B} \hlstd{=} \hlnum{10000}\hlstd{,} \hlkwc{...}\hlstd{)}
+\hlstd{risksetROC.boot} \hlkwb{=} \hlkwa{function}\hlstd{(}\hlkwc{time}\hlstd{,} \hlkwc{event}\hlstd{,} \hlkwc{marker}\hlstd{,} \hlkwc{tmin} \hlstd{=} \hlnum{0}\hlstd{,} \hlkwc{tmax}\hlstd{,} \hlkwc{B} \hlstd{=} \hlnum{2000}\hlstd{,} \hlkwc{...}\hlstd{)}
 \hlstd{\{}
         \hlstd{data} \hlkwb{=} \hlkwd{data.frame}\hlstd{(}\hlkwc{time} \hlstd{= time,} \hlkwc{event} \hlstd{= event,} \hlkwc{marker} \hlstd{= marker)}
         \hlstd{eval_times} \hlkwb{=} \hlkwd{seq}\hlstd{(tmin, tmax,} \hlkwc{length.out} \hlstd{=} \hlnum{200}\hlstd{)}
@@ -3892,12 +4533,6 @@ Incident-dynamic:
 \begin{alltt}
 \hlkwd{set.seed}\hlstd{(}\hlnum{20150216}\hlstd{)}
 \hlstd{rrROC_boot.mskcc_pre.glasgow} \hlkwb{=} \hlkwd{risksetROC.boot}\hlstd{(}\hlkwc{time} \hlstd{= data.glasgow}\hlopt{$}\hlstd{Time}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{,} \hlkwc{event} \hlstd{= data.glasgow}\hlopt{$}\hlstd{DSD,} \hlkwc{marker} \hlstd{= mskcc_pre.linpred.glasgow,} \hlkwc{tmax} \hlstd{=} \hlnum{60}\hlstd{,} \hlkwc{method} \hlstd{=} \hlstr{"Schoenfeld"}\hlstd{,} \hlkwc{span} \hlstd{=} \hlnum{0.4}\hlstd{)}
-\end{alltt}
-
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in fitter(X, Y, strats, offset, init, control, weights = weights, : Loglik converged before variable\ \ 1 ; beta may be infinite.}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in fitter(X, Y, strats, offset, init, control, weights = weights, : Loglik converged before variable\ \ 1 ; beta may be infinite.}}\begin{alltt}
 \hlstd{rrROC_boot.mskcc_post.glasgow} \hlkwb{=} \hlkwd{risksetROC.boot}\hlstd{(}\hlkwc{time} \hlstd{= data.glasgow}\hlopt{$}\hlstd{Time}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{,} \hlkwc{event} \hlstd{= data.glasgow}\hlopt{$}\hlstd{DSD,} \hlkwc{marker} \hlstd{= mskcc_post.linpred.glasgow,} \hlkwc{tmax} \hlstd{=} \hlnum{60}\hlstd{,} \hlkwc{method} \hlstd{=} \hlstr{"Schoenfeld"}\hlstd{,} \hlkwc{span} \hlstd{=} \hlnum{0.4}\hlstd{)}
 \hlstd{rrROC_boot.gg.glasgow} \hlkwb{=} \hlkwd{risksetROC.boot}\hlstd{(}\hlkwc{time} \hlstd{= data.glasgow}\hlopt{$}\hlstd{Time}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{,} \hlkwc{event} \hlstd{= data.glasgow}\hlopt{$}\hlstd{DSD,} \hlkwc{marker} \hlstd{= gg.linpred.glasgow,} \hlkwc{tmax} \hlstd{=} \hlnum{60}\hlstd{,} \hlkwc{method} \hlstd{=} \hlstr{"Schoenfeld"}\hlstd{,} \hlkwc{span} \hlstd{=} \hlnum{0.4}\hlstd{)}
 \end{alltt}
@@ -3907,85 +4542,14 @@ Incident-dynamic:
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{temp} \hlkwb{=} \hlkwd{risksetAUC}\hlstd{(}\hlkwc{Stime} \hlstd{= data.glasgow}\hlopt{$}\hlstd{Time}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{,} \hlkwc{status} \hlstd{= data.glasgow}\hlopt{$}\hlstd{DSD,} \hlkwc{marker} \hlstd{= mskcc_pre.linpred.glasgow,} \hlkwc{tmax} \hlstd{=} \hlnum{60}\hlstd{,} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.pre"}\hlstd{],} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{method} \hlstd{=} \hlstr{"Schoenfeld"}\hlstd{,} \hlkwc{span} \hlstd{=} \hlnum{0.4}\hlstd{)}
-\hlstd{temp}\hlopt{$}\hlstd{Cindex}
-\end{alltt}
-\begin{verbatim}
-## [1] 0.5295
-\end{verbatim}
-\begin{alltt}
-\hlkwd{IntegrateAUC}\hlstd{(temp}\hlopt{$}\hlstd{AUC, temp}\hlopt{$}\hlstd{utimes, temp}\hlopt{$}\hlstd{St,} \hlkwc{tmax} \hlstd{=} \hlnum{60}\hlstd{)}
-\end{alltt}
-\begin{verbatim}
-## [1] 0.5295
-\end{verbatim}
-\begin{alltt}
-\hlkwd{IntegrateAUC}\hlstd{(temp}\hlopt{$}\hlstd{AUC, temp}\hlopt{$}\hlstd{utimes, temp}\hlopt{$}\hlstd{St,} \hlkwc{tmax} \hlstd{=} \hlnum{34}\hlstd{)}
-\end{alltt}
-\begin{verbatim}
-## [1] 0.5296
-\end{verbatim}
-\begin{alltt}
-\hlkwd{par}\hlstd{(}\hlkwc{new} \hlstd{=} \hlnum{TRUE}\hlstd{)}
-\hlstd{temp} \hlkwb{=} \hlkwd{risksetAUC}\hlstd{(}\hlkwc{Stime} \hlstd{= data.glasgow}\hlopt{$}\hlstd{Time}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{,} \hlkwc{status} \hlstd{= data.glasgow}\hlopt{$}\hlstd{DSD,} \hlkwc{marker} \hlstd{= mskcc_post.linpred.glasgow,} \hlkwc{tmax} \hlstd{=} \hlnum{60}\hlstd{,} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.post"}\hlstd{],} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{method} \hlstd{=} \hlstr{"Schoenfeld"}\hlstd{,} \hlkwc{span} \hlstd{=} \hlnum{0.4}\hlstd{)}
-\hlstd{temp}\hlopt{$}\hlstd{Cindex}
-\end{alltt}
-\begin{verbatim}
-## [1] 0.5892
-\end{verbatim}
-\begin{alltt}
-\hlkwd{IntegrateAUC}\hlstd{(temp}\hlopt{$}\hlstd{AUC, temp}\hlopt{$}\hlstd{utimes, temp}\hlopt{$}\hlstd{St,} \hlkwc{tmax} \hlstd{=} \hlnum{60}\hlstd{)}
-\end{alltt}
-\begin{verbatim}
-## [1] 0.5892
-\end{verbatim}
-\begin{alltt}
-\hlkwd{IntegrateAUC}\hlstd{(temp}\hlopt{$}\hlstd{AUC, temp}\hlopt{$}\hlstd{utimes, temp}\hlopt{$}\hlstd{St,} \hlkwc{tmax} \hlstd{=} \hlnum{34}\hlstd{)}
-\end{alltt}
-\begin{verbatim}
-## [1] 0.5876
-\end{verbatim}
-\begin{alltt}
-\hlkwd{par}\hlstd{(}\hlkwc{new} \hlstd{=} \hlnum{TRUE}\hlstd{)}
-\hlstd{temp} \hlkwb{=} \hlkwd{risksetAUC}\hlstd{(}\hlkwc{Stime} \hlstd{= data.glasgow}\hlopt{$}\hlstd{Time}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{,} \hlkwc{status} \hlstd{= data.glasgow}\hlopt{$}\hlstd{DSD,} \hlkwc{marker} \hlstd{= gg.linpred.glasgow,} \hlkwc{tmax} \hlstd{=} \hlnum{60}\hlstd{,} \hlkwc{col} \hlstd{= pal[}\hlstr{"gg"}\hlstd{],} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{method} \hlstd{=} \hlstr{"Schoenfeld"}\hlstd{,} \hlkwc{span} \hlstd{=} \hlnum{0.4}\hlstd{)}
-\hlstd{temp}\hlopt{$}\hlstd{Cindex}
-\end{alltt}
-\begin{verbatim}
-## [1] 0.6147
-\end{verbatim}
-\begin{alltt}
-\hlkwd{IntegrateAUC}\hlstd{(temp}\hlopt{$}\hlstd{AUC, temp}\hlopt{$}\hlstd{utimes, temp}\hlopt{$}\hlstd{St,} \hlkwc{tmax} \hlstd{=} \hlnum{60}\hlstd{)}
-\end{alltt}
-\begin{verbatim}
-## [1] 0.6147
-\end{verbatim}
-\begin{alltt}
-\hlkwd{IntegrateAUC}\hlstd{(temp}\hlopt{$}\hlstd{AUC, temp}\hlopt{$}\hlstd{utimes, temp}\hlopt{$}\hlstd{St,} \hlkwc{tmax} \hlstd{=} \hlnum{34}\hlstd{)}
-\end{alltt}
-\begin{verbatim}
-## [1] 0.6191
-\end{verbatim}
-\begin{alltt}
-\hlkwd{legend}\hlstd{(}\hlstr{"topright"}\hlstd{,} \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"Glasgow Preop"}\hlstd{,} \hlstr{"Glasgow Postop"}\hlstd{,} \hlstr{"GG"}\hlstd{),} \hlkwc{col} \hlstd{=} \hlkwd{c}\hlstd{(pal[}\hlstr{"mskcc.pre"}\hlstd{], pal[}\hlstr{"mskcc.post"}\hlstd{], pal[}\hlstr{"gg"}\hlstd{]),} \hlkwc{lty} \hlstd{=} \hlstr{"solid"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
+\hlkwd{plot}\hlstd{(rrROC_boot.mskcc_pre.glasgow,} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.pre"}\hlstd{],} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (months)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"AUC"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{3}\hlstd{)}
+\hlkwd{plot}\hlstd{(rrROC_boot.gg.glasgow,} \hlkwc{col} \hlstd{= pal[}\hlstr{"gg"}\hlstd{],} \hlkwc{add} \hlstd{=} \hlnum{TRUE}\hlstd{,} \hlkwc{ci} \hlstd{=} \hlnum{TRUE}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{3}\hlstd{)}
+\hlkwd{legend}\hlstd{(}\hlstr{"topright"}\hlstd{,} \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"MSKCC"}\hlstd{,} \hlstr{"PCOP"}\hlstd{),} \hlkwc{col} \hlstd{=} \hlkwd{c}\hlstd{(pal[}\hlstr{"mskcc.pre"}\hlstd{], pal[}\hlstr{"gg"}\hlstd{]),} \hlkwc{lty} \hlstd{=} \hlstr{"solid"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{3}\hlstd{,} \hlkwc{inset} \hlstd{=} \hlnum{0.05}\hlstd{)}
 \hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{7}\hlstd{,} \hlnum{31}\hlstd{))}
 \end{alltt}
 \end{kframe}
 
 {\centering \includegraphics[width=\maxwidth]{figure/07-risksetROC-plot-glasgow-1} 
-
-}
-
-
-\begin{kframe}\begin{alltt}
-\hlkwd{plot}\hlstd{(rrROC_boot.mskcc_pre.glasgow,} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.pre"}\hlstd{],} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (months)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"AUC"}\hlstd{)}
-\hlkwd{plot}\hlstd{(rrROC_boot.mskcc_post.glasgow,} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.post"}\hlstd{],} \hlkwc{add} \hlstd{=} \hlnum{TRUE}\hlstd{)}
-\hlkwd{plot}\hlstd{(rrROC_boot.gg.glasgow,} \hlkwc{col} \hlstd{= pal[}\hlstr{"gg"}\hlstd{],} \hlkwc{add} \hlstd{=} \hlnum{TRUE}\hlstd{,} \hlkwc{ci} \hlstd{=} \hlnum{TRUE}\hlstd{)}
-\hlkwd{legend}\hlstd{(}\hlstr{"topright"}\hlstd{,} \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"Glasgow Preop"}\hlstd{,} \hlstr{"Glasgow Postop"}\hlstd{,} \hlstr{"GG"}\hlstd{),} \hlkwc{col} \hlstd{=} \hlkwd{c}\hlstd{(pal[}\hlstr{"mskcc.pre"}\hlstd{], pal[}\hlstr{"mskcc.post"}\hlstd{], pal[}\hlstr{"gg"}\hlstd{]),} \hlkwc{lty} \hlstd{=} \hlstr{"solid"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
-\hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{7}\hlstd{,} \hlnum{31}\hlstd{))}
-\end{alltt}
-\end{kframe}
-
-{\centering \includegraphics[width=\maxwidth]{figure/07-risksetROC-plot-glasgow-2} 
 
 }
 
@@ -4007,85 +4571,14 @@ Incident-dynamic:
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{temp} \hlkwb{=} \hlkwd{risksetAUC}\hlstd{(}\hlkwc{Stime} \hlstd{= data.apgi}\hlopt{$}\hlstd{Time}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{,} \hlkwc{status} \hlstd{= data.apgi}\hlopt{$}\hlstd{DSD,} \hlkwc{marker} \hlstd{= mskcc_pre.linpred.apgi,} \hlkwc{tmax} \hlstd{=} \hlnum{60}\hlstd{,} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.pre"}\hlstd{],} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{method} \hlstd{=} \hlstr{"Schoenfeld"}\hlstd{,} \hlkwc{span} \hlstd{=} \hlnum{0.4}\hlstd{)}
-\hlstd{temp}\hlopt{$}\hlstd{Cindex}
-\end{alltt}
-\begin{verbatim}
-## [1] 0.5285
-\end{verbatim}
-\begin{alltt}
-\hlkwd{IntegrateAUC}\hlstd{(temp}\hlopt{$}\hlstd{AUC, temp}\hlopt{$}\hlstd{utimes, temp}\hlopt{$}\hlstd{St,} \hlkwc{tmax} \hlstd{=} \hlnum{60}\hlstd{)}
-\end{alltt}
-\begin{verbatim}
-## [1] 0.5285
-\end{verbatim}
-\begin{alltt}
-\hlkwd{IntegrateAUC}\hlstd{(temp}\hlopt{$}\hlstd{AUC, temp}\hlopt{$}\hlstd{utimes, temp}\hlopt{$}\hlstd{St,} \hlkwc{tmax} \hlstd{=} \hlnum{34}\hlstd{)}
-\end{alltt}
-\begin{verbatim}
-## [1] 0.5301
-\end{verbatim}
-\begin{alltt}
-\hlkwd{par}\hlstd{(}\hlkwc{new} \hlstd{=} \hlnum{TRUE}\hlstd{)}
-\hlstd{temp} \hlkwb{=} \hlkwd{risksetAUC}\hlstd{(}\hlkwc{Stime} \hlstd{= data.apgi}\hlopt{$}\hlstd{Time}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{,} \hlkwc{status} \hlstd{= data.apgi}\hlopt{$}\hlstd{DSD,} \hlkwc{marker} \hlstd{= mskcc_post.linpred.apgi,} \hlkwc{tmax} \hlstd{=} \hlnum{60}\hlstd{,} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.post"}\hlstd{],} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{method} \hlstd{=} \hlstr{"Schoenfeld"}\hlstd{,} \hlkwc{span} \hlstd{=} \hlnum{0.4}\hlstd{)}
-\hlstd{temp}\hlopt{$}\hlstd{Cindex}
-\end{alltt}
-\begin{verbatim}
-## [1] 0.6243
-\end{verbatim}
-\begin{alltt}
-\hlkwd{IntegrateAUC}\hlstd{(temp}\hlopt{$}\hlstd{AUC, temp}\hlopt{$}\hlstd{utimes, temp}\hlopt{$}\hlstd{St,} \hlkwc{tmax} \hlstd{=} \hlnum{60}\hlstd{)}
-\end{alltt}
-\begin{verbatim}
-## [1] 0.6243
-\end{verbatim}
-\begin{alltt}
-\hlkwd{IntegrateAUC}\hlstd{(temp}\hlopt{$}\hlstd{AUC, temp}\hlopt{$}\hlstd{utimes, temp}\hlopt{$}\hlstd{St,} \hlkwc{tmax} \hlstd{=} \hlnum{34}\hlstd{)}
-\end{alltt}
-\begin{verbatim}
-## [1] 0.6261
-\end{verbatim}
-\begin{alltt}
-\hlkwd{par}\hlstd{(}\hlkwc{new} \hlstd{=} \hlnum{TRUE}\hlstd{)}
-\hlstd{temp} \hlkwb{=} \hlkwd{risksetAUC}\hlstd{(}\hlkwc{Stime} \hlstd{= data.apgi}\hlopt{$}\hlstd{Time}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{,} \hlkwc{status} \hlstd{= data.apgi}\hlopt{$}\hlstd{DSD,} \hlkwc{marker} \hlstd{= gg.linpred.apgi,} \hlkwc{tmax} \hlstd{=} \hlnum{60}\hlstd{,} \hlkwc{col} \hlstd{= pal[}\hlstr{"gg"}\hlstd{],} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{method} \hlstd{=} \hlstr{"Schoenfeld"}\hlstd{,} \hlkwc{span} \hlstd{=} \hlnum{0.4}\hlstd{)}
-\hlstd{temp}\hlopt{$}\hlstd{Cindex}
-\end{alltt}
-\begin{verbatim}
-## [1] 0.5934
-\end{verbatim}
-\begin{alltt}
-\hlkwd{IntegrateAUC}\hlstd{(temp}\hlopt{$}\hlstd{AUC, temp}\hlopt{$}\hlstd{utimes, temp}\hlopt{$}\hlstd{St,} \hlkwc{tmax} \hlstd{=} \hlnum{60}\hlstd{)}
-\end{alltt}
-\begin{verbatim}
-## [1] 0.5934
-\end{verbatim}
-\begin{alltt}
-\hlkwd{IntegrateAUC}\hlstd{(temp}\hlopt{$}\hlstd{AUC, temp}\hlopt{$}\hlstd{utimes, temp}\hlopt{$}\hlstd{St,} \hlkwc{tmax} \hlstd{=} \hlnum{34}\hlstd{)}
-\end{alltt}
-\begin{verbatim}
-## [1] 0.59
-\end{verbatim}
-\begin{alltt}
-\hlkwd{legend}\hlstd{(}\hlstr{"topright"}\hlstd{,} \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"APGI Preop"}\hlstd{,} \hlstr{"APGI Postop"}\hlstd{,} \hlstr{"GG"}\hlstd{),} \hlkwc{col} \hlstd{=} \hlkwd{c}\hlstd{(pal[}\hlstr{"mskcc.pre"}\hlstd{], pal[}\hlstr{"mskcc.post"}\hlstd{], pal[}\hlstr{"gg"}\hlstd{]),} \hlkwc{lty} \hlstd{=} \hlstr{"solid"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
+\hlkwd{plot}\hlstd{(rrROC_boot.mskcc_pre.apgi,} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.pre"}\hlstd{],} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (months)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"AUC"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{3}\hlstd{)}
+\hlkwd{plot}\hlstd{(rrROC_boot.gg.apgi,} \hlkwc{col} \hlstd{= pal[}\hlstr{"gg"}\hlstd{],} \hlkwc{add} \hlstd{=} \hlnum{TRUE}\hlstd{,} \hlkwc{ci} \hlstd{=} \hlnum{TRUE}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{3}\hlstd{)}
+\hlkwd{legend}\hlstd{(}\hlstr{"topright"}\hlstd{,} \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"MSKCC"}\hlstd{,} \hlstr{"PCOP"}\hlstd{),} \hlkwc{col} \hlstd{=} \hlkwd{c}\hlstd{(pal[}\hlstr{"mskcc.pre"}\hlstd{], pal[}\hlstr{"gg"}\hlstd{]),} \hlkwc{lty} \hlstd{=} \hlstr{"solid"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{3}\hlstd{,} \hlkwc{inset} \hlstd{=} \hlnum{0.05}\hlstd{)}
 \hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{7}\hlstd{,} \hlnum{31}\hlstd{))}
 \end{alltt}
 \end{kframe}
 
 {\centering \includegraphics[width=\maxwidth]{figure/07-risksetROC-plot-apgi-1} 
-
-}
-
-
-\begin{kframe}\begin{alltt}
-\hlkwd{plot}\hlstd{(rrROC_boot.mskcc_pre.apgi,} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.pre"}\hlstd{],} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (months)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"AUC"}\hlstd{)}
-\hlkwd{plot}\hlstd{(rrROC_boot.mskcc_post.apgi,} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.post"}\hlstd{],} \hlkwc{add} \hlstd{=} \hlnum{TRUE}\hlstd{)}
-\hlkwd{plot}\hlstd{(rrROC_boot.gg.apgi,} \hlkwc{col} \hlstd{= pal[}\hlstr{"gg"}\hlstd{],} \hlkwc{add} \hlstd{=} \hlnum{TRUE}\hlstd{,} \hlkwc{ci} \hlstd{=} \hlnum{TRUE}\hlstd{)}
-\hlkwd{legend}\hlstd{(}\hlstr{"topright"}\hlstd{,} \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"APGI Preop"}\hlstd{,} \hlstr{"APGI Postop"}\hlstd{,} \hlstr{"GG"}\hlstd{),} \hlkwc{col} \hlstd{=} \hlkwd{c}\hlstd{(pal[}\hlstr{"mskcc.pre"}\hlstd{], pal[}\hlstr{"mskcc.post"}\hlstd{], pal[}\hlstr{"gg"}\hlstd{]),} \hlkwc{lty} \hlstd{=} \hlstr{"solid"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
-\hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{7}\hlstd{,} \hlnum{31}\hlstd{))}
-\end{alltt}
-\end{kframe}
-
-{\centering \includegraphics[width=\maxwidth]{figure/07-risksetROC-plot-apgi-2} 
 
 }
 
@@ -4107,67 +4600,14 @@ Incident-dynamic:
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{temp} \hlkwb{=} \hlkwd{risksetAUC}\hlstd{(}\hlkwc{Stime} \hlstd{= data.dresden}\hlopt{$}\hlstd{Time}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{,} \hlkwc{status} \hlstd{= data.dresden}\hlopt{$}\hlstd{DSD,} \hlkwc{marker} \hlstd{= mskcc_pre.linpred.dresden,} \hlkwc{tmax} \hlstd{=} \hlnum{60}\hlstd{,} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.pre"}\hlstd{],} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{method} \hlstd{=} \hlstr{"Schoenfeld"}\hlstd{,} \hlkwc{span} \hlstd{=} \hlnum{0.4}\hlstd{)}
-\hlstd{temp}\hlopt{$}\hlstd{Cindex}
-\end{alltt}
-\begin{verbatim}
-## [1] 0.5164
-\end{verbatim}
-\begin{alltt}
-\hlkwd{IntegrateAUC}\hlstd{(temp}\hlopt{$}\hlstd{AUC, temp}\hlopt{$}\hlstd{utimes, temp}\hlopt{$}\hlstd{St,} \hlkwc{tmax} \hlstd{=} \hlnum{60}\hlstd{)}
-\end{alltt}
-\begin{verbatim}
-## [1] 0.5164
-\end{verbatim}
-\begin{alltt}
-\hlkwd{IntegrateAUC}\hlstd{(temp}\hlopt{$}\hlstd{AUC, temp}\hlopt{$}\hlstd{utimes, temp}\hlopt{$}\hlstd{St,} \hlkwc{tmax} \hlstd{=} \hlnum{34}\hlstd{)}
-\end{alltt}
-\begin{verbatim}
-## [1] 0.5149
-\end{verbatim}
-\begin{alltt}
-\hlkwd{par}\hlstd{(}\hlkwc{new} \hlstd{=} \hlnum{TRUE}\hlstd{)}
-\hlstd{temp} \hlkwb{=} \hlkwd{risksetAUC}\hlstd{(}\hlkwc{Stime} \hlstd{= data.dresden}\hlopt{$}\hlstd{Time}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{,} \hlkwc{status} \hlstd{= data.dresden}\hlopt{$}\hlstd{DSD,} \hlkwc{marker} \hlstd{= mskcc_post.linpred.dresden,} \hlkwc{tmax} \hlstd{=} \hlnum{60}\hlstd{,} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.post"}\hlstd{],} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{method} \hlstd{=} \hlstr{"Schoenfeld"}\hlstd{,} \hlkwc{span} \hlstd{=} \hlnum{0.4}\hlstd{)}
-\hlstd{temp}\hlopt{$}\hlstd{Cindex}
-\end{alltt}
-\begin{verbatim}
-## [1] 0.5441
-\end{verbatim}
-\begin{alltt}
-\hlkwd{IntegrateAUC}\hlstd{(temp}\hlopt{$}\hlstd{AUC, temp}\hlopt{$}\hlstd{utimes, temp}\hlopt{$}\hlstd{St,} \hlkwc{tmax} \hlstd{=} \hlnum{60}\hlstd{)}
-\end{alltt}
-\begin{verbatim}
-## [1] 0.5441
-\end{verbatim}
-\begin{alltt}
-\hlkwd{IntegrateAUC}\hlstd{(temp}\hlopt{$}\hlstd{AUC, temp}\hlopt{$}\hlstd{utimes, temp}\hlopt{$}\hlstd{St,} \hlkwc{tmax} \hlstd{=} \hlnum{34}\hlstd{)}
-\end{alltt}
-\begin{verbatim}
-## [1] 0.5432
-\end{verbatim}
-\begin{alltt}
-\hlkwd{par}\hlstd{(}\hlkwc{new} \hlstd{=} \hlnum{TRUE}\hlstd{)}
-\hlstd{temp} \hlkwb{=} \hlkwd{risksetAUC}\hlstd{(}\hlkwc{Stime} \hlstd{= data.dresden}\hlopt{$}\hlstd{Time}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{,} \hlkwc{status} \hlstd{= data.dresden}\hlopt{$}\hlstd{DSD,} \hlkwc{marker} \hlstd{= gg.linpred.dresden,} \hlkwc{tmax} \hlstd{=} \hlnum{60}\hlstd{,} \hlkwc{col} \hlstd{= pal[}\hlstr{"gg"}\hlstd{],} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{method} \hlstd{=} \hlstr{"Schoenfeld"}\hlstd{,} \hlkwc{span} \hlstd{=} \hlnum{0.4}\hlstd{)}
-\hlkwd{legend}\hlstd{(}\hlstr{"topright"}\hlstd{,} \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"Dresden Preop"}\hlstd{,} \hlstr{"Dresden Postop"}\hlstd{,} \hlstr{"GG"}\hlstd{),} \hlkwc{col} \hlstd{=} \hlkwd{c}\hlstd{(pal[}\hlstr{"mskcc.pre"}\hlstd{], pal[}\hlstr{"mskcc.post"}\hlstd{], pal[}\hlstr{"gg"}\hlstd{]),} \hlkwc{lty} \hlstd{=} \hlstr{"solid"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
+\hlkwd{plot}\hlstd{(rrROC_boot.mskcc_pre.dresden,} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.pre"}\hlstd{],} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (months)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"AUC"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{3}\hlstd{)}
+\hlkwd{plot}\hlstd{(rrROC_boot.gg.dresden,} \hlkwc{col} \hlstd{= pal[}\hlstr{"gg"}\hlstd{],} \hlkwc{add} \hlstd{=} \hlnum{TRUE}\hlstd{,} \hlkwc{ci} \hlstd{=} \hlnum{TRUE}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{3}\hlstd{)}
+\hlkwd{legend}\hlstd{(}\hlstr{"topright"}\hlstd{,} \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"MSKCC"}\hlstd{,} \hlstr{"PCOP"}\hlstd{),} \hlkwc{col} \hlstd{=} \hlkwd{c}\hlstd{(pal[}\hlstr{"mskcc.pre"}\hlstd{], pal[}\hlstr{"gg"}\hlstd{]),} \hlkwc{lty} \hlstd{=} \hlstr{"solid"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{3}\hlstd{,} \hlkwc{inset} \hlstd{=} \hlnum{0.05}\hlstd{)}
 \hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{7}\hlstd{,} \hlnum{31}\hlstd{))}
 \end{alltt}
 \end{kframe}
 
 {\centering \includegraphics[width=\maxwidth]{figure/07-risksetROC-plot-dresden-1} 
-
-}
-
-
-\begin{kframe}\begin{alltt}
-\hlkwd{plot}\hlstd{(rrROC_boot.mskcc_pre.dresden,} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.pre"}\hlstd{],} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (months)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"AUC"}\hlstd{)}
-\hlkwd{plot}\hlstd{(rrROC_boot.mskcc_post.dresden,} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.post"}\hlstd{],} \hlkwc{add} \hlstd{=} \hlnum{TRUE}\hlstd{)}
-\hlkwd{plot}\hlstd{(rrROC_boot.gg.dresden,} \hlkwc{col} \hlstd{= pal[}\hlstr{"gg"}\hlstd{],} \hlkwc{add} \hlstd{=} \hlnum{TRUE}\hlstd{,} \hlkwc{ci} \hlstd{=} \hlnum{TRUE}\hlstd{)}
-\hlkwd{legend}\hlstd{(}\hlstr{"topright"}\hlstd{,} \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"Dresden Preop"}\hlstd{,} \hlstr{"Dresden Postop"}\hlstd{,} \hlstr{"GG"}\hlstd{),} \hlkwc{col} \hlstd{=} \hlkwd{c}\hlstd{(pal[}\hlstr{"mskcc.pre"}\hlstd{], pal[}\hlstr{"mskcc.post"}\hlstd{], pal[}\hlstr{"gg"}\hlstd{]),} \hlkwc{lty} \hlstd{=} \hlstr{"solid"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
-\hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{7}\hlstd{,} \hlnum{31}\hlstd{))}
-\end{alltt}
-\end{kframe}
-
-{\centering \includegraphics[width=\maxwidth]{figure/07-risksetROC-plot-dresden-2} 
 
 }
 
