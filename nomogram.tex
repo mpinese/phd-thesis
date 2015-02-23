@@ -27,20 +27,18 @@ Levels of tissue biomarkers directly reflect cellular state, and thus have the p
 
 Recent techological developments have made possible the pre-operative measurement of tissue biomarkers during \gls{EUS}, a routine diagnostic modality for pancreas cancer.  \Gls{IHCal} staining has been successfully performed on \gls{FNA} biopsies of pancreas neoplasms collected during \gls{EUS} \cite{Popescu2012, Salla2009, Stelow2005}, and in principle \gls{EUS}-\gls{FNA}-\acrshort{IHCry} could form the basis of a routine pre-operative biomarker measurement methodology in pancreas cancer.  This proposed biomarker measurement approach utilises only techniques that are commonly available in pancreas cancer treatment centres, and thus has the potential to be rapidly integrated into current diagnostic workflows, should biomarker measurements prove to be clinically valuable.
 
-The nexus of known biomarkers of metastatic behaviour, new pre-operatively applicable techniques to measure these biomarkers, and multiple large, clinically annotated cohorts of resected pancreas cancer, presents an opportunity to address the pressing need for better criteria to select patients for pancreas cancer resection.  As part of the \gls{APGI}, as well as other work, the group has collected tissue measurements of S100A2 and S100A4 biomarkers, and detailed patient follow-up, for a large number of cases of pancreas cancer from a range of independent cohorts.  These cases will be used to develop \gls{PCOP}, a tool to predict outcome following resection, using tissue levels of S100A2 and S100A4 as major prognostic factors.  This initial version of \gls{PCOP} is based on biomarker measurements made on tissue collected during resection, and thus will not be directly applicable pre-operatively.  However, pilot study data will be used to demonstrate that levels of S100A2 and S100A4 measured by pre-operative \gls{EUS}-\gls{FNA}-\acrshort{IHCry} correlate well to tissue levels of the biomarkers measured on operative specimens, indicating that a more refined version of \gls{PCOP} trained on pre-operative data will likely be equally effective.
+The nexus of known biomarkers of metastatic behaviour, new pre-operatively applicable techniques to measure these biomarkers, and multiple large, clinically annotated cohorts of resected pancreas cancer, presents an opportunity to address the pressing need for better criteria to select patients for pancreas cancer resection.  As part of the \gls{APGI}, as well as other work, the group has collected tissue measurements of S100A2 and S100A4 biomarkers, and detailed patient follow-up, for a large number of cases of pancreas cancer from a range of independent cohorts.  These cases will be used to develop the \gls{PCOP}, a tool to predict outcome following resection, using tissue levels of S100A2 and S100A4 as major prognostic factors.  This initial version of the \gls{PCOP} will be based on biomarker measurements made on tissue collected during resection, and thus will not be directly applicable pre-operatively.  However, it will demonstrate the feasibility of a pre-operative biomarker-based prognostic tool, and identify statistical issues involved in the generation of such prognostics, in preparation for a formal prospective pre-operative sample collection effort.
 
 The majority of pancreas cancer resection procedures today are performed on patients who should never have been offered surgical resection at all.  These patients have undetected metastases at the time of surgery, and will derive little benefit from a major operation, that has serious impacts on quality of life.  Current tools for patient staging and estimation of prognosis are either ineffective at identifying patients at risk for occult metastases, or only applicable post-operatively, and so cannot be used to inform the decision of whether or not to resect.  Tissue biomarkers of metastatic potential might identify, pre-operatively, those patients who have a high likelihood of metastatic disease, greatly assisting disease management decisions.  This metastasis prediction can be integrated with other clinical variables to yield personalised estimates of prognosis over time, that can be easily understood by both physicians and laymen.  This chapter describes the use of pre-operatively assessable variables, including biomarker measurements, to create \gls{PCOP}, a tool that produces estimates of prognosis.  \Gls{PCOP} provides a natural way to show the influence of risk factors on a patient's personalised prognostic path, and thus can assist in making treatment decisions appropriate for each individual pancreas cancer patient.
 
 
 \section{Results}
-Data from the large, retrospectively-acquired \gls{NSWPCN} cohort were used to derive \gls{PCOP}, a tool to predict the survival of pancreas cancer patients following curative-intent resection.  Discrimination and calibration of \gls{PCOP} were tested on three independent surgical cohorts.  Data from an \gls{EUS}-\gls{FNA}-\acrshort{IHCry} pilot study established that pre-operatively assessed tissue biomarker levels reflected measurements from operative biopsies, and therefore that \gls{PCOP} could be translated to a pre-operative decision setting.
+Data from the large, retrospectively-acquired \gls{NSWPCN} cohort were used to derive the \gls{PCOP}, a tool to predict the survival of pancreas cancer patients following curative-intent resection.  Discrimination and calibration of the \gls{PCOP} were tested on three independent surgical cohorts.  A simple web interface was constructed to illustrate how a prognostic tool such as the \gls{PCOP} could be deployed in practice.
 
 \subsection{Prognostic variables and biomarkers}
 As the aim was to develop a prognostic predictor that could be applied pre-operatively, only factors that could be practically measured prior to resection were considered for inclusion in the \gls{PCOP}.  The traditional \glspl{CPV} that were judged to be pre-operatively assessable were patient sex, patient age at diagnosis, tumour location (dichotomised as head of pancreas vs other location), and size of the tumour's longest pathological axis.  In addition to these traditional factors, the dichotomised tissue levels of S100A2 and S100A4 proteins were included as candidate biomarkers in the construction of the \gls{PCOP}.  Pre-operative blood levels of the biomarker \gls{CA-19-9} were available for a subset of the training cohort, but none of the validation set patients; for this reason, and the marker's generally poor performance in isolation \cite{Kim2011}, \gls{CA-19-9} levels were not considered for inclusion in the \gls{PCOP}.
 
 Pre-operative measurements of tumour size (for example, by \gls{CT} X-ray or \gls{EUS}) were not available in the training and validation sets, and were approximated by post-operative measurements for the development and testing of this nomogram.  Similarly, biomarker measurements were approximated using \gls{IHCal} staining of tissue collected during resection, as only very limited pre-operative \gls{EUS}-\gls{FNA} samples were available in the cohorts used.  The implications of these approximations for the prognostic tool developed here, as well as for future work, are considered in the discussion.  
-
-\mpfatal{For the disc: Although the correlation between \gls{CT} and \gls{EUS} estimates of tumour size, and actual size upon resection, is respectable \cite{Arvold2011}, full clinical validation of this prognostic's use in a pre-operative setting will require ...}
 
 \subsection{Cohorts and Characteristics}
 General characteristics of the \gls{NSWPCN}, Glasgow, \gls{APGI}, and Dresden cohorts are summarised in \tref{tab:nomo-cohort-characteristics}.  The \gls{NSWPCN} training cohort contained a small subgroup of patients with abnormally long recorded survival times ($> 3000$ days, 7/256 patients), that were strongly suspected to represent data errors, either as a consequence of incorrect coding following loss to follow-up, or misdiagnosis.  Given the age of the cohort, it was deemed impractical to revisit the original records to check these patients, and so all patients with recorded survival times exceeding 3000 days were excluded from the \gls{NSWPCN} training data.  The \gls{NSWPCN} cohort characteristics in \tref{tab:nomo-cohort-characteristics} have been calculated on the 249 patients that passed the 3000 day data quality cutoff.
@@ -341,18 +339,41 @@ A demonstration instance of the \gls{PCOP} web application is available at \url{
 \begin{figure}
 \centering
   \includegraphics[width=1\linewidth]{analysis/nomogram/webapp/PCOP.png}
-\caption[Example screenshot of the \acrshort{PCOP} web application]{Example screenshot of the \gls{PCOP} web application.  The user enters clinical data for up to two cases, and the system dynamically calculates and displays predicted survival curves, optionally with confidence intervals.}
+\caption[Example screenshot of the \acrshort{PCOP} web application]{Example screenshot of the \gls{PCOP} web application.  The user enters clinical data for up to two cases, and the system dynamically calculates and displays predicted survival curves, optionally with confidence bands.}
 \label{fig:nomo-web-example}
 \end{figure}
 
-\subsection{Correlation of \acrshort{EUS}-\acrshort{FNA} and resection biopsy biomarker scores}
-\mpfatal{I just got the data on this recently, but it's just a spreadsheet vom and I can't figure it out.  I need to either chase up Nam and find out what the hell it all means, or just ditch this bit.}
-
 \section{Discussion}
+
+
 Discussion points:
-  * Overview: Describe the 
+  * Summary:
+    -- 
+  * Could PCOP be clinically useful?
+    -- Right now, obviously, it relies on surrogate data, so no.  But would a prog with PCOP's performance be useful?
+    -- It's certainly better than MSKCC as a preoperative
+    -- Calibration is poor in general
+    -- Discrimination is good, in some cohorts.
+    -- Can it still have utility?  Yes, according to \cite{Steyerberg2010}.  Depends on other aspects of the clinical decision, and really needs decision analysis (eg \cite{Vickers2008}).  This couldn't be done here because no expert consensus on tipping point, although DCA indicated that there were points where PCOP maybe could be beneficial.  Certainly improved calibration would help here \cite{VanCalster2014}.
+    -- Overall: We need to apply DCA to be sure, but that needs more information.  Certainly better calibration should be explored as well.
+  * Why the cohort differences?
+    -- Disc & Calib were woeful in two cohorts -- why was this?
+    -- From the earliest EDA, there were cohort differences in outcome that couldn't be attributed to other vars, meaning that this was always going to be a problem.
+    -- Basically, there are confounders present.  We knew this from the start.  In stats terms, unmeasured variables appear to be prognostic.
+    -- Chemo is a candidate, but it could be anything really.
+    -- No clear patterns.  Glasgow was the best, yet appears most distinct from NSWPCN.  APGI didn't work well, yet was from a similar cohort to NSWPCN.
+    -- What to do?  Ultimately, go back, collect more vars from the cohorts, re-fit.  Can use the PCOP already developed as a starting point (ala \cite{VanHouwelingen2000}) to reduce floppiness.  Problem is that, eventually, the result will need to be re-validated on an external cohort once again, meaning yet another data set.
+    -- Maybe better BMs could help capture some of the underlying cohort differences...
+  * Could better BMs improve validation across cohorts?
+    -- Potentially.  It's certainly worth investigating.
+    -- This particular case is investigated specifically in the APGI cohort in ch 4.
+  * Ultimately, can PCOP be translated?
+    -- Right now it's largely based on surrogate measures, and is not truly preoperative.  That, apart from the poor performance, is the largest sticking point.
+    -- To address this, we really need to re-do everything on full preoperative assessed vars, in multiple cohorts.
+    -- What this work has done has indicated that the above has a good chance of succeeding.  Combine this with the calibration issues, and we have a roadmap: go back to datasets, pull more vars, try and improve calibration across cohorts.  Once extra vars are found, perform prospective collection on all-comers, evaluating size, loc, A2 & A4, by preoperative means.  Construct a prognostic on the basis of these data, and validate externally.  On the basis of this work, that will probably yield something useful.
   * 
-  * 
+
+Although the correlation between \gls{CT} and \gls{EUS} estimates of tumour size, and actual size upon resection, is respectable \cite{Arvold2011}, full clinical validation of this prognostic's use in a pre-operative setting will require ...
 
 \section{Methods}
 \subsection{Cohort recruitment and ethics}
