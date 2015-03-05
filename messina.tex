@@ -4,5 +4,210 @@
 \chapter{MESSINA}
 \label{chap:messina}
 
+"How can we select markers that have the best possible chances of making it in the clinic?"
+
+
+The Messina chapter.  What is this all about?  Selecting biomolecules.  For what purpose?  Differently how?  What makes this special?
+
+OK back up.  Let's go back to basics.  Consider this situation.  There is a need to develop a diagnostic or prognostic test, for clinical application.  What requirements does this test have?
+  * High performance
+    - But notably, performance can be nuanced, not simply correct -- perhaps some errors are preferable to others.
+  * Robustness (ie. performance is good, even in the face of:
+    - cohort differences
+    - technical differences (eg inter-lab)
+    - sample handling differences (eg degradation, alternate storage or processing, sample age)
+  * Ease of use
+    - measures a small number of variables, as small as possible.
+  * Translatability (can be easily moved to a clinical setting)
+    - measures a small number of variables
+    - uses existing technologies, as much as possible
+
+Rolling all these together, it means we basically need an IHC- or ELISA-based measurement, on as few biomarkers as possible.  Just one would be ideal.
+
+So what do we know about IHC?
+  * It's very nonlinear
+  * It's protein level based
+  * There can be significant differences between labs, due to tissue processing, AR, and staining.  The latter two are less serious for clinical-grade stuff, but tissue processing is still a problem.  Time before fixation, conditions before fixation, time in fixative, type of fixative, conditions of embedding, time in storage in paraffin.
+  * There can be differences between pathologists re: scoring.
+
+What we get from this is that we need a very robust marker.  If we only have mRNA levels, then for starters the mRNA-protein correlation is only approximate.  We want to stack the deck in our favour as much as we can, by choosing mRNAs with huge gaps between the expression levels of interest.  Even if we have protein, all the other aspects again reinforce the need for a high-margin feature.  The bigger the margin, the bigger the likely robustness to all the various sources of error.
+
+Remember this is not a proof or guarantee that a given marker will make a good test.  It's rather an answer to the question: "How can we select markers that have the best possible chances of making it in the clinic?"
+
+
+Relevant literature ideas:
+  * That Livermore paper on small cardinality classifiers
+  * That reference on cutpoint searching => high FDR
+  * Something about margins and performance?  Surely Vaponik's early stuff will cover this.
+
+
+
+
+\begin{algorithm}
+  \KwData{An $n$-tuple of covariate measurements $x$, an $n$-tuple of associated dependent values $y$, a $m$-vector of candidate cutpoints $c$, and an objective function $f: (\mathbb{B}^n, \mathbb{Y}^n) \rightarrow \mathbb{B}$.  $x$ and $c$ are to be in ascending order.  The range of $y$ is given as $\mathbb{Y}^n$, as it varies between modes of Messina.}
+  \KwResult{If the fit failed, $\varnothing$.  Otherwise, a tuple of two real values: (optimal classifier threshold, resultant classifier margin).}
+
+  \Begin {
+	\tcp{Evaluate the objective $f$ on each threshold in $c$}
+	\For{$i \leftarrow 1$ \KwTo $m$}{
+		$o^+_i \longleftarrow f\left(\left[~\left[x_j \geq c_i\right]~\right]_{j=1}^n, y\right)$\;
+		$o^-_i \longleftarrow f\left(\left[~\left[x_j < c_i\right]~\right]_{j=1}^n, y\right)$\;
+	}
+	
+	\tcp{If no threshold passed $f$, return $\varnothing$}
+	\If{$o^+ \vee o^-$ is all $\mathrm{false}$}{
+      \KwRet $\varnothing$\;
+    }
+	
+	\tcp{Search $o^+$ and $o^-$ for the widest margin contiguous interval that passes $f$}
+	$(t^+, \Delta^+) \longleftarrow$ BestInterval$\left(o^+, c\right)$\;
+	$(t^-, \Delta^-) \longleftarrow$ BestInterval$\left(o^-, c\right)$\;
+	
+	\tcp{Return the best of the $o^+$ and $o^-$ results}
+	\eIf{$\Delta^+ \geq \Delta^-$}{
+	  \KwRet{$(t^+, \Delta^+)$}\;
+	}{
+	  \KwRet{$(t^-, \Delta^-)$}\;
+	}
+  }
+  \label{alg:mess_core}
+  \caption{MessinaCore}
+\end{algorithm}
+
+
+\begin{algorithm}
+  \KwData{$o \in \mathbf{B}^m$, $c \in \mathbf{R}^m$, $x \in \mathbf{R}^n$}
+  \KwResult{$(t^* \in \mathbf{R}, \Delta^* \in [0, \infty))$}
+
+  \Begin {
+    $\Delta^* \longleftarrow 0$\;
+    $t^* \longleftarrow 0$\;
+    
+    $i \longleftarrow 1$\;
+    \While{$i \leq m$}{
+      \If{$o_i$ is $\mathrm{true}$}{
+        $r_L \longleftarrow \sup \{x_k~|~x_k \leq c_i \wedge k \in \mathbb{N}^+ \wedge k \leq n \}$\;
+        \For{$j \leftarrow i$ \KwTo $m$}{
+          \eIf{$o_j$ is $\mathrm{true}$}{
+            $r_R \longleftarrow \sup \{x_k~|~x_k \leq c_j \wedge k \in \mathbb{N}^+ \wedge k \leq n \}$\;
+          }{
+            break\;
+          }
+        }
+
+		$\Delta \longleftarrow r_R - r_L$\;
+        \If{$\Delta > \Delta^*$}{
+          $\Delta^* \longleftarrow \Delta$\;
+          $t^* \longleftarrow r_L + \frac{1}{2}\Delta$\;
+        }
+        
+        $i \longleftarrow j$\;
+      }
+      $i \longleftarrow i + 1$\;
+    }
+    \KwRet{$(t^*, \Delta^*)$}\;
+  }
+  
+  \label{alg:mess_bestinterval}
+  \caption{BestInterval}
+\end{algorithm}
+
+
+
+\begin{figure}
+\centering
+\begin{tikzpicture}[
+    axis/.style={thick,<->,>=stealth},
+    guide/.style={thick,dotted,gray},
+    graphline/.style={thick,black},
+    threshmark/.style={thin,->,>=stealth}]
+
+  \def\f{*0.6}
+
+  \draw[axis]
+    (1\f,2\f) -- (16\f,2\f);
+
+  \draw[guide]
+    (1\f,3\f) -- (16\f,3\f)
+    (1\f,6\f) -- (16\f,6\f);
+
+  \draw[graphline,<-,>=stealth]
+    (1\f,3\f) -- (4.5\f,3\f);
+  \draw[graphline,->,>=stealth]
+    (13\f,3\f) -- (16\f,3\f);
+  \draw[graphline]
+    (4.5\f,6\f) -- (7\f,6\f)
+    (7\f,3\f) -- (9\f,3\f)
+    (9\f,6\f) -- (13\f,6\f);
+
+  \filldraw[black,draw=black] (2\f,3\f) circle [radius=0.1\f];
+  \filldraw[black,draw=black] (3\f,3\f) circle [radius=0.1\f];
+  \filldraw[black,draw=black] (4.5\f,6\f) circle [radius=0.1\f];
+  \filldraw[black,draw=black] (6\f,6\f) circle [radius=0.1\f];
+  \filldraw[black,draw=black] (7\f,3\f) circle [radius=0.1\f];
+  \filldraw[black,draw=black] (9\f,6\f) circle [radius=0.1\f];
+  \filldraw[black,draw=black] (13\f,3\f) circle [radius=0.1\f];
+  \filldraw[black,draw=black] (14.5\f,3\f) circle [radius=0.1\f];
+  \filldraw[black,draw=black] (15\f,3\f) circle [radius=0.1\f];
+  \filldraw[white,draw=black] (4.5\f,3\f) circle [radius=0.1\f];
+  \filldraw[white,draw=black] (7\f,6\f) circle [radius=0.1\f];
+  \filldraw[white,draw=black] (9\f,3\f) circle [radius=0.1\f];
+  \filldraw[white,draw=black] (13\f,6\f) circle [radius=0.1\f];
+
+%  \draw[threshmark] (1.5\f,3.5\f) -- (1.5\f,3.05\f);
+%  \draw[threshmark] (2.5\f,3.5\f) -- (2.5\f,3.05\f);
+%  \draw[threshmark] (3.75\f,3.5\f) -- (3.75\f,3.05\f);
+%  \draw[threshmark] (5.25\f,6.5\f) -- (5.25\f,6.05\f);
+%  \draw[threshmark] (6.5\f,6.5\f) -- (6.5\f,6.05\f);
+%  \draw[threshmark] (8\f,3.5\f) -- (8\f,3.05\f);
+%  \draw[threshmark] (11\f,6.5\f) -- (11\f,6.05\f);
+%  \draw[threshmark] (13.75\f,3.5\f) -- (13.75\f,3.05\f);
+%  \draw[threshmark] (14.75\f,3.5\f) -- (14.75\f,3.05\f);
+%  \draw[threshmark] (15.5\f,3.5\f) -- (15.5\f,3.05\f);
+  
+%  \node[align=left] at (1.5\f,3.8\f) {\tiny $o_1$};
+%  \node[align=left] at (2.5\f,3.8\f) {\tiny $o_2$};
+%  \node[align=left] at (3.75\f,3.8\f) {\tiny $o_3$};
+%  \node[align=left,text width=10\f] at (5.25\f,6.8\f) {\tiny $o_4...$};
+
+  \draw[threshmark] (1.5\f,1.5\f) -- (1.5\f,1.95\f);
+  \draw[threshmark] (2.5\f,1.5\f) -- (2.5\f,1.95\f);
+  \draw[threshmark] (3.75\f,1.5\f) -- (3.75\f,1.95\f);
+  \draw[threshmark] (5.25\f,1.5\f) -- (5.25\f,1.95\f);
+  \draw[threshmark] (6.5\f,1.5\f) -- (6.5\f,1.95\f);
+  \draw[threshmark] (8\f,1.5\f) -- (8\f,1.95\f);
+  \draw[threshmark] (11\f,1.5\f) -- (11\f,1.95\f);
+  \draw[threshmark] (13.75\f,1.5\f) -- (13.75\f,1.95\f);
+  \draw[threshmark] (14.75\f,1.5\f) -- (14.75\f,1.95\f);
+  \draw[threshmark] (15.5\f,1.5\f) -- (15.5\f,1.95\f);
+
+  \node[align=left] at (1.5\f,1.2\f) {\tiny $c_1$};
+  \node[align=left] at (2.5\f,1.2\f) {\tiny $c_2$};
+  \node[align=left,text width=10\f] at (3.75\f,1.2\f) {\tiny $c_3...$};
+%  \node[align=left] at (3.75\f,1.2\f) {\tiny $c_3$};
+%  \node[align=left,text width=10\f] at (5.25\f,1.2\f) {\tiny $c_4...$};
+  \node[align=left,text width=10\f] at (11\f,1.2\f) {\tiny $t^*$};
+
+  \node[align=right,text width=30\f] at (-0.5\f,2\f) {\footnotesize $t$};
+  \node[align=left,text width=30\f] at (-0.5\f,3\f) {\scriptsize false};
+  \node[align=left,text width=30\f] at (-0.5\f,6\f) {\scriptsize true};
+
+  \draw 
+    (-1.5\f,2.5\f) -- (-1.75\f,2.5\f)
+    (-1.75\f,2.5\f) -- (-1.75\f,6.5\f)
+    (-1.5\f,6.5\f) -- (-1.75\f,6.5\f);
+
+  \node at (-3\f,4.5\f) {\footnotesize $o(t)$};
+
+%  \draw[decorate,decoration={brace,amplitude=10\f},rotate=0] (4.5\f,7\f) -- (7\f,7\f);
+  \draw[decorate,decoration={brace,amplitude=10\f},rotate=0] (9\f,7\f) -- (13\f,7\f);
+
+  \node[align=center] at (5.75\f,6.5\f) {\scriptsize Region 1};
+  \node[align=center] at (11\f,6.5\f) {\scriptsize Region 2};
+  \node[align=center] at (11\f,7.75\f) {\scriptsize $\Delta^*$};
+\end{tikzpicture}
+\caption[The BestInterval algorithm]{Operation of the BestInterval algorithm.  Example values of a binary objective function $o(t)$ are shown for a range of input thresholds $t$.  At discrete points defined by observed data values (shown as dots), this objective function can transition, as an observed data point changes its value relative to $t$, and therefore its assigned class.  Two regions in which $o(t) = \mbox{true}$ are shown.  BestInterval locates all such regions, selects the one with largest measure on $t$ (margin), and returns its centre and margin as $(t^*, \Delta^*)$.  In this example, the centre and margin of region 2 would be returned.  To ensure that $o(t)$ is sampled at sufficient density, candidate thresholds $c_1, c_2, \dots$ are defined between all consecutive values, and beyond the extrema, of $x$; these are indicated by small arrows.  Each $c_i$ is associated with an $o_i$, as $o_i = o(c_i)$.}
+\label{fig:mess_bestinterval}
+\end{figure}
 
 \end{document}
