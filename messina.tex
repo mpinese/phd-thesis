@@ -4,6 +4,10 @@
 \chapter{MESSINA}
 \label{chap:messina}
 
+\emph{Thesis: }
+
+\subsection
+
 "How can we select markers that have the best possible chances of making it in the clinic?"
 
 
@@ -40,11 +44,28 @@ Relevant literature ideas:
   * That reference on cutpoint searching => high FDR
   * Something about margins and performance?  Surely Vaponik's early stuff will cover this.
 
-
+Bad practice:
+  * Median cut:
+    * Examples of use:
+      - http://www.biomedcentral.com/1756-0500/7/546
+      - http://breast-cancer-research.com/content/12/5/r85
+  * "Optimal" cut: 
+    * Examples of use: 
+      - http://clincancerres.aacrjournals.org/content/10/21/7252.full
+      - http://journals.plos.org/plosone/article?id=10.1371/journal.pone.0051862
+    * Statistical corrections:
+      - http://www.mayo.edu/research/documents/biostat-79pdf/doc-10027230   (also lots of useful refs here)
+      - https://books.google.com.au/books?id=KSq0e-6VFJ0C&pg=PA273&lpg=PA273&dq=log+rank+cut+points&source=bl&ots=0c07185Yb1&sig=Y7g8m9U0LHepQr1FxjrJzE0_rv8&hl=en&sa=X&ei=Lj_6VJII1OPwBY7ZgZgE&ved=0CEEQ6AEwBg#v=onepage&q=log%20rank%20cut%20points&f=false
+      - https://www.fdm.uni-freiburg.de/publications-preprints/preprints/papers/pre73.pdf
+      - https://books.google.com.au/books?id=C753uzZztPAC&pg=PA423&lpg=PA423&dq=log+rank+optimal+cut+points&source=bl&ots=__ay7uRwZ4&sig=e4IF1oKV71mw8XYU5qUiSl7JQ3g&hl=en&sa=X&ei=1z_6VOu1CImG8QW4o4LQAw&ved=0CFcQ6AEwCA#v=onepage&q=log%20rank%20optimal%20cut%20points&f=false
+      - But note that these generally only correct P-values, and *do not* correct for overestimation (inflation) of differences.
+    * Issues: 
+      - http://europepmc.org/backend/ptpmcrender.fcgi?accid=PMC2063091&blobtype=pdf
+      - \cite{Altman1994}
 
 
 \begin{algorithm}
-  \KwData{An $n$-tuple of covariate measurements $x$, an $n$-tuple of associated dependent values $y$, a $m$-vector of candidate cutpoints $c$, and an objective function $f: (\mathbb{B}^n, \mathbb{Y}^n) \rightarrow \mathbb{B}$.  $x$ and $c$ are to be in ascending order.  The range of $y$ is given as $\mathbb{Y}^n$, as it varies between modes of Messina.}
+  \KwData{An $n$-tuple of covariate measurements $x$, an $n$-tuple of associated dependent values $y$, a $m$-vector of candidate cutpoints $c$, and an objective function $f: (\mathbb{B}^n, \mathbb{Y}^n) \rightarrow \mathbb{B}$.  $x$ and $c$ are to be in ascending order.  The domain of $y$ is given as $\mathbb{Y}^n$, as it varies between modes of Messina.}
   \KwResult{If the fit failed, $\varnothing$.  Otherwise, a tuple of two real values: (optimal classifier threshold, resultant classifier margin).}
 
   \Begin {
@@ -77,11 +98,11 @@ Relevant literature ideas:
 
 \begin{algorithm}
   \KwData{$o \in \mathbf{B}^m$, $c \in \mathbf{R}^m$, $x \in \mathbf{R}^n$}
-  \KwResult{$(t^* \in \mathbf{R}, \Delta^* \in [0, \infty))$}
+  \KwResult{$(c^* \in \mathbf{R}, \Delta^* \in [0, \infty))$}
 
   \Begin {
     $\Delta^* \longleftarrow 0$\;
-    $t^* \longleftarrow 0$\;
+    $c^* \longleftarrow 0$\;
     
     $i \longleftarrow 1$\;
     \While{$i \leq m$}{
@@ -98,14 +119,14 @@ Relevant literature ideas:
 		$\Delta \longleftarrow r_R - r_L$\;
         \If{$\Delta > \Delta^*$}{
           $\Delta^* \longleftarrow \Delta$\;
-          $t^* \longleftarrow r_L + \frac{1}{2}\Delta$\;
+          $c^* \longleftarrow r_L + \frac{1}{2}\Delta$\;
         }
         
         $i \longleftarrow j$\;
       }
       $i \longleftarrow i + 1$\;
     }
-    \KwRet{$(t^*, \Delta^*)$}\;
+    \KwRet{$(c^*, \Delta^*)$}\;
   }
   
   \label{alg:mess_bestinterval}
@@ -113,6 +134,27 @@ Relevant literature ideas:
 \end{algorithm}
 
 
+\begin{align*}
+f_M(s, y) &= \left[ p_n \geq l_n \wedge p_c \geq l_c \right] \\
+p_n &= \frac{\sum_i{\left[ s_i \wedge y_i \right]}}{\sum_i{\left[ y_i \right]}} \\
+p_c &= \frac{\sum_i{\left[ \neg s_i \wedge \neg y_i \right]}}{\sum_i{\left[ \neg y_i \right]}} \\
+\end{align*}
+\begin{align*}
+f_C(s, y) &= \left[ p_f \geq l_f \right] \\
+p_f &= TODO \\
+\end{align*}
+\begin{align*}
+f_{\tau}(s, y) &= \left[ p_\tau \geq l_\tau \right] \\
+p_\tau &= \frac{\tau_c + \frac{1}{2}\tau_t}{\tau_c + \tau_d + \tau_t} \\
+\tau_c &= \sum_i^n{\sum_{j=i+1}^n{\left[\tau_v_i \wedge \neg \left(s_i = s_j \vee y_{t,i} = y_{t,j}\right) \wedge s_i = 1 \right]}} \\
+\tau_d &= \sum_i^n{\sum_{j=i+1}^n{\left[\tau_v_i \wedge \neg \left(s_i = s_j \vee y_{t,i} = y_{t,j}\right) \wedge s_i = 0 \right]}} \\
+\tau_t &= \sum_i^n{\sum_{j=i+1}^n{\left[\tau_v_i \wedge \left(s_i = s_j \vee y_{t,i} = y_{t,j}\right)\right]}} \\
+\tau_v_i &= \left(y_{e,i} = 1 \vee y_{e,j} = 1\right) \wedge \left(y_{t,i} \geq y_{t,j} \vee y_{e,i} = 1 \right) 
+\end{align*}
+\begin{align*}
+f_{\tau'}(s, y) &= \left[ p_\tau' \geq l_\tau' \right] \\
+p_{\tau'} &= \frac{\tau_c}{\tau_c + \tau_d}
+\end{align*}
 
 \begin{figure}
 \centering
