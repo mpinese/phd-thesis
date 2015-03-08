@@ -1,0 +1,141 @@
+\documentclass{article}
+\usepackage{geometry}
+\usepackage{amsmath}
+\usepackage{lscape}
+\geometry{verbose,tmargin=2.5cm,bmargin=2.5cm,lmargin=2.5cm,rmargin=2.5cm}
+
+\begin{document}
+
+<<setup, include=FALSE>>=
+library(knitr)
+library(tikzDevice)
+options(
+	tikzDocumentDeclaration = "\\documentclass[11pt]{memoir}",
+	tikzLatexPackages = c(
+		getOption("tikzLatexPackages"),
+		"\\usepackage{amsmath}"),
+	tikzMetricsDictionary="tikzMetrics"
+)
+knit_hooks$set(crop = hook_pdfcrop)
+opts_chunk$set(
+	fig.align = 'center', fig.path = "figure/03-", dev = 'tikz', dev.args = list(pointsize = 12), 
+	cache = TRUE, cache.lazy = FALSE, cache.path = "cache/03-", autodep = TRUE, crop = TRUE,
+	fig.width = 6, fig.height = 6)
+opts_knit$set(progress = TRUE, verbose = TRUE)
+options(warn = 1)
+@
+
+
+\title{Messina Experiment 2: Messina vs Classical on APGI}
+\maketitle
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% LIBRARIES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Preparation}
+<<libs-load>>=
+library(messina)
+library(plyr)
+library(reshape2)
+library(ggplot2)
+@
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% DATA
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Data preparation}
+<<data-prep>>=
+load("../biosurv/data/07_data_for_SIS.rda")
+x = x.diag_dsd
+y = y.diag_dsd
+samps = samps.diag_dsd
+
+temp = NA
+temp = ls()
+rm(list = temp[!(temp %in% c("x", "y", "samps"))])
+@
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% FUNCTIONS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Detectors}
+<<funcs-detectors>>=
+# For ncuts = 1, this equates to median cut.
+detector_multicut = function(x, y, ncuts = 10, correct = "none")
+{
+	if (ncuts == 1) { correct = "none" }
+	aaply(x, 1, function(x1) {
+		cutpoints = quantile(x1, probs = (1:ncuts)/(ncuts + 1))
+		pvals = sapply(cutpoints, function(c) {
+			x1c = x1 > c
+			test = survdiff(y ~ x1c)
+			pval = pchisq(test$chisq, df = 1, lower.tail = FALSE)
+			pval
+		})
+		pvals = p.adjust(pvals, correct)
+		pvals[is.na(pvals)] = 1
+		c(min(pvals), cutpoints[which.min(pvals)])
+	}, .parallel = TRUE)
+}
+
+
+# A 'best-approach' to all-cutoff testing
+detector_maxstat = function(x, y, pmethod = "HL")
+{
+	require(maxstat)
+
+	aaply(x, 1, function(x1) {
+		temp.data = data.frame(x1 = x1, time = y[,1], event = y[,2])
+		test = try(maxstat.test(Surv(time, event) ~ x1, data = temp.data, smethod = "LogRank", pmethod = pmethod))
+		if (class(test) == "try-error")
+		{
+			return(NA, NA)
+		}
+		c(test$p.value, test$estimate)
+	}, .parallel = TRUE)
+}
+@
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% EXPERIMENT 2
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{The Experiment}
+<<exp2-fits>>=
+library(doMC)
+registerDoMC(32)
+
+fit.messina = messinaSurv(x, y, messinaSurvObj.CoxCoef(log(2)), parallel = TRUE)
+fit.medcut = detector_multicut(x, y, ncuts = 1)
+fit.10cutHolm = detector_multicut(x, y, ncuts = 10, correct = "holm")
+fit.maxstat = detector_maxstat(x, y)
+
+det.messina = fit.messina@fits@summary$passed
+det.medcut = fit.medcut[,1] < 0.05 & !is.na(fit.medcut[,1])
+det.10cutHolm = fit.10cutHolm[,1] < 0.05 & !is.na(fit.medcut[,1])
+det.maxstat = fit.maxstat[,1] < 0.05 & !is.na(fit.medcut[,1])
+
+thresh.messina = fit.messina@fits@summary$threshold
+thresh.medcut = fit.medcut[,2]
+thresh.10cutHolm = fit.10cutHolm[,2]
+thresh.maxstat = fit.maxstat[,2]
+
+thresh.messina[det.messina == FALSE] = NA
+thresh.medcut[det.medcut == FALSE] = NA
+thresh.10cutHolm[det.10cutHolm == FALSE] = NA
+thresh.maxstat[det.maxstat == FALSE] = NA
+@
+
+<<exp2-tests>>=
+load("../biosurv/data/15_validation.rda")
+
+@
+
+<<exp2-save>>=
+save.image("03_surv_exp2.rda")
+@
+
+\end{document}
