@@ -273,12 +273,14 @@ ggplot(exp1.result.melted[exp1.result.melted$censoring.rate == 0.2 & exp1.result
 	geom_line() + 
 	facet_grid(class.1.fraction ~ cohort.size) + 
 	labs(x = "log(true HR)", y = "Detection rate") + 
-	theme_bw() + theme(legend.position = "bottom")
+	theme_bw() + theme(legend.position = "bottom") + 
+	guides(colour = guide_legend(nrow = 2))	
 ggplot(exp1.result.melted[exp1.result.melted$censoring.rate == 0.5 & exp1.result.melted$Metric == "Detection rate",], aes(x = log.hazard.ratio, y = value, colour = Method)) + 
 	geom_line() + 
 	facet_grid(class.1.fraction ~ cohort.size) + 
 	labs(x = "log(true HR)", y = "Detection rate") + 
-	theme_bw() + theme(legend.position = "bottom")
+	theme_bw() + theme(legend.position = "bottom") + 
+	guides(colour = guide_legend(nrow = 2))	
 
 ggplot(exp1.result.melted[exp1.result.melted$censoring.rate == 0.2 & exp1.result.melted$Metric == "Estimated HR",], aes(x = log.hazard.ratio, y = value, colour = Method)) + 
 	geom_line() + 
@@ -286,14 +288,45 @@ ggplot(exp1.result.melted[exp1.result.melted$censoring.rate == 0.2 & exp1.result
 	geom_abline(intercept = 0, slope = 1, alpha = 0.5) + 
 	coord_fixed() + 
 	labs(x = "log(true HR)", y = "log(estimated HR)") + 
-	theme_bw() + theme(legend.position = "bottom")
+	theme_bw() + theme(legend.position = "bottom") + 
+	guides(colour = guide_legend(nrow = 2))	
 ggplot(exp1.result.melted[exp1.result.melted$censoring.rate == 0.5 & exp1.result.melted$Metric == "Estimated HR",], aes(x = log.hazard.ratio, y = value, colour = Method)) + 
 	geom_line() + 
 	facet_grid(class.1.fraction ~ cohort.size) + 
 	geom_abline(intercept = 0, slope = 1, alpha = 0.5) + 
 	coord_fixed() + 
+	theme_bw() + theme(legend.position = "bottom") + 
+	guides(colour = guide_legend(nrow = 2))	
+
+
+ggplot(exp1.result.melted[exp1.result.melted$censoring.rate == 0.2 & exp1.result.melted$cohort.size != 50 & exp1.result.melted$Metric == "Detection rate",], aes(x = log.hazard.ratio, y = value, colour = Method)) + 
+	geom_line() + 
+	facet_grid(class.1.fraction ~ cohort.size) + 
+	labs(x = "log(true HR)", y = "Detection rate") + 
+	theme_bw() + theme(legend.position = "bottom") + 
+	guides(colour = guide_legend(nrow = 2))	
+ggplot(exp1.result.melted[exp1.result.melted$censoring.rate == 0.5 & exp1.result.melted$cohort.size != 50 & exp1.result.melted$Metric == "Detection rate",], aes(x = log.hazard.ratio, y = value, colour = Method)) + 
+	geom_line() + 
+	facet_grid(class.1.fraction ~ cohort.size) + 
+	labs(x = "log(true HR)", y = "Detection rate") + 
+	theme_bw() + theme(legend.position = "bottom") + 
+	guides(colour = guide_legend(nrow = 2))	
+
+ggplot(exp1.result.melted[exp1.result.melted$censoring.rate == 0.2 & exp1.result.melted$cohort.size != 50 & exp1.result.melted$Metric == "Estimated HR",], aes(x = log.hazard.ratio, y = value, colour = Method)) + 
+	geom_line() + 
+	facet_grid(class.1.fraction ~ cohort.size) + 
+	geom_abline(intercept = 0, slope = 1, alpha = 0.5) + 
+	coord_fixed() + 
 	labs(x = "log(true HR)", y = "log(estimated HR)") + 
-	theme_bw() + theme(legend.position = "bottom")
+	theme_bw() + theme(legend.position = "bottom") + 
+	guides(colour = guide_legend(nrow = 2))	
+ggplot(exp1.result.melted[exp1.result.melted$censoring.rate == 0.5 & exp1.result.melted$cohort.size != 50 & exp1.result.melted$Metric == "Estimated HR",], aes(x = log.hazard.ratio, y = value, colour = Method)) + 
+	geom_line() + 
+	facet_grid(class.1.fraction ~ cohort.size) + 
+	geom_abline(intercept = 0, slope = 1, alpha = 0.5) + 
+	coord_fixed() + 
+	theme_bw() + theme(legend.position = "bottom") + 
+	guides(colour = guide_legend(nrow = 2))	
 @
 
 \end{document}
