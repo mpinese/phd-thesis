@@ -1,0 +1,73 @@
+\documentclass{article}
+\usepackage{geometry}
+\usepackage{amsmath}
+\usepackage{lscape}
+\geometry{verbose,tmargin=2.5cm,bmargin=2.5cm,lmargin=2.5cm,rmargin=2.5cm}
+
+\begin{document}
+
+<<setup, include=FALSE>>=
+library(knitr)
+library(tikzDevice)
+options(
+	tikzDocumentDeclaration = "\\documentclass[11pt]{memoir}",
+	tikzLatexPackages = c(
+		getOption("tikzLatexPackages"),
+		"\\usepackage{amsmath}"),
+	tikzMetricsDictionary="tikzMetrics"
+)
+knit_hooks$set(crop = hook_pdfcrop)
+opts_chunk$set(
+	fig.align = 'center', fig.path = "figure/05-E1-", dev = 'tikz', dev.args = list(pointsize = 12), 
+	cache = TRUE, cache.lazy = FALSE, cache.path = "cache/05-E1-", autodep = TRUE, crop = TRUE,
+	fig.width = 6, fig.height = 6)
+opts_knit$set(progress = TRUE, verbose = TRUE)
+options(warn = 1)
+@
+
+
+\title{Messina E1: The effect of margin on robustness}
+\maketitle
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% LIBRARIES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Preparation}
+<<libs-load,cache=FALSE>>=
+library(ggplot2)
+library(plyr)
+library(reshape2)
+@
+
+
+<<E1A,fig.height=4,fig.width=5>>=
+# I need to show: That higher margin leads to greater robustness
+# to high sigma_delta and sigma_epsilon.
+
+# Define margin as the distance between the 5% error bounds for both 0 and 1.
+deltaForMargin = function(margin, sigma_epsilon = 1, alpha = 0.05) margin - 2*sigma_epsilon*qnorm(alpha)
+marginForDelta = function(delta, sigma_epsilon = 1, alpha = 0.05) delta + 2*sigma_epsilon*qnorm(alpha)
+
+e1aii.design = expand.grid(
+	snr = seq(0, 5, 0.1),
+#	p1 = c(0.2, 0.5, 0.8),		# Result is independent of p1
+	p1 = 0.5,
+	sigma_epsilon = 1,
+	sigma_delta = seq(0, 2, 1),
+	alpha = 0.1)
+e1aii.design$Delta = e1aii.design$snr * e1aii.design$sigma_epsilon
+e1aii.design$margin = marginForDelta(e1aii.design$Delta, e1aii.design$sigma_epsilon, alpha = e1aii.design$alpha)
+e1aii.design$threshold = e1aii.design$Delta/2
+
+e1aii.design$error = unlist(mlply(e1aii.design, function(threshold, p1, Delta, sigma_delta, sigma_epsilon, ...) { 
+	Err_internal = function(d) ((1-p1)*(1-pnorm((threshold - d)/sigma_epsilon)) + p1*pnorm((threshold - (Delta + d))/sigma_epsilon))
+	if (sigma_delta == 0)	{ 	return(Err_internal(0)) }
+	else { 						return(integrate(function(d) Err_internal(d) * 1/sigma_delta * dnorm(d / sigma_delta), -Inf, Inf)$value) }
+}))
+
+# + ggtitle("High-margin classifiers are more robust")
+ggplot(e1aii.design[e1aii.design$margin >= 0,], aes(x = margin, y = error, colour = factor(sigma_delta))) + geom_line(lwd = 1) + xlab("Margin") + ylab("Error rate") + labs(colour = expression(sigma[delta])) + theme_bw()
+@
+
+\end{document}

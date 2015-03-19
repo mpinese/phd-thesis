@@ -1,0 +1,116 @@
+\documentclass{article}
+\usepackage{geometry}
+\usepackage{amsmath}
+\usepackage{lscape}
+\geometry{verbose,tmargin=2.5cm,bmargin=2.5cm,lmargin=2.5cm,rmargin=2.5cm}
+
+\begin{document}
+
+<<setup, include=FALSE>>=
+library(knitr)
+library(tikzDevice)
+options(
+	tikzDocumentDeclaration = "\\documentclass[11pt]{memoir}",
+	tikzLatexPackages = c(
+		getOption("tikzLatexPackages"),
+		"\\usepackage{amsmath}"),
+	tikzMetricsDictionary="tikzMetrics"
+)
+knit_hooks$set(crop = hook_pdfcrop)
+opts_chunk$set(
+	fig.align = 'center', fig.path = "figure/04-", dev = 'tikz', dev.args = list(pointsize = 12), 
+	cache = TRUE, cache.lazy = FALSE, cache.path = "cache/04-", autodep = TRUE, crop = TRUE,
+	fig.width = 6, fig.height = 6)
+opts_knit$set(progress = TRUE, verbose = TRUE)
+options(warn = 1)
+@
+
+
+\title{Messina Experiment 3: The effect of margin on robustness}
+\maketitle
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% LIBRARIES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Preparation}
+<<libs-load,cache=FALSE>>=
+library(ggplot2)
+library(plyr)
+library(reshape2)
+library(survival)
+@
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% EXPERIMENT 3
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{The Experiment}
+<<exp3-messina,fig.height=4,fig.width=5>>=
+# I need to show: That higher margin leads to greater robustness
+# to high sigmaP.
+
+# Define margin as the distance between the 5% error bounds for both 0 and 1.
+# Therefore: 
+#   margin = qnorm(0.05, mean = mu1, sd = 1) - qnorm(0.95, mean = 0, sd = 1)
+# Solve this for to get mu1(margin), so that margin is now the knob to turn.
+mu1ForMargin = function(margin, alpha = 0.05) margin - qnorm(alpha) + qnorm(1-alpha)
+
+margins = seq(0, 5, 1)
+mu1s = mu1ForMargin(margins)
+sigmaPs = seq(0, 2, 0.01)
+# Note that the f0 effect cancels out, as we're
+# marginalising across deltaP, with E(deltaP) = 0, so the FPR and FNR
+# distributions are symmetric and the fraction effects cancel exactly.
+error_rate = 
+	laply(sigmaPs, function(sigmaP) 
+		laply(mu1s, function(mu1) 
+			if (sigmaP == 0)	{ pnorm(mu1/2, mean = mu1) }
+			else 				{ integrate(function(deltaP) pnorm(mu1/2, mean = mu1+deltaP) * dnorm(deltaP, sd = sigmaP), -Inf, Inf, subdivisions = 1000L)$value } ) )
+dimnames(error_rate) = list("sigmaP" = sigmaPs, "margin" = margins)
+error_rate = melt(error_rate)
+ggplot(error_rate, aes(x = sigmaP, y = value, colour = ordered(margin))) + geom_line(lwd = 1.25) + ylim(0, 0.25) + labs(x = "Translation bias standard deviation", y = "Error rate", colour = "Margin") + theme_bw()
+# error_rate$margin = as.numeric(error_rate$margin)
+# ggplot(error_rate, aes(x = sigmaP, y = value, group = margin, colour = margin)) + geom_line(lwd = 1.5) + ylim(0, 0.25) + labs(x = "Translation bias standard deviation", y = "Error rate", colour = "Margin") + theme_bw() + scale_colour_gradient(low = "#d7301f", high = "#fef0d9")
+# ggplot(error_rate, aes(x = sigmaP, y = value, group = margin, colour = margin)) + geom_line(lwd = 1.5) + ylim(0, 0.25) + labs(x = "Translation bias standard deviation", y = "Error rate", colour = "Margin") + theme_bw() + scale_colour_gradient(low = "#f03b20", high = "#ffeda0")
+# ggplot(error_rate, aes(x = sigmaP, y = value, group = margin, colour = margin)) + geom_line(lwd = 1.5) + ylim(0, 0.25) + labs(x = "Translation bias standard deviation", y = "Error rate", colour = "Margin") + theme_bw()
+# dev.off()		# Get around a TikZdevice bug with continuous scales
+@
+
+<<exp3-messinaSurv-calc>>=
+margins = seq(0, 5, 1)
+mu1s = mu1ForMargin(margins)
+sigmaPs = seq(0, 2, 0.2)
+library(doMC)
+registerDoMC(2)
+set.seed(20150310)
+median_coef = 
+	laply(sigmaPs, function(sigmaP)
+		laply(mu1s, function(mu1)
+			apply(replicate(10000, {
+				y = Surv(rexp(1e3, rep(c(1, 2), each = 1e3/2)), rep(1, 1e3))
+				bias = rnorm(1, mean = 0, sd = sigmaP)
+				x = rnorm(1e3, rep(c(0, mu1), each = 1e3/2)) > mu1/2 - bias
+				result = c(0, 0)
+				if (length(unique(x)) != 1)
+				{
+					fit = survdiff(y ~ x)
+					result[1] = exp(sqrt(fit$chisq)*sqrt(4/sum(y[,2]))*sign(fit$obs[2] - fit$exp[2]))
+					result[2] = exp(-coef(survreg(y ~ x, dist = "exponential"))[[2]])
+				}
+				result
+			}), 1, median)
+		), .progress = "text", .parallel = TRUE
+	)
+
+dimnames(median_coef) = list("sigmaP" = sigmaPs, "margin" = margins, "method" = c("logrank", "expreg"))
+median_coef = melt(median_coef)
+@
+
+<<exp3-messinaSurv-plot,fig.height=4,fig.width=5>>=
+ggplot(median_coef, aes(x = sigmaP, y = value, colour = ordered(margin), lty = method)) + geom_line(lwd = 1.25) + labs(x = "Translation bias standard deviation", y = "Coefficient", colour = "Margin") + theme_bw()
+ggplot(median_coef[median_coef$method == "logrank",], aes(x = sigmaP, y = value, colour = ordered(margin))) + geom_line(lwd = 1.25) + labs(x = "Translation bias standard deviation", y = "Coefficient", colour = "Margin") + theme_bw()
+ggplot(median_coef[median_coef$method == "expreg",], aes(x = sigmaP, y = value, colour = ordered(margin))) + geom_line(lwd = 1.25) + labs(x = "Translation bias standard deviation", y = "Coefficient", colour = "Margin") + theme_bw()
+@
+
+\end{document}

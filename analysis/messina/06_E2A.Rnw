@@ -1,0 +1,110 @@
+\documentclass{article}
+\usepackage{geometry}
+\usepackage{amsmath}
+\usepackage{lscape}
+\geometry{verbose,tmargin=2.5cm,bmargin=2.5cm,lmargin=2.5cm,rmargin=2.5cm}
+
+\begin{document}
+
+<<setup, include=FALSE>>=
+library(knitr)
+library(tikzDevice)
+options(
+	tikzDocumentDeclaration = "\\documentclass[11pt]{memoir}",
+	tikzLatexPackages = c(
+		getOption("tikzLatexPackages"),
+		"\\usepackage{amsmath}"),
+	tikzMetricsDictionary="tikzMetrics"
+)
+knit_hooks$set(crop = hook_pdfcrop)
+opts_chunk$set(
+	fig.align = 'center', fig.path = "figure/06-E2A-", dev = 'tikz', dev.args = list(pointsize = 12), 
+	cache = TRUE, cache.lazy = FALSE, cache.path = "cache/06-E2A-", autodep = TRUE, crop = TRUE,
+	fig.width = 6, fig.height = 6)
+opts_knit$set(progress = TRUE, verbose = TRUE)
+options(warn = 1)
+@
+
+
+\title{Messina E2A: Messina vs t-test}
+\maketitle
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% LIBRARIES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Preparation}
+<<libs-load,cache=FALSE>>=
+library(plyr)
+library(ggplot2)
+library(messina)
+@
+
+
+<<E2A-calcs>>=
+deltaForMargin = function(margin, sigma_epsilon = 1, alpha = 0.05) margin - 2*sigma_epsilon*qnorm(alpha)
+marginForDelta = function(delta, sigma_epsilon = 1, alpha = 0.05) delta + 2*sigma_epsilon*qnorm(alpha)
+
+e2a.design = expand.grid(
+	Delta = seq(0, 5, 0.1),
+	sigma_epsilon = 1,
+#	p1 = c(0.2, 0.5),
+#	pm = c(0, 0.1, 0.2),
+	p1 = c(0.5),
+	pm = c(0),
+	alpha = 0.2,
+	t.alpha = 0.05,
+	messina.minmarg = 1,
+	messina.minsens = 0.8,
+	messina.minspec = 0.8,
+	n = c(25, 50, 100),
+	reps = 5e3)
+e2a.design$margin = marginForDelta(e2a.design$Delta, e2a.design$sigma_epsilon, alpha = e2a.design$alpha)
+
+set.seed(1234)
+temp = do.call("e2a.datafun", e2a.design[e2a.design$p1 == 0.2 & e2a.design$pm == 0.2 & e2a.design$Delta == 10,])
+temp.x = rbind(temp$x, temp$x)
+temp.y = temp$y
+temp2 = messina(temp.x, temp.y == 1, min_sens = 0.7, min_spec = 0.7, seed = 1234)
+plot(temp2, plot_type = "point")
+
+e2a.datafun = function(n, p1, pm, Delta, sigma_epsilon, ...)
+{
+	n1 = round(n*p1)
+	n0 = n - n1
+	y = rep(c(0, 1), c(n0, n1))
+	y_exp = y
+	y0x1 = sample((1:n)[y == 0], floor(sum(y == 0) * pm/2), replace = FALSE)
+	y1x0 = sample((1:n)[y == 1], floor(sum(y == 1) * pm/2), replace = FALSE)
+	y_exp[y0x1] = 1
+	y_exp[y1x0] = 0
+	x = Delta*y_exp + rnorm(n, mean = 0, sd = sigma_epsilon)
+
+	list(x = x, y = y, y_exp = y_exp)
+}
+
+e2a.detfun = function(x, y, t.alpha, messina.minsens, messina.minspec, messina.minmarg, ...)
+{
+	det.t = t.test(x = x[y == 0], y = x[y == 1])$p.value < t.alpha
+
+	x.messina = rbind(x, x)
+	fit.messina = messina(x.messina, y == 1, min_sens = messina.minsens, min_spec = messina.minspec, progress = FALSE, silent = TRUE)
+	det.messina = fit.messina@fits@summary$passed[1] == TRUE && fit.messina@fits@summary$margin[1] >= messina.minmarg
+
+	c(t = det.t, m = det.messina)
+}
+
+set.seed(20150320)
+e2a.det = mlply(e2a.design, function(Delta, sigma_epsilon, pm, p1, t.alpha, messina.minmarg, messina.minsens, messina.minspec, n, reps, ...) { 
+	rowMeans(replicate(reps, { data = e2a.datafun(n, p1, pm, Delta, sigma_epsilon); e2a.detfun(data$x, data$y, t.alpha, messina.minsens, messina.minspec, messina.minmarg) })) })
+
+e2a.design = rbind(cbind(e2a.design, method = "t", detrate = simplify2array(e2a.det)[1,]), cbind(e2a.design, method = "messina", detrate = simplify2array(e2a.det)[2,]))
+@
+
+<<E2A-plots,fig.height=4,fig.width=5>>=
+ggplot(e2a.design[e2a.design$margin >= 0,], aes(x = margin, y = detrate, colour = factor(method))) + geom_line(lwd = 1) + xlab("Margin") + ylab("Detection rate") + ggtitle("Messina vs t-test") + labs(colour = "Method") + theme_bw() + facet_grid(p1 ~ pm ~ n)
+ggplot(e2a.design, aes(x = margin, y = detrate, colour = factor(method))) + geom_line(lwd = 1) + xlab("Margin") + ylab("Detection rate") + ggtitle("Messina vs t-test") + labs(colour = "Method") + theme_bw() + facet_grid(p1 ~ pm ~ n)
+ggplot(e2a.design, aes(x = margin, y = detrate, colour = factor(method))) + geom_line(lwd = 1) + xlab("Margin") + ylab("Detection rate") + ggtitle("Messina vs t-test") + labs(colour = "Method") + theme_bw() + facet_wrap(~ n)
+@
+
+\end{document}

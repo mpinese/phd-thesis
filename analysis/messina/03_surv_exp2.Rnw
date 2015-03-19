@@ -55,6 +55,10 @@ samps = samps.diag_dsd
 temp = NA
 temp = ls()
 rm(list = temp[!(temp %in% c("x", "y", "samps"))])
+
+x.med = apply(x, 1, median)
+x.mad = apply(x, 1, mad)
+x.reg1 = (x - x.med) / x.mad
 @
 
 
@@ -106,32 +110,146 @@ detector_maxstat = function(x, y, pmethod = "HL")
 \section{The Experiment}
 <<exp2-fits>>=
 library(doMC)
-registerDoMC(32)
+registerDoMC(2)
 
-fit.messina = messinaSurv(x, y, messinaSurvObj.CoxCoef(log(2)), parallel = TRUE)
-fit.medcut = detector_multicut(x, y, ncuts = 1)
-fit.10cutHolm = detector_multicut(x, y, ncuts = 10, correct = "holm")
-fit.maxstat = detector_maxstat(x, y)
+fit.messina.reg1 = messinaSurv(x.reg1, y, messinaSurvObj.CoxCoef(log(2)), parallel = TRUE, seed = 20150309)
+fit.messina2.reg1 = messinaSurv(x.reg1, y, messinaSurvObj.CoxCoef(log(3)), parallel = TRUE, seed = 20150309)
+fit.medcut.reg1 = detector_multicut(x.reg1, y, ncuts = 1)
+fit.10cutHolm.reg1 = detector_multicut(x.reg1, y, ncuts = 10, correct = "holm")
+fit.maxstat.reg1 = detector_maxstat(x.reg1, y)
 
 det.messina = fit.messina@fits@summary$passed
+det.messina2 = fit.messina2@fits@summary$passed
 det.medcut = fit.medcut[,1] < 0.05 & !is.na(fit.medcut[,1])
 det.10cutHolm = fit.10cutHolm[,1] < 0.05 & !is.na(fit.medcut[,1])
 det.maxstat = fit.maxstat[,1] < 0.05 & !is.na(fit.medcut[,1])
 
 thresh.messina = fit.messina@fits@summary$threshold
+thresh.messina2 = fit.messina2@fits@summary$threshold
 thresh.medcut = fit.medcut[,2]
 thresh.10cutHolm = fit.10cutHolm[,2]
 thresh.maxstat = fit.maxstat[,2]
 
 thresh.messina[det.messina == FALSE] = NA
+thresh.messina2[det.messina2 == FALSE] = NA
 thresh.medcut[det.medcut == FALSE] = NA
 thresh.10cutHolm[det.10cutHolm == FALSE] = NA
 thresh.maxstat[det.maxstat == FALSE] = NA
 @
 
-<<exp2-tests>>=
+<<exp2-predict>>=
 load("../biosurv/data/15_validation.rda")
+rm(GSE28735.lingex, GSE21501.lingex)
 
+keepMostVariableGeneMeasurement = function(gex, feats)
+{
+	sds = apply(gex, 1, sd)
+	perm = order(-sds)
+	gex = gex[perm,]
+	feats = feats[perm,]
+	drop = duplicated(rownames(gex))
+	gex = gex[!temp.drop,]
+	feats = feats[!temp.drop,]
+	list(gex = gex, feats = feats)
+}
+
+temp = keepMostVariableGeneMeasurement(GSE28735.gex, GSE28735.feat)
+GSE28735.gex = temp$gex
+GSE28735.feat = temp$feats
+temp = keepMostVariableGeneMeasurement(GSE21501.gex, GSE21501.feat)
+GSE21501.gex = temp$gex
+GSE21501.feat = temp$feats
+
+GSE28735.med = apply(GSE28735.gex, 1, median)
+GSE28735.mad = apply(GSE28735.gex, 1, mad)
+GSE28735.reg1 = (GSE28735.gex - GSE28735.med) / GSE28735.mad
+GSE21501.med = apply(GSE21501.gex, 1, median)
+GSE21501.mad = apply(GSE21501.gex, 1, mad)
+GSE21501.reg1 = (GSE21501.gex - GSE21501.med) / GSE21501.mad
+
+threshq.messina = sapply(1:length(thresh.messina), function(i) ifelse(is.na(thresh.messina[i]), NA, mean(x.reg1[i,] < thresh.messina[i])))
+threshq.messina2 = sapply(1:length(thresh.messina2), function(i) ifelse(is.na(thresh.messina2[i]), NA, mean(x.reg1[i,] < thresh.messina2[i])))
+threshq.medcut = sapply(1:length(thresh.medcut), function(i) ifelse(is.na(thresh.medcut[i]), NA, mean(x.reg1[i,] < thresh.medcut[i])))
+threshq.10cutHolm = sapply(1:length(thresh.10cutHolm), function(i) ifelse(is.na(thresh.10cutHolm[i]), NA, mean(x.reg1[i,] < thresh.10cutHolm[i])))
+threshq.maxstat = sapply(1:length(thresh.maxstat), function(i) ifelse(is.na(thresh.maxstat[i]), NA, mean(x.reg1[i,] < thresh.maxstat[i])))
+
+getThreshDirection = function(xc, y)
+{
+	fit = survdiff(y ~ xc)
+	true_i = which(names(fit$n) == "xc=TRUE")
+	true_obs = fit$obs[true_i]
+	true_exp = fit$exp[true_i]
+
+	# Positive return value => (xc == TRUE) group is higher risk.
+	sign(true_obs - true_exp)
+}
+
+direction.messina = sapply(1:length(thresh.messina), function(i) ifelse(is.na(thresh.messina[i]), NA, getThreshDirection(x.reg1[i,] >= thresh.messina[i], y)))
+direction.messina2 = sapply(1:length(thresh.messina2), function(i) ifelse(is.na(thresh.messina2[i]), NA, getThreshDirection(x.reg1[i,] >= thresh.messina2[i], y)))
+direction.medcut = sapply(1:length(thresh.medcut), function(i) ifelse(is.na(thresh.medcut[i]), NA, getThreshDirection(x.reg1[i,] >= thresh.medcut[i], y)))
+direction.10cutHolm = sapply(1:length(thresh.10cutHolm), function(i) ifelse(is.na(thresh.10cutHolm[i]), NA, getThreshDirection(x.reg1[i,] >= thresh.10cutHolm[i], y)))
+direction.maxstat = sapply(1:length(thresh.maxstat), function(i) ifelse(is.na(thresh.maxstat[i]), NA, getThreshDirection(x.reg1[i,] >= thresh.maxstat[i], y)))
+
+applyThreshToCohort = function(threshq, symb, cohort.feats, cohort.exprs)
+{
+	if (is.na(threshq) || !(symb %in% cohort.feats))		{ return(rep(NA, ncol(cohort.exprs))) }
+
+	cohort.exprs = cohort.exprs[symb %in% cohort.feats,,drop=FALSE]
+	cohort.exprs.sd = apply(cohort.exprs, 1, sd, na.rm = TRUE)
+	cohort.exprs = cohort.exprs[order(-cohort.exprs.sd)[1],]
+	
+	cohort.threshold = quantile(cohort.exprs, probs = threshq, na.rm = TRUE)
+
+	cohort.class = 1*(cohort.exprs >= cohort.threshold)
+	cohort.class
+}
+
+GSE28735.messina.q = t(sapply(1:length(threshq.messina), function(i) applyThreshToCohort(threshq.messina[i], rownames(x.reg1)[i], GSE28735.feat$Gene.symbol, GSE28735.gex)))
+GSE28735.medcut.q = t(sapply(1:length(threshq.medcut), function(i) applyThreshToCohort(threshq.medcut[i], rownames(x.reg1)[i], GSE28735.feat$Gene.symbol, GSE28735.gex)))
+GSE28735.10cutHolm.q = t(sapply(1:length(threshq.10cutHolm), function(i) applyThreshToCohort(threshq.10cutHolm[i], rownames(x.reg1)[i], GSE28735.feat$Gene.symbol, GSE28735.gex)))
+GSE28735.maxstat.q = t(sapply(1:length(threshq.maxstat), function(i) applyThreshToCohort(threshq.maxstat[i], rownames(x.reg1)[i], GSE28735.feat$Gene.symbol, GSE28735.gex)))
+GSE28735.messina.reg1 = t(sapply(1:length(thresh.messina), function(i) applyThreshToCohort(thresh.messina[i], rownames(x.reg1)[i], GSE28735.feat$Gene.symbol, GSE28735.gex)))
+GSE28735.medcut.reg1 = t(sapply(1:length(thresh.medcut), function(i) applyThreshToCohort(thresh.medcut[i], rownames(x.reg1)[i], GSE28735.feat$Gene.symbol, GSE28735.gex)))
+GSE28735.10cutHolm.reg1 = t(sapply(1:length(thresh.10cutHolm), function(i) applyThreshToCohort(thresh.10cutHolm[i], rownames(x.reg1)[i], GSE28735.feat$Gene.symbol, GSE28735.gex)))
+GSE28735.maxstat.reg1 = t(sapply(1:length(thresh.maxstat), function(i) applyThreshToCohort(thresh.maxstat[i], rownames(x.reg1)[i], GSE28735.feat$Gene.symbol, GSE28735.gex)))
+
+GSE21501.messina.q = t(sapply(1:length(threshq.messina), function(i) applyThreshToCohort(threshq.messina[i], rownames(x)[i], GSE21501.feat$Gene.symbol, GSE21501.gex)))
+GSE21501.medcut.q = t(sapply(1:length(threshq.medcut), function(i) applyThreshToCohort(threshq.medcut[i], rownames(x)[i], GSE21501.feat$Gene.symbol, GSE21501.gex)))
+GSE21501.10cutHolm.q = t(sapply(1:length(threshq.10cutHolm), function(i) applyThreshToCohort(threshq.10cutHolm[i], rownames(x)[i], GSE21501.feat$Gene.symbol, GSE21501.gex)))
+GSE21501.maxstat.q = t(sapply(1:length(threshq.maxstat), function(i) applyThreshToCohort(threshq.maxstat[i], rownames(x)[i], GSE21501.feat$Gene.symbol, GSE21501.gex)))
+GSE21501.messina.reg1 = t(sapply(1:length(thresh.messina), function(i) applyThreshToCohort(thresh.messina[i], rownames(x.reg1)[i], GSE21501.feat$Gene.symbol, GSE21501.gex)))
+GSE21501.medcut.reg1 = t(sapply(1:length(thresh.medcut), function(i) applyThreshToCohort(thresh.medcut[i], rownames(x.reg1)[i], GSE21501.feat$Gene.symbol, GSE21501.gex)))
+GSE21501.10cutHolm.reg1 = t(sapply(1:length(thresh.10cutHolm), function(i) applyThreshToCohort(thresh.10cutHolm[i], rownames(x.reg1)[i], GSE21501.feat$Gene.symbol, GSE21501.gex)))
+GSE21501.maxstat.reg1 = t(sapply(1:length(thresh.maxstat), function(i) applyThreshToCohort(thresh.maxstat[i], rownames(x.reg1)[i], GSE21501.feat$Gene.symbol, GSE21501.gex)))
+@
+
+<<exp2-tests>>=
+testSplitOnCohort = function(xc, d, y)
+{
+	if (length(unique(xc)) != 2)	{ return(c(NA, NA)) }
+	fit = survdiff(y ~ xc)
+	pval = pchisq(fit$chisq, 1, lower.tail = FALSE)
+	hr = exp(sqrt(fit$chisq)*sqrt(4/sum(y[,2]))*(1-d))
+	c("P.value" = pval, "HR" = hr)
+}
+
+GSE28735.messina.q.val = t(sapply(1:length(thresh.messina), function(i) if(is.na(thresh.messina[i])) { c(NA, NA) } else { testSplitOnCohort(xc = GSE28735.messina.q[i,], d = direction.messina[i], y = Surv(GSE28735.samp$time, GSE28735.samp$event)) }))
+GSE28735.medcut.q.val = t(sapply(1:length(thresh.medcut), function(i) if(is.na(thresh.medcut[i])) { c(NA, NA) } else { testSplitOnCohort(xc = GSE28735.medcut.q[i,], d = direction.medcut[i], y = Surv(GSE28735.samp$time, GSE28735.samp$event)) }))
+GSE28735.10cutHolm.q.val = t(sapply(1:length(thresh.10cutHolm), function(i) if(is.na(thresh.10cutHolm[i])) { c(NA, NA) } else { testSplitOnCohort(xc = GSE28735.10cutHolm.q[i,], d = direction.10cutHolm[i], y = Surv(GSE28735.samp$time, GSE28735.samp$event)) }))
+GSE28735.maxstat.q.val = t(sapply(1:length(thresh.maxstat), function(i) if(is.na(thresh.maxstat[i])) { c(NA, NA) } else { testSplitOnCohort(xc = GSE28735.maxstat.q[i,], d = direction.maxstat[i], y = Surv(GSE28735.samp$time, GSE28735.samp$event)) }))
+GSE28735.messina.reg1.val = t(sapply(1:length(thresh.messina), function(i) if(is.na(thresh.messina[i])) { c(NA, NA) } else { testSplitOnCohort(xc = GSE28735.messina.reg1[i,], d = direction.messina[i], y = Surv(GSE28735.samp$time, GSE28735.samp$event)) }))
+GSE28735.medcut.reg1.val = t(sapply(1:length(thresh.medcut), function(i) if(is.na(thresh.medcut[i])) { c(NA, NA) } else { testSplitOnCohort(xc = GSE28735.medcut.reg1[i,], d = direction.medcut[i], y = Surv(GSE28735.samp$time, GSE28735.samp$event)) }))
+GSE28735.10cutHolm.reg1.val = t(sapply(1:length(thresh.10cutHolm), function(i) if(is.na(thresh.10cutHolm[i])) { c(NA, NA) } else { testSplitOnCohort(xc = GSE28735.10cutHolm.reg1[i,], d = direction.10cutHolm[i], y = Surv(GSE28735.samp$time, GSE28735.samp$event)) }))
+GSE28735.maxstat.reg1.val = t(sapply(1:length(thresh.maxstat), function(i) if(is.na(thresh.maxstat[i])) { c(NA, NA) } else { testSplitOnCohort(xc = GSE28735.maxstat.reg1[i,], d = direction.maxstat[i], y = Surv(GSE28735.samp$time, GSE28735.samp$event)) }))
+
+GSE21501.messina.q.val = t(sapply(1:length(thresh.messina), function(i) if(is.na(thresh.messina[i])) { c(NA, NA) } else { testSplitOnCohort(xc = GSE21501.messina.q[i,], d = direction.messina[i], y = Surv(GSE21501.samp$time, GSE21501.samp$event)) }))
+GSE21501.medcut.q.val = t(sapply(1:length(thresh.medcut), function(i) if(is.na(thresh.medcut[i])) { c(NA, NA) } else { testSplitOnCohort(xc = GSE21501.medcut.q[i,], d = direction.medcut[i], y = Surv(GSE21501.samp$time, GSE21501.samp$event)) }))
+GSE21501.10cutHolm.q.val = t(sapply(1:length(thresh.10cutHolm), function(i) if(is.na(thresh.10cutHolm[i])) { c(NA, NA) } else { testSplitOnCohort(xc = GSE21501.10cutHolm.q[i,], d = direction.10cutHolm[i], y = Surv(GSE21501.samp$time, GSE21501.samp$event)) }))
+GSE21501.maxstat.q.val = t(sapply(1:length(thresh.maxstat), function(i) if(is.na(thresh.maxstat[i])) { c(NA, NA) } else { testSplitOnCohort(xc = GSE21501.maxstat.q[i,], d = direction.maxstat[i], y = Surv(GSE21501.samp$time, GSE21501.samp$event)) }))
+GSE21501.messina.reg1.val = t(sapply(1:length(thresh.messina), function(i) if(is.na(thresh.messina[i])) { c(NA, NA) } else { testSplitOnCohort(xc = GSE21501.messina.reg1[i,], d = direction.messina[i], y = Surv(GSE21501.samp$time, GSE21501.samp$event)) }))
+GSE21501.medcut.reg1.val = t(sapply(1:length(thresh.medcut), function(i) if(is.na(thresh.medcut[i])) { c(NA, NA) } else { testSplitOnCohort(xc = GSE21501.medcut.reg1[i,], d = direction.medcut[i], y = Surv(GSE21501.samp$time, GSE21501.samp$event)) }))
+GSE21501.10cutHolm.reg1.val = t(sapply(1:length(thresh.10cutHolm), function(i) if(is.na(thresh.10cutHolm[i])) { c(NA, NA) } else { testSplitOnCohort(xc = GSE21501.10cutHolm.reg1[i,], d = direction.10cutHolm[i], y = Surv(GSE21501.samp$time, GSE21501.samp$event)) }))
+GSE21501.maxstat.reg1.val = t(sapply(1:length(thresh.maxstat), function(i) if(is.na(thresh.maxstat[i])) { c(NA, NA) } else { testSplitOnCohort(xc = GSE21501.maxstat.reg1[i,], d = direction.maxstat[i], y = Surv(GSE21501.samp$time, GSE21501.samp$event)) }))
 @
 
 <<exp2-save>>=
