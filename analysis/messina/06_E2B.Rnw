@@ -1,0 +1,140 @@
+\documentclass{article}
+\usepackage{geometry}
+\usepackage{amsmath}
+\usepackage{lscape}
+\geometry{verbose,tmargin=2.5cm,bmargin=2.5cm,lmargin=2.5cm,rmargin=2.5cm}
+
+\begin{document}
+
+<<setup, include=FALSE>>=
+library(knitr)
+library(tikzDevice)
+options(
+	tikzDocumentDeclaration = "\\documentclass[11pt]{memoir}",
+	tikzLatexPackages = c(
+		getOption("tikzLatexPackages"),
+		"\\usepackage{amsmath}"),
+	tikzMetricsDictionary="tikzMetrics"
+)
+knit_hooks$set(crop = hook_pdfcrop)
+opts_chunk$set(
+	fig.align = 'center', fig.path = "figure/06-E2B-", dev = 'tikz', dev.args = list(pointsize = 12), 
+	cache = TRUE, cache.lazy = FALSE, cache.path = "cache/06-E2B-", autodep = TRUE, crop = TRUE,
+	fig.width = 6, fig.height = 6)
+opts_knit$set(progress = TRUE, verbose = TRUE)
+options(warn = 1)
+@
+
+
+\title{Messina E2A: Messina vs t-test}
+\maketitle
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% LIBRARIES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Preparation}
+<<libs-load,cache=FALSE>>=
+library(plyr)
+library(ggplot2)
+library(messina)
+library(maxstat)
+@
+
+
+<<E2B-calcs>>=
+deltaForMargin = function(margin, sigma_epsilon = 1, alpha = 0.05) margin - 2*sigma_epsilon*qnorm(alpha)
+marginForDelta = function(delta, sigma_epsilon = 1, alpha = 0.05) delta + 2*sigma_epsilon*qnorm(alpha)
+
+messina_objectives = list("cox.log2" = messinaSurvObj.CoxCoef(log(2)))
+
+e2b.design = expand.grid(
+	Delta = seq(0, 5, 0.25),
+	R1 = c(1, 2, 3),
+	sigma_epsilon = 1,
+	p1 = c(0.2, 0.5, 0.8),
+	pc = c(0, 0.2, 0.5),
+	alpha = 0.2,
+	stat.alpha = 0.05,
+	messina.objective = "cox.log2",
+	messina.minmarg = 1,
+	n = c(25, 50, 100),
+	reps = 1e3)
+
+e2b.design$margin = marginForDelta(e2b.design$Delta, e2b.design$sigma_epsilon, alpha = e2b.design$alpha)
+
+detector_multicut = function(x, y, ncuts = 10, correct = "none")
+{
+	if (ncuts == 1) 	{ correct = "none" }
+	if (is.vector(x))	{ x = matrix(x, nrow = 1) }
+
+	aaply(x, 1, function(x1) {
+		cutpoints = quantile(x1, probs = (1:ncuts)/(ncuts + 1))
+		pvals = sapply(cutpoints, function(c) {
+			x1c = x1 > c
+			test = survdiff(y ~ x1c)
+			pval = pchisq(test$chisq, df = 1, lower.tail = FALSE)
+			pval
+		})
+		pvals = p.adjust(pvals, correct)
+		pvals[is.na(pvals)] = 1
+		min(pvals)
+	}, .parallel = TRUE)
+}
+
+e2b.datafun = function(n, p1, pc, Delta, R1, sigma_epsilon, ...)
+{
+	n1 = round(n*p1)
+	n0 = n - n1
+	c = rep(c(0, 1), c(n0, n1))
+	x = Delta*c + rnorm(n, mean = 0, sd = sigma_epsilon)
+
+	Rc = optimize(function(Rc) abs(integrate(function(t) pexp(t, Rc) * ((1-p1)*dexp(t, 1) + p1*dexp(t, R1)), 0, Inf)$value - pc), interval = c(R1/100, R1*100))$minimum
+
+	time_event = c(rexp(n0, 1), rexp(n1, R1))
+	time_cens = rexp(n, Rc)
+
+	y = Surv(pmin(time_event, time_cens), time_event <= time_cens)
+
+	list(x = x, y = y, c = c)
+}
+
+e2b.detfun = function(x, y, stat.alpha, messina.objective, messina.minmarg, ...)
+{
+	data.maxstat = data.frame(time = y[,1], event = y[,2], x = x)
+	test.maxstat = try(maxstat.test(Surv(time, event) ~ x, data = data.maxstat, smethod = "LogRank", pmethod = "HL"))
+	det.maxstat = ifelse(class(test.maxstat) == "try-error", FALSE, test.maxstat$p.value < stat.alpha)
+
+	det.1cut = detector_multicut(x, y, 1) < stat.alpha
+	det.10cut = detector_multicut(x, y, 10) < stat.alpha
+	det.10cutHolm = detector_multicut(x, y, 10, "holm") < stat.alpha
+
+	x.messina = rbind(x, x, x)
+	fit.messina = messinaSurv(x.messina, y, messina_objectives[[messina.objective]], silent = TRUE)
+	det.messina = fit.messina@fits@summary$passed[1] == TRUE && fit.messina@fits@summary$margin[1] >= messina.minmarg
+
+	c(maxstat = det.maxstat, c1 = det.1cut, c10 = det.10cut, cH10 = det.10cutHolm, m = det.messina)
+}
+
+set.seed(20150320)
+e2b.det = mlply(e2b.design, function(Delta, R1, sigma_epsilon, pc, p1, stat.alpha, messina.minmarg, messina.objective, n, reps, ...) { 
+	rowMeans(replicate(reps, { data = e2b.datafun(n, p1, pc, Delta, R1, sigma_epsilon); e2b.detfun(data$x, data$y, stat.alpha, messina.objective, messina.minmarg) })) })
+
+e2b.design = rbind(
+	cbind(e2b.design, method = "maxstat", detrate = simplify2array(e2b.det)[1,]), 
+	cbind(e2b.design, method = "c1", detrate = simplify2array(e2b.det)[2,]),
+	cbind(e2b.design, method = "c10", detrate = simplify2array(e2b.det)[3,]), 
+	cbind(e2b.design, method = "cH10", detrate = simplify2array(e2b.det)[4,]), 
+	cbind(e2b.design, method = "messina", detrate = simplify2array(e2b.det)[5,])
+)
+@
+
+<<E2B-plots,fig.height=4,fig.width=5>>=
+# e2b.design$method = as.character(e2b.design$method)
+# e2b.design$method[e2b.design$method == "t"] = "t test"
+# e2b.design$method[e2b.design$method == "messina"] = "Messina"
+# e2b.design$method = as.factor(e2b.design$method)
+ggplot(e2b.design, aes(x = margin, y = detrate, colour = factor(method))) + geom_line(lwd = 1) + xlab("Margin") + ylab("Detection rate") + labs(colour = "Method") + theme_bw() + facet_wrap(~ n) + geom_vline(xintercept = 1, alpha = 0.5, linetype = "dashed")
+@
+
+\end{document}
