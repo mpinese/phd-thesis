@@ -1,7 +1,7 @@
 %% PREAMBLE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\documentclass[11pt,a4paper,final,oneside]{memoir}
-%\documentclass[11pt,a4paper,final,twoside]{memoir}
+%\documentclass[11pt,a4paper,final,oneside]{memoir}
+\documentclass[11pt,a4paper,final,twoside]{memoir}
 
 \usepackage{subfiles}
 
@@ -57,16 +57,65 @@
 \begin{document}
 \pagestyle{empty}
 
-\listoffixmes
+%\listoffixmes
+
+\begin{tikzpicture}[remember picture,overlay,shift={(current page.center)}]
+    \node at (0.8cm,0) (OffsetNode) {};
+\end{tikzpicture}
+\begin{tikzpicture}[remember picture,overlay,shift={(OffsetNode.center)}]
+    \node at (0,0) {\includegraphics[page=1,scale=0.8]{resources/thesisdissertation}};
+    \begin{scope}[shift={(current page.south west)},every node/.style={anchor=base west}]
+%        \draw [help lines] (0,0) grid (current page.north east);
+%        \draw [help lines,thick] (0,0) grid [step=5cm] (current page.north east);
+        \node at (7cm,24.5cm)	{\scriptsize Pinese};
+        \node at (7cm,24cm) 	{\scriptsize Mark};
+        \node at (11cm,23.48cm) {\scriptsize PhD};
+        \node at (7cm,22.95cm) 	{\scriptsize St. Vincent's Clinical School};
+        \node at (5cm,22.4cm) 	{\scriptsize ### Title (sentence case)};
+        \node at (13cm,22.95cm)	{\scriptsize Medicine};
+        \node at (4.8cm,20.2cm)	{\scriptsize ### Abstract};
+    \end{scope}
+\end{tikzpicture}
 
 \increaseBuild
+\cleardoublepage
 
-\title{Mah Dissertat'n}
-\author{Mark Pinese}
-\date{\today \quad Build \version}
+\begin{titlepage}
+    \begin{center}
+        \vspace*{1cm}
+        
+        \Large
+        \textbf{### Thesis Title}
+        
+        \vspace{0.5cm}
+        ### Thesis Subtitle
+        
+        \vspace{1.5cm}
+        
+        \normalsize
+        \textbf{Mark Pinese}
+        
+        \vfill
+        
+        A thesis in fulfilment of the requirements for the degree of\\
+        Doctor of Philosophy
+        
+        \vspace{2cm}
+        
+        \includegraphics[width=0.25\textwidth]{resources/PortraitColourPos}
 
-\maketitle
+        \vspace{1cm}
 
+        St. Vincent's Clinical School\\
+        Faculty of Medicine\\
+
+		\vspace{0.8cm}
+        March 2015
+    \end{center}
+\end{titlepage}
+
+
+\cleardoublepage
 \includepdf[pages={1},lastpage=1]{resources/originalitystatement_1.pdf}
 
 \frontmatter
@@ -82,11 +131,12 @@ as weak recompense for the time that I could not spend with them.
 \vspace*{\stretch{11}}
 
 \chapter*{Acknowledgements}
+###
 \thispagestyle{empty}
 \clearpage
 
 \begin{abstract}
-Da abstract.
+###
 \end{abstract}
 \thispagestyle{empty}
 \pagenumbering{gobble}
@@ -95,6 +145,7 @@ Da abstract.
 \pagestyle{plain}
 \pagenumbering{roman}
 
+\setcounter{tocdepth}{2}
 \tableofcontents
 \clearpage
 
@@ -127,7 +178,7 @@ Da abstract.
 \printglossary
 
 \renewcommand{\bibname}{References}
-\bibliographystyle{plain}
+\bibliographystyle{abbrv}
 \bibliography{dissertation}
 
 \end{document}

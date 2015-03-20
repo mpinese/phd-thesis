@@ -38,6 +38,8 @@ options(warn = 1)
 library(plyr)
 library(ggplot2)
 library(messina)
+library(doMC)
+paropts = list(.options.multicore = list(preschedule = FALSE))
 @
 
 
@@ -60,13 +62,6 @@ e2a.design = expand.grid(
 	n = c(25, 50, 100),
 	reps = 1e3)
 e2a.design$margin = marginForDelta(e2a.design$Delta, e2a.design$sigma_epsilon, alpha = e2a.design$alpha)
-
-set.seed(1234)
-temp = do.call("e2a.datafun", e2a.design[e2a.design$p1 == 0.2 & e2a.design$pm == 0.2 & e2a.design$Delta == 10,])
-temp.x = rbind(temp$x, temp$x)
-temp.y = temp$y
-temp2 = messina(temp.x, temp.y == 1, min_sens = 0.7, min_spec = 0.7, seed = 1234)
-plot(temp2, plot_type = "point")
 
 e2a.datafun = function(n, p1, pm, Delta, sigma_epsilon, ...)
 {
@@ -94,9 +89,11 @@ e2a.detfun = function(x, y, t.alpha, messina.minsens, messina.minspec, messina.m
 	c(t = det.t, m = det.messina)
 }
 
+registerDoMC(32)
+
 set.seed(20150320)
 e2a.det = mlply(e2a.design, function(Delta, sigma_epsilon, pm, p1, t.alpha, messina.minmarg, messina.minsens, messina.minspec, n, reps, ...) { 
-	rowMeans(replicate(reps, { data = e2a.datafun(n, p1, pm, Delta, sigma_epsilon); e2a.detfun(data$x, data$y, t.alpha, messina.minsens, messina.minspec, messina.minmarg) })) })
+	rowMeans(replicate(reps, { data = e2a.datafun(n, p1, pm, Delta, sigma_epsilon); e2a.detfun(data$x, data$y, t.alpha, messina.minsens, messina.minspec, messina.minmarg) })) }, .parallel = TRUE, .paropts = paropts)
 
 e2a.design = rbind(cbind(e2a.design, method = "t", detrate = simplify2array(e2a.det)[1,]), cbind(e2a.design, method = "messina", detrate = simplify2array(e2a.det)[2,]))
 @

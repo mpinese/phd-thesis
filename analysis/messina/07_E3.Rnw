@@ -1,0 +1,117 @@
+\documentclass{article}
+\usepackage{geometry}
+\usepackage{amsmath}
+\usepackage{lscape}
+\geometry{verbose,tmargin=2.5cm,bmargin=2.5cm,lmargin=2.5cm,rmargin=2.5cm}
+
+\begin{document}
+
+<<setup, include=FALSE>>=
+library(knitr)
+library(tikzDevice)
+options(
+	tikzDocumentDeclaration = "\\documentclass[11pt]{memoir}",
+	tikzLatexPackages = c(
+		getOption("tikzLatexPackages"),
+		"\\usepackage{amsmath}"),
+	tikzMetricsDictionary="tikzMetrics"
+)
+knit_hooks$set(crop = hook_pdfcrop)
+opts_chunk$set(
+	fig.align = 'center', fig.path = "figure/07-E3-", dev = 'tikz', dev.args = list(pointsize = 12), 
+	cache = TRUE, cache.lazy = FALSE, cache.path = "cache/07-E3-", autodep = TRUE, crop = TRUE,
+	fig.width = 6, fig.height = 6)
+opts_knit$set(progress = TRUE, verbose = TRUE)
+options(warn = 1)
+@
+
+
+\title{Messina E3: Messina vs ? on APGI}
+\maketitle
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% LIBRARIES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Preparation}
+<<libs-load,cache=FALSE>>=
+library(plyr)
+library(ggplot2)
+library(messina)
+library(maxstat)
+library(doMC)
+paropts = list(.options.multicore = list(preschedule = FALSE))
+@
+
+
+\section{Data preparation}
+<<data-prep>>=
+load("../biosurv/data/07_data_for_SIS.rda")
+APGI.x = x.diag_dsd
+APGI.y = y.diag_dsd
+APGI.samps = samps.diag_dsd
+APGI.feats = data.frame(symbol = rownames(APGI.x))
+
+temp = NA
+temp = ls()
+rm(list = temp[!(temp %in% c("APGI.x", "APGI.y", "APGI.samps", "APGI.feats"))])
+
+load("../biosurv/data/15_validation.rda")
+rm(GSE28735.lingex, GSE21501.lingex)
+GSE28735.x = GSE28735.gex
+GSE21501.x = GSE21501.gex
+GSE28735.feats = GSE28735.feat
+GSE21501.feats = GSE21501.feat
+rm(GSE28735.gex, GSE21501.gex, GSE28735.feat, GSE21501.feat)
+
+keepMostVariableGeneMeasurement = function(gex, feats, ids)
+{
+	sds = apply(gex, 1, sd, na.rm = TRUE)
+	perm = order(-sds)
+	gex = gex[perm,,drop = FALSE]
+	feats = feats[perm,,drop = FALSE]
+	ids = ids[perm]
+	drop = duplicated(ids) | is.null(ids)
+	gex = gex[!drop,,drop = FALSE]
+	feats = feats[!drop,,drop = FALSE]
+	ids = ids[!drop]
+	list(gex = gex, feats = feats, ids = ids)
+}
+
+regularizeX = function(x)
+{
+	location = apply(x, 1, median, na.rm = TRUE)
+	scale = apply(x, 1, mad, na.rm = TRUE)
+	(x - location) / scale
+}
+
+temp = keepMostVariableGeneMeasurement(APGI.x, APGI.feats, APGI.feats$symbol)
+APGI.x = temp$gex
+APGI.feats = temp$feats
+temp = keepMostVariableGeneMeasurement(GSE28735.x, GSE28735.feats, GSE28735.feats$Gene.symbol)
+GSE28735.x = temp$gex
+GSE28735.feats = temp$feats
+temp = keepMostVariableGeneMeasurement(GSE21501.x, GSE21501.feats, GSE21501.feats$Gene.symbol)
+GSE21501.x = temp$gex
+GSE21501.feats = temp$feats
+
+APGI.xreg = regularizeX(APGI.x)
+GSE28735.xreg = regularizeX(GSE28735.x)		# This one validated for survsigs
+GSE21501.xreg = regularizeX(GSE21501.x)
+@
+
+
+<<E3-calcs>>=
+# Temporary testing measure.  Probably will be used in real application, but somewhat defeats
+# the whole purpose of Messina for testing, so should be removed when comparing vs other methods.
+APGI.xreg.highsd = APGI.x[apply(APGI.x, 1, sd) >= 1,]
+
+APGI.messina = messinaSurv(APGI.xreg.highsd, APGI.y, messinaSurvObj.CoxCoef(round(log(2), 3)), parallel = FALSE, silent = FALSE, seed = 20150320)
+
+@
+
+
+<<E3-plots,fig.height=4,fig.width=5>>=
+@
+
+\end{document}
