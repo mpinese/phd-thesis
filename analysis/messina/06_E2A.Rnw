@@ -46,7 +46,7 @@ deltaForMargin = function(margin, sigma_epsilon = 1, alpha = 0.05) margin - 2*si
 marginForDelta = function(delta, sigma_epsilon = 1, alpha = 0.05) delta + 2*sigma_epsilon*qnorm(alpha)
 
 e2a.design = expand.grid(
-	Delta = seq(0, 5, 0.1),
+	Delta = seq(0, 5, 0.25),
 	sigma_epsilon = 1,
 #	p1 = c(0.2, 0.5),
 #	pm = c(0, 0.1, 0.2),
@@ -58,7 +58,7 @@ e2a.design = expand.grid(
 	messina.minsens = 0.8,
 	messina.minspec = 0.8,
 	n = c(25, 50, 100),
-	reps = 5e3)
+	reps = 1e3)
 e2a.design$margin = marginForDelta(e2a.design$Delta, e2a.design$sigma_epsilon, alpha = e2a.design$alpha)
 
 set.seed(1234)
@@ -102,9 +102,14 @@ e2a.design = rbind(cbind(e2a.design, method = "t", detrate = simplify2array(e2a.
 @
 
 <<E2A-plots,fig.height=4,fig.width=5>>=
-ggplot(e2a.design[e2a.design$margin >= 0,], aes(x = margin, y = detrate, colour = factor(method))) + geom_line(lwd = 1) + xlab("Margin") + ylab("Detection rate") + ggtitle("Messina vs t-test") + labs(colour = "Method") + theme_bw() + facet_grid(p1 ~ pm ~ n)
-ggplot(e2a.design, aes(x = margin, y = detrate, colour = factor(method))) + geom_line(lwd = 1) + xlab("Margin") + ylab("Detection rate") + ggtitle("Messina vs t-test") + labs(colour = "Method") + theme_bw() + facet_grid(p1 ~ pm ~ n)
-ggplot(e2a.design, aes(x = margin, y = detrate, colour = factor(method))) + geom_line(lwd = 1) + xlab("Margin") + ylab("Detection rate") + ggtitle("Messina vs t-test") + labs(colour = "Method") + theme_bw() + facet_wrap(~ n)
+# ggplot(e2a.design[e2a.design$margin >= 0,], aes(x = margin, y = detrate, colour = factor(method))) + geom_line(lwd = 1) + xlab("Margin") + ylab("Detection rate") + ggtitle("Messina vs t-test") + labs(colour = "Method") + theme_bw() + facet_grid(p1 ~ pm ~ n)
+# ggplot(e2a.design, aes(x = margin, y = detrate, colour = factor(method))) + geom_line(lwd = 1) + xlab("Margin") + ylab("Detection rate") + ggtitle("Messina vs t-test") + labs(colour = "Method") + theme_bw() + facet_grid(p1 ~ pm ~ n)
+# ggplot(e2a.design, aes(x = margin, y = detrate, colour = factor(method))) + geom_line(lwd = 1) + xlab("Margin") + ylab("Detection rate") + ggtitle("Messina vs t-test") + labs(colour = "Method") + theme_bw() + facet_wrap(~ n)
+e2a.design$method = as.character(e2a.design$method)
+e2a.design$method[e2a.design$method == "t"] = "t test"
+e2a.design$method[e2a.design$method == "messina"] = "Messina"
+e2a.design$method = as.factor(e2a.design$method)
+ggplot(e2a.design, aes(x = margin, y = detrate, colour = factor(method))) + geom_line(lwd = 1) + xlab("Margin") + ylab("Detection rate") + labs(colour = "Method") + theme_bw() + facet_wrap(~ n) + geom_vline(xintercept = 1, alpha = 0.5, linetype = "dashed")
 @
 
 \end{document}
