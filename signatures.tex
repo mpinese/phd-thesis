@@ -64,7 +64,7 @@ General characteristics of both the full \gls{APGI} cohort, and the 110-patient 
 
 \begin{table}[h]
 \centering
-\caption[Characteristics of the \gls{APGI} patient cohorts]{Characteristics of the full \gls{APGI} patient cohort, and the homogenous \gls{PDAC}-only subset used for signature discovery.  Ordinal variables are shown as median, with quartiles in parentheses.  Categorical variables for which percentages do not add up to 100\% indicate the presence of minor unlisted categories.  Abbreviations: AAC - ampullary adenocarcinoma; IPMN - intraductal papillary mucinous neoplasm; PNET - pancreatic neuroendocrine tumour; PR - Puerto Rico}\label{tab:sigs-cohort-characteristics}
+\caption[Characteristics of the \acrshort{APGI} patient cohorts]{Characteristics of the full \gls{APGI} patient cohort, and the homogenous \gls{PDAC}-only subset used for signature discovery.  Ordinal variables are shown as median, with quartiles in parentheses.  Categorical variables for which percentages do not add up to 100\% indicate the presence of minor unlisted categories.  Abbreviations: AAC - ampullary adenocarcinoma; IPMN - intraductal papillary mucinous neoplasm; PNET - pancreatic neuroendocrine tumour; PR - Puerto Rico}\label{tab:sigs-cohort-characteristics}
 \begin{tabular}{@{}llrr@{}}
 \toprule
 Characteristic             &                          & Full \gls{APGI} & Discovery \\ \midrule
@@ -140,7 +140,7 @@ The transcription patterns of genes associated with survival in the \gls{APGI} c
 \begin{figure}
 \centering
 \includegraphics[width=.7\linewidth]{analysis/biosurv/reports/18_SIS_diag_dsd_final/figure/nmf-metagene-glmnet-plots-2}
-\caption[Fit trajectory of the \gls{LASSO} predicting \acrshort{DSS} from metagene coefficients]{Coefficient vs penalty fit trajectories for the \acrshort{LASSO} model predicting \gls{DSS} from metagene expression.  Each line represents the model coefficient for a metagene as the model is smoothly varied from a null model (L1 norm = 0), to a full unpenalised Cox fit (L1 norm $\approx$ 16).  The vertical line indicates the optimal value of L1 norm as selected by the 1SE criterion on 10-fold cross-validation; at this point in the trajectory only metagenes MG1, MG2, and MG5 contribute to prognosis estimates.}\label{fig:sigs-resub-lasso-track}
+\caption[Fit trajectory of the \acrshort{LASSO} predicting \acrshort{DSS} from metagene coefficients]{Coefficient vs penalty fit trajectories for the \acrshort{LASSO} model predicting \gls{DSS} from metagene expression.  Each line represents the model coefficient for a metagene as the model is smoothly varied from a null model (L1 norm = 0), to a full unpenalised Cox fit (L1 norm $\approx$ 16).  The vertical line indicates the optimal value of L1 norm as selected by the 1SE criterion on 10-fold cross-validation; at this point in the trajectory only metagenes MG1, MG2, and MG5 contribute to prognosis estimates.}\label{fig:sigs-resub-lasso-track}
 \end{figure}
 
 \paragraph{Prognostic metagenes define two axes of cell transcription}
@@ -433,7 +433,7 @@ c7           & *                                  \\ \bottomrule
 \end{tabular}
 \end{table}
 
-\subsection{Attribution of work}
+\section{Attribution}
 Data for the \gls{APGI} discovery cohort were generated as part of the \gls{APGI} project, under the umbrella of the \gls{ICGC}.  The generation of these data was a huge team effort, of which I only played a small part.  However, both conception of the project, and all steps subsequent to raw data generation, from low level processing of \gls{IDAT} files through to analysis planning, signature development, testing, and interpretation, were performed solely by me.
 
 \end{document}

@@ -40,7 +40,7 @@ As the aim was to develop a prognostic predictor that could be applied pre-opera
 
 Pre-operative measurements of tumour size (for example, by \gls{CT} X-ray or \gls{EUS}) were not available in the training and validation sets, and were approximated by post-operative measurements for the development and testing of this nomogram.  Similarly, biomarker measurements were approximated using \gls{IHCal} staining of tissue collected during resection, as only very limited pre-operative \gls{EUS}-\gls{FNA} samples were available in the cohorts used.  The implications of these approximations for the prognostic tool developed here, as well as for future work, are considered in the discussion.  
 
-\subsection{Cohorts and Characteristics}
+\subsection{Cohorts and characteristics}
 General characteristics of the \gls{NSWPCN}, Glasgow, \gls{APGI}, and Dresden cohorts are summarised in \tref{tab:nomo-cohort-characteristics}.  The \gls{NSWPCN} training cohort contained a small subgroup of patients with abnormally long recorded survival times ($> 3000$ days, 7/256 patients), that were strongly suspected to represent data errors, either as a consequence of incorrect coding following loss to follow-up, or misdiagnosis.  Given the age of the cohort, it was deemed impractical to revisit the original records to check these patients, and so all patients with recorded survival times exceeding 3000 days were excluded from the \gls{NSWPCN} training data.  The \gls{NSWPCN} cohort characteristics in \tref{tab:nomo-cohort-characteristics} have been calculated on the 249 patients that passed the 3000 day data quality cutoff.
 
 The four cohorts had broadly similar marginal survival functions (\fref{fig:nomo-cohort-km}), although these were statistically distinct (logrank $P = 5.7 \times 10^{-6}$).  There were significant differences between the cohorts in the distribution of prognostic \glspl{CPV}: large variation was present in the fraction of patients with clear resection margins (range $27\%-65\%$, Fisher exact test $P = 2.2 \times 10^{-15}$), tumours in the head of the pancreas ($81\%-100\%$, $P = 8.6 \times 10^{-13}$), and lymph node involvement ($66\%-83\%$, $P = 8.3 \times 10^{-5}$), but these were not sufficient to explain cohort differences in outcome: after correcting for all available covariates, cohort still had a significant effect on survival (likelihood ratio test $P = 3.8 \times 10^{-8}$), with patients from the \gls{NSWPCN} training set displaying worse covariate-corrected prognosis than those from other cohorts (hazard ratios for \gls{NSWPCN} patients over others all $> 1.98$).  
@@ -382,5 +382,8 @@ The prognostic nomogram for resected pancreas cancer of \cite{Brennan2004} was d
 
 \subsection{PCOP web application}
 The \texttt{R} \texttt{shiny} infrastructure was used to create a simple web application to predict patient outcome using the final \gls{PCOP} model.
+
+\section{Attribution}
+Data for the \gls{APGI} discovery cohort were generated as part of the \gls{APGI} project, under the umbrella of the \gls{ICGC}.  The generation of these data was a huge team effort, of which I only played a small part.  However, both conception of the project, and all steps subsequent to raw data generation, from low level processing of \gls{IDAT} files through to analysis planning, signature development, testing, and interpretation, were performed solely by me.
 
 \end{document}

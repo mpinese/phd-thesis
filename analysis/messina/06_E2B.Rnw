@@ -39,6 +39,7 @@ library(plyr)
 library(ggplot2)
 library(messina)
 library(maxstat)
+library(doMC)
 @
 
 
@@ -49,8 +50,8 @@ marginForDelta = function(delta, sigma_epsilon = 1, alpha = 0.05) delta + 2*sigm
 messina_objectives = list("cox.log2" = messinaSurvObj.CoxCoef(log(2)))
 
 e2b.design = expand.grid(
-	Delta = seq(0, 5, 0.25),
-	R1 = c(1, 2, 3),
+	Delta = seq(0, 5, 0.5),
+	R1 = c(1, 2, 4, 8),
 	sigma_epsilon = 1,
 	p1 = c(0.2, 0.5, 0.8),
 	pc = c(0, 0.2, 0.5),
@@ -58,8 +59,8 @@ e2b.design = expand.grid(
 	stat.alpha = 0.05,
 	messina.objective = "cox.log2",
 	messina.minmarg = 1,
-	n = c(25, 50, 100),
-	reps = 1e3)
+	n = c(25, 50, 100, 200),
+	reps = 1e2)
 
 e2b.design$margin = marginForDelta(e2b.design$Delta, e2b.design$sigma_epsilon, alpha = e2b.design$alpha)
 
@@ -79,7 +80,7 @@ detector_multicut = function(x, y, ncuts = 10, correct = "none")
 		pvals = p.adjust(pvals, correct)
 		pvals[is.na(pvals)] = 1
 		min(pvals)
-	}, .parallel = TRUE)
+	}, .parallel = FALSE)
 }
 
 e2b.datafun = function(n, p1, pc, Delta, R1, sigma_epsilon, ...)
@@ -110,15 +111,33 @@ e2b.detfun = function(x, y, stat.alpha, messina.objective, messina.minmarg, ...)
 	det.10cutHolm = detector_multicut(x, y, 10, "holm") < stat.alpha
 
 	x.messina = rbind(x, x, x)
-	fit.messina = messinaSurv(x.messina, y, messina_objectives[[messina.objective]], silent = TRUE)
+	fit.messina = messinaSurv(x.messina, y, messina_objectives[[messina.objective]], silent = TRUE, parallel = FALSE)
 	det.messina = fit.messina@fits@summary$passed[1] == TRUE && fit.messina@fits@summary$margin[1] >= messina.minmarg
 
 	c(maxstat = det.maxstat, c1 = det.1cut, c10 = det.10cut, cH10 = det.10cutHolm, m = det.messina)
 }
 
+e2b.repfun = function(i, Delta, R1, sigma_epsilon, pc, p1, stat.alpha, messina.minmarg, messina.objective, n, ...)
+{
+	data = e2b.datafun(n, p1, pc, Delta, R1, sigma_epsilon)
+	dets = try(e2b.detfun(data$x, data$y, stat.alpha, messina.objective, messina.minmarg))
+	if(class(dets) == "try-error")	{ return(c(NA, NA, NA, NA, NA)) }
+	return(dets)
+}
+
+e2b.expfun = function(Delta, R1, sigma_epsilon, pc, p1, stat.alpha, messina.minmarg, messina.objective, n, reps, jobindex, ...)
+{
+	message(date(), "\t", jobindex)
+	detections = sapply(1:reps, e2b.repfun, Delta = Delta, R1 = R1, sigma_epsilon = sigma_epsilon, pc = pc, p1 = p1, stat.alpha = stat.alpha, messina.minmarg = messina.minmarg, messina.objective = messina.objective, n = n)
+	detrate = rowMeans(detections, na.rm = TRUE)
+	detrate
+}
+
+registerDoMC(32)
+
+e2b.design$jobindex = 1:nrow(e2b.design)
 set.seed(20150320)
-e2b.det = mlply(e2b.design, function(Delta, R1, sigma_epsilon, pc, p1, stat.alpha, messina.minmarg, messina.objective, n, reps, ...) { 
-	rowMeans(replicate(reps, { data = e2b.datafun(n, p1, pc, Delta, R1, sigma_epsilon); e2b.detfun(data$x, data$y, stat.alpha, messina.objective, messina.minmarg) })) })
+e2b.det = mlply(e2b.design, e2b.expfun, .parallel = TRUE, .inform = TRUE)
 
 e2b.design = rbind(
 	cbind(e2b.design, method = "maxstat", detrate = simplify2array(e2b.det)[1,]), 
@@ -134,7 +153,8 @@ e2b.design = rbind(
 # e2b.design$method[e2b.design$method == "t"] = "t test"
 # e2b.design$method[e2b.design$method == "messina"] = "Messina"
 # e2b.design$method = as.factor(e2b.design$method)
-ggplot(e2b.design, aes(x = margin, y = detrate, colour = factor(method))) + geom_line(lwd = 1) + xlab("Margin") + ylab("Detection rate") + labs(colour = "Method") + theme_bw() + facet_wrap(~ n) + geom_vline(xintercept = 1, alpha = 0.5, linetype = "dashed")
+ggplot(e2b.design[e2b.design$n == 25,], aes(x = margin, y = detrate, colour = factor(method))) + geom_line(lwd = 1) + xlab("Margin") + ylab("Detection rate") + labs(colour = "Method") + theme_bw() + geom_vline(xintercept = 1, alpha = 0.5, linetype = "dashed") + facet_grid(R1 ~ p1 ~ pc)
+ggplot(e2b.design[e2b.design$n == 50,], aes(x = margin, y = detrate, colour = factor(method))) + geom_line(lwd = 1) + xlab("Margin") + ylab("Detection rate") + labs(colour = "Method") + theme_bw() + geom_vline(xintercept = 1, alpha = 0.5, linetype = "dashed") + facet_grid(R1 ~ p1 ~ pc)
+ggplot(e2b.design[e2b.design$n == 100,], aes(x = margin, y = detrate, colour = factor(method))) + geom_line(lwd = 1) + xlab("Margin") + ylab("Detection rate") + labs(colour = "Method") + theme_bw() + geom_vline(xintercept = 1, alpha = 0.5, linetype = "dashed") + facet_grid(R1 ~ p1 ~ pc)
+ggplot(e2b.design[e2b.design$n == 200,], aes(x = margin, y = detrate, colour = factor(method))) + geom_line(lwd = 1) + xlab("Margin") + ylab("Detection rate") + labs(colour = "Method") + theme_bw() + geom_vline(xintercept = 1, alpha = 0.5, linetype = "dashed") + facet_grid(R1 ~ p1 ~ pc)
 @
-
-\end{document}
