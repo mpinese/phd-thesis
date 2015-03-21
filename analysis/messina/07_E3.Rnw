@@ -78,12 +78,14 @@ keepMostVariableGeneMeasurement = function(gex, feats, ids)
 	list(gex = gex, feats = feats, ids = ids)
 }
 
-regularizeX = function(x)
-{
-	location = apply(x, 1, median, na.rm = TRUE)
-	scale = apply(x, 1, mad, na.rm = TRUE)
-	(x - location) / scale
-}
+# Now moved to the validation function
+# regularizeX = function(x)
+# {
+# 	require(robustbase)
+# 	location = apply(x, 1, median, na.rm = TRUE)
+# 	scale = apply(x, 1, scaleTau2, na.rm = TRUE)
+# 	(x - location) / scale
+# }
 
 temp = keepMostVariableGeneMeasurement(APGI.x, APGI.feats, APGI.feats$symbol)
 APGI.x = temp$gex
@@ -95,23 +97,113 @@ temp = keepMostVariableGeneMeasurement(GSE21501.x, GSE21501.feats, GSE21501.feat
 GSE21501.x = temp$gex
 GSE21501.feats = temp$feats
 
-APGI.xreg = regularizeX(APGI.x)
-GSE28735.xreg = regularizeX(GSE28735.x)		# This one validated for survsigs
-GSE21501.xreg = regularizeX(GSE21501.x)
+# APGI.xreg = regularizeX(APGI.x)
+# GSE28735.xreg = regularizeX(GSE28735.x)		# This one validated for survsigs
+# GSE21501.xreg = regularizeX(GSE21501.x)
 @
 
 
 <<E3-calcs>>=
 # Temporary testing measure.  Probably will be used in real application, but somewhat defeats
 # the whole purpose of Messina for testing, so should be removed when comparing vs other methods.
-APGI.xreg.highsd = APGI.x[apply(APGI.x, 1, sd) >= 1,]
+temp.sel = apply(APGI.x, 1, sd) >= 1
+APGI.x = APGI.x[temp.sel,,drop = FALSE]
+APGI.feats = APGI.feats[temp.sel,,drop = FALSE]
 
-APGI.messina = messinaSurv(APGI.xreg.highsd, APGI.y, messinaSurvObj.CoxCoef(round(log(2), 3)), parallel = FALSE, silent = FALSE, seed = 20150320)
+registerDoMC(32)
 
+library(plyr)
+APGI.messina = messinaSurv(APGI.x, APGI.y, messinaSurvObj.CoxCoef(round(log(2), 3)), parallel = TRUE, silent = FALSE, seed = 20150321)
+APGI.maxstat = alply(APGI.x, 1, function(x1) {
+	data = data.frame(time = APGI.y[,1], event = APGI.y[,2], x = x1)
+	test = try(maxstat.test(Surv(time, event) ~ x, data = data, smethod = "LogRank", pmethod = "HL"))
+	result = list(p.value = NA, threshold = NA)
+	if (class(test) != "try-error")
+	{
+		result$p.value = test$p.value
+		result$threshold = test$estimate
+	}
+	result
+}, .parallel = TRUE)
+@
+
+
+<<E3-summary>>=
+print(dim(APGI.x))
+hist(APGI.messina@fits@summary$margin)
+hist(APGI.messina@fits@summary$margin[APGI.messina@fits@summary$passed == TRUE])
+sum(APGI.messina@fits@summary$passed == TRUE)
+mean(APGI.messina@fits@summary$passed == TRUE)
+sum(APGI.messina@fits@summary$margin >= 1)
+mean(APGI.messina@fits@summary$margin >= 1)
+sum(APGI.messina@fits@summary$margin >= 1 & APGI.messina@fits@summary$passed == TRUE)
+mean(APGI.messina@fits@summary$margin >= 1 & APGI.messina@fits@summary$passed == TRUE)
+hist(sapply(APGI.maxstat, function(x) x$p.value))
+hist(log10(sapply(APGI.maxstat, function(x) x$p.value)))
+sum(sapply(APGI.maxstat, function(x) x$p.value) < 0.05, na.rm = TRUE)
+sum(sapply(APGI.maxstat, function(x) x$p.value) < 0.05, na.rm = TRUE) / length(APGI.maxstat)
 @
 
 
 <<E3-plots,fig.height=4,fig.width=5>>=
+plot(APGI.messina, indices = 1:sum(APGI.messina@fits@summary$margin >= 1 & APGI.messina@fits@summary$passed == TRUE), sort_features = TRUE)
+plot(APGI.messina, indices = which.min(sapply(APGI.maxstat, function(x) x$p.value)), sort_features = FALSE)
+@
+
+
+<<E3-val>>=
+doValidation = function(train.features, train.x, train.threshold, train.merit, min_merit, test.features, test.x, test.y)
+{
+ 	require(robustbase)
+
+	sel.merit = train.merit >= min_merit
+	sel.val_avail = train.features %in% test.features
+	sel = sel.merit & sel.val_avail
+	print(fisher.test(table(sel.merit, sel.val_avail)))
+
+	val.train.features = train.features[sel]
+	val.train.x = train.x[sel,,drop=FALSE]
+	val.train.threshold = train.threshold[sel]
+	val.train.merit = train.merit[sel]
+	val.perm = match(val.train.features, test.features)
+	val.test.features = test.features[val.perm]
+	val.test.x = test.x[val.perm,,drop=FALSE]
+	val.test.y = test.y[val.perm,,drop=FALSE]
+	
+	stopifnot(val.test.features == val.train.features)
+
+	# Translate the threshold on the training x to an approximate equivalent
+	# on the test x, by normalization
+	locscale.train = apply(val.train.x, 1, function(x) scaleTau2(x[!is.na(x)], mu.too = TRUE))
+	loc.train = locscale.train[1,]
+	scale.train = locscale.train[2,]
+
+	locscale.test = apply(val.test.x, 1, function(x) scaleTau2(x[!is.na(x)], mu.too = TRUE))
+	loc.test = locscale.test[1,]
+	scale.test = locscale.test[2,]
+
+	val.test.threshold = (val.train.threshold - loc.train) / scale.train * scale.test + loc.test
+
+	val.chisq = mapply(function(row_index, threshold) {
+		x = val.test.x[row_index,]
+		fit = survdiff(y ~ I(x > threshold))
+		fit$chisq
+	}, 1:length(val.test.threshold), val.test.threshold)
+
+	data.frame(merit = val.train.merit, threshold.train = val.train.threshold, threshold.test = val.test.threshold, chisq = val.chisq)
+}
+
+debug(doValidation)
+val.GSE28735.messina = doValidation(APGI.feats$symbol, APGI.messina@fits@summary$threshold, APGI.messina@fits@summary$margin, 1, GSE28735.feats$Gene.symbol, GSE28735.xreg, GSE28735.y)
+val.GSE28735.maxstat = doValidation(APGI.feats$symbol, sapply(APGI.maxstat, function(x) x$threshold), -log10(sapply(APGI.maxstat, function(x) x$p.value)), -log10(0.05), GSE28735.feats$Gene.symbol, GSE28735.xreg, GSE28735.y)
+val.GSE21501.messina = doValidation(APGI.feats$symbol, APGI.messina@fits@summary$threshold, APGI.messina@fits@summary$margin, 1, GSE21501.feats$Gene.symbol, GSE21501.xreg, GSE21501.y)
+val.GSE21501.maxstat = doValidation(APGI.feats$symbol, sapply(APGI.maxstat, function(x) x$threshold), -log10(sapply(APGI.maxstat, function(x) x$p.value)), -log10(0.05), GSE21501.feats$Gene.symbol, GSE21501.xreg, GSE21501.y)
+
+val.GSE28735.messina
+val.GSE21501.messina
+
+val.GSE28735.maxstat
+val.GSE21501.maxstat
 @
 
 \end{document}
