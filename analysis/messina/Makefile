@@ -2,13 +2,13 @@
 
 RSCRIPT = Rscript
 
-all: 05_E1.pdf 06_E2A.pdf 06_E2B.pdf
+all: 05_E1.pdf 06_E2A.pdf 06_E2B.pdf 07_E3.pdf
 
 clean: texclean
 	rm -f 01_surv_apgi_calcs.Rout 01_surv_apgi_calcs.rda 02_surv_exp1.rda .RData
 
 texclean:
-	rm -f 02_surv_exp1.pdf 03_surv_exp2.pdf 04_surv_exp3.pdf *.aux *.log *.tex tikzMetrics 05_E1.pdf 06_E2A.pdf 06_E2B.pdf
+	rm -f 02_surv_exp1.pdf 03_surv_exp2.pdf 04_surv_exp3.pdf *.aux *.log *.tex tikzMetrics 05_E1.pdf 06_E2A.pdf 06_E2B.pdf 07_E3.pdf
 
 figclean:
 	rm -rf ./figure/
@@ -38,3 +38,6 @@ ultraclean: clean figclean cacheclean
 
 06_E2B.pdf: 06_E2B.Rnw
 	$(RSCRIPT) -e "knitr::knit2pdf('06_E2B.Rnw')"
+
+07_E3.pdf: 07_E3.Rnw
+	$(RSCRIPT) -e "knitr::knit2pdf('07_E3.Rnw')"

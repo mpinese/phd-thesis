@@ -64,6 +64,17 @@ GSE28735.feats = GSE28735.feat
 GSE21501.feats = GSE21501.feat
 rm(GSE28735.gex, GSE21501.gex, GSE28735.feat, GSE21501.feat)
 
+load("../biosurv/data/validation/tcga-clin-gex.20141118.rda")
+TCGA.x = data.merged$paad$gex$illuminahiseq_rnaseqv2
+rownames(TCGA.x) = gsub("\\|.*", "", rownames(TCGA.x))
+TCGA.x = TCGA.x[rownames(TCGA.x) != "?",]
+TCGA.x = log2(TCGA.x + 1)
+temp.time = as.numeric(as.character(data.merged$paad$clin$days_to_death))
+temp.time[is.na(temp.time)] = as.numeric(as.character(data.merged$paad$clin$days_to_last_followup[is.na(temp.time)]))
+TCGA.y = Surv(temp.time, data.merged$paad$clin$vital_status == "Dead")
+TCGA.feats = data.frame(symbol = rownames(TCGA.x))
+rm(data.merged)
+
 keepMostVariableGeneMeasurement = function(gex, feats, ids)
 {
 	sds = apply(gex, 1, sd, na.rm = TRUE)
@@ -97,6 +108,9 @@ temp = keepMostVariableGeneMeasurement(GSE21501.x, GSE21501.feats, GSE21501.feat
 GSE21501.x = temp$gex
 GSE21501.feats = temp$feats
 
+GSE28735.y = Surv(GSE28735.samp$time, GSE28735.samp$event)
+GSE21501.y = Surv(GSE21501.samp$time, GSE21501.samp$event)
+
 # APGI.xreg = regularizeX(APGI.x)
 # GSE28735.xreg = regularizeX(GSE28735.x)		# This one validated for survsigs
 # GSE21501.xreg = regularizeX(GSE21501.x)
@@ -106,14 +120,22 @@ GSE21501.feats = temp$feats
 <<E3-calcs>>=
 # Temporary testing measure.  Probably will be used in real application, but somewhat defeats
 # the whole purpose of Messina for testing, so should be removed when comparing vs other methods.
-temp.sel = apply(APGI.x, 1, sd) >= 1
-APGI.x = APGI.x[temp.sel,,drop = FALSE]
-APGI.feats = APGI.feats[temp.sel,,drop = FALSE]
+# temp.sel = apply(APGI.x, 1, sd) >= 1 & grepl("^D", rownames(APGI.x))
+# APGI.x = APGI.x[temp.sel,,drop = FALSE]
+# APGI.feats = APGI.feats[temp.sel,,drop = FALSE]
+
+# messinaSurv(APGI.x, APGI.y, messinaSurvObj.CoxCoef(round(log(2), 3)), parallel = TRUE, silent = FALSE, seed = 20150321)
+# messinaSurv(APGI.x, APGI.y, messinaSurvObj.Tau(0.6), parallel = TRUE, silent = FALSE, seed = 20150321)
+# messinaSurv(APGI.x, APGI.y, messinaSurvObj.RelTau(0.7), parallel = TRUE, silent = FALSE, seed = 20150321)
 
 registerDoMC(32)
 
 library(plyr)
-APGI.messina = messinaSurv(APGI.x, APGI.y, messinaSurvObj.CoxCoef(round(log(2), 3)), parallel = TRUE, silent = FALSE, seed = 20150321)
+APGI.messina.cc2 = messinaSurv(APGI.x, APGI.y, messinaSurvObj.CoxCoef(round(log(2), 3)), parallel = TRUE, silent = FALSE, seed = 20150321)
+APGI.messina.cc3 = messinaSurv(APGI.x, APGI.y, messinaSurvObj.CoxCoef(round(log(3), 3)), parallel = TRUE, silent = FALSE, seed = 20150321)
+APGI.messina.tau6 = messinaSurv(APGI.x, APGI.y, messinaSurvObj.Tau(0.6), parallel = TRUE, silent = FALSE, seed = 20150321)
+APGI.messina.tau7 = messinaSurv(APGI.x, APGI.y, messinaSurvObj.Tau(0.7), parallel = TRUE, silent = FALSE, seed = 20150321)
+APGI.messina = APGI.messina.cc2
 APGI.maxstat = alply(APGI.x, 1, function(x1) {
 	data = data.frame(time = APGI.y[,1], event = APGI.y[,2], x = x1)
 	test = try(maxstat.test(Surv(time, event) ~ x, data = data, smethod = "LogRank", pmethod = "HL"))
@@ -168,7 +190,6 @@ doValidation = function(train.features, train.x, train.threshold, train.merit, m
 	val.perm = match(val.train.features, test.features)
 	val.test.features = test.features[val.perm]
 	val.test.x = test.x[val.perm,,drop=FALSE]
-	val.test.y = test.y[val.perm,,drop=FALSE]
 	
 	stopifnot(val.test.features == val.train.features)
 
@@ -186,24 +207,33 @@ doValidation = function(train.features, train.x, train.threshold, train.merit, m
 
 	val.chisq = mapply(function(row_index, threshold) {
 		x = val.test.x[row_index,]
-		fit = survdiff(y ~ I(x > threshold))
+		xd = x > threshold
+		if (all(xd) || all(!xd))	{ return(NA) }
+		fit = survdiff(test.y ~ xd)
 		fit$chisq
 	}, 1:length(val.test.threshold), val.test.threshold)
 
-	data.frame(merit = val.train.merit, threshold.train = val.train.threshold, threshold.test = val.test.threshold, chisq = val.chisq)
+	result = data.frame(merit = val.train.merit, threshold.train = val.train.threshold, threshold.test = val.test.threshold, chisq = val.chisq)
+	rownames(result) = val.test.features
+	result = result[order(-result$merit),]
+	result
 }
 
-debug(doValidation)
-val.GSE28735.messina = doValidation(APGI.feats$symbol, APGI.messina@fits@summary$threshold, APGI.messina@fits@summary$margin, 1, GSE28735.feats$Gene.symbol, GSE28735.xreg, GSE28735.y)
-val.GSE28735.maxstat = doValidation(APGI.feats$symbol, sapply(APGI.maxstat, function(x) x$threshold), -log10(sapply(APGI.maxstat, function(x) x$p.value)), -log10(0.05), GSE28735.feats$Gene.symbol, GSE28735.xreg, GSE28735.y)
-val.GSE21501.messina = doValidation(APGI.feats$symbol, APGI.messina@fits@summary$threshold, APGI.messina@fits@summary$margin, 1, GSE21501.feats$Gene.symbol, GSE21501.xreg, GSE21501.y)
-val.GSE21501.maxstat = doValidation(APGI.feats$symbol, sapply(APGI.maxstat, function(x) x$threshold), -log10(sapply(APGI.maxstat, function(x) x$p.value)), -log10(0.05), GSE21501.feats$Gene.symbol, GSE21501.xreg, GSE21501.y)
+val.GSE28735.messina = doValidation(as.character(APGI.feats$symbol), APGI.x, APGI.messina@fits@summary$threshold, APGI.messina@fits@summary$margin, 1, as.character(GSE28735.feats$Gene.symbol), GSE28735.x, GSE28735.y)
+val.GSE28735.maxstat = doValidation(as.character(APGI.feats$symbol), APGI.x, sapply(APGI.maxstat, function(x) x$threshold), -log10(sapply(APGI.maxstat, function(x) x$p.value)), -log10(0.05), as.character(GSE28735.feats$Gene.symbol), GSE28735.x, GSE28735.y)
+val.GSE21501.messina = doValidation(as.character(APGI.feats$symbol), APGI.x, APGI.messina@fits@summary$threshold, APGI.messina@fits@summary$margin, 1, as.character(GSE21501.feats$Gene.symbol), GSE21501.x, GSE21501.y)
+val.GSE21501.maxstat = doValidation(as.character(APGI.feats$symbol), APGI.x, sapply(APGI.maxstat, function(x) x$threshold), -log10(sapply(APGI.maxstat, function(x) x$p.value)), -log10(0.05), as.character(GSE21501.feats$Gene.symbol), GSE21501.x, GSE21501.y)
+val.TCGA.messina = doValidation(as.character(APGI.feats$symbol), APGI.x, APGI.messina@fits@summary$threshold, APGI.messina@fits@summary$margin, 1, as.character(TCGA.feats$symbol), TCGA.x, TCGA.y)
+val.TCGA.maxstat = doValidation(as.character(APGI.feats$symbol), APGI.x, sapply(APGI.maxstat, function(x) x$threshold), -log10(sapply(APGI.maxstat, function(x) x$p.value)), -log10(0.05), as.character(TCGA.feats$symbol), TCGA.x, TCGA.y)
 
 val.GSE28735.messina
 val.GSE21501.messina
 
 val.GSE28735.maxstat
 val.GSE21501.maxstat
+
+val.TCGA.messina
+val.TCGA.maxstat
 @
 
 \end{document}

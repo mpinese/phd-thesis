@@ -179,19 +179,112 @@ e2b.design2 = rbind(
 @
 
 
+
+<<E2B-calcs-3>>=
+e2b.design3 = expand.grid(
+	Delta = 100,
+	R1 = 4,
+	sigma_epsilon = 1,
+	p1 = seq(0, 1, 0.05),
+	pc = 0.2,
+	alpha = 0.2,
+	stat.alpha = 0.05,
+	messina.objective = "cox.log2",
+	messina.minmarg = 1,
+	n = 50,
+	reps = 5e3)
+
+registerDoMC(32)
+e2b.design3$jobindex = 1:nrow(e2b.design3)
+set.seed(20150321)
+e2b.det3 = mlply(e2b.design3, e2b.expfun, .parallel = TRUE)
+
+e2b.design3 = rbind(
+	cbind(e2b.design3, method = "maxstat", detrate = simplify2array(e2b.det3)[1,]), 
+	cbind(e2b.design3, method = "c1", detrate = simplify2array(e2b.det3)[2,]),
+	cbind(e2b.design3, method = "c10", detrate = simplify2array(e2b.det3)[3,]), 
+	cbind(e2b.design3, method = "cH10", detrate = simplify2array(e2b.det3)[4,]), 
+	cbind(e2b.design3, method = "messina", detrate = simplify2array(e2b.det3)[5,]),
+	cbind(e2b.design3, method = "messina_0m", detrate = simplify2array(e2b.det3)[6,])
+)
+@
+
+
+
+<<E2B-calcs-4>>=
+e2b.design4 = expand.grid(
+	Delta = 100,
+	R1 = 1,
+	sigma_epsilon = 1,
+	p1 = 0.5,
+	pc = 0.2,
+	alpha = 0.2,
+	stat.alpha = 0.05,
+	multicut.n = 1:25,
+	n = 50,
+	reps = 5e3)
+
+e2b.detfun4 = function(x, y, multicut.n, stat.alpha, ...)
+{
+	det.multicut = detector_multicut(x, y, multicut.n) < stat.alpha
+	det.multicutHolm = detector_multicut(x, y, multicut.n, "holm") < stat.alpha
+
+	c(mc = det.multicut, mcH = det.multicutHolm)
+}
+
+e2b.repfun4 = function(i, Delta, R1, sigma_epsilon, pc, p1, multicut.n, stat.alpha, n, ...)
+{
+	data = e2b.datafun(n, p1, pc, Delta, R1, sigma_epsilon)
+	dets = try(e2b.detfun4(data$x, data$y, multicut.n, stat.alpha))
+	if(class(dets) == "try-error")	{ return(c(NA, NA)) }
+	return(dets)
+}
+
+e2b.expfun4 = function(Delta, R1, sigma_epsilon, pc, p1, multicut.n, stat.alpha, n, reps, ...)
+{
+	detections = sapply(1:reps, e2b.repfun4, Delta = Delta, R1 = R1, sigma_epsilon = sigma_epsilon, pc = pc, p1 = p1, multicut.n = multicut.n, stat.alpha = stat.alpha, n = n)
+	detrate = rowMeans(detections, na.rm = TRUE)
+	detrate
+}
+
+registerDoMC(32)
+set.seed(20150321)
+e2b.det4 = mlply(e2b.design4, e2b.expfun4, .parallel = TRUE)
+
+e2b.design4 = rbind(
+	cbind(e2b.design4, method = "mc", detrate = simplify2array(e2b.det4)[1,]), 
+	cbind(e2b.design4, method = "mcH", detrate = simplify2array(e2b.det4)[2,])
+)
+@
+
+
 <<E2B-plots,fig.height=4,fig.width=5>>=
 library(ggplot2)
-# e2b.design$method = as.character(e2b.design$method)
-# e2b.design$method[e2b.design$method == "t"] = "t test"
-# e2b.design$method[e2b.design$method == "messina"] = "Messina"
-# e2b.design$method = as.factor(e2b.design$method)
-ggplot(e2b.design[e2b.design$n == 25,], aes(x = margin, y = detrate, colour = factor(method))) + geom_line(lwd = 1) + xlab("Margin") + ylab("Detection rate") + labs(colour = "Method") + theme_bw() + geom_vline(xintercept = 1, alpha = 0.5, linetype = "dashed") + facet_grid(p1 ~ pc ~ R1)
-ggplot(e2b.design[e2b.design$n == 50,], aes(x = margin, y = detrate, colour = factor(method))) + geom_line(lwd = 1) + xlab("Margin") + ylab("Detection rate") + labs(colour = "Method") + theme_bw() + geom_vline(xintercept = 1, alpha = 0.5, linetype = "dashed") + facet_grid(p1 ~ pc ~ R1)
-ggplot(e2b.design[e2b.design$n == 100,], aes(x = margin, y = detrate, colour = factor(method))) + geom_line(lwd = 1) + xlab("Margin") + ylab("Detection rate") + labs(colour = "Method") + theme_bw() + geom_vline(xintercept = 1, alpha = 0.5, linetype = "dashed") + facet_grid(p1 ~ pc ~ R1)
 
-ggplot(e2b.design2[e2b.design2$n == 25,], aes(x = margin, y = detrate, colour = factor(method))) + geom_line(lwd = 1) + xlab("Margin") + ylab("Detection rate") + labs(colour = "Method") + theme_bw() + geom_vline(xintercept = 1, alpha = 0.5, linetype = "dashed") + facet_grid(p1 ~ pc ~ R1)
-ggplot(e2b.design2[e2b.design2$n == 50,], aes(x = margin, y = detrate, colour = factor(method))) + geom_line(lwd = 1) + xlab("Margin") + ylab("Detection rate") + labs(colour = "Method") + theme_bw() + geom_vline(xintercept = 1, alpha = 0.5, linetype = "dashed") + facet_grid(p1 ~ pc ~ R1)
-ggplot(e2b.design2[e2b.design2$n == 100,], aes(x = margin, y = detrate, colour = factor(method))) + geom_line(lwd = 1) + xlab("Margin") + ylab("Detection rate") + labs(colour = "Method") + theme_bw() + geom_vline(xintercept = 1, alpha = 0.5, linetype = "dashed") + facet_grid(p1 ~ pc ~ R1)
+e2b.design$method = as.character(e2b.design$method)
+e2b.design$method[e2b.design$method == "messina_0m"] = "messina0m"
+e2b.design$method = as.factor(e2b.design$method)
+e2b.design2$method = as.character(e2b.design2$method)
+e2b.design2$method[e2b.design2$method == "messina_0m"] = "messina0m"
+e2b.design2$method = as.factor(e2b.design2$method)
+e2b.design3$method = as.character(e2b.design3$method)
+e2b.design3$method[e2b.design3$method == "messina_0m"] = "messina0m"
+e2b.design3$method = as.factor(e2b.design3$method)
+e2b.design4$method = as.character(e2b.design4$method)
+e2b.design4$method[e2b.design4$method == "mc"] = "'Optimal'"
+e2b.design4$method[e2b.design4$method == "mcH"] = "'Optimal' + MTC"
+e2b.design4$method = as.factor(e2b.design4$method)
+
+ggplot(e2b.design[e2b.design$n == 25,], aes(x = margin, y = detrate, colour = factor(method))) + geom_line(lwd = 1) + xlab("Margin") + ylab("Detection rate") + labs(colour = "Method") + theme_bw() + facet_grid(p1 ~ pc ~ R1)
+ggplot(e2b.design[e2b.design$n == 50,], aes(x = margin, y = detrate, colour = factor(method))) + geom_line(lwd = 1) + xlab("Margin") + ylab("Detection rate") + labs(colour = "Method") + theme_bw() + facet_grid(p1 ~ pc ~ R1)
+ggplot(e2b.design[e2b.design$n == 100,], aes(x = margin, y = detrate, colour = factor(method))) + geom_line(lwd = 1) + xlab("Margin") + ylab("Detection rate") + labs(colour = "Method") + theme_bw() + facet_grid(p1 ~ pc ~ R1)
+
+ggplot(e2b.design2[e2b.design2$n == 25,], aes(x = margin, y = detrate, colour = factor(method))) + geom_line(lwd = 1) + xlab("Margin") + ylab("Detection rate") + labs(colour = "Method") + theme_bw() + facet_grid(p1 ~ pc ~ R1)
+ggplot(e2b.design2[e2b.design2$n == 50,], aes(x = margin, y = detrate, colour = factor(method))) + geom_line(lwd = 1) + xlab("Margin") + ylab("Detection rate") + labs(colour = "Method") + theme_bw() + facet_grid(p1 ~ pc ~ R1)
+ggplot(e2b.design2[e2b.design2$n == 100,], aes(x = margin, y = detrate, colour = factor(method))) + geom_line(lwd = 1) + xlab("Margin") + ylab("Detection rate") + labs(colour = "Method") + theme_bw() + facet_grid(p1 ~ pc ~ R1)
+
+ggplot(e2b.design3[e2b.design3$method %in% c("c1", "maxstat", "messina"),], aes(x = p1, y = detrate, colour = factor(method))) + geom_line(lwd = 1) + xlab("Class balance") + ylab("Detection rate") + labs(colour = "Method") + theme_bw()
+ggplot(e2b.design4, aes(x = multicut.n, y = detrate, colour = factor(method))) + geom_line(lwd = 1) + xlab("Number of cutpoints") + ylab("False discovery rate") + labs(colour = "Method") + theme_bw() + ylim(0, 1) + geom_hline(yintercept = 0.05, linetype = "dashed", alpha = 0.5)
 @
 
 \end{document}

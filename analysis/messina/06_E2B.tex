@@ -71,16 +71,9 @@
 \begin{alltt}
 \hlkwd{library}\hlstd{(plyr)}
 \hlkwd{library}\hlstd{(messina)}
-\end{alltt}
-
-
-{\ttfamily\noindent\itshape\color{messagecolor}{\#\# Loading required package: survival\\\#\# Loading required package: splines\\\#\# Loading required package: methods}}\begin{alltt}
 \hlkwd{library}\hlstd{(maxstat)}
 \hlkwd{library}\hlstd{(doMC)}
-\end{alltt}
 
-
-{\ttfamily\noindent\itshape\color{messagecolor}{\#\# Loading required package: foreach\\\#\# Loading required package: iterators\\\#\# Loading required package: parallel}}\begin{alltt}
 \hlstd{deltaForMargin} \hlkwb{=} \hlkwa{function}\hlstd{(}\hlkwc{margin}\hlstd{,} \hlkwc{sigma_epsilon} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{alpha} \hlstd{=} \hlnum{0.05}\hlstd{) margin} \hlopt{-} \hlnum{2}\hlopt{*}\hlstd{sigma_epsilon}\hlopt{*}\hlkwd{qnorm}\hlstd{(alpha)}
 \hlstd{marginForDelta} \hlkwb{=} \hlkwa{function}\hlstd{(}\hlkwc{delta}\hlstd{,} \hlkwc{sigma_epsilon} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{alpha} \hlstd{=} \hlnum{0.05}\hlstd{) delta} \hlopt{+} \hlnum{2}\hlopt{*}\hlstd{sigma_epsilon}\hlopt{*}\hlkwd{qnorm}\hlstd{(alpha)}
 
@@ -150,15 +143,16 @@
         \hlstd{x.messina} \hlkwb{=} \hlkwd{rbind}\hlstd{(x, x, x)}
         \hlstd{fit.messina} \hlkwb{=} \hlkwd{messinaSurv}\hlstd{(x.messina, y, messina_objectives[[messina.objective]],} \hlkwc{silent} \hlstd{=} \hlnum{TRUE}\hlstd{,} \hlkwc{parallel} \hlstd{=} \hlnum{FALSE}\hlstd{)}
         \hlstd{det.messina} \hlkwb{=} \hlstd{fit.messina}\hlopt{@}\hlkwc{fits}\hlopt{@}\hlkwc{summary}\hlopt{$}\hlstd{passed[}\hlnum{1}\hlstd{]} \hlopt{==} \hlnum{TRUE} \hlopt{&&} \hlstd{fit.messina}\hlopt{@}\hlkwc{fits}\hlopt{@}\hlkwc{summary}\hlopt{$}\hlstd{margin[}\hlnum{1}\hlstd{]} \hlopt{>=} \hlstd{messina.minmarg}
+        \hlstd{det.messina.nomarg} \hlkwb{=} \hlstd{fit.messina}\hlopt{@}\hlkwc{fits}\hlopt{@}\hlkwc{summary}\hlopt{$}\hlstd{passed[}\hlnum{1}\hlstd{]} \hlopt{==} \hlnum{TRUE}
 
-        \hlkwd{c}\hlstd{(}\hlkwc{maxstat} \hlstd{= det.maxstat,} \hlkwc{c1} \hlstd{= det.1cut,} \hlkwc{c10} \hlstd{= det.10cut,} \hlkwc{cH10} \hlstd{= det.10cutHolm,} \hlkwc{m} \hlstd{= det.messina)}
+        \hlkwd{c}\hlstd{(}\hlkwc{maxstat} \hlstd{= det.maxstat,} \hlkwc{c1} \hlstd{= det.1cut,} \hlkwc{c10} \hlstd{= det.10cut,} \hlkwc{cH10} \hlstd{= det.10cutHolm,} \hlkwc{m} \hlstd{= det.messina,} \hlkwc{mnm} \hlstd{= det.messina.nomarg)}
 \hlstd{\}}
 
 \hlstd{e2b.repfun} \hlkwb{=} \hlkwa{function}\hlstd{(}\hlkwc{i}\hlstd{,} \hlkwc{Delta}\hlstd{,} \hlkwc{R1}\hlstd{,} \hlkwc{sigma_epsilon}\hlstd{,} \hlkwc{pc}\hlstd{,} \hlkwc{p1}\hlstd{,} \hlkwc{stat.alpha}\hlstd{,} \hlkwc{messina.minmarg}\hlstd{,} \hlkwc{messina.objective}\hlstd{,} \hlkwc{n}\hlstd{,} \hlkwc{...}\hlstd{)}
 \hlstd{\{}
         \hlstd{data} \hlkwb{=} \hlkwd{e2b.datafun}\hlstd{(n, p1, pc, Delta, R1, sigma_epsilon)}
         \hlstd{dets} \hlkwb{=} \hlkwd{try}\hlstd{(}\hlkwd{e2b.detfun}\hlstd{(data}\hlopt{$}\hlstd{x, data}\hlopt{$}\hlstd{y, stat.alpha, messina.objective, messina.minmarg))}
-        \hlkwa{if}\hlstd{(}\hlkwd{class}\hlstd{(dets)} \hlopt{==} \hlstr{"try-error"}\hlstd{)  \{} \hlkwd{return}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{)) \}}
+        \hlkwa{if}\hlstd{(}\hlkwd{class}\hlstd{(dets)} \hlopt{==} \hlstr{"try-error"}\hlstd{)  \{} \hlkwd{return}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{)) \}}
         \hlkwd{return}\hlstd{(dets)}
 \hlstd{\}}
 
@@ -174,28 +168,164 @@
 
 \hlstd{e2b.design}\hlopt{$}\hlstd{jobindex} \hlkwb{=} \hlnum{1}\hlopt{:}\hlkwd{nrow}\hlstd{(e2b.design)}
 \hlkwd{set.seed}\hlstd{(}\hlnum{20150320}\hlstd{)}
-\hlstd{e2b.det} \hlkwb{=} \hlkwd{mlply}\hlstd{(e2b.design, e2b.expfun,} \hlkwc{.parallel} \hlstd{=} \hlnum{TRUE}\hlstd{,} \hlkwc{.inform} \hlstd{=} \hlnum{TRUE}\hlstd{)}
+\hlstd{e2b.det} \hlkwb{=} \hlkwd{mlply}\hlstd{(e2b.design, e2b.expfun,} \hlkwc{.parallel} \hlstd{=} \hlnum{TRUE}\hlstd{)}
 
 \hlstd{e2b.design} \hlkwb{=} \hlkwd{rbind}\hlstd{(}
         \hlkwd{cbind}\hlstd{(e2b.design,} \hlkwc{method} \hlstd{=} \hlstr{"maxstat"}\hlstd{,} \hlkwc{detrate} \hlstd{=} \hlkwd{simplify2array}\hlstd{(e2b.det)[}\hlnum{1}\hlstd{,]),}
         \hlkwd{cbind}\hlstd{(e2b.design,} \hlkwc{method} \hlstd{=} \hlstr{"c1"}\hlstd{,} \hlkwc{detrate} \hlstd{=} \hlkwd{simplify2array}\hlstd{(e2b.det)[}\hlnum{2}\hlstd{,]),}
         \hlkwd{cbind}\hlstd{(e2b.design,} \hlkwc{method} \hlstd{=} \hlstr{"c10"}\hlstd{,} \hlkwc{detrate} \hlstd{=} \hlkwd{simplify2array}\hlstd{(e2b.det)[}\hlnum{3}\hlstd{,]),}
         \hlkwd{cbind}\hlstd{(e2b.design,} \hlkwc{method} \hlstd{=} \hlstr{"cH10"}\hlstd{,} \hlkwc{detrate} \hlstd{=} \hlkwd{simplify2array}\hlstd{(e2b.det)[}\hlnum{4}\hlstd{,]),}
-        \hlkwd{cbind}\hlstd{(e2b.design,} \hlkwc{method} \hlstd{=} \hlstr{"messina"}\hlstd{,} \hlkwc{detrate} \hlstd{=} \hlkwd{simplify2array}\hlstd{(e2b.det)[}\hlnum{5}\hlstd{,])}
+        \hlkwd{cbind}\hlstd{(e2b.design,} \hlkwc{method} \hlstd{=} \hlstr{"messina"}\hlstd{,} \hlkwc{detrate} \hlstd{=} \hlkwd{simplify2array}\hlstd{(e2b.det)[}\hlnum{5}\hlstd{,]),}
+        \hlkwd{cbind}\hlstd{(e2b.design,} \hlkwc{method} \hlstd{=} \hlstr{"messina_0m"}\hlstd{,} \hlkwc{detrate} \hlstd{=} \hlkwd{simplify2array}\hlstd{(e2b.det)[}\hlnum{6}\hlstd{,])}
 \hlstd{)}
 \end{alltt}
 \end{kframe}
 \end{knitrout}
 
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{e2b.design2} \hlkwb{=} \hlkwd{expand.grid}\hlstd{(}
+        \hlkwc{Delta} \hlstd{=} \hlkwd{seq}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{5}\hlstd{,} \hlnum{0.5}\hlstd{),}
+        \hlkwc{R1} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{4}\hlstd{,} \hlnum{16}\hlstd{),}
+        \hlkwc{sigma_epsilon} \hlstd{=} \hlnum{1}\hlstd{,}
+        \hlkwc{p1} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0.2}\hlstd{,} \hlnum{0.5}\hlstd{),}
+        \hlkwc{pc} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0.2}\hlstd{,} \hlnum{0.5}\hlstd{),}
+        \hlkwc{alpha} \hlstd{=} \hlnum{0.2}\hlstd{,}
+        \hlkwc{stat.alpha} \hlstd{=} \hlnum{0.05}\hlstd{,}
+        \hlkwc{messina.objective} \hlstd{=} \hlstr{"cox.log2"}\hlstd{,}
+        \hlkwc{messina.minmarg} \hlstd{=} \hlnum{1}\hlstd{,}
+        \hlkwc{n} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{25}\hlstd{,} \hlnum{50}\hlstd{,} \hlnum{100}\hlstd{),}
+        \hlkwc{reps} \hlstd{=} \hlnum{5e2}\hlstd{)}
+
+\hlstd{e2b.design2}\hlopt{$}\hlstd{margin} \hlkwb{=} \hlkwd{marginForDelta}\hlstd{(e2b.design2}\hlopt{$}\hlstd{Delta, e2b.design2}\hlopt{$}\hlstd{sigma_epsilon,} \hlkwc{alpha} \hlstd{= e2b.design2}\hlopt{$}\hlstd{alpha)}
+
+\hlkwd{registerDoMC}\hlstd{(}\hlnum{32}\hlstd{)}
+\hlstd{e2b.design2}\hlopt{$}\hlstd{jobindex} \hlkwb{=} \hlnum{1}\hlopt{:}\hlkwd{nrow}\hlstd{(e2b.design2)}
+\hlkwd{set.seed}\hlstd{(}\hlnum{20150321}\hlstd{)}
+\hlstd{e2b.det2} \hlkwb{=} \hlkwd{mlply}\hlstd{(e2b.design2, e2b.expfun,} \hlkwc{.parallel} \hlstd{=} \hlnum{TRUE}\hlstd{)}
+
+\hlstd{e2b.design2} \hlkwb{=} \hlkwd{rbind}\hlstd{(}
+        \hlkwd{cbind}\hlstd{(e2b.design2,} \hlkwc{method} \hlstd{=} \hlstr{"maxstat"}\hlstd{,} \hlkwc{detrate} \hlstd{=} \hlkwd{simplify2array}\hlstd{(e2b.det2)[}\hlnum{1}\hlstd{,]),}
+        \hlkwd{cbind}\hlstd{(e2b.design2,} \hlkwc{method} \hlstd{=} \hlstr{"c1"}\hlstd{,} \hlkwc{detrate} \hlstd{=} \hlkwd{simplify2array}\hlstd{(e2b.det2)[}\hlnum{2}\hlstd{,]),}
+        \hlkwd{cbind}\hlstd{(e2b.design2,} \hlkwc{method} \hlstd{=} \hlstr{"c10"}\hlstd{,} \hlkwc{detrate} \hlstd{=} \hlkwd{simplify2array}\hlstd{(e2b.det2)[}\hlnum{3}\hlstd{,]),}
+        \hlkwd{cbind}\hlstd{(e2b.design2,} \hlkwc{method} \hlstd{=} \hlstr{"cH10"}\hlstd{,} \hlkwc{detrate} \hlstd{=} \hlkwd{simplify2array}\hlstd{(e2b.det2)[}\hlnum{4}\hlstd{,]),}
+        \hlkwd{cbind}\hlstd{(e2b.design2,} \hlkwc{method} \hlstd{=} \hlstr{"messina"}\hlstd{,} \hlkwc{detrate} \hlstd{=} \hlkwd{simplify2array}\hlstd{(e2b.det2)[}\hlnum{5}\hlstd{,]),}
+        \hlkwd{cbind}\hlstd{(e2b.design2,} \hlkwc{method} \hlstd{=} \hlstr{"messina_0m"}\hlstd{,} \hlkwc{detrate} \hlstd{=} \hlkwd{simplify2array}\hlstd{(e2b.det2)[}\hlnum{6}\hlstd{,])}
+\hlstd{)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{e2b.design3} \hlkwb{=} \hlkwd{expand.grid}\hlstd{(}
+        \hlkwc{Delta} \hlstd{=} \hlnum{100}\hlstd{,}
+        \hlkwc{R1} \hlstd{=} \hlnum{4}\hlstd{,}
+        \hlkwc{sigma_epsilon} \hlstd{=} \hlnum{1}\hlstd{,}
+        \hlkwc{p1} \hlstd{=} \hlkwd{seq}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{1}\hlstd{,} \hlnum{0.05}\hlstd{),}
+        \hlkwc{pc} \hlstd{=} \hlnum{0.2}\hlstd{,}
+        \hlkwc{alpha} \hlstd{=} \hlnum{0.2}\hlstd{,}
+        \hlkwc{stat.alpha} \hlstd{=} \hlnum{0.05}\hlstd{,}
+        \hlkwc{messina.objective} \hlstd{=} \hlstr{"cox.log2"}\hlstd{,}
+        \hlkwc{messina.minmarg} \hlstd{=} \hlnum{1}\hlstd{,}
+        \hlkwc{n} \hlstd{=} \hlnum{50}\hlstd{,}
+        \hlkwc{reps} \hlstd{=} \hlnum{5e3}\hlstd{)}
+
+\hlkwd{registerDoMC}\hlstd{(}\hlnum{32}\hlstd{)}
+\hlstd{e2b.design3}\hlopt{$}\hlstd{jobindex} \hlkwb{=} \hlnum{1}\hlopt{:}\hlkwd{nrow}\hlstd{(e2b.design3)}
+\hlkwd{set.seed}\hlstd{(}\hlnum{20150321}\hlstd{)}
+\hlstd{e2b.det3} \hlkwb{=} \hlkwd{mlply}\hlstd{(e2b.design3, e2b.expfun,} \hlkwc{.parallel} \hlstd{=} \hlnum{TRUE}\hlstd{)}
+
+\hlstd{e2b.design3} \hlkwb{=} \hlkwd{rbind}\hlstd{(}
+        \hlkwd{cbind}\hlstd{(e2b.design3,} \hlkwc{method} \hlstd{=} \hlstr{"maxstat"}\hlstd{,} \hlkwc{detrate} \hlstd{=} \hlkwd{simplify2array}\hlstd{(e2b.det3)[}\hlnum{1}\hlstd{,]),}
+        \hlkwd{cbind}\hlstd{(e2b.design3,} \hlkwc{method} \hlstd{=} \hlstr{"c1"}\hlstd{,} \hlkwc{detrate} \hlstd{=} \hlkwd{simplify2array}\hlstd{(e2b.det3)[}\hlnum{2}\hlstd{,]),}
+        \hlkwd{cbind}\hlstd{(e2b.design3,} \hlkwc{method} \hlstd{=} \hlstr{"c10"}\hlstd{,} \hlkwc{detrate} \hlstd{=} \hlkwd{simplify2array}\hlstd{(e2b.det3)[}\hlnum{3}\hlstd{,]),}
+        \hlkwd{cbind}\hlstd{(e2b.design3,} \hlkwc{method} \hlstd{=} \hlstr{"cH10"}\hlstd{,} \hlkwc{detrate} \hlstd{=} \hlkwd{simplify2array}\hlstd{(e2b.det3)[}\hlnum{4}\hlstd{,]),}
+        \hlkwd{cbind}\hlstd{(e2b.design3,} \hlkwc{method} \hlstd{=} \hlstr{"messina"}\hlstd{,} \hlkwc{detrate} \hlstd{=} \hlkwd{simplify2array}\hlstd{(e2b.det3)[}\hlnum{5}\hlstd{,]),}
+        \hlkwd{cbind}\hlstd{(e2b.design3,} \hlkwc{method} \hlstd{=} \hlstr{"messina_0m"}\hlstd{,} \hlkwc{detrate} \hlstd{=} \hlkwd{simplify2array}\hlstd{(e2b.det3)[}\hlnum{6}\hlstd{,])}
+\hlstd{)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{e2b.design4} \hlkwb{=} \hlkwd{expand.grid}\hlstd{(}
+        \hlkwc{Delta} \hlstd{=} \hlnum{100}\hlstd{,}
+        \hlkwc{R1} \hlstd{=} \hlnum{1}\hlstd{,}
+        \hlkwc{sigma_epsilon} \hlstd{=} \hlnum{1}\hlstd{,}
+        \hlkwc{p1} \hlstd{=} \hlnum{0.5}\hlstd{,}
+        \hlkwc{pc} \hlstd{=} \hlnum{0.2}\hlstd{,}
+        \hlkwc{alpha} \hlstd{=} \hlnum{0.2}\hlstd{,}
+        \hlkwc{stat.alpha} \hlstd{=} \hlnum{0.05}\hlstd{,}
+        \hlkwc{multicut.n} \hlstd{=} \hlnum{1}\hlopt{:}\hlnum{25}\hlstd{,}
+        \hlkwc{n} \hlstd{=} \hlnum{50}\hlstd{,}
+        \hlkwc{reps} \hlstd{=} \hlnum{5e3}\hlstd{)}
+
+\hlstd{e2b.detfun4} \hlkwb{=} \hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{,} \hlkwc{y}\hlstd{,} \hlkwc{multicut.n}\hlstd{,} \hlkwc{stat.alpha}\hlstd{,} \hlkwc{...}\hlstd{)}
+\hlstd{\{}
+        \hlstd{det.multicut} \hlkwb{=} \hlkwd{detector_multicut}\hlstd{(x, y, multicut.n)} \hlopt{<} \hlstd{stat.alpha}
+        \hlstd{det.multicutHolm} \hlkwb{=} \hlkwd{detector_multicut}\hlstd{(x, y, multicut.n,} \hlstr{"holm"}\hlstd{)} \hlopt{<} \hlstd{stat.alpha}
+
+        \hlkwd{c}\hlstd{(}\hlkwc{mc} \hlstd{= det.multicut,} \hlkwc{mcH} \hlstd{= det.multicutHolm)}
+\hlstd{\}}
+
+\hlstd{e2b.repfun4} \hlkwb{=} \hlkwa{function}\hlstd{(}\hlkwc{i}\hlstd{,} \hlkwc{Delta}\hlstd{,} \hlkwc{R1}\hlstd{,} \hlkwc{sigma_epsilon}\hlstd{,} \hlkwc{pc}\hlstd{,} \hlkwc{p1}\hlstd{,} \hlkwc{multicut.n}\hlstd{,} \hlkwc{stat.alpha}\hlstd{,} \hlkwc{n}\hlstd{,} \hlkwc{...}\hlstd{)}
+\hlstd{\{}
+        \hlstd{data} \hlkwb{=} \hlkwd{e2b.datafun}\hlstd{(n, p1, pc, Delta, R1, sigma_epsilon)}
+        \hlstd{dets} \hlkwb{=} \hlkwd{try}\hlstd{(}\hlkwd{e2b.detfun4}\hlstd{(data}\hlopt{$}\hlstd{x, data}\hlopt{$}\hlstd{y, multicut.n, stat.alpha))}
+        \hlkwa{if}\hlstd{(}\hlkwd{class}\hlstd{(dets)} \hlopt{==} \hlstr{"try-error"}\hlstd{)  \{} \hlkwd{return}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{)) \}}
+        \hlkwd{return}\hlstd{(dets)}
+\hlstd{\}}
+
+\hlstd{e2b.expfun4} \hlkwb{=} \hlkwa{function}\hlstd{(}\hlkwc{Delta}\hlstd{,} \hlkwc{R1}\hlstd{,} \hlkwc{sigma_epsilon}\hlstd{,} \hlkwc{pc}\hlstd{,} \hlkwc{p1}\hlstd{,} \hlkwc{multicut.n}\hlstd{,} \hlkwc{stat.alpha}\hlstd{,} \hlkwc{n}\hlstd{,} \hlkwc{reps}\hlstd{,} \hlkwc{...}\hlstd{)}
+\hlstd{\{}
+        \hlstd{detections} \hlkwb{=} \hlkwd{sapply}\hlstd{(}\hlnum{1}\hlopt{:}\hlstd{reps, e2b.repfun4,} \hlkwc{Delta} \hlstd{= Delta,} \hlkwc{R1} \hlstd{= R1,} \hlkwc{sigma_epsilon} \hlstd{= sigma_epsilon,} \hlkwc{pc} \hlstd{= pc,} \hlkwc{p1} \hlstd{= p1,} \hlkwc{multicut.n} \hlstd{= multicut.n,} \hlkwc{stat.alpha} \hlstd{= stat.alpha,} \hlkwc{n} \hlstd{= n)}
+        \hlstd{detrate} \hlkwb{=} \hlkwd{rowMeans}\hlstd{(detections,} \hlkwc{na.rm} \hlstd{=} \hlnum{TRUE}\hlstd{)}
+        \hlstd{detrate}
+\hlstd{\}}
+
+\hlkwd{registerDoMC}\hlstd{(}\hlnum{32}\hlstd{)}
+\hlkwd{set.seed}\hlstd{(}\hlnum{20150321}\hlstd{)}
+\hlstd{e2b.det4} \hlkwb{=} \hlkwd{mlply}\hlstd{(e2b.design4, e2b.expfun4,} \hlkwc{.parallel} \hlstd{=} \hlnum{TRUE}\hlstd{)}
+
+\hlstd{e2b.design4} \hlkwb{=} \hlkwd{rbind}\hlstd{(}
+        \hlkwd{cbind}\hlstd{(e2b.design4,} \hlkwc{method} \hlstd{=} \hlstr{"mc"}\hlstd{,} \hlkwc{detrate} \hlstd{=} \hlkwd{simplify2array}\hlstd{(e2b.det4)[}\hlnum{1}\hlstd{,]),}
+        \hlkwd{cbind}\hlstd{(e2b.design4,} \hlkwc{method} \hlstd{=} \hlstr{"mcH"}\hlstd{,} \hlkwc{detrate} \hlstd{=} \hlkwd{simplify2array}\hlstd{(e2b.det4)[}\hlnum{2}\hlstd{,])}
+\hlstd{)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlkwd{library}\hlstd{(ggplot2)}
-\hlcom{# e2b.design$method = as.character(e2b.design$method)}
-\hlcom{# e2b.design$method[e2b.design$method == "t"] = "t test"}
-\hlcom{# e2b.design$method[e2b.design$method == "messina"] = "Messina"}
-\hlcom{# e2b.design$method = as.factor(e2b.design$method)}
-\hlkwd{ggplot}\hlstd{(e2b.design[e2b.design}\hlopt{$}\hlstd{n} \hlopt{==} \hlnum{25} \hlopt{&} \hlstd{e2b.design}\hlopt{$}\hlstd{R1} \hlopt{%in%} \hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{4}\hlstd{,} \hlnum{16}\hlstd{)} \hlopt{&} \hlstd{e2b.design}\hlopt{$}\hlstd{method} \hlopt{%in%} \hlkwd{c}\hlstd{(}\hlstr{"maxstat"}\hlstd{,} \hlstr{"cH10"}\hlstd{,} \hlstr{"messina"}\hlstd{),],} \hlkwd{aes}\hlstd{(}\hlkwc{x} \hlstd{= margin,} \hlkwc{y} \hlstd{= detrate,} \hlkwc{colour} \hlstd{=} \hlkwd{factor}\hlstd{(method)))} \hlopt{+} \hlkwd{geom_line}\hlstd{(}\hlkwc{lwd} \hlstd{=} \hlnum{1}\hlstd{)} \hlopt{+} \hlkwd{xlab}\hlstd{(}\hlstr{"Margin"}\hlstd{)} \hlopt{+} \hlkwd{ylab}\hlstd{(}\hlstr{"Detection rate"}\hlstd{)} \hlopt{+} \hlkwd{labs}\hlstd{(}\hlkwc{colour} \hlstd{=} \hlstr{"Method"}\hlstd{)} \hlopt{+} \hlkwd{theme_bw}\hlstd{()} \hlopt{+} \hlkwd{geom_vline}\hlstd{(}\hlkwc{xintercept} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{alpha} \hlstd{=} \hlnum{0.5}\hlstd{,} \hlkwc{linetype} \hlstd{=} \hlstr{"dashed"}\hlstd{)} \hlopt{+} \hlkwd{facet_grid}\hlstd{(p1} \hlopt{~} \hlstd{pc} \hlopt{~} \hlstd{R1)}
+
+\hlstd{e2b.design}\hlopt{$}\hlstd{method} \hlkwb{=} \hlkwd{as.character}\hlstd{(e2b.design}\hlopt{$}\hlstd{method)}
+\hlstd{e2b.design}\hlopt{$}\hlstd{method[e2b.design}\hlopt{$}\hlstd{method} \hlopt{==} \hlstr{"messina_0m"}\hlstd{]} \hlkwb{=} \hlstr{"messina0m"}
+\hlstd{e2b.design}\hlopt{$}\hlstd{method} \hlkwb{=} \hlkwd{as.factor}\hlstd{(e2b.design}\hlopt{$}\hlstd{method)}
+\hlstd{e2b.design2}\hlopt{$}\hlstd{method} \hlkwb{=} \hlkwd{as.character}\hlstd{(e2b.design2}\hlopt{$}\hlstd{method)}
+\hlstd{e2b.design2}\hlopt{$}\hlstd{method[e2b.design2}\hlopt{$}\hlstd{method} \hlopt{==} \hlstr{"messina_0m"}\hlstd{]} \hlkwb{=} \hlstr{"messina0m"}
+\hlstd{e2b.design2}\hlopt{$}\hlstd{method} \hlkwb{=} \hlkwd{as.factor}\hlstd{(e2b.design2}\hlopt{$}\hlstd{method)}
+\hlstd{e2b.design3}\hlopt{$}\hlstd{method} \hlkwb{=} \hlkwd{as.character}\hlstd{(e2b.design3}\hlopt{$}\hlstd{method)}
+\hlstd{e2b.design3}\hlopt{$}\hlstd{method[e2b.design3}\hlopt{$}\hlstd{method} \hlopt{==} \hlstr{"messina_0m"}\hlstd{]} \hlkwb{=} \hlstr{"messina0m"}
+\hlstd{e2b.design3}\hlopt{$}\hlstd{method} \hlkwb{=} \hlkwd{as.factor}\hlstd{(e2b.design3}\hlopt{$}\hlstd{method)}
+\hlstd{e2b.design4}\hlopt{$}\hlstd{method} \hlkwb{=} \hlkwd{as.character}\hlstd{(e2b.design4}\hlopt{$}\hlstd{method)}
+\hlstd{e2b.design4}\hlopt{$}\hlstd{method[e2b.design4}\hlopt{$}\hlstd{method} \hlopt{==} \hlstr{"mc"}\hlstd{]} \hlkwb{=} \hlstr{"'Optimal'"}
+\hlstd{e2b.design4}\hlopt{$}\hlstd{method[e2b.design4}\hlopt{$}\hlstd{method} \hlopt{==} \hlstr{"mcH"}\hlstd{]} \hlkwb{=} \hlstr{"'Optimal' + MTC"}
+\hlstd{e2b.design4}\hlopt{$}\hlstd{method} \hlkwb{=} \hlkwd{as.factor}\hlstd{(e2b.design4}\hlopt{$}\hlstd{method)}
+
+\hlkwd{ggplot}\hlstd{(e2b.design[e2b.design}\hlopt{$}\hlstd{n} \hlopt{==} \hlnum{25}\hlstd{,],} \hlkwd{aes}\hlstd{(}\hlkwc{x} \hlstd{= margin,} \hlkwc{y} \hlstd{= detrate,} \hlkwc{colour} \hlstd{=} \hlkwd{factor}\hlstd{(method)))} \hlopt{+} \hlkwd{geom_line}\hlstd{(}\hlkwc{lwd} \hlstd{=} \hlnum{1}\hlstd{)} \hlopt{+} \hlkwd{xlab}\hlstd{(}\hlstr{"Margin"}\hlstd{)} \hlopt{+} \hlkwd{ylab}\hlstd{(}\hlstr{"Detection rate"}\hlstd{)} \hlopt{+} \hlkwd{labs}\hlstd{(}\hlkwc{colour} \hlstd{=} \hlstr{"Method"}\hlstd{)} \hlopt{+} \hlkwd{theme_bw}\hlstd{()} \hlopt{+} \hlkwd{facet_grid}\hlstd{(p1} \hlopt{~} \hlstd{pc} \hlopt{~} \hlstd{R1)}
 \end{alltt}
 \end{kframe}
 
@@ -205,7 +335,7 @@
 
 
 \begin{kframe}\begin{alltt}
-\hlkwd{ggplot}\hlstd{(e2b.design[e2b.design}\hlopt{$}\hlstd{n} \hlopt{==} \hlnum{50} \hlopt{&} \hlstd{e2b.design}\hlopt{$}\hlstd{R1} \hlopt{%in%} \hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{4}\hlstd{,} \hlnum{16}\hlstd{)} \hlopt{&} \hlstd{e2b.design}\hlopt{$}\hlstd{method} \hlopt{%in%} \hlkwd{c}\hlstd{(}\hlstr{"maxstat"}\hlstd{,} \hlstr{"cH10"}\hlstd{,} \hlstr{"messina"}\hlstd{),],} \hlkwd{aes}\hlstd{(}\hlkwc{x} \hlstd{= margin,} \hlkwc{y} \hlstd{= detrate,} \hlkwc{colour} \hlstd{=} \hlkwd{factor}\hlstd{(method)))} \hlopt{+} \hlkwd{geom_line}\hlstd{(}\hlkwc{lwd} \hlstd{=} \hlnum{1}\hlstd{)} \hlopt{+} \hlkwd{xlab}\hlstd{(}\hlstr{"Margin"}\hlstd{)} \hlopt{+} \hlkwd{ylab}\hlstd{(}\hlstr{"Detection rate"}\hlstd{)} \hlopt{+} \hlkwd{labs}\hlstd{(}\hlkwc{colour} \hlstd{=} \hlstr{"Method"}\hlstd{)} \hlopt{+} \hlkwd{theme_bw}\hlstd{()} \hlopt{+} \hlkwd{geom_vline}\hlstd{(}\hlkwc{xintercept} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{alpha} \hlstd{=} \hlnum{0.5}\hlstd{,} \hlkwc{linetype} \hlstd{=} \hlstr{"dashed"}\hlstd{)} \hlopt{+} \hlkwd{facet_grid}\hlstd{(p1} \hlopt{~} \hlstd{pc} \hlopt{~} \hlstd{R1)}
+\hlkwd{ggplot}\hlstd{(e2b.design[e2b.design}\hlopt{$}\hlstd{n} \hlopt{==} \hlnum{50}\hlstd{,],} \hlkwd{aes}\hlstd{(}\hlkwc{x} \hlstd{= margin,} \hlkwc{y} \hlstd{= detrate,} \hlkwc{colour} \hlstd{=} \hlkwd{factor}\hlstd{(method)))} \hlopt{+} \hlkwd{geom_line}\hlstd{(}\hlkwc{lwd} \hlstd{=} \hlnum{1}\hlstd{)} \hlopt{+} \hlkwd{xlab}\hlstd{(}\hlstr{"Margin"}\hlstd{)} \hlopt{+} \hlkwd{ylab}\hlstd{(}\hlstr{"Detection rate"}\hlstd{)} \hlopt{+} \hlkwd{labs}\hlstd{(}\hlkwc{colour} \hlstd{=} \hlstr{"Method"}\hlstd{)} \hlopt{+} \hlkwd{theme_bw}\hlstd{()} \hlopt{+} \hlkwd{facet_grid}\hlstd{(p1} \hlopt{~} \hlstd{pc} \hlopt{~} \hlstd{R1)}
 \end{alltt}
 \end{kframe}
 
@@ -215,11 +345,61 @@
 
 
 \begin{kframe}\begin{alltt}
-\hlkwd{ggplot}\hlstd{(e2b.design[e2b.design}\hlopt{$}\hlstd{n} \hlopt{==} \hlnum{100} \hlopt{&} \hlstd{e2b.design}\hlopt{$}\hlstd{R1} \hlopt{%in%} \hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{4}\hlstd{,} \hlnum{16}\hlstd{)} \hlopt{&} \hlstd{e2b.design}\hlopt{$}\hlstd{method} \hlopt{%in%} \hlkwd{c}\hlstd{(}\hlstr{"maxstat"}\hlstd{,} \hlstr{"cH10"}\hlstd{,} \hlstr{"messina"}\hlstd{),],} \hlkwd{aes}\hlstd{(}\hlkwc{x} \hlstd{= margin,} \hlkwc{y} \hlstd{= detrate,} \hlkwc{colour} \hlstd{=} \hlkwd{factor}\hlstd{(method)))} \hlopt{+} \hlkwd{geom_line}\hlstd{(}\hlkwc{lwd} \hlstd{=} \hlnum{1}\hlstd{)} \hlopt{+} \hlkwd{xlab}\hlstd{(}\hlstr{"Margin"}\hlstd{)} \hlopt{+} \hlkwd{ylab}\hlstd{(}\hlstr{"Detection rate"}\hlstd{)} \hlopt{+} \hlkwd{labs}\hlstd{(}\hlkwc{colour} \hlstd{=} \hlstr{"Method"}\hlstd{)} \hlopt{+} \hlkwd{theme_bw}\hlstd{()} \hlopt{+} \hlkwd{geom_vline}\hlstd{(}\hlkwc{xintercept} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{alpha} \hlstd{=} \hlnum{0.5}\hlstd{,} \hlkwc{linetype} \hlstd{=} \hlstr{"dashed"}\hlstd{)} \hlopt{+} \hlkwd{facet_grid}\hlstd{(p1} \hlopt{~} \hlstd{pc} \hlopt{~} \hlstd{R1)}
+\hlkwd{ggplot}\hlstd{(e2b.design[e2b.design}\hlopt{$}\hlstd{n} \hlopt{==} \hlnum{100}\hlstd{,],} \hlkwd{aes}\hlstd{(}\hlkwc{x} \hlstd{= margin,} \hlkwc{y} \hlstd{= detrate,} \hlkwc{colour} \hlstd{=} \hlkwd{factor}\hlstd{(method)))} \hlopt{+} \hlkwd{geom_line}\hlstd{(}\hlkwc{lwd} \hlstd{=} \hlnum{1}\hlstd{)} \hlopt{+} \hlkwd{xlab}\hlstd{(}\hlstr{"Margin"}\hlstd{)} \hlopt{+} \hlkwd{ylab}\hlstd{(}\hlstr{"Detection rate"}\hlstd{)} \hlopt{+} \hlkwd{labs}\hlstd{(}\hlkwc{colour} \hlstd{=} \hlstr{"Method"}\hlstd{)} \hlopt{+} \hlkwd{theme_bw}\hlstd{()} \hlopt{+} \hlkwd{facet_grid}\hlstd{(p1} \hlopt{~} \hlstd{pc} \hlopt{~} \hlstd{R1)}
 \end{alltt}
 \end{kframe}
 
 {\centering \includegraphics[width=\maxwidth]{figure/06-E2B-E2B-plots-3} 
+
+}
+
+
+\begin{kframe}\begin{alltt}
+\hlkwd{ggplot}\hlstd{(e2b.design2[e2b.design2}\hlopt{$}\hlstd{n} \hlopt{==} \hlnum{25}\hlstd{,],} \hlkwd{aes}\hlstd{(}\hlkwc{x} \hlstd{= margin,} \hlkwc{y} \hlstd{= detrate,} \hlkwc{colour} \hlstd{=} \hlkwd{factor}\hlstd{(method)))} \hlopt{+} \hlkwd{geom_line}\hlstd{(}\hlkwc{lwd} \hlstd{=} \hlnum{1}\hlstd{)} \hlopt{+} \hlkwd{xlab}\hlstd{(}\hlstr{"Margin"}\hlstd{)} \hlopt{+} \hlkwd{ylab}\hlstd{(}\hlstr{"Detection rate"}\hlstd{)} \hlopt{+} \hlkwd{labs}\hlstd{(}\hlkwc{colour} \hlstd{=} \hlstr{"Method"}\hlstd{)} \hlopt{+} \hlkwd{theme_bw}\hlstd{()} \hlopt{+} \hlkwd{facet_grid}\hlstd{(p1} \hlopt{~} \hlstd{pc} \hlopt{~} \hlstd{R1)}
+\end{alltt}
+\end{kframe}
+
+{\centering \includegraphics[width=\maxwidth]{figure/06-E2B-E2B-plots-4} 
+
+}
+
+
+\begin{kframe}\begin{alltt}
+\hlkwd{ggplot}\hlstd{(e2b.design2[e2b.design2}\hlopt{$}\hlstd{n} \hlopt{==} \hlnum{50}\hlstd{,],} \hlkwd{aes}\hlstd{(}\hlkwc{x} \hlstd{= margin,} \hlkwc{y} \hlstd{= detrate,} \hlkwc{colour} \hlstd{=} \hlkwd{factor}\hlstd{(method)))} \hlopt{+} \hlkwd{geom_line}\hlstd{(}\hlkwc{lwd} \hlstd{=} \hlnum{1}\hlstd{)} \hlopt{+} \hlkwd{xlab}\hlstd{(}\hlstr{"Margin"}\hlstd{)} \hlopt{+} \hlkwd{ylab}\hlstd{(}\hlstr{"Detection rate"}\hlstd{)} \hlopt{+} \hlkwd{labs}\hlstd{(}\hlkwc{colour} \hlstd{=} \hlstr{"Method"}\hlstd{)} \hlopt{+} \hlkwd{theme_bw}\hlstd{()} \hlopt{+} \hlkwd{facet_grid}\hlstd{(p1} \hlopt{~} \hlstd{pc} \hlopt{~} \hlstd{R1)}
+\end{alltt}
+\end{kframe}
+
+{\centering \includegraphics[width=\maxwidth]{figure/06-E2B-E2B-plots-5} 
+
+}
+
+
+\begin{kframe}\begin{alltt}
+\hlkwd{ggplot}\hlstd{(e2b.design2[e2b.design2}\hlopt{$}\hlstd{n} \hlopt{==} \hlnum{100}\hlstd{,],} \hlkwd{aes}\hlstd{(}\hlkwc{x} \hlstd{= margin,} \hlkwc{y} \hlstd{= detrate,} \hlkwc{colour} \hlstd{=} \hlkwd{factor}\hlstd{(method)))} \hlopt{+} \hlkwd{geom_line}\hlstd{(}\hlkwc{lwd} \hlstd{=} \hlnum{1}\hlstd{)} \hlopt{+} \hlkwd{xlab}\hlstd{(}\hlstr{"Margin"}\hlstd{)} \hlopt{+} \hlkwd{ylab}\hlstd{(}\hlstr{"Detection rate"}\hlstd{)} \hlopt{+} \hlkwd{labs}\hlstd{(}\hlkwc{colour} \hlstd{=} \hlstr{"Method"}\hlstd{)} \hlopt{+} \hlkwd{theme_bw}\hlstd{()} \hlopt{+} \hlkwd{facet_grid}\hlstd{(p1} \hlopt{~} \hlstd{pc} \hlopt{~} \hlstd{R1)}
+\end{alltt}
+\end{kframe}
+
+{\centering \includegraphics[width=\maxwidth]{figure/06-E2B-E2B-plots-6} 
+
+}
+
+
+\begin{kframe}\begin{alltt}
+\hlkwd{ggplot}\hlstd{(e2b.design3[e2b.design3}\hlopt{$}\hlstd{method} \hlopt{%in%} \hlkwd{c}\hlstd{(}\hlstr{"c1"}\hlstd{,} \hlstr{"maxstat"}\hlstd{,} \hlstr{"messina"}\hlstd{),],} \hlkwd{aes}\hlstd{(}\hlkwc{x} \hlstd{= p1,} \hlkwc{y} \hlstd{= detrate,} \hlkwc{colour} \hlstd{=} \hlkwd{factor}\hlstd{(method)))} \hlopt{+} \hlkwd{geom_line}\hlstd{(}\hlkwc{lwd} \hlstd{=} \hlnum{1}\hlstd{)} \hlopt{+} \hlkwd{xlab}\hlstd{(}\hlstr{"Class balance"}\hlstd{)} \hlopt{+} \hlkwd{ylab}\hlstd{(}\hlstr{"Detection rate"}\hlstd{)} \hlopt{+} \hlkwd{labs}\hlstd{(}\hlkwc{colour} \hlstd{=} \hlstr{"Method"}\hlstd{)} \hlopt{+} \hlkwd{theme_bw}\hlstd{()}
+\end{alltt}
+\end{kframe}
+
+{\centering \includegraphics[width=\maxwidth]{figure/06-E2B-E2B-plots-7} 
+
+}
+
+
+\begin{kframe}\begin{alltt}
+\hlkwd{ggplot}\hlstd{(e2b.design4,} \hlkwd{aes}\hlstd{(}\hlkwc{x} \hlstd{= multicut.n,} \hlkwc{y} \hlstd{= detrate,} \hlkwc{colour} \hlstd{=} \hlkwd{factor}\hlstd{(method)))} \hlopt{+} \hlkwd{geom_line}\hlstd{(}\hlkwc{lwd} \hlstd{=} \hlnum{1}\hlstd{)} \hlopt{+} \hlkwd{xlab}\hlstd{(}\hlstr{"Number of cutpoints"}\hlstd{)} \hlopt{+} \hlkwd{ylab}\hlstd{(}\hlstr{"False discovery rate"}\hlstd{)} \hlopt{+} \hlkwd{labs}\hlstd{(}\hlkwc{colour} \hlstd{=} \hlstr{"Method"}\hlstd{)} \hlopt{+} \hlkwd{theme_bw}\hlstd{()} \hlopt{+} \hlkwd{ylim}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{1}\hlstd{)} \hlopt{+} \hlkwd{geom_hline}\hlstd{(}\hlkwc{yintercept} \hlstd{=} \hlnum{0.05}\hlstd{,} \hlkwc{linetype} \hlstd{=} \hlstr{"dashed"}\hlstd{,} \hlkwc{alpha} \hlstd{=} \hlnum{0.5}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+{\centering \includegraphics[width=\maxwidth]{figure/06-E2B-E2B-plots-8} 
 
 }
 
