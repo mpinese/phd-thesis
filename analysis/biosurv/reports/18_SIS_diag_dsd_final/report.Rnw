@@ -18,7 +18,7 @@ options(
 )
 knit_hooks$set(crop = hook_pdfcrop)
 opts_chunk$set(
-	fig.align = 'center', dev = 'tikz', dev.args = list(pointsize = 11), cache = TRUE, cache.lazy = FALSE)
+	fig.align = 'center', dev = 'tikz', dev.args = list(pointsize = 16), fig.width = 6, fig.height = 6, dpi = 144, cache = TRUE, cache.lazy = FALSE)
 opts_knit$set(progress = TRUE, verbose = TRUE)
 options(warn = 1)
 @
@@ -83,24 +83,26 @@ median(apply(cpss.sis.permuted, 2, sum))
 
 \section{Factorization}
 <<nmf-rank-plots>>=
+temp.pal = brewer.pal(3, "Dark2")
 plot(nmf.runs.rank, nmf.runs.rank.random[[1]])
 plot(nmf.rankrange[-1], -temp.orig_resids.delta,
-	type = "o", col = "black", pch = 21, ylim = range(-c(temp.orig_resids.delta, temp.perm_resids.delta.mean)),
-	xlab = "Factorization Rank Added", ylab = "Improvement in Total Residual Error")
-lines(nmf.rankrange[-1], -temp.perm_resids.delta.mean, col = "red", type = "o", pch = 21, lwd = 1)
+	type = "o", col = "black", pch = 16, ylim = range(-c(temp.orig_resids.delta, temp.perm_resids.delta.mean)),
+	xlab = "Factorization rank added", ylab = "Improvement in total residual error", lwd = 4)
+lines(nmf.rankrange[-1], -temp.perm_resids.delta.mean, col = temp.pal[2], type = "o", pch = 16, lwd = 4)
 for (i in 1:ncol(temp.perm_resids))
 {
-	lines(nmf.rankrange[-1], -temp.perm_resids.delta[,i], type = "o", col = rgb(1, 0, 0, 0.25))
+	lines(nmf.rankrange[-1], -temp.perm_resids.delta[,i], type = "o", col = do.call(rgb, as.list(c(col2rgb(temp.pal[2])[,1]/255, alpha = 0.25))))
 }
-lines(nmf.rankrange[-1], -temp.perm_resids.delta.threshold, col = "red", lty = "dotted")
+lines(nmf.rankrange[-1], -temp.perm_resids.delta.threshold, col = temp.pal[2], lty = "dotted", lwd = 4)
 if (nmf.rank.wasauto == TRUE)
 {
-	temp.col = "green"
+	temp.col = temp.pal[1]
 } else {
-	temp.col = "blue"
+	temp.col = temp.pal[3]
 }
-abline(v = nmf.rank, col = temp.col, lwd = 2)
-legend("topright", legend = c("Original data", "Permuted data", sprintf("Selected rank (%s)", ifelse(nmf.rank.wasauto == TRUE, "auto", "fixed"))), col = c("black", "red", temp.col),  lty = "solid", pch = 21, inset = 0.05)
+abline(v = nmf.rank, col = do.call(rgb, as.list(c(col2rgb(temp.col)[,1]/255, alpha = 0.5))), lwd = 4)
+#legend("topright", legend = c("Original data", "Permuted data", sprintf("Selected rank (%s)", ifelse(nmf.rank.wasauto == TRUE, "auto", "fixed"))), col = c("black", temp.pal[2], temp.col),  lty = "solid", pch = 21, inset = 0.05, cex = 0.9)
+legend("topright", legend = c("Original", "Permuted"), col = c("black", temp.pal[2]),  lty = "solid", pch = 16, inset = 0.05, cex = 0.9, lwd = 4)
 @
 
 \subsection{Fit}
@@ -163,7 +165,7 @@ print(xtable(temp, digits = 5), file = "approx_table.tex", tabular.environment =
 % METAGENE PAIRING, AXES
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-<<metagene-pairs, dev="pdf">>=
+<<metagene-pairs, dev="pdf", fig.height=6.5>>=
 temp.pred.pairs = t(rbind(coefs.pdac_au, metapcna.scores[colnames(coefs.pdac_au)]))
 colnames(temp.pred.pairs) = paste("mg", 1:ncol(temp.pred.pairs), sep = ".")
 colnames(temp.pred.pairs)[ncol(temp.pred.pairs)] = "PCNA"
@@ -181,8 +183,8 @@ temp.cors = apply(temp.pred.pairs[,colnames(temp.pred.pairs) != "pkyrs"], 2, fun
 heatmap.2(temp.cors, trace = "none", Rowv = FALSE, Colv = FALSE, col = brewer.pal(11, "PiYG"), dendrogram = "none", scale = "none")
 
 plot(temp.pred.pairs[,"mg.1"] ~ temp.pred.pairs[,"PCNA"], col = ifelse(rownames(temp.pred.pairs) %in% colnames(xlin.diag_dsd.sel), rgb(0, 0, 0, 1), rgb(0, 0, 0, 0)), xlab = "Meta-PCNA Score", ylab = "MG1 Coefficient")
-plot(temp.pred.pairs[,"mg.5"], temp.pred.pairs[,"mg.1"], xlab = "MG5 Coefficient (protective)", ylab = "MG1 Coefficient (hazardous)")
-plot(temp.pred.pairs[,"mg.2"], temp.pred.pairs[,"mg.6"], xlab = "MG2 Coefficient (protective)", ylab = "MG6 Coefficient")
+plot(temp.pred.pairs[,"mg.5"], temp.pred.pairs[,"mg.1"], xlab = "MG5 Coefficient (protective)", ylab = "MG1 Coefficient (hazardous)", pch = 16, col = rgb(0, 0, 0, 0.75), cex.axis = 1.5, cex.lab = 1.5)
+plot(temp.pred.pairs[,"mg.2"], temp.pred.pairs[,"mg.6"], xlab = "MG2 Coefficient (protective)", ylab = "MG6 Coefficient", pch = 16, col = rgb(0, 0, 0, 0.75), cex.axis = 1.5, cex.lab = 1.5)
 #scatter.smooth(temp.pred.pairs[,"mg.5"], temp.pred.pairs[,"mg.1"], xlab = "MG5 Coefficient (protective)", ylab = "MG1 Coefficient (hazardous)", span = 1/4, lpars = list(lwd = 2, col = rgb(0, 0, 0, 0.5)))
 #scatter.smooth(temp.pred.pairs[,"mg.2"], temp.pred.pairs[,"mg.6"], xlab = "MG2 Coefficient (protective)", ylab = "MG6 Coefficient", span = 1/4, lpars = list(lwd = 2, col = rgb(0, 0, 1, 0.5)))
 #smoothScatter(temp.pred.pairs[,"mg.5"], temp.pred.pairs[,"mg.1"], xlab = "MG5 Coefficient (protective)", ylab = "MG1 Coefficient (hazardous)")
@@ -208,7 +210,7 @@ temp.axis1 = coefs.diag_dsd[1,] - coefs.diag_dsd[5,]
 temp.axis2 = coefs.diag_dsd[6,] - coefs.diag_dsd[2,]
 dcov.test(temp.axis1, temp.axis2, R = 19999)
 cor.test(temp.axis1, temp.axis2, method = "kendall")
-plot(temp.axis2 ~ temp.axis1, xlab = "Axis 1 activity", ylab = "Axis 2 activity")
+plot(temp.axis2 ~ temp.axis1, xlab = "Axis 1 activity", ylab = "Axis 2 activity", pch = 16, col = rgb(0, 0, 0, 0.75), cex = 0.8)
 
 coxph(y.diag_dsd ~ temp.axis1 * temp.axis2)
 temp = cv.glmnet(cbind(temp.axis1, temp.axis2, temp.axis1*temp.axis2), y.diag_dsd, family = "cox", nfolds = 10)
@@ -232,8 +234,19 @@ glmnet.fit.cv.recr_dsd = cv.glmnet(t(coefs.recr_dsd), y.recr_dsd, family = "cox"
 
 <<nmf-metagene-glmnet-plots>>=
 plot(glmnet.fit.cv.diag_dsd)
-plot(glmnet.fit.cv.diag_dsd$glmnet.fit, label = TRUE)
-abline(v = sum(abs(coef(glmnet.fit.cv.diag_dsd$glmnet.fit, s = glmnet.fit.cv.diag_dsd$lambda.1se))))
+#plot(glmnet.fit.cv.diag_dsd$glmnet.fit, label = TRUE)
+temp = glmnet.fit.cv.diag_dsd$glmnet.fit
+temp.betamax = max(abs(temp$beta))
+temp.l1 = colSums(abs(temp$beta))
+plot(0 ~ 0, xlim = c(0, max(temp.l1) * 1.1), ylim = c(-temp.betamax, temp.betamax), type = "n", xlab = "L1 Norm", ylab = "Coefficient")
+abline(h = 0, lty = "dashed", col = "grey")
+temp.pal = brewer.pal(nrow(temp$beta), "Paired")[c(1,4,5,6,2,3)]
+for (i in 1:nrow(temp$beta))
+{
+	lines(temp$beta[i,] ~ temp.l1, col = temp.pal[i], lwd = 4)
+	text(max(temp.l1) * 1.02, temp$beta[i,length(temp.l1)], paste("MG", i, sep = ""), col = temp.pal[i], pos = 4, cex = 0.8)
+}
+abline(v = sum(abs(coef(glmnet.fit.cv.diag_dsd$glmnet.fit, s = glmnet.fit.cv.diag_dsd$lambda.1se))), col = rgb(0, 0, 0, 0.75), lwd = 2)
 #abline(v = sum(abs(coef(glmnet.fit.cv.diag_dsd$glmnet.fit, s = glmnet.fit.cv.diag_dsd$lambda.min))))
 coef(glmnet.fit.cv.diag_dsd$glmnet.fit, s = glmnet.fit.cv.diag_dsd$lambda.1se)
 
@@ -388,7 +401,7 @@ val_pvals[val_pvals$nevents >= 50 | rownames(val_pvals) == "paad",]
 @
 
 
-<<km-curves>>=
+<<km-curves,fig.height=5,fig.width=5>>=
 plot_km_axes = function(axis1, axis2, y, mc = FALSE, ...)
 {
 	t1 = t2 = 0
@@ -406,13 +419,22 @@ plot_km_axes = function(axis1, axis2, y, mc = FALSE, ...)
 	pval = pchisq(survdiff(y ~ class)$chisq, 3, lower.tail = FALSE)
 	pal = brewer.pal(4, "Set2")
 	names(pal) = c("LL", "LH", "HL", "HH")
-	plot(axis2 ~ axis1, xlab = "A1 activity", ylab = "A2 activity", col = pal[class], pch = 16, cex = 1.5, ...)
+	plot(axis2 ~ axis1, xlab = "A1 activity", ylab = "A2 activity", col = pal[class], pch = 16, ...)
 	abline(h = t2)
 	abline(v = t1)
-	plot(fit, col = pal, lwd = 2, xlab = "Time from diagnosis (days)", ylab = "Fraction surviving", sub = sprintf("P = %.3g", pval), ...)
+	#plot(fit, col = pal, lwd = 2, xlab = "Time from diagnosis (days)", ylab = "Fraction surviving", sub = sprintf("P = %.3g", pval), ...)
+	plot(fit$surv ~ fit$time, type = "n", ylim = c(0, 1), xlab = "Time from diagnosis (days)", ylab = "Fraction surviving", sub = sprintf("P = %.3g", pval))
+	for (i in 1:length(fit$strata))
+	{
+		stratum_start = sum(fit$strata[1:i]) - fit$strata[i] + 1
+		stratum_end = stratum_start + fit$strata[i] - 1
+		stratum_surv = c(1, fit$surv[stratum_start:stratum_end])
+		stratum_time = c(0, fit$time[stratum_start:stratum_end])
+		lines(stratum_surv ~ stratum_time, col = pal[i], type = "s", ...)
+	}
 }
 
-plot_km_axes_tcga = function(code, mc)
+plot_km_axes_tcga = function(code, mc, ...)
 {
 	if ("illuminahiseq_rnaseqv2" %in% names(data.merged[[code]]$gex))
 	{
@@ -446,18 +468,18 @@ plot_km_axes_tcga = function(code, mc)
 		temp.event = (temp.time_event <= temp.time_lfu & !is.na(temp.time_event) & !is.na(temp.time_lfu)) | (!is.na(temp.time_event) & is.na(temp.time_lfu))
 		temp.y = Surv(temp.time_obs, temp.event)
 
-		plot_km_axes(temp.axis1, temp.axis2, temp.y, mc = FALSE, main = code)
+		plot_km_axes(temp.axis1, temp.axis2, temp.y, mc = FALSE, main = "", ...)
 	}
 }
 
-plot_km_axes(axis_coefs.diag_dsd[,1], axis_coefs.diag_dsd[,2], y.diag_dsd, mc = FALSE, main = "APGI (Resubstituted)")
-plot_km_axes(GSE21501.axis1, GSE21501.axis2, Surv(GSE21501.samp$time, GSE21501.samp$event), mc = FALSE, main = "GSE21501")
-plot_km_axes(GSE28735.axis1, GSE28735.axis2, Surv(GSE28735.samp$time, GSE28735.samp$event), mc = FALSE, main = "GSE28735")
-plot_km_axes_tcga("hnsc", mc = FALSE)
-plot_km_axes_tcga("kirc", mc = FALSE)
-plot_km_axes_tcga("lgg", mc = FALSE)
-plot_km_axes_tcga("luad", mc = FALSE)
-plot_km_axes_tcga("paad", mc = FALSE)
+plot_km_axes(axis_coefs.diag_dsd[,1], axis_coefs.diag_dsd[,2], y.diag_dsd, mc = FALSE, main = "", lwd = 4, cex = 1.2)
+plot_km_axes(GSE21501.axis1, GSE21501.axis2, Surv(GSE21501.samp$time, GSE21501.samp$event), mc = FALSE, main = "", lwd = 4, cex = 1.2)
+plot_km_axes(GSE28735.axis1, GSE28735.axis2, Surv(GSE28735.samp$time, GSE28735.samp$event), mc = FALSE, main = "", lwd = 4, cex = 1.2)
+plot_km_axes_tcga("hnsc", mc = FALSE, lwd = 4, cex = 1.2)
+plot_km_axes_tcga("kirc", mc = FALSE, lwd = 4, cex = 1.2)
+plot_km_axes_tcga("lgg", mc = FALSE, lwd = 4, cex = 1.2)
+plot_km_axes_tcga("luad", mc = FALSE, lwd = 4, cex = 1.2)
+plot_km_axes_tcga("paad", mc = FALSE, lwd = 4, cex = 1.2)
 @
 
 
@@ -528,15 +550,15 @@ cor.test(axis_coefs.diag_dsd[,2], samps$purity_qpure, method = "kendall")
 summary(lm(axis_coefs.diag_dsd[,1] ~ samps$purity_qpure))
 summary(lm(axis_coefs.diag_dsd[,2] ~ samps$purity_qpure))
 
-plot(axis_coefs.diag_dsd[,1] ~ metapcna.scores, xlab = "meta-PCNA score", ylab = "A1 signal")
-plot(axis_coefs.diag_dsd[,2] ~ metapcna.scores, xlab = "meta-PCNA score", ylab = "A2 signal")
+plot(axis_coefs.diag_dsd[,1] ~ metapcna.scores, xlab = "meta-PCNA score", ylab = "A1 signal", pch = 16, col = rgb(0, 0, 0, 0.75))
+plot(axis_coefs.diag_dsd[,2] ~ metapcna.scores, xlab = "meta-PCNA score", ylab = "A2 signal", pch = 16, col = rgb(0, 0, 0, 0.75))
 cor.test(axis_coefs.diag_dsd[,1], metapcna.scores, method = "kendall")
 cor.test(axis_coefs.diag_dsd[,2], metapcna.scores, method = "kendall")
 summary(lm(axis_coefs.diag_dsd[,1] ~ metapcna.scores))
 summary(lm(axis_coefs.diag_dsd[,2] ~ metapcna.scores))
 
-plot(axis_coefs.diag_dsd[,1] ~ emt.scores, xlab = "meta-EMT score", ylab = "A1 signal")
-plot(axis_coefs.diag_dsd[,2] ~ emt.scores, xlab = "meta-EMT score", ylab = "A2 signal")
+plot(axis_coefs.diag_dsd[,1] ~ emt.scores, xlab = "meta-EMT score", ylab = "A1 signal", pch = 16, col = rgb(0, 0, 0, 0.75))
+plot(axis_coefs.diag_dsd[,2] ~ emt.scores, xlab = "meta-EMT score", ylab = "A2 signal", pch = 16, col = rgb(0, 0, 0, 0.75))
 cor.test(axis_coefs.diag_dsd[,1], emt.scores, method = "kendall")
 cor.test(axis_coefs.diag_dsd[,2], emt.scores, method = "kendall")
 summary(lm(axis_coefs.diag_dsd[,1] ~ emt.scores))

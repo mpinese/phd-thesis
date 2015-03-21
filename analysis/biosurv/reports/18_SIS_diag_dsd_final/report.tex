@@ -70,45 +70,21 @@
 \hlkwd{options}\hlstd{(}\hlkwc{java.parameters} \hlstd{=} \hlstr{"-Xmx4G"}\hlstd{)}
 
 \hlkwd{library}\hlstd{(survival)}
-\end{alltt}
-
-
-{\ttfamily\noindent\itshape\color{messagecolor}{\#\# Loading required package: splines}}\begin{alltt}
 \hlkwd{library}\hlstd{(energy)}
 \hlkwd{library}\hlstd{(NMF)}
-\end{alltt}
-
-
-{\ttfamily\noindent\itshape\color{messagecolor}{\#\# Loading required package: methods\\\#\# Loading required package: pkgmaker\\\#\# Loading required package: registry\\\#\# Loading required package: rngtools\\\#\# Loading required package: cluster\\\#\# NMF - BioConductor layer [OK] | Shared memory capabilities [OK] | Cores 2/2}}\begin{alltt}
 \hlkwd{library}\hlstd{(nnls)}
 
 \hlkwd{library}\hlstd{(bnlearn)}
-\end{alltt}
 
-
-{\ttfamily\noindent\itshape\color{messagecolor}{\#\# \\\#\# Attaching package: 'bnlearn'\\\#\# \\\#\# The following object is masked from 'package:NMF':\\\#\# \\\#\#\ \ \ \  compare}}\begin{alltt}
 \hlkwd{library}\hlstd{(glmulti)}
-\end{alltt}
-
-
-{\ttfamily\noindent\itshape\color{messagecolor}{\#\# Loading required package: rJava\\\#\# \\\#\# Attaching package: 'glmulti'\\\#\# \\\#\# The following object is masked from 'package:NMF':\\\#\# \\\#\#\ \ \ \  consensus}}\begin{alltt}
 \hlkwd{library}\hlstd{(glmnet)}
-\end{alltt}
 
-
-{\ttfamily\noindent\itshape\color{messagecolor}{\#\# Loading required package: Matrix\\\#\# Loaded glmnet 1.9-8}}\begin{alltt}
 \hlkwd{library}\hlstd{(RColorBrewer)}
 \hlkwd{library}\hlstd{(gplots)}
-\end{alltt}
 
-
-{\ttfamily\noindent\itshape\color{messagecolor}{\#\# \\\#\# Attaching package: 'gplots'\\\#\# \\\#\# The following object is masked from 'package:stats':\\\#\# \\\#\#\ \ \ \  lowess}}\begin{alltt}
 \hlkwd{library}\hlstd{(xtable)}
 \hlkwd{library}\hlstd{(stargazer)}
-\end{alltt}
 
-
-{\ttfamily\noindent\itshape\color{messagecolor}{\#\# \\\#\# Please cite as: \\\#\# \\\#\#\ \ Hlavac, Marek (2014). stargazer: LaTeX code and ASCII text for well-formatted regression and summary statistics tables.\\\#\#\ \ R package version 5.1. http://CRAN.R-project.org/package=stargazer}}\begin{alltt}
 \hlkwd{load}\hlstd{(}\hlstr{"image.rda"}\hlstd{)}
 \end{alltt}
 \end{kframe}
@@ -611,6 +587,7 @@
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
+\hlstd{temp.pal} \hlkwb{=} \hlkwd{brewer.pal}\hlstd{(}\hlnum{3}\hlstd{,} \hlstr{"Dark2"}\hlstd{)}
 \hlkwd{plot}\hlstd{(nmf.runs.rank, nmf.runs.rank.random[[}\hlnum{1}\hlstd{]])}
 \end{alltt}
 \end{kframe}
@@ -622,22 +599,23 @@
 
 \begin{kframe}\begin{alltt}
 \hlkwd{plot}\hlstd{(nmf.rankrange[}\hlopt{-}\hlnum{1}\hlstd{],} \hlopt{-}\hlstd{temp.orig_resids.delta,}
-        \hlkwc{type} \hlstd{=} \hlstr{"o"}\hlstd{,} \hlkwc{col} \hlstd{=} \hlstr{"black"}\hlstd{,} \hlkwc{pch} \hlstd{=} \hlnum{21}\hlstd{,} \hlkwc{ylim} \hlstd{=} \hlkwd{range}\hlstd{(}\hlopt{-}\hlkwd{c}\hlstd{(temp.orig_resids.delta, temp.perm_resids.delta.mean)),}
-        \hlkwc{xlab} \hlstd{=} \hlstr{"Factorization Rank Added"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Improvement in Total Residual Error"}\hlstd{)}
-\hlkwd{lines}\hlstd{(nmf.rankrange[}\hlopt{-}\hlnum{1}\hlstd{],} \hlopt{-}\hlstd{temp.perm_resids.delta.mean,} \hlkwc{col} \hlstd{=} \hlstr{"red"}\hlstd{,} \hlkwc{type} \hlstd{=} \hlstr{"o"}\hlstd{,} \hlkwc{pch} \hlstd{=} \hlnum{21}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{1}\hlstd{)}
+        \hlkwc{type} \hlstd{=} \hlstr{"o"}\hlstd{,} \hlkwc{col} \hlstd{=} \hlstr{"black"}\hlstd{,} \hlkwc{pch} \hlstd{=} \hlnum{16}\hlstd{,} \hlkwc{ylim} \hlstd{=} \hlkwd{range}\hlstd{(}\hlopt{-}\hlkwd{c}\hlstd{(temp.orig_resids.delta, temp.perm_resids.delta.mean)),}
+        \hlkwc{xlab} \hlstd{=} \hlstr{"Factorization rank added"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Improvement in total residual error"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{4}\hlstd{)}
+\hlkwd{lines}\hlstd{(nmf.rankrange[}\hlopt{-}\hlnum{1}\hlstd{],} \hlopt{-}\hlstd{temp.perm_resids.delta.mean,} \hlkwc{col} \hlstd{= temp.pal[}\hlnum{2}\hlstd{],} \hlkwc{type} \hlstd{=} \hlstr{"o"}\hlstd{,} \hlkwc{pch} \hlstd{=} \hlnum{16}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{4}\hlstd{)}
 \hlkwa{for} \hlstd{(i} \hlkwa{in} \hlnum{1}\hlopt{:}\hlkwd{ncol}\hlstd{(temp.perm_resids))}
 \hlstd{\{}
-        \hlkwd{lines}\hlstd{(nmf.rankrange[}\hlopt{-}\hlnum{1}\hlstd{],} \hlopt{-}\hlstd{temp.perm_resids.delta[,i],} \hlkwc{type} \hlstd{=} \hlstr{"o"}\hlstd{,} \hlkwc{col} \hlstd{=} \hlkwd{rgb}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0.25}\hlstd{))}
+        \hlkwd{lines}\hlstd{(nmf.rankrange[}\hlopt{-}\hlnum{1}\hlstd{],} \hlopt{-}\hlstd{temp.perm_resids.delta[,i],} \hlkwc{type} \hlstd{=} \hlstr{"o"}\hlstd{,} \hlkwc{col} \hlstd{=} \hlkwd{do.call}\hlstd{(rgb,} \hlkwd{as.list}\hlstd{(}\hlkwd{c}\hlstd{(}\hlkwd{col2rgb}\hlstd{(temp.pal[}\hlnum{2}\hlstd{])[,}\hlnum{1}\hlstd{]}\hlopt{/}\hlnum{255}\hlstd{,} \hlkwc{alpha} \hlstd{=} \hlnum{0.25}\hlstd{))))}
 \hlstd{\}}
-\hlkwd{lines}\hlstd{(nmf.rankrange[}\hlopt{-}\hlnum{1}\hlstd{],} \hlopt{-}\hlstd{temp.perm_resids.delta.threshold,} \hlkwc{col} \hlstd{=} \hlstr{"red"}\hlstd{,} \hlkwc{lty} \hlstd{=} \hlstr{"dotted"}\hlstd{)}
+\hlkwd{lines}\hlstd{(nmf.rankrange[}\hlopt{-}\hlnum{1}\hlstd{],} \hlopt{-}\hlstd{temp.perm_resids.delta.threshold,} \hlkwc{col} \hlstd{= temp.pal[}\hlnum{2}\hlstd{],} \hlkwc{lty} \hlstd{=} \hlstr{"dotted"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{4}\hlstd{)}
 \hlkwa{if} \hlstd{(nmf.rank.wasauto} \hlopt{==} \hlnum{TRUE}\hlstd{)}
 \hlstd{\{}
-        \hlstd{temp.col} \hlkwb{=} \hlstr{"green"}
+        \hlstd{temp.col} \hlkwb{=} \hlstd{temp.pal[}\hlnum{1}\hlstd{]}
 \hlstd{\}} \hlkwa{else} \hlstd{\{}
-        \hlstd{temp.col} \hlkwb{=} \hlstr{"blue"}
+        \hlstd{temp.col} \hlkwb{=} \hlstd{temp.pal[}\hlnum{3}\hlstd{]}
 \hlstd{\}}
-\hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{= nmf.rank,} \hlkwc{col} \hlstd{= temp.col,} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
-\hlkwd{legend}\hlstd{(}\hlstr{"topright"}\hlstd{,} \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"Original data"}\hlstd{,} \hlstr{"Permuted data"}\hlstd{,} \hlkwd{sprintf}\hlstd{(}\hlstr{"Selected rank (%s)"}\hlstd{,} \hlkwd{ifelse}\hlstd{(nmf.rank.wasauto} \hlopt{==} \hlnum{TRUE}\hlstd{,} \hlstr{"auto"}\hlstd{,} \hlstr{"fixed"}\hlstd{))),} \hlkwc{col} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"black"}\hlstd{,} \hlstr{"red"}\hlstd{, temp.col),}  \hlkwc{lty} \hlstd{=} \hlstr{"solid"}\hlstd{,} \hlkwc{pch} \hlstd{=} \hlnum{21}\hlstd{,} \hlkwc{inset} \hlstd{=} \hlnum{0.05}\hlstd{)}
+\hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{= nmf.rank,} \hlkwc{col} \hlstd{=} \hlkwd{do.call}\hlstd{(rgb,} \hlkwd{as.list}\hlstd{(}\hlkwd{c}\hlstd{(}\hlkwd{col2rgb}\hlstd{(temp.col)[,}\hlnum{1}\hlstd{]}\hlopt{/}\hlnum{255}\hlstd{,} \hlkwc{alpha} \hlstd{=} \hlnum{0.5}\hlstd{))),} \hlkwc{lwd} \hlstd{=} \hlnum{4}\hlstd{)}
+\hlcom{#legend("topright", legend = c("Original data", "Permuted data", sprintf("Selected rank (%s)", ifelse(nmf.rank.wasauto == TRUE, "auto", "fixed"))), col = c("black", temp.pal[2], temp.col),  lty = "solid", pch = 21, inset = 0.05, cex = 0.9)}
+\hlkwd{legend}\hlstd{(}\hlstr{"topright"}\hlstd{,} \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"Original"}\hlstd{,} \hlstr{"Permuted"}\hlstd{),} \hlkwc{col} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"black"}\hlstd{, temp.pal[}\hlnum{2}\hlstd{]),}  \hlkwc{lty} \hlstd{=} \hlstr{"solid"}\hlstd{,} \hlkwc{pch} \hlstd{=} \hlnum{16}\hlstd{,} \hlkwc{inset} \hlstd{=} \hlnum{0.05}\hlstd{,} \hlkwc{cex} \hlstd{=} \hlnum{0.9}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{4}\hlstd{)}
 \end{alltt}
 \end{kframe}
 
@@ -824,7 +802,7 @@
 
 
 \begin{kframe}\begin{alltt}
-\hlkwd{plot}\hlstd{(temp.pred.pairs[,}\hlstr{"mg.5"}\hlstd{], temp.pred.pairs[,}\hlstr{"mg.1"}\hlstd{],} \hlkwc{xlab} \hlstd{=} \hlstr{"MG5 Coefficient (protective)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"MG1 Coefficient (hazardous)"}\hlstd{)}
+\hlkwd{plot}\hlstd{(temp.pred.pairs[,}\hlstr{"mg.5"}\hlstd{], temp.pred.pairs[,}\hlstr{"mg.1"}\hlstd{],} \hlkwc{xlab} \hlstd{=} \hlstr{"MG5 Coefficient (protective)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"MG1 Coefficient (hazardous)"}\hlstd{,} \hlkwc{pch} \hlstd{=} \hlnum{16}\hlstd{,} \hlkwc{col} \hlstd{=} \hlkwd{rgb}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0.75}\hlstd{),} \hlkwc{cex.axis} \hlstd{=} \hlnum{1.5}\hlstd{,} \hlkwc{cex.lab} \hlstd{=} \hlnum{1.5}\hlstd{)}
 \end{alltt}
 \end{kframe}
 
@@ -834,7 +812,7 @@
 
 
 \begin{kframe}\begin{alltt}
-\hlkwd{plot}\hlstd{(temp.pred.pairs[,}\hlstr{"mg.2"}\hlstd{], temp.pred.pairs[,}\hlstr{"mg.6"}\hlstd{],} \hlkwc{xlab} \hlstd{=} \hlstr{"MG2 Coefficient (protective)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"MG6 Coefficient"}\hlstd{)}
+\hlkwd{plot}\hlstd{(temp.pred.pairs[,}\hlstr{"mg.2"}\hlstd{], temp.pred.pairs[,}\hlstr{"mg.6"}\hlstd{],} \hlkwc{xlab} \hlstd{=} \hlstr{"MG2 Coefficient (protective)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"MG6 Coefficient"}\hlstd{,} \hlkwc{pch} \hlstd{=} \hlnum{16}\hlstd{,} \hlkwc{col} \hlstd{=} \hlkwd{rgb}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0.75}\hlstd{),} \hlkwc{cex.axis} \hlstd{=} \hlnum{1.5}\hlstd{,} \hlkwc{cex.lab} \hlstd{=} \hlnum{1.5}\hlstd{)}
 \end{alltt}
 \end{kframe}
 
@@ -964,7 +942,7 @@
 ## 0.0809
 \end{verbatim}
 \begin{alltt}
-\hlkwd{plot}\hlstd{(temp.axis2} \hlopt{~} \hlstd{temp.axis1,} \hlkwc{xlab} \hlstd{=} \hlstr{"Axis 1 activity"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Axis 2 activity"}\hlstd{)}
+\hlkwd{plot}\hlstd{(temp.axis2} \hlopt{~} \hlstd{temp.axis1,} \hlkwc{xlab} \hlstd{=} \hlstr{"Axis 1 activity"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Axis 2 activity"}\hlstd{,} \hlkwc{pch} \hlstd{=} \hlnum{16}\hlstd{,} \hlkwc{col} \hlstd{=} \hlkwd{rgb}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0.75}\hlstd{),} \hlkwc{cex} \hlstd{=} \hlnum{0.8}\hlstd{)}
 \end{alltt}
 \end{kframe}
 
@@ -1052,8 +1030,19 @@
 
 
 \begin{kframe}\begin{alltt}
-\hlkwd{plot}\hlstd{(glmnet.fit.cv.diag_dsd}\hlopt{$}\hlstd{glmnet.fit,} \hlkwc{label} \hlstd{=} \hlnum{TRUE}\hlstd{)}
-\hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{sum}\hlstd{(}\hlkwd{abs}\hlstd{(}\hlkwd{coef}\hlstd{(glmnet.fit.cv.diag_dsd}\hlopt{$}\hlstd{glmnet.fit,} \hlkwc{s} \hlstd{= glmnet.fit.cv.diag_dsd}\hlopt{$}\hlstd{lambda.1se))))}
+\hlcom{#plot(glmnet.fit.cv.diag_dsd$glmnet.fit, label = TRUE)}
+\hlstd{temp} \hlkwb{=} \hlstd{glmnet.fit.cv.diag_dsd}\hlopt{$}\hlstd{glmnet.fit}
+\hlstd{temp.betamax} \hlkwb{=} \hlkwd{max}\hlstd{(}\hlkwd{abs}\hlstd{(temp}\hlopt{$}\hlstd{beta))}
+\hlstd{temp.l1} \hlkwb{=} \hlkwd{colSums}\hlstd{(}\hlkwd{abs}\hlstd{(temp}\hlopt{$}\hlstd{beta))}
+\hlkwd{plot}\hlstd{(}\hlnum{0} \hlopt{~} \hlnum{0}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlkwd{max}\hlstd{(temp.l1)} \hlopt{*} \hlnum{1.1}\hlstd{),} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlopt{-}\hlstd{temp.betamax, temp.betamax),} \hlkwc{type} \hlstd{=} \hlstr{"n"}\hlstd{,} \hlkwc{xlab} \hlstd{=} \hlstr{"L1 Norm"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Coefficient"}\hlstd{)}
+\hlkwd{abline}\hlstd{(}\hlkwc{h} \hlstd{=} \hlnum{0}\hlstd{,} \hlkwc{lty} \hlstd{=} \hlstr{"dashed"}\hlstd{,} \hlkwc{col} \hlstd{=} \hlstr{"grey"}\hlstd{)}
+\hlstd{temp.pal} \hlkwb{=} \hlkwd{brewer.pal}\hlstd{(}\hlkwd{nrow}\hlstd{(temp}\hlopt{$}\hlstd{beta),} \hlstr{"Paired"}\hlstd{)[}\hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,}\hlnum{4}\hlstd{,}\hlnum{5}\hlstd{,}\hlnum{6}\hlstd{,}\hlnum{2}\hlstd{,}\hlnum{3}\hlstd{)]}
+\hlkwa{for} \hlstd{(i} \hlkwa{in} \hlnum{1}\hlopt{:}\hlkwd{nrow}\hlstd{(temp}\hlopt{$}\hlstd{beta))}
+\hlstd{\{}
+        \hlkwd{lines}\hlstd{(temp}\hlopt{$}\hlstd{beta[i,]} \hlopt{~} \hlstd{temp.l1,} \hlkwc{col} \hlstd{= temp.pal[i],} \hlkwc{lwd} \hlstd{=} \hlnum{4}\hlstd{)}
+        \hlkwd{text}\hlstd{(}\hlkwd{max}\hlstd{(temp.l1)} \hlopt{*} \hlnum{1.02}\hlstd{, temp}\hlopt{$}\hlstd{beta[i,}\hlkwd{length}\hlstd{(temp.l1)],} \hlkwd{paste}\hlstd{(}\hlstr{"MG"}\hlstd{, i,} \hlkwc{sep} \hlstd{=} \hlstr{""}\hlstd{),} \hlkwc{col} \hlstd{= temp.pal[i],} \hlkwc{pos} \hlstd{=} \hlnum{4}\hlstd{,} \hlkwc{cex} \hlstd{=} \hlnum{0.8}\hlstd{)}
+\hlstd{\}}
+\hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{sum}\hlstd{(}\hlkwd{abs}\hlstd{(}\hlkwd{coef}\hlstd{(glmnet.fit.cv.diag_dsd}\hlopt{$}\hlstd{glmnet.fit,} \hlkwc{s} \hlstd{= glmnet.fit.cv.diag_dsd}\hlopt{$}\hlstd{lambda.1se))),} \hlkwc{col} \hlstd{=} \hlkwd{rgb}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0.75}\hlstd{),} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
 \end{alltt}
 \end{kframe}
 
@@ -1462,13 +1451,22 @@
         \hlstd{pval} \hlkwb{=} \hlkwd{pchisq}\hlstd{(}\hlkwd{survdiff}\hlstd{(y} \hlopt{~} \hlstd{class)}\hlopt{$}\hlstd{chisq,} \hlnum{3}\hlstd{,} \hlkwc{lower.tail} \hlstd{=} \hlnum{FALSE}\hlstd{)}
         \hlstd{pal} \hlkwb{=} \hlkwd{brewer.pal}\hlstd{(}\hlnum{4}\hlstd{,} \hlstr{"Set2"}\hlstd{)}
         \hlkwd{names}\hlstd{(pal)} \hlkwb{=} \hlkwd{c}\hlstd{(}\hlstr{"LL"}\hlstd{,} \hlstr{"LH"}\hlstd{,} \hlstr{"HL"}\hlstd{,} \hlstr{"HH"}\hlstd{)}
-        \hlkwd{plot}\hlstd{(axis2} \hlopt{~} \hlstd{axis1,} \hlkwc{xlab} \hlstd{=} \hlstr{"A1 activity"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"A2 activity"}\hlstd{,} \hlkwc{col} \hlstd{= pal[class],} \hlkwc{pch} \hlstd{=} \hlnum{16}\hlstd{,} \hlkwc{cex} \hlstd{=} \hlnum{1.5}\hlstd{, ...)}
+        \hlkwd{plot}\hlstd{(axis2} \hlopt{~} \hlstd{axis1,} \hlkwc{xlab} \hlstd{=} \hlstr{"A1 activity"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"A2 activity"}\hlstd{,} \hlkwc{col} \hlstd{= pal[class],} \hlkwc{pch} \hlstd{=} \hlnum{16}\hlstd{, ...)}
         \hlkwd{abline}\hlstd{(}\hlkwc{h} \hlstd{= t2)}
         \hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{= t1)}
-        \hlkwd{plot}\hlstd{(fit,} \hlkwc{col} \hlstd{= pal,} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (days)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Fraction surviving"}\hlstd{,} \hlkwc{sub} \hlstd{=} \hlkwd{sprintf}\hlstd{(}\hlstr{"P = %.3g"}\hlstd{, pval), ...)}
+        \hlcom{#plot(fit, col = pal, lwd = 2, xlab = "Time from diagnosis (days)", ylab = "Fraction surviving", sub = sprintf("P = %.3g", pval), ...)}
+        \hlkwd{plot}\hlstd{(fit}\hlopt{$}\hlstd{surv} \hlopt{~} \hlstd{fit}\hlopt{$}\hlstd{time,} \hlkwc{type} \hlstd{=} \hlstr{"n"}\hlstd{,} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{1}\hlstd{),} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (days)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Fraction surviving"}\hlstd{,} \hlkwc{sub} \hlstd{=} \hlkwd{sprintf}\hlstd{(}\hlstr{"P = %.3g"}\hlstd{, pval))}
+        \hlkwa{for} \hlstd{(i} \hlkwa{in} \hlnum{1}\hlopt{:}\hlkwd{length}\hlstd{(fit}\hlopt{$}\hlstd{strata))}
+        \hlstd{\{}
+                \hlstd{stratum_start} \hlkwb{=} \hlkwd{sum}\hlstd{(fit}\hlopt{$}\hlstd{strata[}\hlnum{1}\hlopt{:}\hlstd{i])} \hlopt{-} \hlstd{fit}\hlopt{$}\hlstd{strata[i]} \hlopt{+} \hlnum{1}
+                \hlstd{stratum_end} \hlkwb{=} \hlstd{stratum_start} \hlopt{+} \hlstd{fit}\hlopt{$}\hlstd{strata[i]} \hlopt{-} \hlnum{1}
+                \hlstd{stratum_surv} \hlkwb{=} \hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{, fit}\hlopt{$}\hlstd{surv[stratum_start}\hlopt{:}\hlstd{stratum_end])}
+                \hlstd{stratum_time} \hlkwb{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{, fit}\hlopt{$}\hlstd{time[stratum_start}\hlopt{:}\hlstd{stratum_end])}
+                \hlkwd{lines}\hlstd{(stratum_surv} \hlopt{~} \hlstd{stratum_time,} \hlkwc{col} \hlstd{= pal[i],} \hlkwc{type} \hlstd{=} \hlstr{"s"}\hlstd{, ...)}
+        \hlstd{\}}
 \hlstd{\}}
 
-\hlstd{plot_km_axes_tcga} \hlkwb{=} \hlkwa{function}\hlstd{(}\hlkwc{code}\hlstd{,} \hlkwc{mc}\hlstd{)}
+\hlstd{plot_km_axes_tcga} \hlkwb{=} \hlkwa{function}\hlstd{(}\hlkwc{code}\hlstd{,} \hlkwc{mc}\hlstd{,} \hlkwc{...}\hlstd{)}
 \hlstd{\{}
         \hlkwa{if} \hlstd{(}\hlstr{"illuminahiseq_rnaseqv2"} \hlopt{%in%} \hlkwd{names}\hlstd{(data.merged[[code]]}\hlopt{$}\hlstd{gex))}
         \hlstd{\{}
@@ -1502,11 +1500,11 @@
                 \hlstd{temp.event} \hlkwb{=} \hlstd{(temp.time_event} \hlopt{<=} \hlstd{temp.time_lfu} \hlopt{& !}\hlkwd{is.na}\hlstd{(temp.time_event)} \hlopt{& !}\hlkwd{is.na}\hlstd{(temp.time_lfu))} \hlopt{|} \hlstd{(}\hlopt{!}\hlkwd{is.na}\hlstd{(temp.time_event)} \hlopt{&} \hlkwd{is.na}\hlstd{(temp.time_lfu))}
                 \hlstd{temp.y} \hlkwb{=} \hlkwd{Surv}\hlstd{(temp.time_obs, temp.event)}
 
-                \hlkwd{plot_km_axes}\hlstd{(temp.axis1, temp.axis2, temp.y,} \hlkwc{mc} \hlstd{=} \hlnum{FALSE}\hlstd{,} \hlkwc{main} \hlstd{= code)}
+                \hlkwd{plot_km_axes}\hlstd{(temp.axis1, temp.axis2, temp.y,} \hlkwc{mc} \hlstd{=} \hlnum{FALSE}\hlstd{,} \hlkwc{main} \hlstd{=} \hlstr{""}\hlstd{, ...)}
         \hlstd{\}}
 \hlstd{\}}
 
-\hlkwd{plot_km_axes}\hlstd{(axis_coefs.diag_dsd[,}\hlnum{1}\hlstd{], axis_coefs.diag_dsd[,}\hlnum{2}\hlstd{], y.diag_dsd,} \hlkwc{mc} \hlstd{=} \hlnum{FALSE}\hlstd{,} \hlkwc{main} \hlstd{=} \hlstr{"APGI (Resubstituted)"}\hlstd{)}
+\hlkwd{plot_km_axes}\hlstd{(axis_coefs.diag_dsd[,}\hlnum{1}\hlstd{], axis_coefs.diag_dsd[,}\hlnum{2}\hlstd{], y.diag_dsd,} \hlkwc{mc} \hlstd{=} \hlnum{FALSE}\hlstd{,} \hlkwc{main} \hlstd{=} \hlstr{""}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{4}\hlstd{,} \hlkwc{cex} \hlstd{=} \hlnum{1.2}\hlstd{)}
 \end{alltt}
 \begin{verbatim}
 ## Call: survfit(formula = y ~ class)
@@ -1542,7 +1540,7 @@
 
 
 \begin{kframe}\begin{alltt}
-\hlkwd{plot_km_axes}\hlstd{(GSE21501.axis1, GSE21501.axis2,} \hlkwd{Surv}\hlstd{(GSE21501.samp}\hlopt{$}\hlstd{time, GSE21501.samp}\hlopt{$}\hlstd{event),} \hlkwc{mc} \hlstd{=} \hlnum{FALSE}\hlstd{,} \hlkwc{main} \hlstd{=} \hlstr{"GSE21501"}\hlstd{)}
+\hlkwd{plot_km_axes}\hlstd{(GSE21501.axis1, GSE21501.axis2,} \hlkwd{Surv}\hlstd{(GSE21501.samp}\hlopt{$}\hlstd{time, GSE21501.samp}\hlopt{$}\hlstd{event),} \hlkwc{mc} \hlstd{=} \hlnum{FALSE}\hlstd{,} \hlkwc{main} \hlstd{=} \hlstr{""}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{4}\hlstd{,} \hlkwc{cex} \hlstd{=} \hlnum{1.2}\hlstd{)}
 \end{alltt}
 \begin{verbatim}
 ## Call: survfit(formula = y ~ class)
@@ -1578,7 +1576,7 @@
 
 
 \begin{kframe}\begin{alltt}
-\hlkwd{plot_km_axes}\hlstd{(GSE28735.axis1, GSE28735.axis2,} \hlkwd{Surv}\hlstd{(GSE28735.samp}\hlopt{$}\hlstd{time, GSE28735.samp}\hlopt{$}\hlstd{event),} \hlkwc{mc} \hlstd{=} \hlnum{FALSE}\hlstd{,} \hlkwc{main} \hlstd{=} \hlstr{"GSE28735"}\hlstd{)}
+\hlkwd{plot_km_axes}\hlstd{(GSE28735.axis1, GSE28735.axis2,} \hlkwd{Surv}\hlstd{(GSE28735.samp}\hlopt{$}\hlstd{time, GSE28735.samp}\hlopt{$}\hlstd{event),} \hlkwc{mc} \hlstd{=} \hlnum{FALSE}\hlstd{,} \hlkwc{main} \hlstd{=} \hlstr{""}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{4}\hlstd{,} \hlkwc{cex} \hlstd{=} \hlnum{1.2}\hlstd{)}
 \end{alltt}
 \begin{verbatim}
 ## Call: survfit(formula = y ~ class)
@@ -1614,7 +1612,7 @@
 
 
 \begin{kframe}\begin{alltt}
-\hlkwd{plot_km_axes_tcga}\hlstd{(}\hlstr{"hnsc"}\hlstd{,} \hlkwc{mc} \hlstd{=} \hlnum{FALSE}\hlstd{)}
+\hlkwd{plot_km_axes_tcga}\hlstd{(}\hlstr{"hnsc"}\hlstd{,} \hlkwc{mc} \hlstd{=} \hlnum{FALSE}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{4}\hlstd{,} \hlkwc{cex} \hlstd{=} \hlnum{1.2}\hlstd{)}
 \end{alltt}
 \begin{verbatim}
 ## Call: survfit(formula = y ~ class)
@@ -1653,7 +1651,7 @@
 
 
 \begin{kframe}\begin{alltt}
-\hlkwd{plot_km_axes_tcga}\hlstd{(}\hlstr{"kirc"}\hlstd{,} \hlkwc{mc} \hlstd{=} \hlnum{FALSE}\hlstd{)}
+\hlkwd{plot_km_axes_tcga}\hlstd{(}\hlstr{"kirc"}\hlstd{,} \hlkwc{mc} \hlstd{=} \hlnum{FALSE}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{4}\hlstd{,} \hlkwc{cex} \hlstd{=} \hlnum{1.2}\hlstd{)}
 \end{alltt}
 \begin{verbatim}
 ## Call: survfit(formula = y ~ class)
@@ -1689,11 +1687,11 @@
 
 
 \begin{kframe}\begin{alltt}
-\hlkwd{plot_km_axes_tcga}\hlstd{(}\hlstr{"lgg"}\hlstd{,} \hlkwc{mc} \hlstd{=} \hlnum{FALSE}\hlstd{)}
+\hlkwd{plot_km_axes_tcga}\hlstd{(}\hlstr{"lgg"}\hlstd{,} \hlkwc{mc} \hlstd{=} \hlnum{FALSE}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{4}\hlstd{,} \hlkwc{cex} \hlstd{=} \hlnum{1.2}\hlstd{)}
 \end{alltt}
 
 
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in plot\_km\_axes\_tcga("{}lgg"{}, mc = FALSE): NAs introduced by coercion}}\begin{verbatim}
+{\ttfamily\noindent\color{warningcolor}{\#\# Warning in plot\_km\_axes\_tcga("{}lgg"{}, mc = FALSE, lwd = 4, cex = 1.2): NAs introduced by coercion}}\begin{verbatim}
 ## Call: survfit(formula = y ~ class)
 ## 
 ##          records n.max n.start events median 0.95LCL 0.95UCL
@@ -1727,11 +1725,11 @@
 
 
 \begin{kframe}\begin{alltt}
-\hlkwd{plot_km_axes_tcga}\hlstd{(}\hlstr{"luad"}\hlstd{,} \hlkwc{mc} \hlstd{=} \hlnum{FALSE}\hlstd{)}
+\hlkwd{plot_km_axes_tcga}\hlstd{(}\hlstr{"luad"}\hlstd{,} \hlkwc{mc} \hlstd{=} \hlnum{FALSE}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{4}\hlstd{,} \hlkwc{cex} \hlstd{=} \hlnum{1.2}\hlstd{)}
 \end{alltt}
 
 
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in plot\_km\_axes\_tcga("{}luad"{}, mc = FALSE): NAs introduced by coercion}}\begin{verbatim}
+{\ttfamily\noindent\color{warningcolor}{\#\# Warning in plot\_km\_axes\_tcga("{}luad"{}, mc = FALSE, lwd = 4, cex = 1.2): NAs introduced by coercion}}\begin{verbatim}
 ## Call: survfit(formula = y ~ class)
 ## 
 ##    19 observations deleted due to missingness 
@@ -1768,7 +1766,7 @@
 
 
 \begin{kframe}\begin{alltt}
-\hlkwd{plot_km_axes_tcga}\hlstd{(}\hlstr{"paad"}\hlstd{,} \hlkwc{mc} \hlstd{=} \hlnum{FALSE}\hlstd{)}
+\hlkwd{plot_km_axes_tcga}\hlstd{(}\hlstr{"paad"}\hlstd{,} \hlkwc{mc} \hlstd{=} \hlnum{FALSE}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{4}\hlstd{,} \hlkwc{cex} \hlstd{=} \hlnum{1.2}\hlstd{)}
 \end{alltt}
 \begin{verbatim}
 ## Call: survfit(formula = y ~ class)
@@ -2084,7 +2082,7 @@
 ## F-statistic: 13.7 on 1 and 76 DF,  p-value: 0.000411
 \end{verbatim}
 \begin{alltt}
-\hlkwd{plot}\hlstd{(axis_coefs.diag_dsd[,}\hlnum{1}\hlstd{]} \hlopt{~} \hlstd{metapcna.scores,} \hlkwc{xlab} \hlstd{=} \hlstr{"meta-PCNA score"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"A1 signal"}\hlstd{)}
+\hlkwd{plot}\hlstd{(axis_coefs.diag_dsd[,}\hlnum{1}\hlstd{]} \hlopt{~} \hlstd{metapcna.scores,} \hlkwc{xlab} \hlstd{=} \hlstr{"meta-PCNA score"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"A1 signal"}\hlstd{,} \hlkwc{pch} \hlstd{=} \hlnum{16}\hlstd{,} \hlkwc{col} \hlstd{=} \hlkwd{rgb}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0.75}\hlstd{))}
 \end{alltt}
 \end{kframe}
 
@@ -2094,7 +2092,7 @@
 
 
 \begin{kframe}\begin{alltt}
-\hlkwd{plot}\hlstd{(axis_coefs.diag_dsd[,}\hlnum{2}\hlstd{]} \hlopt{~} \hlstd{metapcna.scores,} \hlkwc{xlab} \hlstd{=} \hlstr{"meta-PCNA score"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"A2 signal"}\hlstd{)}
+\hlkwd{plot}\hlstd{(axis_coefs.diag_dsd[,}\hlnum{2}\hlstd{]} \hlopt{~} \hlstd{metapcna.scores,} \hlkwc{xlab} \hlstd{=} \hlstr{"meta-PCNA score"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"A2 signal"}\hlstd{,} \hlkwc{pch} \hlstd{=} \hlnum{16}\hlstd{,} \hlkwc{col} \hlstd{=} \hlkwd{rgb}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0.75}\hlstd{))}
 \end{alltt}
 \end{kframe}
 
@@ -2174,7 +2172,7 @@
 ## F-statistic: 3.38 on 1 and 108 DF,  p-value: 0.0688
 \end{verbatim}
 \begin{alltt}
-\hlkwd{plot}\hlstd{(axis_coefs.diag_dsd[,}\hlnum{1}\hlstd{]} \hlopt{~} \hlstd{emt.scores,} \hlkwc{xlab} \hlstd{=} \hlstr{"meta-EMT score"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"A1 signal"}\hlstd{)}
+\hlkwd{plot}\hlstd{(axis_coefs.diag_dsd[,}\hlnum{1}\hlstd{]} \hlopt{~} \hlstd{emt.scores,} \hlkwc{xlab} \hlstd{=} \hlstr{"meta-EMT score"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"A1 signal"}\hlstd{,} \hlkwc{pch} \hlstd{=} \hlnum{16}\hlstd{,} \hlkwc{col} \hlstd{=} \hlkwd{rgb}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0.75}\hlstd{))}
 \end{alltt}
 \end{kframe}
 
@@ -2184,7 +2182,7 @@
 
 
 \begin{kframe}\begin{alltt}
-\hlkwd{plot}\hlstd{(axis_coefs.diag_dsd[,}\hlnum{2}\hlstd{]} \hlopt{~} \hlstd{emt.scores,} \hlkwc{xlab} \hlstd{=} \hlstr{"meta-EMT score"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"A2 signal"}\hlstd{)}
+\hlkwd{plot}\hlstd{(axis_coefs.diag_dsd[,}\hlnum{2}\hlstd{]} \hlopt{~} \hlstd{emt.scores,} \hlkwc{xlab} \hlstd{=} \hlstr{"meta-EMT score"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"A2 signal"}\hlstd{,} \hlkwc{pch} \hlstd{=} \hlnum{16}\hlstd{,} \hlkwc{col} \hlstd{=} \hlkwd{rgb}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0.75}\hlstd{))}
 \end{alltt}
 \end{kframe}
 
@@ -3194,6 +3192,26 @@
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% SIDE INVESTIGATION: S100A2, S100A4 vs axis A2
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{pairs}\hlstd{(}\hlkwd{cbind}\hlstd{(axis_coefs.diag_dsd,} \hlkwd{t}\hlstd{(x.diag_dsd[}\hlkwd{c}\hlstd{(}\hlstr{"S100A2"}\hlstd{,} \hlstr{"S100A4"}\hlstd{),])))}
+\end{alltt}
+\end{kframe}
+
+{\centering \includegraphics[width=\maxwidth]{figure/s100s-vs-a2-1} 
+
+}
+
+
+
+\end{knitrout}
+Underwhelming, but the poor detection rate of A2 and A4 probes is a likely culprit.  When I get APGI scores from DC, I can directly compare the staining patterns to A1 and A2 signals -- this would be a better comparison to the work of chapter 2 anyway.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % THE END
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Session information}
@@ -3243,38 +3261,38 @@
 ## Platform: x86_64-unknown-linux-gnu (64-bit)
 ## 
 ## locale:
-##  [1] LC_CTYPE=en_AU.UTF-8          LC_NUMERIC=C                 
-##  [3] LC_TIME=en_AU.UTF-8           LC_COLLATE=en_AU.UTF-8       
-##  [5] LC_MONETARY=en_AU.UTF-8       LC_MESSAGES=en_AU.UTF-8      
-##  [7] LC_PAPER=en_AU.UTF-8          LC_NAME=en_AU.UTF-8          
-##  [9] LC_ADDRESS=en_AU.UTF-8        LC_TELEPHONE=en_AU.UTF-8     
-## [11] LC_MEASUREMENT=en_AU.UTF-8    LC_IDENTIFICATION=en_AU.UTF-8
+##  [1] LC_CTYPE=en_US.UTF-8          LC_NUMERIC=C                 
+##  [3] LC_TIME=en_US.UTF-8           LC_COLLATE=en_US.UTF-8       
+##  [5] LC_MONETARY=en_US.UTF-8       LC_MESSAGES=en_US.UTF-8      
+##  [7] LC_PAPER=en_US.UTF-8          LC_NAME=en_US.UTF-8          
+##  [9] LC_ADDRESS=en_US.UTF-8        LC_TELEPHONE=en_US.UTF-8     
+## [11] LC_MEASUREMENT=en_US.UTF-8    LC_IDENTIFICATION=en_US.UTF-8
 ## 
 ## attached base packages:
 ## [1] parallel  methods   splines   stats     graphics  grDevices utils    
 ## [8] datasets  base     
 ## 
 ## other attached packages:
-##  [1] MASS_7.3-35         stargazer_5.1       xtable_1.7-4       
-##  [4] gplots_2.14.2       RColorBrewer_1.0-5  glmnet_1.9-8       
-##  [7] Matrix_1.1-4        glmulti_1.0.7       rJava_0.9-6        
+##  [1] MASS_7.3-39         stargazer_5.1       xtable_1.7-4       
+##  [4] gplots_2.16.0       RColorBrewer_1.1-2  glmnet_1.9-8       
+##  [7] Matrix_1.1-5        glmulti_1.0.7       rJava_0.9-6        
 ## [10] bnlearn_3.7.1       nnls_1.4            NMF_0.20.5         
 ## [13] synchronicity_1.1.4 bigmemory_4.4.6     BH_1.55.0-3        
 ## [16] bigmemory.sri_0.1.3 Biobase_2.26.0      BiocGenerics_0.12.1
-## [19] cluster_1.15.3      rngtools_1.2.4      pkgmaker_0.22      
+## [19] cluster_2.0.1       rngtools_1.2.4      pkgmaker_0.22      
 ## [22] registry_0.2        energy_1.6.2        survival_2.37-7    
-## [25] tikzDevice_0.8.1    knitr_1.8          
+## [25] tikzDevice_0.8.1    knitr_1.9          
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] bitops_1.0-6       boot_1.3-13        caTools_1.17.1    
-##  [4] codetools_0.2-9    colorspace_1.2-4   digest_0.6.4      
+##  [1] bitops_1.0-6       boot_1.3-15        caTools_1.17.1    
+##  [4] codetools_0.2-10   colorspace_1.2-4   digest_0.6.8      
 ##  [7] doParallel_1.0.8   evaluate_0.5.5     filehash_2.2-2    
 ## [10] foreach_1.4.2      formatR_1.0        gdata_2.13.3      
 ## [13] ggplot2_1.0.0      grid_3.1.1         gridBase_0.4-7    
 ## [16] gtable_0.1.2       gtools_3.4.1       highr_0.4         
-## [19] iterators_1.0.7    KernSmooth_2.23-13 labeling_0.3      
-## [22] lattice_0.20-29    munsell_0.4.2      plyr_1.8.1        
-## [25] proto_0.3-10       Rcpp_0.11.3        reshape2_1.4      
+## [19] iterators_1.0.7    KernSmooth_2.23-14 labeling_0.3      
+## [22] lattice_0.20-30    munsell_0.4.2      plyr_1.8.1        
+## [25] proto_0.3-10       Rcpp_0.11.4        reshape2_1.4.1    
 ## [28] scales_0.2.4       stringr_0.6.2      tools_3.1.1
 \end{verbatim}
 \end{kframe}

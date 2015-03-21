@@ -1,7 +1,7 @@
 \documentclass[dissertation.tex]{subfiles}
 \begin{document}
 
-\chapter{Signatures of Survival Processes in Pancreas Cancer}
+\chapter[Survival Signatures]{Signatures of Survival Processes in Pancreas Cancer}
 \label{chap:signatures}
 
 \emph{Thesis: Specific molecular processes control survival of patients with resectable \acrlong{PDAC}, and  these processes can be identified using \acrlong{GEX} data.}
@@ -65,6 +65,7 @@ General characteristics of both the full \gls{APGI} cohort, and the 110-patient 
 \begin{table}[h]
 \centering
 \caption[Characteristics of the \acrshort{APGI} patient cohorts]{Characteristics of the full \gls{APGI} patient cohort, and the homogenous \gls{PDAC}-only subset used for signature discovery.  Ordinal variables are shown as median, with quartiles in parentheses.  Categorical variables for which percentages do not add up to 100\% indicate the presence of minor unlisted categories.  Abbreviations: AAC - ampullary adenocarcinoma; IPMN - intraductal papillary mucinous neoplasm; PNET - pancreatic neuroendocrine tumour; PR - Puerto Rico}\label{tab:sigs-cohort-characteristics}
+\resizebox{\textwidth}{!}{
 \begin{tabular}{@{}llrr@{}}
 \toprule
 Characteristic             &                          & Full \gls{APGI} & Discovery \\ \midrule
@@ -99,6 +100,7 @@ Node involvement           &                          & 69.3\%                  
 Disease-specific death     &                          & 52.6\%                   & 63.6\%                                                 \\
 Length of follow-up & (days)                         & 614 (366 - 888)          & 632 (402 - 912)                                       
 \end{tabular}
+}
 \end{table}
 
 \subsection{Two axes predict survival with resectable pancreatic cancer in multiple cancers}
@@ -117,7 +119,7 @@ The expression of the 361 survival-associated genes across the 110 patients of t
 \begin{figure}
 \centering
 \includegraphics[width=.7\linewidth]{analysis/biosurv/reports/18_SIS_diag_dsd_final/figure/nmf-rank-plots-2}
-\caption[Automatic selection of \acrshort{NMF} factorization rank]{Automatic selection of factorization rank.  \acrshort{SNMFL} was performed for varying ranks on either unpermuted data (black line) or data permuted within samples (red lines), and the improvement in total residual approximation error $\|A - W H\|_F$ calculated.  The highest added rank for which the error improvement on unpermuted data exceeded that of permuted data plus two standard deviations (threshold shown by dotted red line) was the final selected rank (green line).}\label{fig:sigs-nmf-rank}
+\caption[Automatic selection of \acrshort{NMF} factorization rank]{Automatic selection of factorization rank.  \acrshort{SNMFL} was performed for varying ranks on either unpermuted data (black line) or data permuted within samples (orange lines), and the improvement in total residual approximation error $\|A - W H\|_F$ calculated.  The highest added rank for which the error improvement on unpermuted data exceeded that of permuted data plus two standard deviations (threshold shown by dotted orange line) was the final selected rank (indicated by a green line).}\label{fig:sigs-nmf-rank}
 \end{figure}
 
 500 random restarts of rank 6 \gls{SNMFL} were then performed on the survival-associated gene matrix to yield the final factorization.  The resultant clustering consensus matrix was stable (\fref{fig:sigs-nmf-consensus}), and the basis matrix $W$ was reasonably sparse (\fref{fig:sigs-nmf-basis}).  Sparsity of the basis matrix is a desirable condition for this analysis, as it indicates that metagenes are largely distinct transcriptional modules, with little overlap in terms of shared transcripts with high loadings; \gls{SNMFL} was selected against alternative \gls{NMF} algorithms as its design favours solutions with sparse $W$.  A table of values of the basis matrix $W$ is available as \Aref{app:sigs-w-matrix} on \pref{app:sigs-w-matrix}.
@@ -172,25 +174,27 @@ Meta-PCNA is a 130-gene signature of cell proliferation that has been found to b
 \begin{table}[h]
 \centering
 \caption[\acrshort{PARSE} score is prognostic in a range of \acrshort{TCGA} cancers]{The \acrshort{PARSE} score is prognostic in a range of \acrshort{TCGA} cancers.  P-values are from likelihood ratio tests either comparing a Cox model with \acrshort{PARSE} score as a linear predictor, to a null model (a); or a Cox model with \acrshort{PARSE} and meta-PCNA scores as linear predictors, against one with meta-PCNA alone (b).  Shaded cells are significant at a 5\% \acrshort{FWER} following Holm's correction.  \acrshort{TCGA} study codes: \emph{glm}: glioblastoma multiforme; \emph{hnsc}: head and neck squamous cell carcinoma; \emph{kirc}: clear cell kidney carcinoma; \emph{lgg}: lower grade glioma; \emph{luad}: lung adenocarcinoma; \emph{lusc}: lung squamous cell carcinoma; \emph{ov}: ovarian serous cystadenocarcinoma.}\label{tab:sigs-validation-tcga}
+\resizebox{\textwidth}{!}{
 \begin{tabular}{@{}lllll@{}}
 \toprule
-TCGA study & Number of & Number of & Risk score  & Improvement \\
-           & events    & patients  & P-value (a) & P-value (b) \\ \midrule
+TCGA   & Number of & Number of & Risk score  & Improvement \\
+study  & events    & patients  & P-value (a) & P-value (b) \\ \midrule
 gbm    & 54   & 143    & 0.2287                           & 0.1587                           \\
-hnsc   & 124  & 367    & \cellcolor[HTML]{C0C0C0}8.08E-3  & 0.0108                           \\
-kirc   & 153  & 497    & \cellcolor[HTML]{C0C0C0}2.03E-12 & \cellcolor[HTML]{C0C0C0}2.89E-3  \\
-lgg    & 53   & 272    & \cellcolor[HTML]{C0C0C0}1.49E-5  & \cellcolor[HTML]{C0C0C0}7.85E-3  \\
-luad   & 106  & 431    & \cellcolor[HTML]{C0C0C0}8.34E-6  & \cellcolor[HTML]{C0C0C0}1.04E-4  \\
+hnsc   & 124  & 367    & \cellcolor[HTML]{C0C0C0}$8.08 \times 10^{-3}$  & 0.0108                           \\
+kirc   & 153  & 497    & \cellcolor[HTML]{C0C0C0}$2.03 \times 10^{-12}$ & \cellcolor[HTML]{C0C0C0}$2.89 \times 10^{-3}$  \\
+lgg    & 53   & 272    & \cellcolor[HTML]{C0C0C0}$1.49 \times 10^{-5}$  & \cellcolor[HTML]{C0C0C0}$7.85 \times 10^{-3}$  \\
+luad   & 106  & 431    & \cellcolor[HTML]{C0C0C0}$8.34 \times 10^{-6}$  & \cellcolor[HTML]{C0C0C0}$1.04 \times 10^{-4}$  \\
 lusc   & 117  & 395    & 0.9624                           & 0.4110                           \\
 ov     & 115  & 251    & 0.0238                           & 0.0178                           \\ \bottomrule
 \end{tabular}
+}
 \end{table}
 
 \clearpage
 \begin{figure}[!h]
   \centering
 
-  \subbottom[\acrshort{APGI} cohort]{
+  \subbottom[\acrshort{APGI} cohort (Resubstituted)]{
     \includegraphics[width=.5\textwidth]{analysis/biosurv/reports/18_SIS_diag_dsd_final/figure/km-curves-1}
     \includegraphics[width=.5\textwidth]{analysis/biosurv/reports/18_SIS_diag_dsd_final/figure/km-curves-2}
     \label{figs:sigs-km-apgi}}

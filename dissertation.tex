@@ -1,7 +1,17 @@
 %% PREAMBLE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%\documentclass[11pt,a4paper,final,oneside]{memoir}
 \documentclass[11pt,a4paper,final,twoside]{memoir}
+
+% UNSW-mandated ugly
+\settrimmedsize{297mm}{210mm}{*}
+\settrims{0pt}{0pt}
+\settypeblocksize{200mm}{115mm}{*}
+\setbinding{10mm}
+\setlrmargins{40mm}{*}{*}
+\setulmargins{60mm}{*}{*}
+\setheadfoot{\onelineskip}{3\onelineskip}
+\setheaderspaces{*}{2\onelineskip}{*}
+\checkandfixthelayout
 
 \usepackage{subfiles}
 
@@ -9,7 +19,7 @@
 \usepackage{mVersion}
 
 % FIXME
-\usepackage[draft,footnote,nomargin]{fixme}   % TODO: Remove draft flag for final!
+\usepackage[draft,footnote,nomargin]{fixme}   	% ### TODO: Remove draft flag for final!
 \FXRegisterAuthor{mp}{amp}{MP}
 \FXRegisterAuthor{mjc}{amjc}{MJC}
 
@@ -56,6 +66,7 @@
 
 \begin{document}
 \pagestyle{empty}
+\raggedbottom
 
 %\listoffixmes
 
@@ -125,7 +136,7 @@
 \begin{adjustwidth}{2em}{2em}
 %\centering
 \noindent %\color{nicered}
-To Emma and Eva --
+To Emma and Eva -- \\
 \qquad it's done now!
 \end{adjustwidth}
 \vspace*{\stretch{11}}
@@ -148,8 +159,8 @@ Too many people have assisted this work, directly or indirectly, for me to remem
 \pagenumbering{gobble}
 \clearpage
 
-\pagestyle{plain}
 \pagenumbering{roman}
+\chapterstyle{brotherton}
 
 \setcounter{tocdepth}{2}
 \tableofcontents
@@ -169,6 +180,7 @@ Too many people have assisted this work, directly or indirectly, for me to remem
 
 \mainmatter
 \openright
+\pagestyle{headings}
 
 \subfile{introduction}
 \subfile{signatures}
