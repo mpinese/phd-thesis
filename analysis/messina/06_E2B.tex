@@ -58,7 +58,7 @@
 
 
 
-\title{Messina E2A: Messina vs t-test}
+\title{Messina E2B: MessinaSurv vs Others}
 \maketitle
 
 
@@ -70,28 +70,17 @@
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlkwd{library}\hlstd{(plyr)}
-\hlkwd{library}\hlstd{(ggplot2)}
-\end{alltt}
-
-
-{\ttfamily\noindent\itshape\color{messagecolor}{\#\# Loading required package: methods}}\begin{alltt}
 \hlkwd{library}\hlstd{(messina)}
 \end{alltt}
 
 
-{\ttfamily\noindent\itshape\color{messagecolor}{\#\# Loading required package: survival\\\#\# Loading required package: splines}}\begin{alltt}
+{\ttfamily\noindent\itshape\color{messagecolor}{\#\# Loading required package: survival\\\#\# Loading required package: splines\\\#\# Loading required package: methods}}\begin{alltt}
 \hlkwd{library}\hlstd{(maxstat)}
 \hlkwd{library}\hlstd{(doMC)}
 \end{alltt}
 
 
-{\ttfamily\noindent\itshape\color{messagecolor}{\#\# Loading required package: foreach\\\#\# Loading required package: iterators\\\#\# Loading required package: parallel}}\end{kframe}
-\end{knitrout}
-
-
-\begin{knitrout}
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
+{\ttfamily\noindent\itshape\color{messagecolor}{\#\# Loading required package: foreach\\\#\# Loading required package: iterators\\\#\# Loading required package: parallel}}\begin{alltt}
 \hlstd{deltaForMargin} \hlkwb{=} \hlkwa{function}\hlstd{(}\hlkwc{margin}\hlstd{,} \hlkwc{sigma_epsilon} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{alpha} \hlstd{=} \hlnum{0.05}\hlstd{) margin} \hlopt{-} \hlnum{2}\hlopt{*}\hlstd{sigma_epsilon}\hlopt{*}\hlkwd{qnorm}\hlstd{(alpha)}
 \hlstd{marginForDelta} \hlkwb{=} \hlkwa{function}\hlstd{(}\hlkwc{delta}\hlstd{,} \hlkwc{sigma_epsilon} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{alpha} \hlstd{=} \hlnum{0.05}\hlstd{) delta} \hlopt{+} \hlnum{2}\hlopt{*}\hlstd{sigma_epsilon}\hlopt{*}\hlkwd{qnorm}\hlstd{(alpha)}
 
@@ -99,7 +88,7 @@
 
 \hlstd{e2b.design} \hlkwb{=} \hlkwd{expand.grid}\hlstd{(}
         \hlkwc{Delta} \hlstd{=} \hlkwd{seq}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{5}\hlstd{,} \hlnum{0.5}\hlstd{),}
-        \hlkwc{R1} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{2}\hlstd{,} \hlnum{4}\hlstd{),}
+        \hlkwc{R1} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{2}\hlstd{,} \hlnum{4}\hlstd{,} \hlnum{8}\hlstd{,} \hlnum{16}\hlstd{),}
         \hlkwc{sigma_epsilon} \hlstd{=} \hlnum{1}\hlstd{,}
         \hlkwc{p1} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0.2}\hlstd{,} \hlnum{0.5}\hlstd{,} \hlnum{0.8}\hlstd{),}
         \hlkwc{pc} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{0.2}\hlstd{,} \hlnum{0.5}\hlstd{),}
@@ -108,7 +97,7 @@
         \hlkwc{messina.objective} \hlstd{=} \hlstr{"cox.log2"}\hlstd{,}
         \hlkwc{messina.minmarg} \hlstd{=} \hlnum{1}\hlstd{,}
         \hlkwc{n} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{25}\hlstd{,} \hlnum{50}\hlstd{,} \hlnum{100}\hlstd{),}
-        \hlkwc{reps} \hlstd{=} \hlnum{1e1}\hlstd{)}
+        \hlkwc{reps} \hlstd{=} \hlnum{5e1}\hlstd{)}
 
 \hlstd{e2b.design}\hlopt{$}\hlstd{margin} \hlkwb{=} \hlkwd{marginForDelta}\hlstd{(e2b.design}\hlopt{$}\hlstd{Delta, e2b.design}\hlopt{$}\hlstd{sigma_epsilon,} \hlkwc{alpha} \hlstd{= e2b.design}\hlopt{$}\hlstd{alpha)}
 
@@ -165,17 +154,28 @@
         \hlkwd{c}\hlstd{(}\hlkwc{maxstat} \hlstd{= det.maxstat,} \hlkwc{c1} \hlstd{= det.1cut,} \hlkwc{c10} \hlstd{= det.10cut,} \hlkwc{cH10} \hlstd{= det.10cutHolm,} \hlkwc{m} \hlstd{= det.messina)}
 \hlstd{\}}
 
+\hlstd{e2b.repfun} \hlkwb{=} \hlkwa{function}\hlstd{(}\hlkwc{i}\hlstd{,} \hlkwc{Delta}\hlstd{,} \hlkwc{R1}\hlstd{,} \hlkwc{sigma_epsilon}\hlstd{,} \hlkwc{pc}\hlstd{,} \hlkwc{p1}\hlstd{,} \hlkwc{stat.alpha}\hlstd{,} \hlkwc{messina.minmarg}\hlstd{,} \hlkwc{messina.objective}\hlstd{,} \hlkwc{n}\hlstd{,} \hlkwc{...}\hlstd{)}
+\hlstd{\{}
+        \hlstd{data} \hlkwb{=} \hlkwd{e2b.datafun}\hlstd{(n, p1, pc, Delta, R1, sigma_epsilon)}
+        \hlstd{dets} \hlkwb{=} \hlkwd{try}\hlstd{(}\hlkwd{e2b.detfun}\hlstd{(data}\hlopt{$}\hlstd{x, data}\hlopt{$}\hlstd{y, stat.alpha, messina.objective, messina.minmarg))}
+        \hlkwa{if}\hlstd{(}\hlkwd{class}\hlstd{(dets)} \hlopt{==} \hlstr{"try-error"}\hlstd{)  \{} \hlkwd{return}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{,} \hlnum{NA}\hlstd{)) \}}
+        \hlkwd{return}\hlstd{(dets)}
+\hlstd{\}}
+
+\hlstd{e2b.expfun} \hlkwb{=} \hlkwa{function}\hlstd{(}\hlkwc{Delta}\hlstd{,} \hlkwc{R1}\hlstd{,} \hlkwc{sigma_epsilon}\hlstd{,} \hlkwc{pc}\hlstd{,} \hlkwc{p1}\hlstd{,} \hlkwc{stat.alpha}\hlstd{,} \hlkwc{messina.minmarg}\hlstd{,} \hlkwc{messina.objective}\hlstd{,} \hlkwc{n}\hlstd{,} \hlkwc{reps}\hlstd{,} \hlkwc{jobindex}\hlstd{,} \hlkwc{...}\hlstd{)}
+\hlstd{\{}
+        \hlkwd{message}\hlstd{(}\hlkwd{date}\hlstd{(),} \hlstr{"\textbackslash{}t"}\hlstd{, jobindex)}
+        \hlstd{detections} \hlkwb{=} \hlkwd{sapply}\hlstd{(}\hlnum{1}\hlopt{:}\hlstd{reps, e2b.repfun,} \hlkwc{Delta} \hlstd{= Delta,} \hlkwc{R1} \hlstd{= R1,} \hlkwc{sigma_epsilon} \hlstd{= sigma_epsilon,} \hlkwc{pc} \hlstd{= pc,} \hlkwc{p1} \hlstd{= p1,} \hlkwc{stat.alpha} \hlstd{= stat.alpha,} \hlkwc{messina.minmarg} \hlstd{= messina.minmarg,} \hlkwc{messina.objective} \hlstd{= messina.objective,} \hlkwc{n} \hlstd{= n)}
+        \hlstd{detrate} \hlkwb{=} \hlkwd{rowMeans}\hlstd{(detections,} \hlkwc{na.rm} \hlstd{=} \hlnum{TRUE}\hlstd{)}
+        \hlstd{detrate}
+\hlstd{\}}
+
 \hlkwd{registerDoMC}\hlstd{(}\hlnum{32}\hlstd{)}
 
 \hlstd{e2b.design}\hlopt{$}\hlstd{jobindex} \hlkwb{=} \hlnum{1}\hlopt{:}\hlkwd{nrow}\hlstd{(e2b.design)}
 \hlkwd{set.seed}\hlstd{(}\hlnum{20150320}\hlstd{)}
-\hlstd{e2b.det} \hlkwb{=} \hlkwd{mlply}\hlstd{(e2b.design,} \hlkwa{function}\hlstd{(}\hlkwc{Delta}\hlstd{,} \hlkwc{R1}\hlstd{,} \hlkwc{sigma_epsilon}\hlstd{,} \hlkwc{pc}\hlstd{,} \hlkwc{p1}\hlstd{,} \hlkwc{stat.alpha}\hlstd{,} \hlkwc{messina.minmarg}\hlstd{,} \hlkwc{messina.objective}\hlstd{,} \hlkwc{n}\hlstd{,} \hlkwc{reps}\hlstd{,} \hlkwc{jobindex}\hlstd{,} \hlkwc{...}\hlstd{) \{}
-        \hlcom{#message(date(), "\textbackslash{}t", jobindex)}
-        \hlkwd{rowMeans}\hlstd{(}\hlkwd{replicate}\hlstd{(reps, \{ data} \hlkwb{=} \hlkwd{e2b.datafun}\hlstd{(n, p1, pc, Delta, R1, sigma_epsilon);} \hlkwd{e2b.detfun}\hlstd{(data}\hlopt{$}\hlstd{x, data}\hlopt{$}\hlstd{y, stat.alpha, messina.objective, messina.minmarg) \})) \},} \hlkwc{.parallel} \hlstd{=} \hlnum{TRUE}\hlstd{)}
-\end{alltt}
+\hlstd{e2b.det} \hlkwb{=} \hlkwd{mlply}\hlstd{(e2b.design, e2b.expfun,} \hlkwc{.parallel} \hlstd{=} \hlnum{TRUE}\hlstd{,} \hlkwc{.inform} \hlstd{=} \hlnum{TRUE}\hlstd{)}
 
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in do.ply(i): task 100 failed - "{}missing value where TRUE/FALSE needed"{}}}\begin{alltt}
 \hlstd{e2b.design} \hlkwb{=} \hlkwd{rbind}\hlstd{(}
         \hlkwd{cbind}\hlstd{(e2b.design,} \hlkwc{method} \hlstd{=} \hlstr{"maxstat"}\hlstd{,} \hlkwc{detrate} \hlstd{=} \hlkwd{simplify2array}\hlstd{(e2b.det)[}\hlnum{1}\hlstd{,]),}
         \hlkwd{cbind}\hlstd{(e2b.design,} \hlkwc{method} \hlstd{=} \hlstr{"c1"}\hlstd{,} \hlkwc{detrate} \hlstd{=} \hlkwd{simplify2array}\hlstd{(e2b.det)[}\hlnum{2}\hlstd{,]),}
@@ -184,23 +184,47 @@
         \hlkwd{cbind}\hlstd{(e2b.design,} \hlkwc{method} \hlstd{=} \hlstr{"messina"}\hlstd{,} \hlkwc{detrate} \hlstd{=} \hlkwd{simplify2array}\hlstd{(e2b.det)[}\hlnum{5}\hlstd{,])}
 \hlstd{)}
 \end{alltt}
-
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in lapply(x, length): object 'e2b.det' not found}}\end{kframe}
+\end{kframe}
 \end{knitrout}
 
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
+\hlkwd{library}\hlstd{(ggplot2)}
 \hlcom{# e2b.design$method = as.character(e2b.design$method)}
 \hlcom{# e2b.design$method[e2b.design$method == "t"] = "t test"}
 \hlcom{# e2b.design$method[e2b.design$method == "messina"] = "Messina"}
 \hlcom{# e2b.design$method = as.factor(e2b.design$method)}
-\hlkwd{ggplot}\hlstd{(e2b.design,} \hlkwd{aes}\hlstd{(}\hlkwc{x} \hlstd{= margin,} \hlkwc{y} \hlstd{= detrate,} \hlkwc{colour} \hlstd{=} \hlkwd{factor}\hlstd{(method)))} \hlopt{+} \hlkwd{geom_line}\hlstd{(}\hlkwc{lwd} \hlstd{=} \hlnum{1}\hlstd{)} \hlopt{+} \hlkwd{xlab}\hlstd{(}\hlstr{"Margin"}\hlstd{)} \hlopt{+} \hlkwd{ylab}\hlstd{(}\hlstr{"Detection rate"}\hlstd{)} \hlopt{+} \hlkwd{labs}\hlstd{(}\hlkwc{colour} \hlstd{=} \hlstr{"Method"}\hlstd{)} \hlopt{+} \hlkwd{theme_bw}\hlstd{()} \hlopt{+} \hlkwd{facet_wrap}\hlstd{(}\hlopt{~} \hlstd{n)} \hlopt{+} \hlkwd{geom_vline}\hlstd{(}\hlkwc{xintercept} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{alpha} \hlstd{=} \hlnum{0.5}\hlstd{,} \hlkwc{linetype} \hlstd{=} \hlstr{"dashed"}\hlstd{)}
+\hlkwd{ggplot}\hlstd{(e2b.design[e2b.design}\hlopt{$}\hlstd{n} \hlopt{==} \hlnum{25} \hlopt{&} \hlstd{e2b.design}\hlopt{$}\hlstd{R1} \hlopt{%in%} \hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{4}\hlstd{,} \hlnum{16}\hlstd{)} \hlopt{&} \hlstd{e2b.design}\hlopt{$}\hlstd{method} \hlopt{%in%} \hlkwd{c}\hlstd{(}\hlstr{"maxstat"}\hlstd{,} \hlstr{"cH10"}\hlstd{,} \hlstr{"messina"}\hlstd{),],} \hlkwd{aes}\hlstd{(}\hlkwc{x} \hlstd{= margin,} \hlkwc{y} \hlstd{= detrate,} \hlkwc{colour} \hlstd{=} \hlkwd{factor}\hlstd{(method)))} \hlopt{+} \hlkwd{geom_line}\hlstd{(}\hlkwc{lwd} \hlstd{=} \hlnum{1}\hlstd{)} \hlopt{+} \hlkwd{xlab}\hlstd{(}\hlstr{"Margin"}\hlstd{)} \hlopt{+} \hlkwd{ylab}\hlstd{(}\hlstr{"Detection rate"}\hlstd{)} \hlopt{+} \hlkwd{labs}\hlstd{(}\hlkwc{colour} \hlstd{=} \hlstr{"Method"}\hlstd{)} \hlopt{+} \hlkwd{theme_bw}\hlstd{()} \hlopt{+} \hlkwd{geom_vline}\hlstd{(}\hlkwc{xintercept} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{alpha} \hlstd{=} \hlnum{0.5}\hlstd{,} \hlkwc{linetype} \hlstd{=} \hlstr{"dashed"}\hlstd{)} \hlopt{+} \hlkwd{facet_grid}\hlstd{(p1} \hlopt{~} \hlstd{pc} \hlopt{~} \hlstd{R1)}
 \end{alltt}
+\end{kframe}
+
+{\centering \includegraphics[width=\maxwidth]{figure/06-E2B-E2B-plots-1} 
+
+}
 
 
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): object 'detrate' not found}}\end{kframe}
+\begin{kframe}\begin{alltt}
+\hlkwd{ggplot}\hlstd{(e2b.design[e2b.design}\hlopt{$}\hlstd{n} \hlopt{==} \hlnum{50} \hlopt{&} \hlstd{e2b.design}\hlopt{$}\hlstd{R1} \hlopt{%in%} \hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{4}\hlstd{,} \hlnum{16}\hlstd{)} \hlopt{&} \hlstd{e2b.design}\hlopt{$}\hlstd{method} \hlopt{%in%} \hlkwd{c}\hlstd{(}\hlstr{"maxstat"}\hlstd{,} \hlstr{"cH10"}\hlstd{,} \hlstr{"messina"}\hlstd{),],} \hlkwd{aes}\hlstd{(}\hlkwc{x} \hlstd{= margin,} \hlkwc{y} \hlstd{= detrate,} \hlkwc{colour} \hlstd{=} \hlkwd{factor}\hlstd{(method)))} \hlopt{+} \hlkwd{geom_line}\hlstd{(}\hlkwc{lwd} \hlstd{=} \hlnum{1}\hlstd{)} \hlopt{+} \hlkwd{xlab}\hlstd{(}\hlstr{"Margin"}\hlstd{)} \hlopt{+} \hlkwd{ylab}\hlstd{(}\hlstr{"Detection rate"}\hlstd{)} \hlopt{+} \hlkwd{labs}\hlstd{(}\hlkwc{colour} \hlstd{=} \hlstr{"Method"}\hlstd{)} \hlopt{+} \hlkwd{theme_bw}\hlstd{()} \hlopt{+} \hlkwd{geom_vline}\hlstd{(}\hlkwc{xintercept} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{alpha} \hlstd{=} \hlnum{0.5}\hlstd{,} \hlkwc{linetype} \hlstd{=} \hlstr{"dashed"}\hlstd{)} \hlopt{+} \hlkwd{facet_grid}\hlstd{(p1} \hlopt{~} \hlstd{pc} \hlopt{~} \hlstd{R1)}
+\end{alltt}
+\end{kframe}
+
+{\centering \includegraphics[width=\maxwidth]{figure/06-E2B-E2B-plots-2} 
+
+}
+
+
+\begin{kframe}\begin{alltt}
+\hlkwd{ggplot}\hlstd{(e2b.design[e2b.design}\hlopt{$}\hlstd{n} \hlopt{==} \hlnum{100} \hlopt{&} \hlstd{e2b.design}\hlopt{$}\hlstd{R1} \hlopt{%in%} \hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{4}\hlstd{,} \hlnum{16}\hlstd{)} \hlopt{&} \hlstd{e2b.design}\hlopt{$}\hlstd{method} \hlopt{%in%} \hlkwd{c}\hlstd{(}\hlstr{"maxstat"}\hlstd{,} \hlstr{"cH10"}\hlstd{,} \hlstr{"messina"}\hlstd{),],} \hlkwd{aes}\hlstd{(}\hlkwc{x} \hlstd{= margin,} \hlkwc{y} \hlstd{= detrate,} \hlkwc{colour} \hlstd{=} \hlkwd{factor}\hlstd{(method)))} \hlopt{+} \hlkwd{geom_line}\hlstd{(}\hlkwc{lwd} \hlstd{=} \hlnum{1}\hlstd{)} \hlopt{+} \hlkwd{xlab}\hlstd{(}\hlstr{"Margin"}\hlstd{)} \hlopt{+} \hlkwd{ylab}\hlstd{(}\hlstr{"Detection rate"}\hlstd{)} \hlopt{+} \hlkwd{labs}\hlstd{(}\hlkwc{colour} \hlstd{=} \hlstr{"Method"}\hlstd{)} \hlopt{+} \hlkwd{theme_bw}\hlstd{()} \hlopt{+} \hlkwd{geom_vline}\hlstd{(}\hlkwc{xintercept} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{alpha} \hlstd{=} \hlnum{0.5}\hlstd{,} \hlkwc{linetype} \hlstd{=} \hlstr{"dashed"}\hlstd{)} \hlopt{+} \hlkwd{facet_grid}\hlstd{(p1} \hlopt{~} \hlstd{pc} \hlopt{~} \hlstd{R1)}
+\end{alltt}
+\end{kframe}
+
+{\centering \includegraphics[width=\maxwidth]{figure/06-E2B-E2B-plots-3} 
+
+}
+
+
+
 \end{knitrout}
 
 \end{document}
