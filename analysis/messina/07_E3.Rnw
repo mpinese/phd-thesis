@@ -150,30 +150,30 @@ APGI.maxstat = alply(APGI.x, 1, function(x1) {
 @
 
 
-<<E3-summary>>=
+<<E3-summary,sanitize=TRUE>>=
 print(dim(APGI.x))
-hist(APGI.messina@fits@summary$margin)
-hist(APGI.messina@fits@summary$margin[APGI.messina@fits@summary$passed == TRUE])
+hist(APGI.messina@fits@summary$margin, main = "", xlab = "")
+hist(APGI.messina@fits@summary$margin[APGI.messina@fits@summary$passed == TRUE], main = "", xlab = "")
 sum(APGI.messina@fits@summary$passed == TRUE)
 mean(APGI.messina@fits@summary$passed == TRUE)
 sum(APGI.messina@fits@summary$margin >= 1)
 mean(APGI.messina@fits@summary$margin >= 1)
 sum(APGI.messina@fits@summary$margin >= 1 & APGI.messina@fits@summary$passed == TRUE)
 mean(APGI.messina@fits@summary$margin >= 1 & APGI.messina@fits@summary$passed == TRUE)
-hist(sapply(APGI.maxstat, function(x) x$p.value))
-hist(log10(sapply(APGI.maxstat, function(x) x$p.value)))
+hist(sapply(APGI.maxstat, function(x) x$p.value), main = "", xlab = "")
+hist(log10(sapply(APGI.maxstat, function(x) x$p.value)), main = "", xlab = "")
 sum(sapply(APGI.maxstat, function(x) x$p.value) < 0.05, na.rm = TRUE)
 sum(sapply(APGI.maxstat, function(x) x$p.value) < 0.05, na.rm = TRUE) / length(APGI.maxstat)
 @
 
 
-<<E3-plots,fig.height=4,fig.width=5>>=
-plot(APGI.messina, indices = 1:sum(APGI.messina@fits@summary$margin >= 1 & APGI.messina@fits@summary$passed == TRUE), sort_features = TRUE)
-plot(APGI.messina, indices = which.min(sapply(APGI.maxstat, function(x) x$p.value)), sort_features = FALSE)
-@
+% <<E3-plots,fig.height=4,fig.width=5,sanitize=TRUE>>=
+% plot(APGI.messina, indices = 1:sum(APGI.messina@fits@summary$margin >= 1 & APGI.messina@fits@summary$passed == TRUE), sort_features = TRUE)
+% plot(APGI.messina, indices = which.min(sapply(APGI.maxstat, function(x) x$p.value)), sort_features = FALSE)
+% @
 
 
-<<E3-val>>=
+<<E3-val,sanitize=TRUE>>=
 doValidation = function(train.features, train.x, train.threshold, train.merit, min_merit, test.features, test.x, test.y)
 {
  	require(robustbase)
@@ -208,7 +208,7 @@ doValidation = function(train.features, train.x, train.threshold, train.merit, m
 	val.chisq = mapply(function(row_index, threshold) {
 		x = val.test.x[row_index,]
 		xd = x > threshold
-		if (all(xd) || all(!xd))	{ return(NA) }
+		if (length(x) == 0 || all(xd) || all(!xd))	{ return(NA) }
 		fit = survdiff(test.y ~ xd)
 		fit$chisq
 	}, 1:length(val.test.threshold), val.test.threshold)
