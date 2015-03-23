@@ -150,6 +150,14 @@ APGI.maxstat = alply(APGI.x, 1, function(x1) {
 @
 
 
+% <<test>>=
+% sel = c("KRT6A", "ANGPTL4", "KRT6C", "DHRS9")
+% temp.x = APGI.x[sel,]
+% debug(messinaSurv)
+% temp.messina = messinaSurv(temp.x, APGI.y, messinaSurvObj.CoxCoef(round(log(2), 3)), parallel = FALSE, seed = 20150321)
+% @
+
+
 <<E3-summary,sanitize=TRUE>>=
 print(dim(APGI.x))
 hist(APGI.messina@fits@summary$margin, main = "", xlab = "")
@@ -164,13 +172,28 @@ hist(sapply(APGI.maxstat, function(x) x$p.value), main = "", xlab = "")
 hist(log10(sapply(APGI.maxstat, function(x) x$p.value)), main = "", xlab = "")
 sum(sapply(APGI.maxstat, function(x) x$p.value) < 0.05, na.rm = TRUE)
 sum(sapply(APGI.maxstat, function(x) x$p.value) < 0.05, na.rm = TRUE) / length(APGI.maxstat)
+APGI.messina
 @
 
 
-% <<E3-plots,fig.height=4,fig.width=5,sanitize=TRUE>>=
-% plot(APGI.messina, indices = 1:sum(APGI.messina@fits@summary$margin >= 1 & APGI.messina@fits@summary$passed == TRUE), sort_features = TRUE)
-% plot(APGI.messina, indices = which.min(sapply(APGI.maxstat, function(x) x$p.value)), sort_features = FALSE)
-% @
+<<E3-val-combination>>=
+comb.feats = data.frame(symbol = intersect(GSE28735.feats$Gene.symbol, TCGA.feats$symbol))
+comb.x = cbind(GSE28735.x[match(comb.feats$symbol, GSE28735.feats$Gene.symbol),], TCGA.x[match(comb.feats$symbol, TCGA.feats$symbol),])
+comb.y = Surv(c(GSE28735.y[,1]/12*365.25, TCGA.y[,1]), c(GSE28735.y[,2], TCGA.y[,2]))
+@
+
+
+<<E3-val-comparison>>=
+print(dim(APGI.x))
+print(dim(GSE28735.x))
+print(dim(GSE21501.x))
+print(dim(TCGA.x))
+print(dim(comb.x))
+print(length(intersect(APGI.feats$symbol, GSE28735.feats$Gene.symbol)))
+print(length(intersect(APGI.feats$symbol, GSE21501.feats$Gene.symbol)))
+print(length(intersect(APGI.feats$symbol, TCGA.feats$symbol)))
+print(length(intersect(APGI.feats$symbol, comb.feats$symbol)))
+@
 
 
 <<E3-val,sanitize=TRUE>>=
@@ -181,7 +204,10 @@ doValidation = function(train.features, train.x, train.threshold, train.merit, m
 	sel.merit = train.merit >= min_merit
 	sel.val_avail = train.features %in% test.features
 	sel = sel.merit & sel.val_avail
-	print(fisher.test(table(sel.merit, sel.val_avail)))
+	if (!all(sel.merit) && !all(!sel.merit) && !all(sel.val_avail) && !all(!sel.val_avail))
+	{
+		print(fisher.test(table(sel.merit, sel.val_avail)))
+	}
 
 	val.train.features = train.features[sel]
 	val.train.x = train.x[sel,,drop=FALSE]
@@ -206,34 +232,162 @@ doValidation = function(train.features, train.x, train.threshold, train.merit, m
 	val.test.threshold = (val.train.threshold - loc.train) / scale.train * scale.test + loc.test
 
 	val.chisq = mapply(function(row_index, threshold) {
+		if (is.na(threshold))		{ return(NA) }
 		x = val.test.x[row_index,]
 		xd = x > threshold
-		if (length(x) == 0 || all(xd) || all(!xd))	{ return(NA) }
+		xd = xd[!is.na(xd)]
+		if (length(xd) == 0 || all(xd) || all(!xd))	{ return(NA) }
 		fit = survdiff(test.y ~ xd)
 		fit$chisq
 	}, 1:length(val.test.threshold), val.test.threshold)
 
-	result = data.frame(merit = val.train.merit, threshold.train = val.train.threshold, threshold.test = val.test.threshold, chisq = val.chisq)
+	val.abs.hr = sqrt(val.chisq*4/sum(test.y[,2]))
+
+	result = data.frame(merit = val.train.merit, threshold.train = val.train.threshold, threshold.test = val.test.threshold, chisq = val.chisq, abs.hr = val.abs.hr)
 	rownames(result) = val.test.features
 	result = result[order(-result$merit),]
 	result
 }
 
-val.GSE28735.messina = doValidation(as.character(APGI.feats$symbol), APGI.x, APGI.messina@fits@summary$threshold, APGI.messina@fits@summary$margin, 1, as.character(GSE28735.feats$Gene.symbol), GSE28735.x, GSE28735.y)
+# debug(doValidation)
+val.GSE28735.messina = doValidation(as.character(APGI.feats$symbol), APGI.x, APGI.messina@fits@summary$threshold, APGI.messina@fits@summary$margin * APGI.messina@fits@summary$passed, 1, as.character(GSE28735.feats$Gene.symbol), GSE28735.x, GSE28735.y)
 val.GSE28735.maxstat = doValidation(as.character(APGI.feats$symbol), APGI.x, sapply(APGI.maxstat, function(x) x$threshold), -log10(sapply(APGI.maxstat, function(x) x$p.value)), -log10(0.05), as.character(GSE28735.feats$Gene.symbol), GSE28735.x, GSE28735.y)
-val.GSE21501.messina = doValidation(as.character(APGI.feats$symbol), APGI.x, APGI.messina@fits@summary$threshold, APGI.messina@fits@summary$margin, 1, as.character(GSE21501.feats$Gene.symbol), GSE21501.x, GSE21501.y)
+val.GSE21501.messina = doValidation(as.character(APGI.feats$symbol), APGI.x, APGI.messina@fits@summary$threshold, APGI.messina@fits@summary$margin * APGI.messina@fits@summary$passed, 1, as.character(GSE21501.feats$Gene.symbol), GSE21501.x, GSE21501.y)
 val.GSE21501.maxstat = doValidation(as.character(APGI.feats$symbol), APGI.x, sapply(APGI.maxstat, function(x) x$threshold), -log10(sapply(APGI.maxstat, function(x) x$p.value)), -log10(0.05), as.character(GSE21501.feats$Gene.symbol), GSE21501.x, GSE21501.y)
-val.TCGA.messina = doValidation(as.character(APGI.feats$symbol), APGI.x, APGI.messina@fits@summary$threshold, APGI.messina@fits@summary$margin, 1, as.character(TCGA.feats$symbol), TCGA.x, TCGA.y)
+val.TCGA.messina = doValidation(as.character(APGI.feats$symbol), APGI.x, APGI.messina@fits@summary$threshold, APGI.messina@fits@summary$margin * APGI.messina@fits@summary$passed, 1, as.character(TCGA.feats$symbol), TCGA.x, TCGA.y)
 val.TCGA.maxstat = doValidation(as.character(APGI.feats$symbol), APGI.x, sapply(APGI.maxstat, function(x) x$threshold), -log10(sapply(APGI.maxstat, function(x) x$p.value)), -log10(0.05), as.character(TCGA.feats$symbol), TCGA.x, TCGA.y)
+val.comb.messina = doValidation(as.character(APGI.feats$symbol), APGI.x, APGI.messina@fits@summary$threshold, APGI.messina@fits@summary$margin * APGI.messina@fits@summary$passed, 1, as.character(comb.feats$symbol), comb.x, comb.y)
+val.comb.maxstat = doValidation(as.character(APGI.feats$symbol), APGI.x, sapply(APGI.maxstat, function(x) x$threshold), -log10(sapply(APGI.maxstat, function(x) x$p.value)), -log10(0.05), as.character(comb.feats$symbol), comb.x, comb.y)
 
-val.GSE28735.messina
-val.GSE21501.messina
+print(val.GSE28735.messina)
+print(val.GSE21501.messina)
+print(val.TCGA.messina)
+print(val.comb.messina)
 
-val.GSE28735.maxstat
-val.GSE21501.maxstat
+print(val.GSE28735.maxstat)
+print(val.GSE21501.maxstat)
+print(val.TCGA.maxstat)
+print(val.comb.maxstat)
 
-val.TCGA.messina
-val.TCGA.maxstat
+plot(chisq ~ merit, val.TCGA.maxstat)
+plot(chisq ~ merit, val.TCGA.messina)
+plot(chisq ~ merit, val.comb.maxstat)
+plot(chisq ~ merit, val.comb.messina)
+@
+
+
+<<E3-val-detcurves,sanitize=TRUE,fig.height=4,fig.width=6>>=
+detCurve = function(val_list, alpha = 0.05, relative = FALSE)
+{
+	if (is.null(names(val_list)))
+	{
+		names(val_list) = paste("Method", 1:length(val_list), sep = " ")
+	}
+
+	val_list_annotated = lapply(val_list, function(val) {
+		val$merit[is.na(val$merit)] = -1
+		val = val[order(-val$merit),]
+		val$val = pchisq(val$chisq, df = 1, lower.tail = FALSE) < alpha
+		val$val[is.na(val$chisq)] = FALSE
+		val$cum_val = cumsum(val$val)
+		val$cum_nonval = cumsum(!val$val)
+		total_val = sum(val$val)
+		total_nonval = sum(!val$val)
+		val$rate_val = val$cum_val / total_val
+		val$rate_nonval = val$cum_nonval / total_nonval
+		val
+	})
+
+	val_list_combined = do.call(rbind, val_list_annotated)
+	val_list_combined$Curve = rep(names(val_list), sapply(val_list, nrow))
+
+	if (!relative)
+	{
+		nval = sapply(val_list_annotated, function(v) sum(v$val))
+		null_slopes = data.frame(Curve = names(nval), intercept = 0, slope = nval)
+
+		theplot = ggplot(val_list_combined, aes(x = rate_nonval, y = cum_val, colour = Curve)) + 
+			geom_line(lwd = 2) + 
+			xlab("Non-validation rate") + 
+			ylab("Total validated") + 
+			geom_abline(aes(intercept = intercept, slope = slope, colour = Curve), null_slopes, linetype = "dashed", lwd = 1.5)
+	}
+	else
+	{
+		theplot = ggplot(val_list_combined, aes(x = rate_nonval, y = rate_val, colour = Curve)) + 
+			geom_line(lwd = 2) + 
+			xlab("Non-validation rate") + 
+			ylab("Validation rate") + 
+			geom_abline(intercept = 0, slope = 1, linetype = "dashed", lwd = 1.5) + 
+			xlim(0, 1) + ylim(0, 1)
+	}
+
+	theplot
+}
+
+val.GSE28735.messina = doValidation(as.character(APGI.feats$symbol), APGI.x, APGI.messina@fits@summary$threshold, APGI.messina@fits@summary$margin * APGI.messina@fits@summary$passed, 0, as.character(GSE28735.feats$Gene.symbol), GSE28735.x, GSE28735.y)
+val.GSE28735.maxstat = doValidation(as.character(APGI.feats$symbol), APGI.x, sapply(APGI.maxstat, function(x) x$threshold), -log10(sapply(APGI.maxstat, function(x) x$p.value)), 0, as.character(GSE28735.feats$Gene.symbol), GSE28735.x, GSE28735.y)
+val.GSE21501.messina = doValidation(as.character(APGI.feats$symbol), APGI.x, APGI.messina@fits@summary$threshold, APGI.messina@fits@summary$margin * APGI.messina@fits@summary$passed, 0, as.character(GSE21501.feats$Gene.symbol), GSE21501.x, GSE21501.y)
+val.GSE21501.maxstat = doValidation(as.character(APGI.feats$symbol), APGI.x, sapply(APGI.maxstat, function(x) x$threshold), -log10(sapply(APGI.maxstat, function(x) x$p.value)), 0, as.character(GSE21501.feats$Gene.symbol), GSE21501.x, GSE21501.y)
+val.TCGA.messina = doValidation(as.character(APGI.feats$symbol), APGI.x, APGI.messina@fits@summary$threshold, APGI.messina@fits@summary$margin * APGI.messina@fits@summary$passed, 0, as.character(TCGA.feats$symbol), TCGA.x, TCGA.y)
+val.TCGA.maxstat = doValidation(as.character(APGI.feats$symbol), APGI.x, sapply(APGI.maxstat, function(x) x$threshold), -log10(sapply(APGI.maxstat, function(x) x$p.value)), 0, as.character(TCGA.feats$symbol), TCGA.x, TCGA.y)
+val.comb.messina = doValidation(as.character(APGI.feats$symbol), APGI.x, APGI.messina@fits@summary$threshold, APGI.messina@fits@summary$margin * APGI.messina@fits@summary$passed, 0, as.character(comb.feats$symbol), comb.x, comb.y)
+val.comb.maxstat = doValidation(as.character(APGI.feats$symbol), APGI.x, sapply(APGI.maxstat, function(x) x$threshold), -log10(sapply(APGI.maxstat, function(x) x$p.value)), 0, as.character(comb.feats$symbol), comb.x, comb.y)
+val.GSE28735.messina2 = doValidation(as.character(APGI.feats$symbol), APGI.x, APGI.messina@fits@summary$threshold, APGI.messina@fits@summary$margin, 0, as.character(GSE28735.feats$Gene.symbol), GSE28735.x, GSE28735.y)
+val.GSE21501.messina2 = doValidation(as.character(APGI.feats$symbol), APGI.x, APGI.messina@fits@summary$threshold, APGI.messina@fits@summary$margin, 0, as.character(GSE21501.feats$Gene.symbol), GSE21501.x, GSE21501.y)
+val.TCGA.messina2 = doValidation(as.character(APGI.feats$symbol), APGI.x, APGI.messina@fits@summary$threshold, APGI.messina@fits@summary$margin, 0, as.character(TCGA.feats$symbol), TCGA.x, TCGA.y)
+val.comb.messina2 = doValidation(as.character(APGI.feats$symbol), APGI.x, APGI.messina@fits@summary$threshold, APGI.messina@fits@summary$margin, 0, as.character(comb.feats$symbol), comb.x, comb.y)
+
+print(val.GSE28735.messina[val.GSE28735.messina$merit >= 1,])
+print(val.GSE21501.messina[val.GSE21501.messina$merit >= 1,])
+print(val.TCGA.messina[val.TCGA.messina$merit >= 1,])
+print(val.comb.messina[val.comb.messina$merit >= 1,])
+
+print(val.GSE28735.messina2[val.GSE28735.messina2$merit >= 1,])
+print(val.GSE21501.messina2[val.GSE21501.messina2$merit >= 1,])
+print(val.TCGA.messina2[val.TCGA.messina2$merit >= 1,])
+print(val.comb.messina2[val.comb.messina2$merit >= 1,])
+
+print(val.GSE28735.messina2[1:25,])
+print(val.GSE21501.messina2[1:25,])
+print(val.TCGA.messina2[1:25,])
+print(val.comb.messina2[1:25,])
+
+print(val.GSE28735.maxstat[val.GSE28735.maxstat$merit >= -log10(0.01),])
+print(val.GSE21501.maxstat[val.GSE21501.maxstat$merit >= -log10(0.01),])
+print(val.TCGA.maxstat[val.TCGA.maxstat$merit >= -log10(0.01),])
+print(val.comb.maxstat[val.comb.maxstat$merit >= -log10(0.01),])
+
+# detCurve(list(
+# 	"Messina GSE28735" = val.GSE28735.messina, 
+# 	"Messina GSE21501" = val.GSE21501.messina, 
+# 	"Messina TCGA" = val.TCGA.messina, 
+# 	"Messina GSE28735 NC" = val.GSE28735.messina2, 
+# 	"Messina GSE21501 NC" = val.GSE21501.messina2, 
+# 	"Messina TCGA NC" = val.TCGA.messina2, 
+# 	"maxstat GSE28735" = val.GSE28735.maxstat, 
+# 	"maxstat GSE21501" = val.GSE21501.maxstat, 
+# 	"maxstat TCGA" = val.TCGA.maxstat)) + theme_bw()
+detCurve(list(Messina = val.GSE28735.messina, maxstat = val.GSE28735.maxstat, MessinaCore = val.GSE28735.messina2)) + theme_bw() + xlim(0, 0.2) + ylim(0, 70)
+detCurve(list(Messina = val.GSE28735.messina, maxstat = val.GSE28735.maxstat, MessinaCore = val.GSE28735.messina2), relative = TRUE) + theme_bw()
+detCurve(list(Messina = val.GSE21501.messina, maxstat = val.GSE21501.maxstat, MessinaCore = val.GSE21501.messina2)) + theme_bw() + xlim(0, 0.2) + ylim(0, 60)
+detCurve(list(Messina = val.GSE21501.messina, maxstat = val.GSE21501.maxstat, MessinaCore = val.GSE21501.messina2), relative = TRUE) + theme_bw()
+detCurve(list(Messina = val.TCGA.messina, maxstat = val.TCGA.maxstat, MessinaCore = val.TCGA.messina2)) + theme_bw() + xlim(0, 0.2) + ylim(0, 200) + labs(colour = "Method")
+detCurve(list(Messina = val.TCGA.messina, maxstat = val.TCGA.maxstat, MessinaCore = val.TCGA.messina2), relative = TRUE) + theme_bw() + labs(colour = "Method")
+detCurve(list(Messina = val.comb.messina, maxstat = val.comb.maxstat, MessinaCore = val.comb.messina2)) + theme_bw() + xlim(0, 0.2) + ylim(0, 200) + labs(colour = "Method")
+detCurve(list(Messina = val.comb.messina, maxstat = val.comb.maxstat, MessinaCore = val.comb.messina2), relative = TRUE) + theme_bw() + labs(colour = "Method")
+@
+
+
+<<E3-val-example,sanitize=TRUE,fig.height=6,fig.width=6>>=
+# plot(APGI.messina, indices = 1, sort_features = TRUE)
+# plot(APGI.messina, indices = which(APGI.feats$symbol == "IL20RB"), sort_features = FALSE)
+val.GSE28735.messina2["IL20RB",]
+il20rb.TCGA.xc = TCGA.x["IL20RB",] > val.TCGA.messina2["IL20RB",]$threshold.test
+survdiff(TCGA.y ~ il20rb.TCGA.xc)
+il20rb.TCGA.fit = survfit(TCGA.y ~ il20rb.TCGA.xc)
+print(il20rb.TCGA.fit)
+plot(il20rb.TCGA.fit, col = c("red", "green"))
 @
 
 \end{document}

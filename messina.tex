@@ -1,7 +1,7 @@
 \documentclass[dissertation.tex]{subfiles}
 \begin{document}
 
-\chapter[Optimal Biomarkers]{Identifying Optimal Biomarkers for Clinical Tests}
+\chapter[Identifying Optimal Biomarkers for Clinical Tests][Finding Optimal Biomarkers]{Identifying Optimal Biomarkers for Clinical Tests}
 \label{chap:messina}
 
 
@@ -187,7 +187,7 @@ Bad practice:
   \KwResult{A tuple of candidate cutpoints $c$, with values sorted in ascending order.}
 
   \Begin {
-  	$x' \longleftarrow \mbox{unique}(x)$\;
+  	$x' \longleftarrow \mathrm{unique}(x)$\;
   	\For{$i \leftarrow 1$ \KwTo $\vert x' \vert - 1$}{
   		$p \longleftarrow \frac{1}{2} \left({x'}_i + {x'}_{i+1}\right)$\;
   		$s \longleftarrow \frac{1}{n} \sum_{i=1}^n \left[ x_i < p \right] $\;
@@ -214,10 +214,10 @@ Bad practice:
   	$n_pass \longleftarrow 0$\;
   	\For{$i \leftarrow 1$ \KwTo $r$}{
   		\tcp{Generate a bootstrap sample of (x, y)}
-  		$(x_in, y_in, x_out, y_out) \longleftarrow \mbox{BootstrapResample}\left( x, y \right)$\;
+  		$(x_in, y_in, x_out, y_out) \longleftarrow \mathrm{BootstrapResample}\left( x, y \right)$\;
   		
   		\tcp{Train MessinaCore on this bootstrap sample}
-  		$(t_in, d_in, \Delta_in) \longleftarrow \mbox{MessinaCore}\left( x_in, y_in, b, f \right)$\;
+  		$(t_in, d_in, \Delta_in) \longleftarrow \mathrm{MessinaCore}\left( x_in, y_in, b, f \right)$\;
   		
   		\tcp{Assess performance of the MessinaCore classifier on the out-of-bag samples}
   		\If{$d_in \neq 0$}{
@@ -230,7 +230,7 @@ Bad practice:
   	\tcp{Did the in-bag trained classifiers satisfy out-of-bag performance requirements in at least half of the bootstrap rounds?}
   	\eIf{$n_pass \geq \frac{1}{2}r$}{
 	  	\tcp{Yes; return the fit on the full data}
-  		\KwRet{$\mbox{MessinaCore}\left( x, y, b, f \right)$}\;
+  		\KwRet{$\mathrm{MessinaCore}\left( x, y, b, f \right)$}\;
   	}{
   		\tcp{No; this fit failed.}
   		\KwRet{$\varnothing$}\;
@@ -247,7 +247,7 @@ Bad practice:
 
   \Begin {
   	\tcp{Define candidate thresholds $c$ as the midpoints between consecutive unique values of $x$}
-  	$c \longleftarrow \mbox{MakeCutpoints}\left(x, b\right)$\;
+  	$c \longleftarrow \mathrm{MakeCutpoints}\left(x, b\right)$\;
   	$m \longleftarrow \vert c \vert$\;
   
 	\tcp{Evaluate the objective $f$ on each threshold in $c$}
@@ -429,8 +429,22 @@ p_{\tau'} &= \frac{\tau_c}{\tau_c + \tau_d}
   \node[align=center] at (11\f,6.5\f) {\scriptsize Region 2};
   \node[align=center] at (11\f,7.75\f) {\scriptsize $\Delta^*$};
 \end{tikzpicture}
-\caption[The BestInterval algorithm]{Operation of the BestInterval algorithm.  Example values of a binary objective function $o(t)$ are shown for a range of input thresholds $t$.  At discrete points defined by observed data values (shown as dots), this objective function can transition, as an observed data point changes its value relative to $t$, and therefore its assigned class.  Two regions in which $o(t) = \mbox{true}$ are shown.  BestInterval locates all such regions, selects the one with largest measure on $t$ (margin), and returns its centre and margin as $(t^*, \Delta^*)$.  In this example, the centre and margin of region 2 would be returned.  To ensure that $o(t)$ is sampled at sufficient density, candidate thresholds $c_1, c_2, \dots$ are defined between all consecutive values, and beyond the extrema, of $x$; these are indicated by small arrows.  Each $c_i$ is associated with an $o_i$, as $o_i = o(c_i)$.}
-\label{fig:mess_bestinterval}
+\caption[The BestInterval algorithm]{Operation of the BestInterval algorithm.  Example values of a binary objective function $o(t)$ are shown for a range of input thresholds $t$.  At discrete points defined by observed data values (shown as dots), this objective function can transition, as an observed data point changes its value relative to $t$, and therefore its assigned class.  Two regions in which $o(t) = \mathrm{true}$ are shown.  BestInterval locates all such regions, selects the one with largest measure on $t$ (margin), and returns its centre and margin as $(t^*, \Delta^*)$.  In this example, the centre and margin of region 2 would be returned.  To ensure that $o(t)$ is sampled at sufficient density, candidate thresholds $c_1, c_2, \dots$ are defined between all consecutive values, and beyond the extrema, of $x$; these are indicated by small arrows.  Each $c_i$ is associated with an $o_i$, as $o_i = o(c_i)$.}
+\label{fig:mess-bestinterval}
 \end{figure}
+
+
+\begin{figure}
+\centering
+\includegraphics[width=.7\linewidth]{analysis/messina/figure/07-E3-E3-val-detcurves-1}
+\caption[]{}\label{fig:mess-val-detabs}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=.7\linewidth]{analysis/messina/figure/07-E3-E3-val-detcurves-2}
+\caption[]{}\label{fig:mess-val-detrel}
+\end{figure}
+
 
 \end{document}
