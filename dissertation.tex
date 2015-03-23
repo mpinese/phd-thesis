@@ -2,6 +2,12 @@
 
 \documentclass[11pt,a4paper,final,twoside]{memoir}
 
+\newcommand{\thesisTitleMain}{Molecular signatures of survival in pancreatic ductal adenocarcinoma}
+\newcommand{\thesisTitleSub}{why do some patients live longer than others, and how can we identify them?}
+\newcommand{\thesisTitleSUB}{Why do some patients live longer than others, and how can we identify them?}
+\newcommand{\thesisTitle}{\thesisTitleMain{}:~\\\thesisTitleSub{}}
+
+
 % UNSW-mandated ugly
 \settrimmedsize{297mm}{210mm}{*}
 \settrims{0pt}{0pt}
@@ -13,6 +19,7 @@
 \setheaderspaces{*}{2\onelineskip}{*}
 \checkandfixthelayout
 
+% CHOPPING N CUTTING
 \usepackage{subfiles}
 
 % VERSIONING
@@ -57,9 +64,8 @@
 
 \lstset{basicstyle=\footnotesize\ttfamily,breaklines=true}
 \lstset{framextopmargin=50pt,frame=bottomline}
-
-\OnehalfSpacing
-%\DoubleSpacing
+%\cleartoevenpage[\vspace*{\fill}This page intentionally left unblank\vspace*{\fill}]
+%\cleartooddpage[\vspace*{\fill}This page intentionally left unblank\vspace*{\fill}]
 
 \input{glossary}
 \makeglossaries
@@ -78,13 +84,13 @@
     \begin{scope}[shift={(current page.south west)},every node/.style={anchor=base west}]
 %        \draw [help lines] (0,0) grid (current page.north east);
 %        \draw [help lines,thick] (0,0) grid [step=5cm] (current page.north east);
-        \node at (7cm,24.5cm)	{\scriptsize Pinese};
-        \node at (7cm,24cm) 	{\scriptsize Mark};
-        \node at (11cm,23.48cm) {\scriptsize PhD};
-        \node at (7cm,22.95cm) 	{\scriptsize St. Vincent's Clinical School};
-        \node at (5cm,22.4cm) 	{\scriptsize ### Title (sentence case)};
-        \node at (13cm,22.95cm)	{\scriptsize Medicine};
-        \node at (4.8cm,20.2cm)	{\scriptsize ### Abstract};
+        \node[font=\scriptsize] at (7cm,24.5cm)	{Pinese};
+        \node[font=\scriptsize] at (7cm,24cm) 	{Mark};
+        \node[font=\scriptsize] at (11cm,23.48cm) {PhD};
+        \node[font=\scriptsize] at (7cm,22.95cm) 	{St. Vincent's Clinical School};
+        \node[text width=13cm,align=left,text ragged,font=\scriptsize] at (5cm,22.4cm) 	{\thesisTitle{}};
+        \node[font=\scriptsize] at (13cm,22.95cm)	{Medicine};
+        \node[text width=13.5cm,align=left,font=\tiny] at (4.5cm,20.5cm)	{\setlength{\parskip}{2.5mm} \noindent \input{abstract}};
     \end{scope}
 \end{tikzpicture}
 
@@ -96,12 +102,13 @@
         \vspace*{1cm}
         
         \Large
-        \textbf{### Thesis Title}
+        \textbf{\thesisTitleMain{}}
         
-%        \vspace{0.5cm}
-%        ### Thesis Subtitle
+        \vspace{1cm}
+        \normalsize
+        \textbf{\thesisTitleSUB{}}
         
-        \vspace{1.5cm}
+        \vspace{2.25cm}
         
         \normalsize
         \textbf{Mark Pinese}
@@ -111,16 +118,16 @@
         A thesis in fulfilment of the requirements for the degree of\\
         Doctor of Philosophy
         
-        \vspace{2cm}
+        \vspace{3cm}
         
         \includegraphics[width=0.25\textwidth]{resources/PortraitColourPos}
 
-        \vspace{1cm}
+        \vspace{1.5cm}
 
         St. Vincent's Clinical School\\
         Faculty of Medicine\\
 
-		\vspace{0.8cm}
+		\vspace{1.2cm}
         March 2015
     \end{center}
 \end{titlepage}
@@ -135,29 +142,28 @@
 \vspace*{\stretch{3}}
 \begin{adjustwidth}{2em}{2em}
 %\centering
-\noindent %\color{nicered}
-To Emma and Eva -- \\
-\qquad it's done now!
+\noindent
+To Emma and Eva -- ~\\
+\hspace{1cm}it's done now!
 \end{adjustwidth}
 \vspace*{\stretch{11}}
 
 \chapter*{Acknowledgements}
-###
-Although all the words and work here are mine alone, this thesis draws on a wealth of data, breadth of knowledge, and unfaltering support, that I must acknowledge here.  
-
-Too many people have assisted this work, directly or indirectly, for me to remember them all here.  To all of these, I apologise if I have omitted you -- remind me sometime, and I promise you a drink of your choice.  Some I suspect have even been assisting in secret.  To those, you should have expected that I'd leave you out, but thanks all the same.
-
+\input{acknowledgements}
 
 
 \thispagestyle{empty}
 \clearpage
 
 \begin{abstract}
-###
+\input{abstract}
 \end{abstract}
 \thispagestyle{empty}
 \pagenumbering{gobble}
 \clearpage
+
+\OnehalfSpacing
+%\DoubleSpacing
 
 \pagenumbering{roman}
 \chapterstyle{brotherton}

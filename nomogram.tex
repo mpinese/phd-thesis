@@ -1,7 +1,7 @@
 \documentclass[dissertation.tex]{subfiles}
 \begin{document}
 
-\chapter[Preoperative Prognostic]{A Preoperative Molecular Prognostic for Pancreas Cancer}
+\chapter[A Preoperative Molecular Prognostic for Pancreas Cancer][Preoperative Prognosis]{A Preoperative Molecular Prognostic for Pancreas Cancer}
 \label{chap:nomogram}
 
 \emph{Thesis: A preoperative prognostic tool for pancreas cancer can be developed to discriminate good between and poor prognosis patients more reliably than current methods.}
@@ -41,7 +41,7 @@ As the aim was to develop a prognostic predictor that could be applied preoperat
 Preoperative measurements of tumour size (for example, by \gls{CT} X-ray or \gls{EUS}) were not available in the training and validation sets, and were approximated by postoperative measurements for the development and testing of this nomogram.  Similarly, preoperative biomarker measurements were approximated using \gls{IHCal} staining of tissue collected during resection, as only very limited preoperative \gls{EUS}-\gls{FNA} samples were available in the cohorts used.  The implications of these approximations for the prognostic tool developed here, as well as for future work, are considered in the discussion.  
 
 \subsection{Cohorts and characteristics}
-General characteristics of the \gls{NSWPCN}, Glasgow, \gls{APGI}, and Dresden cohorts are summarised in \tref{tab:nomo-cohort-characteristics}.  The \gls{NSWPCN} training cohort contained a small subgroup of patients with abnormally long recorded survival times ($> 3000$ days, 7/256 patients), that were strongly suspected to represent data errors, either as a consequence of incorrect coding following loss to follow-up, or misdiagnosis.  Given the age of the cohort, it was deemed impractical to revisit the original records to check these patients, and so all patients with recorded survival times exceeding 3000 days were excluded from the \gls{NSWPCN} training data.  The \gls{NSWPCN} cohort characteristics in \tref{tab:nomo-cohort-characteristics} have been calculated on the 249 patients that passed the 3000 day data quality cutoff.
+General characteristics of the \gls{NSWPCN}, Glasgow, \gls{APGI}, and Dresden cohorts are summarised in \tref{tab:nomo-cohort-characteristics}.  The \gls{NSWPCN} training cohort contained a small subgroup of patients with abnormally long recorded survival times ($>$ \fcardinal{3000} days, 7/256 patients), that were strongly suspected to represent data errors, either as a consequence of incorrect coding following loss to follow-up, or misdiagnosis.  Given the age of the cohort, it was deemed impractical to revisit the original records to check these patients, and so all patients with recorded survival times exceeding \fcardinal{3000} days were excluded from the \gls{NSWPCN} training data.  The \gls{NSWPCN} cohort characteristics in \tref{tab:nomo-cohort-characteristics} have been calculated on the 249 patients that passed the \fcardinal{3000} day data quality cutoff.
 
 The four cohorts had broadly similar marginal survival functions (\fref{fig:nomo-cohort-km}), although these were statistically distinct (logrank $P = 5.7 \times 10^{-6}$).  There were significant differences between the cohorts in the distribution of prognostic \glspl{CPV}: large variation was present in the fraction of patients with clear resection margins (range $27\%-65\%$, Fisher exact test $P = 2.2 \times 10^{-15}$), tumours in the head of the pancreas ($81\%-100\%$, $P = 8.6 \times 10^{-13}$), and lymph node involvement ($66\%-83\%$, $P = 8.3 \times 10^{-5}$).  The variability in margin involvement is plausibly due to differences in the definition of margin clearance over time and between geographical regions~\cite{Chang2015}, but the other discrepancies likely indicate fundamental differences in cohort composition.  These covariate differences were not sufficient to explain the observed differences in outcome: after correcting for all available covariates, cohort still had a significant effect on survival (likelihood ratio test $P = 3.8 \times 10^{-8}$), with patients from the \gls{NSWPCN} training set displaying worse covariate-corrected prognosis than those from other cohorts (hazard ratios for \gls{NSWPCN} patients over others all $> 1.98$).
 
@@ -92,7 +92,7 @@ Candidate prognostic models were constructed on the \gls{NSWPCN} training data b
 The \gls{NSWPCN} training cohort was collected over a long period, with patient diagnosis dates spanning the thirteen years from 1994 to 2006.  Over such an extended interval, subtle changes in cohort composition or therapy may cause a shift in cohort characteristics, and reduce the prognostic performance of a model that was built on the historical data, when it is applied to contemporary cases.  Cohort shift was investigated by examining the association between date of diagnosis, and all prognostic and outcome variables: in the absence of shift, no variables would be expected to change significantly over time.  Date of diagnosis was not significantly associated with any other variable, or outcome (distance correlation~\cite{Szekely2013} and \gls{CPH} regression, 7 tests, lowest $P = 0.35$); there was therefore no indication of cohort shift in the \gls{NSWPCN} training data.
 
 \paragraph{Model functional form and expanded terms}
-The \gls{CPH} framework was used to assess functional form for the two continuous covariates: age at diagnosis, and maximum pathological axis size.  \Gls{LOESS} smooths of martingale residuals~\cite{Therneau1990} indicated a largely linear relationship for age at diagnosis (\fref{fig:nomo-funcform-age}), and a knee-shaped form for size (\fref{fig:nomo-funcform-size}), with the knee at approximately $0$ in median-centered units.  In subsequent fits this potential nonlinear size effect was modelled by adding a $\mbox{size}_+$ ramp term.  The original set of five linear prognostic terms, plus the additional nonlinear size term, was denoted the expanded term set.
+The \gls{CPH} framework was used to assess functional form for the two continuous covariates: age at diagnosis, and maximum pathological axis size.  \Gls{LOESS} smooths of martingale residuals~\cite{Therneau1990} indicated a largely linear relationship for age at diagnosis (\fref{fig:nomo-funcform-age}), and a knee-shaped form for size (\fref{fig:nomo-funcform-size}), with the knee at approximately $0$ in median-centered units.  In subsequent fits this potential nonlinear size effect was modelled by adding a $\mathrm{size}_+$ ramp term.  The original set of five linear prognostic terms, plus the additional nonlinear size term, was denoted the expanded term set.
 
 \begin{figure}
 \centering
@@ -112,7 +112,7 @@ A Grambsch-Therneau test~\cite{Grambsch1994} on the \gls{CPH} model fit using al
 \begin{figure}
 \centering
   \includegraphics[width=.7\linewidth]{analysis/nomogram/figure/05-eda-ph-check-full-1}
-  \caption[Baseline hazard forms differ between patient sexes]{NSWPCN baseline hazard differs between patient sexes.  A natural spline smooth of scaled Schoenfeld residuals for patient sex has a slope obviously differing from zero, suggesting that the baseline hazard forms differ between the two sexes, and that the combined data violates the \acrshort{PH} assumption of Cox regression.  Individual residuals are displayed as points, the natural spline smooth ($\mbox{df}=4$) as a solid line, and approximate $\pm 1\ \mbox{SE}$ bounds as dashed lines.}
+  \caption[Baseline hazard forms differ between patient sexes]{NSWPCN baseline hazard differs between patient sexes.  A natural spline smooth of scaled Schoenfeld residuals for patient sex has a slope obviously differing from zero, suggesting that the baseline hazard forms differ between the two sexes, and that the combined data violates the \acrshort{PH} assumption of Cox regression.  Individual residuals are displayed as points, the natural spline smooth ($\mathrm{df}=4$) as a solid line, and approximate $\pm 1\ \mathrm{SE}$ bounds as dashed lines.}
 \label{fig:nomo-ph-plot-sex}
 \end{figure}
 
@@ -155,25 +155,25 @@ All models had statistically indistinguishable discriminatory power over the $7-
 \toprule
                              & \multicolumn{2}{c}{Bootstrap}   \\ \cmidrule(r){2-3}
 Comparison                   & Mean          & $95\%$ CI       \\ \midrule
-$\mbox{KM0} - \mbox{GG1}$    & $21.1$        & $[2.5, 39.8]$   \\
-$\mbox{KM0} - \mbox{CPH}$    & $20.2$        & $[4.5, 38.9]$   \\
-$\mbox{KM0} - \mbox{RSF}$    & $14.5$        & $[5.7, 24.6]$   \\
-$\mbox{RSF} - \mbox{GG1}$    &  $6.6$        & $[-5.6, 17.7]$  \\
-$\mbox{RSF} - \mbox{CPH}$    &  $5.7$        & $[-2.9, 15.9]$  \\ 
-$\mbox{CPH} - \mbox{GG1}$    &  $0.9$        & $[-4.1, 4.3]$   \\ \bottomrule
+$\mathrm{KM0} - \mathrm{GG1}$    & $21.1$        & $[2.5, 39.8]$   \\
+$\mathrm{KM0} - \mathrm{CPH}$    & $20.2$        & $[4.5, 38.9]$   \\
+$\mathrm{KM0} - \mathrm{RSF}$    & $14.5$        & $[5.7, 24.6]$   \\
+$\mathrm{RSF} - \mathrm{GG1}$    &  $6.6$        & $[-5.6, 17.7]$  \\
+$\mathrm{RSF} - \mathrm{CPH}$    &  $5.7$        & $[-2.9, 15.9]$  \\ 
+$\mathrm{CPH} - \mathrm{GG1}$    &  $0.9$        & $[-4.1, 4.3]$   \\ \bottomrule
 \end{tabular}
 \end{table}
 
 \paragraph{Final \acrshort{PCOP} fit}
 A final fit of GG1 to the full \gls{NSWPCN} training data (both model building and validation patients) was made, and is summarised in \tref{tab:nomo-final-fit}.  This fit defined the \gls{PCOP}, which predicts post-resection outcome using a generalized gamma model~\cite{Cox2007}, as
 \begin{align*}
-T \sim GG(\beta   = &\ 6.7446 + 0.3732[\mbox{Sex = Male}] - 0.2150[\mbox{Location = Body}] \\
-                    &\ -0.0887\;\mbox{Size} - 0.3729[\mbox{S100A2 = Positive}] \\
-                    &\ -0.3843[\mbox{S100A4 = Positive}], \\ 
-          \sigma  = &\ 0.7503 - 0.2452[\mbox{Sex = Male}],\\
-          \lambda = &\ 0.0288 - 0.7630[\mbox{Sex = Male}])
+T \sim GG(\beta   = &\ 6.7446 + 0.3732[\mathrm{Sex = Male}] - 0.2150[\mathrm{Location = Body}] \\
+                    &\ -0.0887\;\mathrm{Size} - 0.3729[\mathrm{S100A2 = Positive}] \\
+                    &\ -0.3843[\mathrm{S100A4 = Positive}], \\ 
+          \sigma  = &\ 0.7503 - 0.2452[\mathrm{Sex = Male}],\\
+          \lambda = &\ 0.0288 - 0.7630[\mathrm{Sex = Male}])
 \end{align*}
-where $T$ is an individual's failure time, $GG$ is the generalized gamma distribution, $\mbox{Size}$ is in centimetres, and $[\;]$ is the Iverson bracket.
+where $T$ is an individual's failure time, $GG$ is the generalized gamma distribution, $\mathrm{Size}$ is in centimetres, and $[\;]$ is the Iverson bracket.
 
 \begin{figure}
 \centering
