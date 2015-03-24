@@ -2,14 +2,14 @@
 \appendixpage*
 \addappheadtotoc
 
-\chapter{Basis matrix $W$ for the six survival-associated metagenes}
+\chapter{Basis matrix \texorpdfstring{$W$}{W} for the six survival-associated metagenes}
 \label{app:sigs-w-matrix}
 \input{analysis/biosurv/reports/18_SIS_diag_dsd_final/basis_table.tex}
 
-\chapter{\acrshort{MSigDB} signatures correlated with axis A1}
+\chapter{\texorpdfstring{\acrshort{MSIGDB}}{MSIGDB} signatures correlated with axis A1}
 \label{app:sigs-msigdb-corrs-axis1}
 \begin{longtable}[!htbp]{ l r@{.}l }
-\caption[\acrshort{MSigDB} signatures correlated with axis A1]{\acrshort{MSigDB} signatures substantially correlated with activity of the prognostic axis A1.}
+\caption[\texorpdfstring{\acrshort{MSIGDB}}{MSIGDB} signatures correlated with axis A1]{\acrshort{MSIGDB} signatures substantially correlated with activity of the prognostic axis A1.}
 
 \hline \multicolumn{1}{l}{MSigDB set} & \multicolumn{2}{r}{A1 correlation} \\ \hline
 \endfirsthead
@@ -153,10 +153,10 @@ c3.V\$OCT\_C & $-0$ & $544$ \\
 
 
 
-\chapter{\acrshort{MSigDB} signatures correlated with axis A2}
+\chapter{\texorpdfstring{\acrshort{MSIGDB}}{MSIGDB} signatures correlated with axis A2}
 \label{app:sigs-msigdb-corrs-axis2}
 \begin{longtable}[!htbp]{ l r@{.}l }
-\caption[\acrshort{MSigDB} signatures correlated with axis A2]{\acrshort{MSigDB} signatures substantially correlated with activity of the prognostic axis A2.}
+\caption[\texorpdfstring{\acrshort{MSIGDB}}{MSIGDB} signatures correlated with axis A2]{\acrshort{MSIGDB} signatures substantially correlated with activity of the prognostic axis A2.}
 
 \hline \multicolumn{1}{l}{MSigDB set} & \multicolumn{2}{r}{A2 correlation} \\ \hline
 \endfirsthead
@@ -204,7 +204,7 @@ c7.GSE1460\_INTRATHYMIC\_T\_PROGENITOR\_VS\_                            \\
 \end{longtable}
 
 
-\chapter{Approximate calculation of \acrshort{PARSE} scores}
+\chapter{Approximate calculation of \texorpdfstring{\acrshort{PARSE}}{PARSE} scores}
 \label{app:sigs-parse-approx}
 Exact calculation of \gls{PARSE} score requires the solution of a number of \gls{NNLS} problems, which complicates application.  The \gls{NNLS} solutions can be approximated with conventional least squares solutions, ultimately transforming the calculation of an approximate \gls{PARSE} score into a simple weighted sum of gene expression measurements.
 
@@ -219,7 +219,7 @@ where $P$ is the vector of \gls{PARSE} score values, $L$ is the metagene loading
 \begin{figure}
 \centering
 \includegraphics[width=.7\linewidth]{analysis/biosurv/reports/18_SIS_diag_dsd_final/figure/approx-calc-1}
-\caption[Performance of the \acrshort{PARSE} score approximation]{The linear \acrshort{PARSE} score approximation $P \approx k A$ closely matches the exact version calculated using \gls{NNLS}, when evaluated on \gls{APGI} \gls{GEX} data.}\label{fig:app-parse-approx-matching}
+\caption[Performance of the \texorpdfstring{\acrshort{PARSE}}{PARSE} score approximation]{The linear \acrshort{PARSE} score approximation $P \approx k A$ closely matches the exact version calculated using \gls{NNLS}, when evaluated on \gls{APGI} \gls{GEX} data.}\label{fig:app-parse-approx-matching}
 \end{figure}
 
 To use the approximation in practice, perform the following steps:
@@ -232,7 +232,7 @@ To use the approximation in practice, perform the following steps:
 The loading vector for the calculation of approximate \gls{PARSE} score, $k^T$, is given in \tref{tab:sigs-approx-parse-loadings}.
 
 \begin{longtable}[!htbp]{ l r@{.}l @{\hspace{60pt}} l r@{.}l }
-\caption[Loading vector for the approximate \acrshort{PARSE} score]{Loading vector for the approximate \acrshort{PARSE} score.  For brevity and to assist interpretation, this has been split by sign into two columns, but in use both columns should be combined to form a single row vector $k$.}
+\caption[Loading vector for the approximate \texorpdfstring{\acrshort{PARSE}}{PARSE} score]{Loading vector for the approximate \acrshort{PARSE} score.  For brevity and to assist interpretation, this has been split by sign into two columns, but in use both columns should be combined to form a single row vector $k$.}
 \label{tab:sigs-approx-parse-loadings}
 
 \hline Gene symbol & \multicolumn{2}{l}{Loading} & Gene symbol & \multicolumn{2}{r}{Loading} \\ \hline
@@ -432,7 +432,7 @@ LYNX1 & $0$ & $00001$ & SLC15A1 & $-0$ & $00139$ \\
 \multicolumn{3}{l}{} & IKBIP & $-0$ & $00033$ \\
 \end{longtable}
 
-\chapter{R code to calculate \acrshort{MSKCC} nomogram survival estimates}
+\chapter{R code to calculate \texorpdfstring{\acrshort{MSKCC}}{MSKCC} nomogram survival estimates}
 \label{app:nomo-mskcc-code}
 \begin{lstlisting}[language=R]
 fit.mskcc = list(

@@ -8,6 +8,10 @@
 \newcommand{\thesisTitle}{\thesisTitleMain{}:~\\\thesisTitleSub{}}
 
 
+% DRAFT STUFF -- TODO: REMOVE FOR FINAL
+\overfullrule=2cm
+
+
 % UNSW-mandated ugly
 \settrimmedsize{297mm}{210mm}{*}
 \settrims{0pt}{0pt}
@@ -15,7 +19,7 @@
 \setbinding{10mm}
 \setlrmargins{40mm}{*}{*}
 \setulmargins{60mm}{*}{*}
-\setheadfoot{\onelineskip}{3\onelineskip}
+\setheadfoot{2\onelineskip}{3\onelineskip}
 \setheaderspaces{*}{2\onelineskip}{*}
 \checkandfixthelayout
 
@@ -26,7 +30,7 @@
 \usepackage{mVersion}
 
 % FIXME
-\usepackage[draft,footnote,nomargin]{fixme}   	% ### TODO: Remove draft flag for final!
+\usepackage[draft,footnote,nomargin]{fixme}   	% TODO TODO: Remove draft flag for final!
 \FXRegisterAuthor{mp}{amp}{MP}
 \FXRegisterAuthor{mjc}{amjc}{MJC}
 
@@ -43,9 +47,6 @@
 \usepackage{amssymb}
 \usepackage{bm}
 
-% SUBFIGURES
-\newsubfloat{figure}
-
 % GRAPHICS
 \usepackage{pdfpages}
 \usepackage{graphicx}
@@ -55,9 +56,22 @@
 % CAPTIONS
 \usepackage[singlelinecheck=off]{caption}		% To get left caption alignment on longtables
 
-% CROSS-REFERENCING ETC
+% CROSS-REFERENCING
 \usepackage[colorlinks=true,hidelinks,plainpages=false,pdfpagelabels]{hyperref}
+
+% GLOSSARY
 \usepackage[toc,noredefwarn]{glossaries}
+\let\originalgls\gls
+\renewcommand{\gls}[1]{\ifglsentryexists{#1}{\originalgls{#1}}{\colorbox{red}{\underline{#1}}}}
+\let\originalglspl\glspl
+\renewcommand{\glspl}[1]{\ifglsentryexists{#1}{\originalglspl{#1}}{\colorbox{red}{\underline{#1}}}}
+\let\originalGls\Gls
+\renewcommand{\Gls}[1]{\ifglsentryexists{#1}{\originalGls{#1}}{\colorbox{red}{\underline{#1}}}}
+\let\originalGlspl\Glspl
+\renewcommand{\Glspl}[1]{\ifglsentryexists{#1}{\originalGlspl{#1}}{\colorbox{red}{\underline{#1}}}}
+
+% SUBFIGURES
+\newsubfloat{figure}		% AFTER hyperref!
 
 
 \input{macros}
@@ -67,11 +81,14 @@
 %\cleartoevenpage[\vspace*{\fill}This page intentionally left unblank\vspace*{\fill}]
 %\cleartooddpage[\vspace*{\fill}This page intentionally left unblank\vspace*{\fill}]
 
+
 \input{glossary}
 \makeglossaries
 
 \begin{document}
 \pagestyle{empty}
+\hypersetup{pageanchor=false}	% Disable page number anchors in hyperref for early
+								% pages, to prevent duplicate page warnings.
 \raggedbottom
 
 %\listoffixmes
@@ -97,7 +114,7 @@
 \increaseBuild
 \cleardoublepage
 
-\begin{titlepage}
+\begin{titlingpage}
     \begin{center}
         \vspace*{1cm}
         
@@ -130,7 +147,7 @@
 		\vspace{1.2cm}
         March 2015
     \end{center}
-\end{titlepage}
+\end{titlingpage}
 
 
 \cleardoublepage
@@ -165,6 +182,7 @@ To Emma and Eva -- ~\\
 \OnehalfSpacing
 %\DoubleSpacing
 
+\hypersetup{pageanchor=true}		% Re-enable page numbering
 \pagenumbering{roman}
 \chapterstyle{brotherton}
 
@@ -192,7 +210,6 @@ To Emma and Eva -- ~\\
 \subfile{signatures}
 \subfile{nomogram}
 \subfile{messina}
-%\subfile{comparative}
 \subfile{conclusion}
 
 \input{appendices}

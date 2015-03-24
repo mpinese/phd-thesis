@@ -36,7 +36,7 @@
         <task id="219" name="Write and submit abstract" color="#8cb6ce" meeting="false" start="2015-03-23" duration="1" complete="100" expand="true">
             <depend id="143" type="2" difference="0" hardness="Rubber"/>
         </task>
-        <task id="8" name="Dissertation" color="#8cb6ce" meeting="false" start="2015-03-19" duration="10" complete="22" expand="true">
+        <task id="8" name="Dissertation" color="#8cb6ce" meeting="false" start="2015-03-19" duration="10" complete="26" expand="true">
             <task id="12" name="Ch 1: Introduction" color="#8cb6ce" meeting="false" start="2015-03-25" duration="3" complete="0" expand="true">
                 <depend id="140" type="2" difference="0" hardness="Rubber"/>
                 <task id="29" name="Write introduction" color="#8cb6ce" meeting="false" start="2015-03-25" duration="1" complete="0" expand="true">
@@ -56,11 +56,11 @@
                 </task>
                 <task id="51" name="Complete nomogram" color="#8cb6ce" meeting="false" start="2015-03-23" duration="1" complete="0" expand="true"/>
             </task>
-            <task id="18" name="Ch 3: Signatures" color="#8cb6ce" meeting="false" start="2015-03-21" duration="2" complete="60" expand="true">
+            <task id="18" name="Ch 3: Signatures" color="#8cb6ce" meeting="false" start="2015-03-21" duration="2" complete="100" expand="true">
                 <depend id="12" type="2" difference="0" hardness="Rubber"/>
                 <depend id="22" type="2" difference="0" hardness="Rubber"/>
                 <depend id="140" type="2" difference="0" hardness="Rubber"/>
-                <task id="57" name="Complete signatures" color="#8cb6ce" meeting="false" start="2015-03-21" duration="2" complete="60" expand="true"/>
+                <task id="57" name="Complete signatures" color="#8cb6ce" meeting="false" start="2015-03-21" duration="2" complete="100" expand="true"/>
             </task>
             <task id="20" name="Ch 4: Messina" color="#8cb6ce" meeting="false" start="2015-03-19" duration="8" complete="25" expand="true">
                 <depend id="140" type="2" difference="0" hardness="Rubber"/>

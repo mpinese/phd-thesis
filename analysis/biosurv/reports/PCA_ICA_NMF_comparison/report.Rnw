@@ -97,7 +97,7 @@ ggplot(data.frame(x = xyc[,1], y = xyc[,2], State = as.factor(c("B", "Transition
 
 <<smallplots,cache=FALSE,fig.width=4,fig.height=4,crop=TRUE>>=
 baseplot = ggplot(data.frame(x = xyc[,1], y = xyc[,2], State = as.factor(c("B", "Transition", "A")[xyc[,3]]))[subset,], aes(x, y, pch = State)) + 
-	geom_point(col = "grey") + 
+	geom_point(col = "darkgrey") + 
 	coord_fixed(xlim = c(0, 1), ylim = c(0, 1), ratio = 1) +
 	theme_bw() + 
 	theme(axis.ticks = element_blank(), axis.text.x = element_blank(), axis.text.y = element_blank(), axis.title.x = element_blank(), axis.title.y = element_blank()) + 

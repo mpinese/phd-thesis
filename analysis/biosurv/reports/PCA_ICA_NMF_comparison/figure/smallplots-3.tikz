@@ -1,4 +1,4 @@
-% Created by tikzDevice version 0.8.1 on 2015-02-03 07:11:43
+% Created by tikzDevice version 0.8.1 on 2015-03-24 04:10:27
 % !TEX encoding = UTF-8 Unicode
 \documentclass[11pt]{memoir}
 \nonstopmode
@@ -94,14 +94,14 @@
 
 \path[draw=drawColor,line width= 0.2pt,line join=round] (275.83, 20.36) --
 	(275.83,275.83);
-\definecolor{drawColor}{RGB}{190,190,190}
+\definecolor{drawColor}{RGB}{169,169,169}
 
 \path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] ( 80.40,118.21) circle (  2.13);
 
 \path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] ( 62.17,123.23) -- ( 66.44,127.49);
 
 \path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] ( 62.17,127.49) -- ( 66.44,123.23);
-\definecolor{fillColor}{RGB}{190,190,190}
+\definecolor{fillColor}{RGB}{169,169,169}
 
 \path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round,fill=fillColor] (219.37, 98.02) circle (  2.13);
 
