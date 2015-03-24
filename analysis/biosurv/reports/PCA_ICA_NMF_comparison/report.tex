@@ -155,7 +155,7 @@
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlstd{baseplot} \hlkwb{=} \hlkwd{ggplot}\hlstd{(}\hlkwd{data.frame}\hlstd{(}\hlkwc{x} \hlstd{= xyc[,}\hlnum{1}\hlstd{],} \hlkwc{y} \hlstd{= xyc[,}\hlnum{2}\hlstd{],} \hlkwc{State} \hlstd{=} \hlkwd{as.factor}\hlstd{(}\hlkwd{c}\hlstd{(}\hlstr{"B"}\hlstd{,} \hlstr{"Transition"}\hlstd{,} \hlstr{"A"}\hlstd{)[xyc[,}\hlnum{3}\hlstd{]]))[subset,],} \hlkwd{aes}\hlstd{(x, y,} \hlkwc{pch} \hlstd{= State))} \hlopt{+}
-        \hlkwd{geom_point}\hlstd{(}\hlkwc{col} \hlstd{=} \hlstr{"darkgrey"}\hlstd{)} \hlopt{+}
+        \hlkwd{geom_point}\hlstd{(}\hlkwc{col} \hlstd{=} \hlstr{"black"}\hlstd{,} \hlkwc{alpha} \hlstd{=} \hlnum{0.7}\hlstd{)} \hlopt{+}
         \hlkwd{coord_fixed}\hlstd{(}\hlkwc{xlim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{1}\hlstd{),} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{1}\hlstd{),} \hlkwc{ratio} \hlstd{=} \hlnum{1}\hlstd{)} \hlopt{+}
         \hlkwd{theme_bw}\hlstd{()} \hlopt{+}
         \hlkwd{theme}\hlstd{(}\hlkwc{axis.ticks} \hlstd{=} \hlkwd{element_blank}\hlstd{(),} \hlkwc{axis.text.x} \hlstd{=} \hlkwd{element_blank}\hlstd{(),} \hlkwc{axis.text.y} \hlstd{=} \hlkwd{element_blank}\hlstd{(),} \hlkwc{axis.title.x} \hlstd{=} \hlkwd{element_blank}\hlstd{(),} \hlkwc{axis.title.y} \hlstd{=} \hlkwd{element_blank}\hlstd{())} \hlopt{+}
