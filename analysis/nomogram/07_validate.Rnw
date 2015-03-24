@@ -396,18 +396,19 @@ colnames(gg.prob.nswpcn) = rownames(data.nswpcn)
 
 \section{Validation}
 \subsection{Altman diagnostic 1: score histograms}
-<<score-hists, fig.height = 10>>=
-par(mfrow = c(4, 1))
+<<score-hists, fig.height=10>>=
+pars = par(no.readonly = TRUE)
+par(mfrow = c(4, 1), mar = c(5.1, 5.1, 4.1, 2.1))
 temp.breaks = seq(min(c(gg.linpred.nswpcn, gg.linpred.glasgow, gg.linpred.apgi, gg.linpred.dresden)), max(c(gg.linpred.nswpcn, gg.linpred.glasgow, gg.linpred.apgi, gg.linpred.dresden)), length.out = 29)
-hist(gg.linpred.nswpcn, main = "NSWPCN", xlim = range(c(gg.linpred.nswpcn, gg.linpred.glasgow, gg.linpred.apgi, gg.linpred.dresden)), breaks = temp.breaks, col = "grey", xlab = "")
-abline(v = quantile(gg.linpred.nswpcn, probs = c(0.2, 0.5, 0.8)), col = "red")
-hist(gg.linpred.glasgow, main = "Glasgow", xlim = range(c(gg.linpred.nswpcn, gg.linpred.glasgow, gg.linpred.apgi, gg.linpred.dresden)), breaks = temp.breaks, col = "grey", xlab = "")
-abline(v = quantile(gg.linpred.glasgow, probs = c(0.2, 0.5, 0.8)), col = "red")
-hist(gg.linpred.apgi, main = "APGI", xlim = range(c(gg.linpred.nswpcn, gg.linpred.glasgow, gg.linpred.apgi, gg.linpred.dresden)), breaks = temp.breaks, col = "grey", xlab = "")
-abline(v = quantile(gg.linpred.apgi, probs = c(0.2, 0.5, 0.8)), col = "red")
-hist(gg.linpred.dresden, main = "Dresden", xlim = range(c(gg.linpred.nswpcn, gg.linpred.glasgow, gg.linpred.apgi, gg.linpred.dresden)), breaks = temp.breaks, col = "grey", xlab = "")
-abline(v = quantile(gg.linpred.dresden, probs = c(0.2, 0.5, 0.8)), col = "red")
-par(mfrow = c(1, 1))
+hist(gg.linpred.nswpcn, main = "NSWPCN", xlim = range(c(gg.linpred.nswpcn, gg.linpred.glasgow, gg.linpred.apgi, gg.linpred.dresden)), breaks = temp.breaks, col = "lightgrey", xlab = "", cex.axis = 2, cex.lab = 2, cex.main = 2)
+abline(v = quantile(gg.linpred.nswpcn, probs = c(0.2, 0.5, 0.8)), col = rgb(1, 0, 0, 0.8), lwd = 4, lty = "dashed")
+hist(gg.linpred.glasgow, main = "Glasgow", xlim = range(c(gg.linpred.nswpcn, gg.linpred.glasgow, gg.linpred.apgi, gg.linpred.dresden)), breaks = temp.breaks, col = "lightgrey", xlab = "", cex.axis = 2, cex.lab = 2, cex.main = 2)
+abline(v = quantile(gg.linpred.glasgow, probs = c(0.2, 0.5, 0.8)), col = rgb(1, 0, 0, 0.8), lwd = 4, lty = "dashed")
+hist(gg.linpred.apgi, main = "APGI", xlim = range(c(gg.linpred.nswpcn, gg.linpred.glasgow, gg.linpred.apgi, gg.linpred.dresden)), breaks = temp.breaks, col = "lightgrey", xlab = "", cex.axis = 2, cex.lab = 2, cex.main = 2)
+abline(v = quantile(gg.linpred.apgi, probs = c(0.2, 0.5, 0.8)), col = rgb(1, 0, 0, 0.8), lwd = 4, lty = "dashed")
+hist(gg.linpred.dresden, main = "Dresden", xlim = range(c(gg.linpred.nswpcn, gg.linpred.glasgow, gg.linpred.apgi, gg.linpred.dresden)), breaks = temp.breaks, col = "lightgrey", xlab = "", cex.axis = 2, cex.lab = 2, cex.main = 2)
+abline(v = quantile(gg.linpred.dresden, probs = c(0.2, 0.5, 0.8)), col = rgb(1, 0, 0, 0.8), lwd = 4, lty = "dashed")
+par(pars)
 @
 
 \subsection{Altman method 1 (D,F)}
@@ -491,7 +492,7 @@ temp.pred = data.frame(surv = as.vector(temp.pred.meds), group = rep(colnames(te
 temp.data = rbind(temp.km, temp.pred)
 temp.data$time = temp.data$time / 365.25 * 12
 
-plot(0 ~ 0, type = "n", xlim = c(0, 5*12), ylim = c(0, 1), xlab = "Time from diagnosis (months)", ylab = "Fraction alive", cex.lab = 1.2, cex.axis = 1.2)
+plot(0 ~ 0, type = "n", xlim = c(0, 5*12), ylim = c(0, 1), xlab = "Time from diagnosis (months)", ylab = "Fraction alive", cex.lab = 1.5, cex.axis = 1.5)
 temp.pal = brewer.pal(length(unique(gg.groups.nswpcn)), "Dark2")[c(1, 3, 2)]
 names(temp.pal) = sort(unique(gg.groups.nswpcn))
 for (temp.i in factor(sort(unique(gg.groups.nswpcn))))
@@ -535,7 +536,7 @@ temp.data2 = data.frame(
 	lower = c(temp.predpre.12mo[1,], temp.predpre.24mo[1,], temp.predpre.36mo[1,], temp.predpost.12mo[1,], temp.predpost.24mo[1,], temp.predpost.36mo[1,]),
 	est = rep(c("MSKCC Preoperative", "MSKCC Postoperative"), each = 9))
 
-plot(0 ~ 0, type = "n", xlim = c(0, 5*12), ylim = c(0, 1), xlab = "Time from diagnosis (months)", ylab = "Fraction alive", cex.lab = 1.2, cex.axis = 1.2)
+plot(0 ~ 0, type = "n", xlim = c(0, 5*12), ylim = c(0, 1), xlab = "Time from diagnosis (months)", ylab = "Fraction alive", cex.lab = 1.5, cex.axis = 1.5)
 temp.pal = brewer.pal(length(unique(gg.groups.glasgow)), "Dark2")[c(1, 3, 2)]
 names(temp.pal) = sort(unique(gg.groups.glasgow))
 for (temp.i in factor(sort(unique(gg.groups.glasgow))))
@@ -547,7 +548,7 @@ for (temp.i in factor(sort(unique(gg.groups.glasgow))))
 }
 legend("topright", inset = 0.05, legend = c("PCOP Prediction", "MSKCC Preoperative Prediction", "MSKCC Postoperative Prediction", "Glasgow Observed", "Low predicted risk", "Medium predicted risk", "High predicted risk"), lty = c("solid", NA, NA, "dotted", NA, NA, NA), lwd = c(4, NA, NA, 4, NA, NA, NA), col = c("black", "black", "black", "black", temp.pal[1:3]), pch = c(NA, 21, 19, NA, 15, 15, 15), cex = 0.7, pt.cex = c(1, 1, 1, 1, 2, 2, 2))
 
-plot(0 ~ 0, type = "n", xlim = c(0, 5*12), ylim = c(0, 1), xlab = "Time from diagnosis (months)", ylab = "Fraction alive", cex.lab = 1.2, cex.axis = 1.2)
+plot(0 ~ 0, type = "n", xlim = c(0, 5*12), ylim = c(0, 1), xlab = "Time from diagnosis (months)", ylab = "Fraction alive", cex.lab = 1.5, cex.axis = 1.5)
 temp.pal = brewer.pal(length(unique(gg.groups.glasgow)), "Dark2")[c(1, 3, 2)]
 names(temp.pal) = sort(unique(gg.groups.glasgow))
 for (temp.i in factor(sort(unique(gg.groups.glasgow))))
@@ -593,7 +594,7 @@ temp.data2 = data.frame(
 	lower = c(temp.predpre.12mo[1,], temp.predpre.24mo[1,], temp.predpre.36mo[1,], temp.predpost.12mo[1,], temp.predpost.24mo[1,], temp.predpost.36mo[1,]),
 	est = rep(c("MSKCC Preoperative", "MSKCC Postoperative"), each = 9))
 
-plot(0 ~ 0, type = "n", xlim = c(0, 5*12), ylim = c(0, 1), xlab = "Time from diagnosis (months)", ylab = "Fraction alive", cex.lab = 1.2, cex.axis = 1.2)
+plot(0 ~ 0, type = "n", xlim = c(0, 5*12), ylim = c(0, 1), xlab = "Time from diagnosis (months)", ylab = "Fraction alive", cex.lab = 1.5, cex.axis = 1.5)
 temp.pal = brewer.pal(length(unique(gg.groups.apgi)), "Dark2")[c(1, 3, 2)]
 names(temp.pal) = sort(unique(gg.groups.apgi))
 for (temp.i in factor(sort(unique(gg.groups.apgi))))
@@ -605,7 +606,7 @@ for (temp.i in factor(sort(unique(gg.groups.apgi))))
 }
 legend("topright", inset = 0.05, legend = c("PCOP Prediction", "MSKCC Preoperative Prediction", "MSKCC Postoperative Prediction", "APGI Observed", "Low predicted risk", "Medium predicted risk", "High predicted risk"), lty = c("solid", NA, NA, "dotted", NA, NA, NA), lwd = c(4, NA, NA, 4, NA, NA, NA), col = c("black", "black", "black", "black", temp.pal[1:3]), pch = c(NA, 21, 19, NA, 15, 15, 15), cex = 0.7, pt.cex = c(1, 1, 1, 1, 2, 2, 2))
 
-plot(0 ~ 0, type = "n", xlim = c(0, 5*12), ylim = c(0, 1), xlab = "Time from diagnosis (months)", ylab = "Fraction alive", cex.lab = 1.2, cex.axis = 1.2)
+plot(0 ~ 0, type = "n", xlim = c(0, 5*12), ylim = c(0, 1), xlab = "Time from diagnosis (months)", ylab = "Fraction alive", cex.lab = 1.5, cex.axis = 1.5)
 temp.pal = brewer.pal(length(unique(gg.groups.apgi)), "Dark2")[c(1, 3, 2)]
 names(temp.pal) = sort(unique(gg.groups.apgi))
 for (temp.i in factor(sort(unique(gg.groups.apgi))))
@@ -651,7 +652,7 @@ temp.data2 = data.frame(
 	lower = c(temp.predpre.12mo[1,], temp.predpre.24mo[1,], temp.predpre.36mo[1,], temp.predpost.12mo[1,], temp.predpost.24mo[1,], temp.predpost.36mo[1,]),
 	est = rep(c("MSKCC Preoperative", "MSKCC Postoperative"), each = 9))
 
-plot(0 ~ 0, type = "n", xlim = c(0, 5*12), ylim = c(0, 1), xlab = "Time from diagnosis (months)", ylab = "Fraction alive", cex.lab = 1.2, cex.axis = 1.2)
+plot(0 ~ 0, type = "n", xlim = c(0, 5*12), ylim = c(0, 1), xlab = "Time from diagnosis (months)", ylab = "Fraction alive", cex.lab = 1.5, cex.axis = 1.5)
 temp.pal = brewer.pal(length(unique(gg.groups.dresden)), "Dark2")[c(1, 3, 2)]
 names(temp.pal) = sort(unique(gg.groups.dresden))
 for (temp.i in factor(sort(unique(gg.groups.dresden))))
@@ -663,7 +664,7 @@ for (temp.i in factor(sort(unique(gg.groups.dresden))))
 }
 legend("topright", inset = 0.05, legend = c("PCOP Prediction", "MSKCC Preoperative Prediction", "MSKCC Postoperative Prediction", "Dresden Observed", "Low predicted risk", "Medium predicted risk", "High predicted risk"), lty = c("solid", NA, NA, "dotted", NA, NA, NA), lwd = c(4, NA, NA, 4, NA, NA, NA), col = c("black", "black", "black", "black", temp.pal[1:3]), pch = c(NA, 21, 19, NA, 15, 15, 15), cex = 0.7, pt.cex = c(1, 1, 1, 1, 2, 2, 2))
 
-plot(0 ~ 0, type = "n", xlim = c(0, 5*12), ylim = c(0, 1), xlab = "Time from diagnosis (months)", ylab = "Fraction alive", cex.lab = 1.2, cex.axis = 1.2)
+plot(0 ~ 0, type = "n", xlim = c(0, 5*12), ylim = c(0, 1), xlab = "Time from diagnosis (months)", ylab = "Fraction alive", cex.lab = 1.5, cex.axis = 1.5)
 temp.pal = brewer.pal(length(unique(gg.groups.dresden)), "Dark2")[c(1, 3, 2)]
 names(temp.pal) = sort(unique(gg.groups.dresden))
 for (temp.i in factor(sort(unique(gg.groups.dresden))))
@@ -803,164 +804,47 @@ km0.path.dresden.brier = calcIBS(Surv(data.dresden$Time, data.dresden$DSD), matr
 @
 
 <<prob-bs-paths-plot-glasgow, fig.height = 4, fig.width = 6>>=
-plot(gg.path.glasgow.brier$eval_times/365.25*12, gg.path.glasgow.brier$bsc, col = pal["gg"], type = "l", ylim = c(0, 0.3), xlab = "Time from diagnosis (months)", ylab = "Brier score", lwd = 2, main = "Glasgow")
-lines(gg.path.glasgow.brier$eval_times/365.25*12, km0.path.glasgow.brier$bsc, col = pal["km0"], lwd = 2)
-points(c(12, 24, 36), c(mskcc_post.12mo.glasgow.brier, mskcc_post.24mo.glasgow.brier, mskcc_post.36mo.glasgow.brier), col = pal["mskcc.pre"], cex = 1, pch = 16)
-points(c(12, 24, 36), c(mskcc_pre.12mo.glasgow.brier, mskcc_pre.24mo.glasgow.brier, mskcc_pre.36mo.glasgow.brier), col = pal["mskcc.post"], cex = 1, pch = 16)
-abline(h = 0.25, col = "grey", lty = "dotted")
-abline(v = c(7, 34))
-legend("topright", 
-	legend = c(	"GG1 Preop", 	"KM0", 		"MSKCC Postop", 	"MSKCC Preop"), 
-	pch = c(	NA, 			NA, 		16, 				16), 
-	col = c(	pal["gg"], 		pal["km0"], pal["mskcc.pre"], 	pal["mskcc.post"]), 
-	lty = c(	"solid", 		"solid", 	NA, 				NA), 
-	inset = 0.05, lwd = 2)
-
-plot(gg.path.glasgow.brier$eval_times/365.25*12, gg.path.glasgow.brier$bsc, col = pal["gg"], type = "l", ylim = c(0, 0.3), xlab = "Time from diagnosis (months)", ylab = "Brier score", lwd = 2, xlim = c(0, 40))
-lines(gg.path.glasgow.brier$eval_times/365.25*12, km0.path.glasgow.brier$bsc, col = pal["km0"], lwd = 2)
+plot(gg.path.glasgow.brier$eval_times/365.25*12, gg.path.glasgow.brier$bsc, col = pal["gg"], type = "l", ylim = c(0, 0.3), xlab = "Time from diagnosis (months)", ylab = "Brier score", lwd = 3, xlim = c(0, 40), cex.lab = 1.5, cex.axis = 1.5)
+lines(gg.path.glasgow.brier$eval_times/365.25*12, km0.path.glasgow.brier$bsc, col = pal["km0"], lwd = 3)
 points(c(12, 24, 36), c(mskcc_pre.12mo.glasgow.brier, mskcc_pre.24mo.glasgow.brier, mskcc_pre.36mo.glasgow.brier), col = pal["mskcc.pre"], cex = 1, pch = 16)
-abline(h = 0.25, col = "grey", lty = "dotted")
-abline(v = c(7, 34))
+abline(h = 0.25, col = "grey", lty = "dashed")
+abline(v = c(7, 34), lty = "dashed")
 legend("bottom", 
 	legend = c(	"PCOP", 		"KM0", 		"MSKCC"), 
 	pch = c(	NA, 			NA, 		16), 
 	col = c(	pal["gg"], 		pal["km0"], pal["mskcc.pre"]), 
 	lty = c(	"solid", 		"solid", 	NA), 
-	inset = 0.05, lwd = 2)
-
-plot(gg.path.glasgow.brier$eval_times/365.25*12, km0.path.glasgow.brier$bsc - gg.path.glasgow.brier$bsc, col = pal["gg"], type = "l", ylim = c(-0.05, 0.05), xlab = "Time from diagnosis (months)", ylab = "Brier score (Improvement over KM0)", lwd = 2, main = "Glasgow")
-points(c(12, 24, 36), approx(km0.path.glasgow.brier$eval_times/365.25*12, km0.path.glasgow.brier$bsc, c(12, 24, 36))$y - c(mskcc_post.12mo.glasgow.brier, mskcc_post.24mo.glasgow.brier, mskcc_post.36mo.glasgow.brier), col = pal["mskcc.pre"], cex = 1, pch = 16)
-points(c(12, 24, 36), approx(km0.path.glasgow.brier$eval_times/365.25*12, km0.path.glasgow.brier$bsc, c(12, 24, 36))$y - c(mskcc_pre.12mo.glasgow.brier, mskcc_pre.24mo.glasgow.brier, mskcc_pre.36mo.glasgow.brier), col = pal["mskcc.post"], cex = 1, pch = 16)
-lines(gg.path.glasgow.brier$eval_times/365.25*12, km0.path.glasgow.brier$bsc - 0.25, col = "grey", lty = "dotted")
-abline(v = c(7, 34))
-abline(h = 0, col = pal["km0"], lwd = 2)
-legend("topright", 
-	legend = c(	"GG1 Preop", 	"MSKCC Postop", 	"MSKCC Preop"), 
-	pch = c(	NA, 			16, 				16), 
-	col = c(	pal["gg"], 		pal["mskcc.pre"], 	pal["mskcc.post"]), 
-	lty = c(	"solid", 		NA, 				NA), 
-	inset = 0.05, lwd = 2)
-
-plot(gg.path.glasgow.brier$eval_times/365.25*12, km0.path.glasgow.brier$bsc - gg.path.glasgow.brier$bsc, col = pal["gg"], type = "l", ylim = c(-0.05, 0.05), xlab = "Time from diagnosis (months)", ylab = "Brier score (Improvement over KM0)", lwd = 2, xlim = c(0, 40), main = "Glasgow")
-points(c(12, 24, 36), approx(km0.path.glasgow.brier$eval_times/365.25*12, km0.path.glasgow.brier$bsc, c(12, 24, 36))$y - c(mskcc_post.12mo.glasgow.brier, mskcc_post.24mo.glasgow.brier, mskcc_post.36mo.glasgow.brier), col = pal["mskcc.pre"], cex = 1, pch = 16)
-points(c(12, 24, 36), approx(km0.path.glasgow.brier$eval_times/365.25*12, km0.path.glasgow.brier$bsc, c(12, 24, 36))$y - c(mskcc_pre.12mo.glasgow.brier, mskcc_pre.24mo.glasgow.brier, mskcc_pre.36mo.glasgow.brier), col = pal["mskcc.post"], cex = 1, pch = 16)
-lines(gg.path.glasgow.brier$eval_times/365.25*12, km0.path.glasgow.brier$bsc - 0.25, col = "grey", lty = "dotted")
-abline(v = c(7, 34))
-abline(h = 0, col = pal["km0"], lwd = 2)
-legend("bottom", 
-	legend = c(	"GG1 Preop", 	"MSKCC Postop", 	"MSKCC Preop"), 
-	pch = c(	NA, 			16, 				16), 
-	col = c(	pal["gg"], 		pal["mskcc.pre"], 	pal["mskcc.post"]), 
-	lty = c(	"solid", 		NA, 				NA), 
-	inset = 0.05, lwd = 2)
+	inset = 0.05, lwd = 3, bty = "n")
 @
 
 
 <<prob-bs-paths-plot-apgi, fig.height = 4, fig.width = 6>>=
-plot(gg.path.apgi.brier$eval_times/365.25*12, gg.path.apgi.brier$bsc, col = pal["gg"], type = "l", ylim = c(0, 0.3), xlab = "Time from diagnosis (months)", ylab = "Brier score", lwd = 2, main = "APGI")
-lines(gg.path.apgi.brier$eval_times/365.25*12, km0.path.apgi.brier$bsc, col = pal["km0"], lwd = 2)
-points(c(12, 24, 36), c(mskcc_post.12mo.apgi.brier, mskcc_post.24mo.apgi.brier, mskcc_post.36mo.apgi.brier), col = pal["mskcc.pre"], cex = 1, pch = 16)
-points(c(12, 24, 36), c(mskcc_pre.12mo.apgi.brier, mskcc_pre.24mo.apgi.brier, mskcc_pre.36mo.apgi.brier), col = pal["mskcc.post"], cex = 1, pch = 16)
-abline(h = 0.25, col = "grey", lty = "dotted")
-abline(v = c(7, 34))
-legend("topright", 
-	legend = c(	"GG1 Preop", 	"KM0", 		"MSKCC Postop", 	"MSKCC Preop"), 
-	pch = c(	NA, 			NA, 		16, 				16), 
-	col = c(	pal["gg"], 		pal["km0"], pal["mskcc.pre"], 	pal["mskcc.post"]), 
-	lty = c(	"solid", 		"solid", 	NA, 				NA), 
-	inset = 0.05, lwd = 2)
-
-plot(gg.path.apgi.brier$eval_times/365.25*12, gg.path.apgi.brier$bsc, col = pal["gg"], type = "l", ylim = c(0, 0.3), xlab = "Time from diagnosis (months)", ylab = "Brier score", lwd = 2, xlim = c(0, 40))
-lines(gg.path.apgi.brier$eval_times/365.25*12, km0.path.apgi.brier$bsc, col = pal["km0"], lwd = 2)
+plot(gg.path.apgi.brier$eval_times/365.25*12, gg.path.apgi.brier$bsc, col = pal["gg"], type = "l", ylim = c(0, 0.3), xlab = "Time from diagnosis (months)", ylab = "Brier score", lwd = 3, xlim = c(0, 40), cex.axis = 1.5, cex.lab = 1.5)
+lines(gg.path.apgi.brier$eval_times/365.25*12, km0.path.apgi.brier$bsc, col = pal["km0"], lwd = 3)
 points(c(12, 24, 36), c(mskcc_pre.12mo.apgi.brier, mskcc_pre.24mo.apgi.brier, mskcc_pre.36mo.apgi.brier), col = pal["mskcc.pre"], cex = 1, pch = 16)
-abline(h = 0.25, col = "grey", lty = "dotted")
-abline(v = c(7, 34))
+abline(h = 0.25, col = "grey", lty = "dashed")
+abline(v = c(7, 34), lty = "dashed")
 legend("bottom", 
 	legend = c(	"PCOP", 		"KM0", 		"MSKCC"), 
 	pch = c(	NA, 			NA, 		16), 
 	col = c(	pal["gg"], 		pal["km0"], pal["mskcc.pre"]), 
 	lty = c(	"solid", 		"solid", 	NA), 
-	inset = 0.05, lwd = 2)
-
-plot(gg.path.apgi.brier$eval_times/365.25*12, km0.path.apgi.brier$bsc - gg.path.apgi.brier$bsc, col = pal["gg"], type = "l", ylim = c(-0.05, 0.05), xlab = "Time from diagnosis (months)", ylab = "Brier score (Improvement over KM0)", lwd = 2, main = "APGI")
-points(c(12, 24, 36), approx(km0.path.apgi.brier$eval_times/365.25*12, km0.path.apgi.brier$bsc, c(12, 24, 36))$y - c(mskcc_post.12mo.apgi.brier, mskcc_post.24mo.apgi.brier, mskcc_post.36mo.apgi.brier), col = pal["mskcc.pre"], cex = 1, pch = 16)
-points(c(12, 24, 36), approx(km0.path.apgi.brier$eval_times/365.25*12, km0.path.apgi.brier$bsc, c(12, 24, 36))$y - c(mskcc_pre.12mo.apgi.brier, mskcc_pre.24mo.apgi.brier, mskcc_pre.36mo.apgi.brier), col = pal["mskcc.post"], cex = 1, pch = 16)
-lines(gg.path.apgi.brier$eval_times/365.25*12, km0.path.apgi.brier$bsc - 0.25, col = "grey", lty = "dotted")
-abline(v = c(7, 34))
-abline(h = 0, col = pal["km0"], lwd = 2)
-legend("topright", 
-	legend = c(	"GG1 Preop", 	"MSKCC Postop", 	"MSKCC Preop"), 
-	pch = c(	NA, 			16, 				16), 
-	col = c(	pal["gg"], 		pal["mskcc.pre"], 	pal["mskcc.post"]), 
-	lty = c(	"solid", 		NA, 				NA), 
-	inset = 0.05, lwd = 2)
-
-plot(gg.path.apgi.brier$eval_times/365.25*12, km0.path.apgi.brier$bsc - gg.path.apgi.brier$bsc, col = pal["gg"], type = "l", ylim = c(-0.05, 0.05), xlab = "Time from diagnosis (months)", ylab = "Brier score (Improvement over KM0)", lwd = 2, xlim = c(0, 40), main = "APGI")
-points(c(12, 24, 36), approx(km0.path.apgi.brier$eval_times/365.25*12, km0.path.apgi.brier$bsc, c(12, 24, 36))$y - c(mskcc_post.12mo.apgi.brier, mskcc_post.24mo.apgi.brier, mskcc_post.36mo.apgi.brier), col = pal["mskcc.pre"], cex = 1, pch = 16)
-points(c(12, 24, 36), approx(km0.path.apgi.brier$eval_times/365.25*12, km0.path.apgi.brier$bsc, c(12, 24, 36))$y - c(mskcc_pre.12mo.apgi.brier, mskcc_pre.24mo.apgi.brier, mskcc_pre.36mo.apgi.brier), col = pal["mskcc.post"], cex = 1, pch = 16)
-lines(gg.path.apgi.brier$eval_times/365.25*12, km0.path.apgi.brier$bsc - 0.25, col = "grey", lty = "dotted")
-abline(v = c(7, 34))
-abline(h = 0, col = pal["km0"], lwd = 2)
-legend("bottom", 
-	legend = c(	"GG1 Preop", 	"MSKCC Postop", 	"MSKCC Preop"), 
-	pch = c(	NA, 			16, 				16), 
-	col = c(	pal["gg"], 		pal["mskcc.pre"], 	pal["mskcc.post"]), 
-	lty = c(	"solid", 		NA, 				NA), 
-	inset = 0.05, lwd = 2)
+	inset = 0.05, lwd = 3, bty = "n")
 @
 
 
 <<prob-bs-paths-plot-dresden, fig.height = 4, fig.width = 6>>=
-plot(gg.path.dresden.brier$eval_times/365.25*12, gg.path.dresden.brier$bsc, col = pal["gg"], type = "l", ylim = c(0, 0.3), xlab = "Time from diagnosis (months)", ylab = "Brier score", lwd = 2, main = "Dresden")
-lines(gg.path.dresden.brier$eval_times/365.25*12, km0.path.dresden.brier$bsc, col = pal["km0"], lwd = 2)
-points(c(12, 24, 36), c(mskcc_post.12mo.dresden.brier, mskcc_post.24mo.dresden.brier, mskcc_post.36mo.dresden.brier), col = pal["mskcc.pre"], cex = 1, pch = 16)
-points(c(12, 24, 36), c(mskcc_pre.12mo.dresden.brier, mskcc_pre.24mo.dresden.brier, mskcc_pre.36mo.dresden.brier), col = pal["mskcc.post"], cex = 1, pch = 16)
-abline(h = 0.25, col = "grey", lty = "dotted")
-abline(v = c(7, 34))
-legend("topright", 
-	legend = c(	"GG1 Preop", 	"KM0", 		"MSKCC Postop", 	"MSKCC Preop"), 
-	pch = c(	NA, 			NA, 		16, 				16), 
-	col = c(	pal["gg"], 		pal["km0"], pal["mskcc.pre"], 	pal["mskcc.post"]), 
-	lty = c(	"solid", 		"solid", 	NA, 				NA), 
-	inset = 0.05, lwd = 2)
-
-plot(gg.path.dresden.brier$eval_times/365.25*12, gg.path.dresden.brier$bsc, col = pal["gg"], type = "l", ylim = c(0, 0.3), xlab = "Time from diagnosis (months)", ylab = "Brier score", lwd = 2, xlim = c(0, 40))
-lines(gg.path.dresden.brier$eval_times/365.25*12, km0.path.dresden.brier$bsc, col = pal["km0"], lwd = 2)
+plot(gg.path.dresden.brier$eval_times/365.25*12, gg.path.dresden.brier$bsc, col = pal["gg"], type = "l", ylim = c(0, 0.3), xlab = "Time from diagnosis (months)", ylab = "Brier score", lwd = 3, xlim = c(0, 40), cex.axis = 1.5, cex.lab = 1.5)
+lines(gg.path.dresden.brier$eval_times/365.25*12, km0.path.dresden.brier$bsc, col = pal["km0"], lwd = 3)
 points(c(12, 24, 36), c(mskcc_pre.12mo.dresden.brier, mskcc_pre.24mo.dresden.brier, mskcc_pre.36mo.dresden.brier), col = pal["mskcc.pre"], cex = 1, pch = 16)
-abline(h = 0.25, col = "grey", lty = "dotted")
-abline(v = c(7, 34))
+abline(h = 0.25, col = "grey", lty = "dashed")
+abline(v = c(7, 34), lty = "dashed")
 legend("bottom", 
 	legend = c(	"PCOP", 		"KM0", 		"MSKCC"), 
 	pch = c(	NA, 			NA, 		16), 
 	col = c(	pal["gg"], 		pal["km0"], pal["mskcc.pre"]), 
 	lty = c(	"solid", 		"solid", 	NA), 
-	inset = 0.05, lwd = 2)
-
-plot(gg.path.dresden.brier$eval_times/365.25*12, km0.path.dresden.brier$bsc - gg.path.dresden.brier$bsc, col = pal["gg"], type = "l", ylim = c(-0.05, 0.05), xlab = "Time from diagnosis (months)", ylab = "Brier score (Improvement over KM0)", lwd = 2, main = "Dresden")
-points(c(12, 24, 36), approx(km0.path.dresden.brier$eval_times/365.25*12, km0.path.dresden.brier$bsc, c(12, 24, 36))$y - c(mskcc_post.12mo.dresden.brier, mskcc_post.24mo.dresden.brier, mskcc_post.36mo.dresden.brier), col = pal["mskcc.pre"], cex = 1, pch = 16)
-points(c(12, 24, 36), approx(km0.path.dresden.brier$eval_times/365.25*12, km0.path.dresden.brier$bsc, c(12, 24, 36))$y - c(mskcc_pre.12mo.dresden.brier, mskcc_pre.24mo.dresden.brier, mskcc_pre.36mo.dresden.brier), col = pal["mskcc.post"], cex = 1, pch = 16)
-lines(gg.path.dresden.brier$eval_times/365.25*12, km0.path.dresden.brier$bsc - 0.25, col = "grey", lty = "dotted")
-abline(v = c(7, 34))
-abline(h = 0, col = pal["km0"], lwd = 2)
-legend("topright", 
-	legend = c(	"GG1 Preop", 	"MSKCC Postop", 	"MSKCC Preop"), 
-	pch = c(	NA, 			16, 				16), 
-	col = c(	pal["gg"], 		pal["mskcc.pre"], 	pal["mskcc.post"]), 
-	lty = c(	"solid", 		NA, 				NA), 
-	inset = 0.05, lwd = 2)
-
-plot(gg.path.dresden.brier$eval_times/365.25*12, km0.path.dresden.brier$bsc - gg.path.dresden.brier$bsc, col = pal["gg"], type = "l", ylim = c(-0.05, 0.05), xlab = "Time from diagnosis (months)", ylab = "Brier score (Improvement over KM0)", lwd = 2, xlim = c(0, 40), main = "Dresden")
-points(c(12, 24, 36), approx(km0.path.dresden.brier$eval_times/365.25*12, km0.path.dresden.brier$bsc, c(12, 24, 36))$y - c(mskcc_post.12mo.dresden.brier, mskcc_post.24mo.dresden.brier, mskcc_post.36mo.dresden.brier), col = pal["mskcc.pre"], cex = 1, pch = 16)
-points(c(12, 24, 36), approx(km0.path.dresden.brier$eval_times/365.25*12, km0.path.dresden.brier$bsc, c(12, 24, 36))$y - c(mskcc_pre.12mo.dresden.brier, mskcc_pre.24mo.dresden.brier, mskcc_pre.36mo.dresden.brier), col = pal["mskcc.post"], cex = 1, pch = 16)
-lines(gg.path.dresden.brier$eval_times/365.25*12, km0.path.dresden.brier$bsc - 0.25, col = "grey", lty = "dotted")
-abline(v = c(7, 34))
-abline(h = 0, col = pal["km0"], lwd = 2)
-legend("bottom", 
-	legend = c(	"GG1 Preop", 	"MSKCC Postop", 	"MSKCC Preop"), 
-	pch = c(	NA, 			16, 				16), 
-	col = c(	pal["gg"], 		pal["mskcc.pre"], 	pal["mskcc.post"]), 
-	lty = c(	"solid", 		NA, 				NA), 
-	inset = 0.05, lwd = 2)
+	inset = 0.05, lwd = 3, bty = "n")
 @
 
 
@@ -1235,10 +1119,10 @@ rrROC_boot.gg.glasgow = risksetROC.boot(time = data.glasgow$Time/365.25*12, even
 @
 
 <<risksetROC-plot-glasgow, fig.height = 4, fig.width = 6>>=
-plot(rrROC_boot.mskcc_pre.glasgow, col = pal["mskcc.pre"], xlab = "Time from diagnosis (months)", ylab = "AUC", lwd = 3)
+plot(rrROC_boot.mskcc_pre.glasgow, col = pal["mskcc.pre"], xlab = "Time from diagnosis (months)", ylab = "AUC", lwd = 3, cex.lab = 1.5, cex.axis = 1.5)
 plot(rrROC_boot.gg.glasgow, col = pal["gg"], add = TRUE, ci = TRUE, lwd = 3)
-legend("topright", legend = c("MSKCC", "PCOP"), col = c(pal["mskcc.pre"], pal["gg"]), lty = "solid", lwd = 3, inset = 0.05)
-abline(v = c(7, 31))
+legend("topright", legend = c("MSKCC", "PCOP"), col = c(pal["mskcc.pre"], pal["gg"]), lty = "solid", lwd = 3, inset = 0.05, bty = "n")
+abline(v = c(7, 31), lty = "dashed")
 @
 
 <<risksetROC-boot-apgi>>=
@@ -1249,10 +1133,10 @@ rrROC_boot.gg.apgi = risksetROC.boot(time = data.apgi$Time/365.25*12, event = da
 @
 
 <<risksetROC-plot-apgi, fig.height = 4, fig.width = 6>>=
-plot(rrROC_boot.mskcc_pre.apgi, col = pal["mskcc.pre"], xlab = "Time from diagnosis (months)", ylab = "AUC", lwd = 3)
+plot(rrROC_boot.mskcc_pre.apgi, col = pal["mskcc.pre"], xlab = "Time from diagnosis (months)", ylab = "AUC", lwd = 3, cex.lab = 1.5, cex.axis = 1.5)
 plot(rrROC_boot.gg.apgi, col = pal["gg"], add = TRUE, ci = TRUE, lwd = 3)
-legend("topright", legend = c("MSKCC", "PCOP"), col = c(pal["mskcc.pre"], pal["gg"]), lty = "solid", lwd = 3, inset = 0.05)
-abline(v = c(7, 31))
+legend("topright", legend = c("MSKCC", "PCOP"), col = c(pal["mskcc.pre"], pal["gg"]), lty = "solid", lwd = 3, inset = 0.05, bty = "n")
+abline(v = c(7, 31), lty = "dashed")
 @
 
 <<risksetROC-boot-dresden>>=
@@ -1263,10 +1147,10 @@ rrROC_boot.gg.dresden = risksetROC.boot(time = data.dresden$Time/365.25*12, even
 @
 
 <<risksetROC-plot-dresden, fig.height = 4, fig.width = 6>>=
-plot(rrROC_boot.mskcc_pre.dresden, col = pal["mskcc.pre"], xlab = "Time from diagnosis (months)", ylab = "AUC", lwd = 3)
+plot(rrROC_boot.mskcc_pre.dresden, col = pal["mskcc.pre"], xlab = "Time from diagnosis (months)", ylab = "AUC", lwd = 3, cex.lab = 1.5, cex.axis = 1.5)
 plot(rrROC_boot.gg.dresden, col = pal["gg"], add = TRUE, ci = TRUE, lwd = 3)
-legend("topright", legend = c("MSKCC", "PCOP"), col = c(pal["mskcc.pre"], pal["gg"]), lty = "solid", lwd = 3, inset = 0.05)
-abline(v = c(7, 31))
+legend("topright", legend = c("MSKCC", "PCOP"), col = c(pal["mskcc.pre"], pal["gg"]), lty = "solid", lwd = 3, inset = 0.05, bty = "n")
+abline(v = c(7, 31), lty = "dashed")
 @
 
 \end{document}

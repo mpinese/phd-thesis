@@ -1944,16 +1944,17 @@ Get approximate linear predictors from the GG model, by just calculating the loc
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlkwd{par}\hlstd{(}\hlkwc{mfrow} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{4}\hlstd{,} \hlnum{1}\hlstd{))}
+\hlstd{pars} \hlkwb{=} \hlkwd{par}\hlstd{(}\hlkwc{no.readonly} \hlstd{=} \hlnum{TRUE}\hlstd{)}
+\hlkwd{par}\hlstd{(}\hlkwc{mfrow} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{4}\hlstd{,} \hlnum{1}\hlstd{),} \hlkwc{mar} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{5.1}\hlstd{,} \hlnum{5.1}\hlstd{,} \hlnum{4.1}\hlstd{,} \hlnum{2.1}\hlstd{))}
 \hlstd{temp.breaks} \hlkwb{=} \hlkwd{seq}\hlstd{(}\hlkwd{min}\hlstd{(}\hlkwd{c}\hlstd{(gg.linpred.nswpcn, gg.linpred.glasgow, gg.linpred.apgi, gg.linpred.dresden)),} \hlkwd{max}\hlstd{(}\hlkwd{c}\hlstd{(gg.linpred.nswpcn, gg.linpred.glasgow, gg.linpred.apgi, gg.linpred.dresden)),} \hlkwc{length.out} \hlstd{=} \hlnum{29}\hlstd{)}
-\hlkwd{hist}\hlstd{(gg.linpred.nswpcn,} \hlkwc{main} \hlstd{=} \hlstr{"NSWPCN"}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{range}\hlstd{(}\hlkwd{c}\hlstd{(gg.linpred.nswpcn, gg.linpred.glasgow, gg.linpred.apgi, gg.linpred.dresden)),} \hlkwc{breaks} \hlstd{= temp.breaks,} \hlkwc{col} \hlstd{=} \hlstr{"grey"}\hlstd{,} \hlkwc{xlab} \hlstd{=} \hlstr{""}\hlstd{)}
-\hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{quantile}\hlstd{(gg.linpred.nswpcn,} \hlkwc{probs} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0.2}\hlstd{,} \hlnum{0.5}\hlstd{,} \hlnum{0.8}\hlstd{)),} \hlkwc{col} \hlstd{=} \hlstr{"red"}\hlstd{)}
-\hlkwd{hist}\hlstd{(gg.linpred.glasgow,} \hlkwc{main} \hlstd{=} \hlstr{"Glasgow"}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{range}\hlstd{(}\hlkwd{c}\hlstd{(gg.linpred.nswpcn, gg.linpred.glasgow, gg.linpred.apgi, gg.linpred.dresden)),} \hlkwc{breaks} \hlstd{= temp.breaks,} \hlkwc{col} \hlstd{=} \hlstr{"grey"}\hlstd{,} \hlkwc{xlab} \hlstd{=} \hlstr{""}\hlstd{)}
-\hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{quantile}\hlstd{(gg.linpred.glasgow,} \hlkwc{probs} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0.2}\hlstd{,} \hlnum{0.5}\hlstd{,} \hlnum{0.8}\hlstd{)),} \hlkwc{col} \hlstd{=} \hlstr{"red"}\hlstd{)}
-\hlkwd{hist}\hlstd{(gg.linpred.apgi,} \hlkwc{main} \hlstd{=} \hlstr{"APGI"}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{range}\hlstd{(}\hlkwd{c}\hlstd{(gg.linpred.nswpcn, gg.linpred.glasgow, gg.linpred.apgi, gg.linpred.dresden)),} \hlkwc{breaks} \hlstd{= temp.breaks,} \hlkwc{col} \hlstd{=} \hlstr{"grey"}\hlstd{,} \hlkwc{xlab} \hlstd{=} \hlstr{""}\hlstd{)}
-\hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{quantile}\hlstd{(gg.linpred.apgi,} \hlkwc{probs} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0.2}\hlstd{,} \hlnum{0.5}\hlstd{,} \hlnum{0.8}\hlstd{)),} \hlkwc{col} \hlstd{=} \hlstr{"red"}\hlstd{)}
-\hlkwd{hist}\hlstd{(gg.linpred.dresden,} \hlkwc{main} \hlstd{=} \hlstr{"Dresden"}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{range}\hlstd{(}\hlkwd{c}\hlstd{(gg.linpred.nswpcn, gg.linpred.glasgow, gg.linpred.apgi, gg.linpred.dresden)),} \hlkwc{breaks} \hlstd{= temp.breaks,} \hlkwc{col} \hlstd{=} \hlstr{"grey"}\hlstd{,} \hlkwc{xlab} \hlstd{=} \hlstr{""}\hlstd{)}
-\hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{quantile}\hlstd{(gg.linpred.dresden,} \hlkwc{probs} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0.2}\hlstd{,} \hlnum{0.5}\hlstd{,} \hlnum{0.8}\hlstd{)),} \hlkwc{col} \hlstd{=} \hlstr{"red"}\hlstd{)}
+\hlkwd{hist}\hlstd{(gg.linpred.nswpcn,} \hlkwc{main} \hlstd{=} \hlstr{"NSWPCN"}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{range}\hlstd{(}\hlkwd{c}\hlstd{(gg.linpred.nswpcn, gg.linpred.glasgow, gg.linpred.apgi, gg.linpred.dresden)),} \hlkwc{breaks} \hlstd{= temp.breaks,} \hlkwc{col} \hlstd{=} \hlstr{"lightgrey"}\hlstd{,} \hlkwc{xlab} \hlstd{=} \hlstr{""}\hlstd{,} \hlkwc{cex.axis} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{cex.lab} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{cex.main} \hlstd{=} \hlnum{2}\hlstd{)}
+\hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{quantile}\hlstd{(gg.linpred.nswpcn,} \hlkwc{probs} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0.2}\hlstd{,} \hlnum{0.5}\hlstd{,} \hlnum{0.8}\hlstd{)),} \hlkwc{col} \hlstd{=} \hlkwd{rgb}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0.8}\hlstd{),} \hlkwc{lwd} \hlstd{=} \hlnum{4}\hlstd{,} \hlkwc{lty} \hlstd{=} \hlstr{"dashed"}\hlstd{)}
+\hlkwd{hist}\hlstd{(gg.linpred.glasgow,} \hlkwc{main} \hlstd{=} \hlstr{"Glasgow"}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{range}\hlstd{(}\hlkwd{c}\hlstd{(gg.linpred.nswpcn, gg.linpred.glasgow, gg.linpred.apgi, gg.linpred.dresden)),} \hlkwc{breaks} \hlstd{= temp.breaks,} \hlkwc{col} \hlstd{=} \hlstr{"lightgrey"}\hlstd{,} \hlkwc{xlab} \hlstd{=} \hlstr{""}\hlstd{,} \hlkwc{cex.axis} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{cex.lab} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{cex.main} \hlstd{=} \hlnum{2}\hlstd{)}
+\hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{quantile}\hlstd{(gg.linpred.glasgow,} \hlkwc{probs} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0.2}\hlstd{,} \hlnum{0.5}\hlstd{,} \hlnum{0.8}\hlstd{)),} \hlkwc{col} \hlstd{=} \hlkwd{rgb}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0.8}\hlstd{),} \hlkwc{lwd} \hlstd{=} \hlnum{4}\hlstd{,} \hlkwc{lty} \hlstd{=} \hlstr{"dashed"}\hlstd{)}
+\hlkwd{hist}\hlstd{(gg.linpred.apgi,} \hlkwc{main} \hlstd{=} \hlstr{"APGI"}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{range}\hlstd{(}\hlkwd{c}\hlstd{(gg.linpred.nswpcn, gg.linpred.glasgow, gg.linpred.apgi, gg.linpred.dresden)),} \hlkwc{breaks} \hlstd{= temp.breaks,} \hlkwc{col} \hlstd{=} \hlstr{"lightgrey"}\hlstd{,} \hlkwc{xlab} \hlstd{=} \hlstr{""}\hlstd{,} \hlkwc{cex.axis} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{cex.lab} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{cex.main} \hlstd{=} \hlnum{2}\hlstd{)}
+\hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{quantile}\hlstd{(gg.linpred.apgi,} \hlkwc{probs} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0.2}\hlstd{,} \hlnum{0.5}\hlstd{,} \hlnum{0.8}\hlstd{)),} \hlkwc{col} \hlstd{=} \hlkwd{rgb}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0.8}\hlstd{),} \hlkwc{lwd} \hlstd{=} \hlnum{4}\hlstd{,} \hlkwc{lty} \hlstd{=} \hlstr{"dashed"}\hlstd{)}
+\hlkwd{hist}\hlstd{(gg.linpred.dresden,} \hlkwc{main} \hlstd{=} \hlstr{"Dresden"}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{range}\hlstd{(}\hlkwd{c}\hlstd{(gg.linpred.nswpcn, gg.linpred.glasgow, gg.linpred.apgi, gg.linpred.dresden)),} \hlkwc{breaks} \hlstd{= temp.breaks,} \hlkwc{col} \hlstd{=} \hlstr{"lightgrey"}\hlstd{,} \hlkwc{xlab} \hlstd{=} \hlstr{""}\hlstd{,} \hlkwc{cex.axis} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{cex.lab} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{cex.main} \hlstd{=} \hlnum{2}\hlstd{)}
+\hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{quantile}\hlstd{(gg.linpred.dresden,} \hlkwc{probs} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0.2}\hlstd{,} \hlnum{0.5}\hlstd{,} \hlnum{0.8}\hlstd{)),} \hlkwc{col} \hlstd{=} \hlkwd{rgb}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0.8}\hlstd{),} \hlkwc{lwd} \hlstd{=} \hlnum{4}\hlstd{,} \hlkwc{lty} \hlstd{=} \hlstr{"dashed"}\hlstd{)}
 \end{alltt}
 \end{kframe}
 
@@ -1963,7 +1964,7 @@ Get approximate linear predictors from the GG model, by just calculating the loc
 
 
 \begin{kframe}\begin{alltt}
-\hlkwd{par}\hlstd{(}\hlkwc{mfrow} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{1}\hlstd{))}
+\hlkwd{par}\hlstd{(pars)}
 \end{alltt}
 \end{kframe}
 \end{knitrout}
@@ -3020,7 +3021,7 @@ Still strong evidence of misspecification or poor fit.  However, the above calib
 \hlstd{temp.data} \hlkwb{=} \hlkwd{rbind}\hlstd{(temp.km, temp.pred)}
 \hlstd{temp.data}\hlopt{$}\hlstd{time} \hlkwb{=} \hlstd{temp.data}\hlopt{$}\hlstd{time} \hlopt{/} \hlnum{365.25} \hlopt{*} \hlnum{12}
 
-\hlkwd{plot}\hlstd{(}\hlnum{0} \hlopt{~} \hlnum{0}\hlstd{,} \hlkwc{type} \hlstd{=} \hlstr{"n"}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{5}\hlopt{*}\hlnum{12}\hlstd{),} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{1}\hlstd{),} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (months)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Fraction alive"}\hlstd{,} \hlkwc{cex.lab} \hlstd{=} \hlnum{1.2}\hlstd{,} \hlkwc{cex.axis} \hlstd{=} \hlnum{1.2}\hlstd{)}
+\hlkwd{plot}\hlstd{(}\hlnum{0} \hlopt{~} \hlnum{0}\hlstd{,} \hlkwc{type} \hlstd{=} \hlstr{"n"}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{5}\hlopt{*}\hlnum{12}\hlstd{),} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{1}\hlstd{),} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (months)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Fraction alive"}\hlstd{,} \hlkwc{cex.lab} \hlstd{=} \hlnum{1.5}\hlstd{,} \hlkwc{cex.axis} \hlstd{=} \hlnum{1.5}\hlstd{)}
 \hlstd{temp.pal} \hlkwb{=} \hlkwd{brewer.pal}\hlstd{(}\hlkwd{length}\hlstd{(}\hlkwd{unique}\hlstd{(gg.groups.nswpcn)),} \hlstr{"Dark2"}\hlstd{)[}\hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{3}\hlstd{,} \hlnum{2}\hlstd{)]}
 \hlkwd{names}\hlstd{(temp.pal)} \hlkwb{=} \hlkwd{sort}\hlstd{(}\hlkwd{unique}\hlstd{(gg.groups.nswpcn))}
 \hlkwa{for} \hlstd{(temp.i} \hlkwa{in} \hlkwd{factor}\hlstd{(}\hlkwd{sort}\hlstd{(}\hlkwd{unique}\hlstd{(gg.groups.nswpcn))))}
@@ -3097,7 +3098,7 @@ Still strong evidence of misspecification or poor fit.  However, the above calib
         \hlkwc{lower} \hlstd{=} \hlkwd{c}\hlstd{(temp.predpre.12mo[}\hlnum{1}\hlstd{,], temp.predpre.24mo[}\hlnum{1}\hlstd{,], temp.predpre.36mo[}\hlnum{1}\hlstd{,], temp.predpost.12mo[}\hlnum{1}\hlstd{,], temp.predpost.24mo[}\hlnum{1}\hlstd{,], temp.predpost.36mo[}\hlnum{1}\hlstd{,]),}
         \hlkwc{est} \hlstd{=} \hlkwd{rep}\hlstd{(}\hlkwd{c}\hlstd{(}\hlstr{"MSKCC Preoperative"}\hlstd{,} \hlstr{"MSKCC Postoperative"}\hlstd{),} \hlkwc{each} \hlstd{=} \hlnum{9}\hlstd{))}
 
-\hlkwd{plot}\hlstd{(}\hlnum{0} \hlopt{~} \hlnum{0}\hlstd{,} \hlkwc{type} \hlstd{=} \hlstr{"n"}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{5}\hlopt{*}\hlnum{12}\hlstd{),} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{1}\hlstd{),} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (months)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Fraction alive"}\hlstd{,} \hlkwc{cex.lab} \hlstd{=} \hlnum{1.2}\hlstd{,} \hlkwc{cex.axis} \hlstd{=} \hlnum{1.2}\hlstd{)}
+\hlkwd{plot}\hlstd{(}\hlnum{0} \hlopt{~} \hlnum{0}\hlstd{,} \hlkwc{type} \hlstd{=} \hlstr{"n"}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{5}\hlopt{*}\hlnum{12}\hlstd{),} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{1}\hlstd{),} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (months)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Fraction alive"}\hlstd{,} \hlkwc{cex.lab} \hlstd{=} \hlnum{1.5}\hlstd{,} \hlkwc{cex.axis} \hlstd{=} \hlnum{1.5}\hlstd{)}
 \hlstd{temp.pal} \hlkwb{=} \hlkwd{brewer.pal}\hlstd{(}\hlkwd{length}\hlstd{(}\hlkwd{unique}\hlstd{(gg.groups.glasgow)),} \hlstr{"Dark2"}\hlstd{)[}\hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{3}\hlstd{,} \hlnum{2}\hlstd{)]}
 \hlkwd{names}\hlstd{(temp.pal)} \hlkwb{=} \hlkwd{sort}\hlstd{(}\hlkwd{unique}\hlstd{(gg.groups.glasgow))}
 \hlkwa{for} \hlstd{(temp.i} \hlkwa{in} \hlkwd{factor}\hlstd{(}\hlkwd{sort}\hlstd{(}\hlkwd{unique}\hlstd{(gg.groups.glasgow))))}
@@ -3117,7 +3118,7 @@ Still strong evidence of misspecification or poor fit.  However, the above calib
 
 
 \begin{kframe}\begin{alltt}
-\hlkwd{plot}\hlstd{(}\hlnum{0} \hlopt{~} \hlnum{0}\hlstd{,} \hlkwc{type} \hlstd{=} \hlstr{"n"}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{5}\hlopt{*}\hlnum{12}\hlstd{),} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{1}\hlstd{),} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (months)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Fraction alive"}\hlstd{,} \hlkwc{cex.lab} \hlstd{=} \hlnum{1.2}\hlstd{,} \hlkwc{cex.axis} \hlstd{=} \hlnum{1.2}\hlstd{)}
+\hlkwd{plot}\hlstd{(}\hlnum{0} \hlopt{~} \hlnum{0}\hlstd{,} \hlkwc{type} \hlstd{=} \hlstr{"n"}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{5}\hlopt{*}\hlnum{12}\hlstd{),} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{1}\hlstd{),} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (months)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Fraction alive"}\hlstd{,} \hlkwc{cex.lab} \hlstd{=} \hlnum{1.5}\hlstd{,} \hlkwc{cex.axis} \hlstd{=} \hlnum{1.5}\hlstd{)}
 \hlstd{temp.pal} \hlkwb{=} \hlkwd{brewer.pal}\hlstd{(}\hlkwd{length}\hlstd{(}\hlkwd{unique}\hlstd{(gg.groups.glasgow)),} \hlstr{"Dark2"}\hlstd{)[}\hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{3}\hlstd{,} \hlnum{2}\hlstd{)]}
 \hlkwd{names}\hlstd{(temp.pal)} \hlkwb{=} \hlkwd{sort}\hlstd{(}\hlkwd{unique}\hlstd{(gg.groups.glasgow))}
 \hlkwa{for} \hlstd{(temp.i} \hlkwa{in} \hlkwd{factor}\hlstd{(}\hlkwd{sort}\hlstd{(}\hlkwd{unique}\hlstd{(gg.groups.glasgow))))}
@@ -3245,7 +3246,7 @@ Still strong evidence of misspecification or poor fit.  However, the above calib
         \hlkwc{lower} \hlstd{=} \hlkwd{c}\hlstd{(temp.predpre.12mo[}\hlnum{1}\hlstd{,], temp.predpre.24mo[}\hlnum{1}\hlstd{,], temp.predpre.36mo[}\hlnum{1}\hlstd{,], temp.predpost.12mo[}\hlnum{1}\hlstd{,], temp.predpost.24mo[}\hlnum{1}\hlstd{,], temp.predpost.36mo[}\hlnum{1}\hlstd{,]),}
         \hlkwc{est} \hlstd{=} \hlkwd{rep}\hlstd{(}\hlkwd{c}\hlstd{(}\hlstr{"MSKCC Preoperative"}\hlstd{,} \hlstr{"MSKCC Postoperative"}\hlstd{),} \hlkwc{each} \hlstd{=} \hlnum{9}\hlstd{))}
 
-\hlkwd{plot}\hlstd{(}\hlnum{0} \hlopt{~} \hlnum{0}\hlstd{,} \hlkwc{type} \hlstd{=} \hlstr{"n"}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{5}\hlopt{*}\hlnum{12}\hlstd{),} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{1}\hlstd{),} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (months)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Fraction alive"}\hlstd{,} \hlkwc{cex.lab} \hlstd{=} \hlnum{1.2}\hlstd{,} \hlkwc{cex.axis} \hlstd{=} \hlnum{1.2}\hlstd{)}
+\hlkwd{plot}\hlstd{(}\hlnum{0} \hlopt{~} \hlnum{0}\hlstd{,} \hlkwc{type} \hlstd{=} \hlstr{"n"}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{5}\hlopt{*}\hlnum{12}\hlstd{),} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{1}\hlstd{),} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (months)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Fraction alive"}\hlstd{,} \hlkwc{cex.lab} \hlstd{=} \hlnum{1.5}\hlstd{,} \hlkwc{cex.axis} \hlstd{=} \hlnum{1.5}\hlstd{)}
 \hlstd{temp.pal} \hlkwb{=} \hlkwd{brewer.pal}\hlstd{(}\hlkwd{length}\hlstd{(}\hlkwd{unique}\hlstd{(gg.groups.apgi)),} \hlstr{"Dark2"}\hlstd{)[}\hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{3}\hlstd{,} \hlnum{2}\hlstd{)]}
 \hlkwd{names}\hlstd{(temp.pal)} \hlkwb{=} \hlkwd{sort}\hlstd{(}\hlkwd{unique}\hlstd{(gg.groups.apgi))}
 \hlkwa{for} \hlstd{(temp.i} \hlkwa{in} \hlkwd{factor}\hlstd{(}\hlkwd{sort}\hlstd{(}\hlkwd{unique}\hlstd{(gg.groups.apgi))))}
@@ -3265,7 +3266,7 @@ Still strong evidence of misspecification or poor fit.  However, the above calib
 
 
 \begin{kframe}\begin{alltt}
-\hlkwd{plot}\hlstd{(}\hlnum{0} \hlopt{~} \hlnum{0}\hlstd{,} \hlkwc{type} \hlstd{=} \hlstr{"n"}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{5}\hlopt{*}\hlnum{12}\hlstd{),} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{1}\hlstd{),} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (months)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Fraction alive"}\hlstd{,} \hlkwc{cex.lab} \hlstd{=} \hlnum{1.2}\hlstd{,} \hlkwc{cex.axis} \hlstd{=} \hlnum{1.2}\hlstd{)}
+\hlkwd{plot}\hlstd{(}\hlnum{0} \hlopt{~} \hlnum{0}\hlstd{,} \hlkwc{type} \hlstd{=} \hlstr{"n"}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{5}\hlopt{*}\hlnum{12}\hlstd{),} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{1}\hlstd{),} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (months)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Fraction alive"}\hlstd{,} \hlkwc{cex.lab} \hlstd{=} \hlnum{1.5}\hlstd{,} \hlkwc{cex.axis} \hlstd{=} \hlnum{1.5}\hlstd{)}
 \hlstd{temp.pal} \hlkwb{=} \hlkwd{brewer.pal}\hlstd{(}\hlkwd{length}\hlstd{(}\hlkwd{unique}\hlstd{(gg.groups.apgi)),} \hlstr{"Dark2"}\hlstd{)[}\hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{3}\hlstd{,} \hlnum{2}\hlstd{)]}
 \hlkwd{names}\hlstd{(temp.pal)} \hlkwb{=} \hlkwd{sort}\hlstd{(}\hlkwd{unique}\hlstd{(gg.groups.apgi))}
 \hlkwa{for} \hlstd{(temp.i} \hlkwa{in} \hlkwd{factor}\hlstd{(}\hlkwd{sort}\hlstd{(}\hlkwd{unique}\hlstd{(gg.groups.apgi))))}
@@ -3390,7 +3391,7 @@ Still strong evidence of misspecification or poor fit.  However, the above calib
         \hlkwc{lower} \hlstd{=} \hlkwd{c}\hlstd{(temp.predpre.12mo[}\hlnum{1}\hlstd{,], temp.predpre.24mo[}\hlnum{1}\hlstd{,], temp.predpre.36mo[}\hlnum{1}\hlstd{,], temp.predpost.12mo[}\hlnum{1}\hlstd{,], temp.predpost.24mo[}\hlnum{1}\hlstd{,], temp.predpost.36mo[}\hlnum{1}\hlstd{,]),}
         \hlkwc{est} \hlstd{=} \hlkwd{rep}\hlstd{(}\hlkwd{c}\hlstd{(}\hlstr{"MSKCC Preoperative"}\hlstd{,} \hlstr{"MSKCC Postoperative"}\hlstd{),} \hlkwc{each} \hlstd{=} \hlnum{9}\hlstd{))}
 
-\hlkwd{plot}\hlstd{(}\hlnum{0} \hlopt{~} \hlnum{0}\hlstd{,} \hlkwc{type} \hlstd{=} \hlstr{"n"}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{5}\hlopt{*}\hlnum{12}\hlstd{),} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{1}\hlstd{),} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (months)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Fraction alive"}\hlstd{,} \hlkwc{cex.lab} \hlstd{=} \hlnum{1.2}\hlstd{,} \hlkwc{cex.axis} \hlstd{=} \hlnum{1.2}\hlstd{)}
+\hlkwd{plot}\hlstd{(}\hlnum{0} \hlopt{~} \hlnum{0}\hlstd{,} \hlkwc{type} \hlstd{=} \hlstr{"n"}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{5}\hlopt{*}\hlnum{12}\hlstd{),} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{1}\hlstd{),} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (months)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Fraction alive"}\hlstd{,} \hlkwc{cex.lab} \hlstd{=} \hlnum{1.5}\hlstd{,} \hlkwc{cex.axis} \hlstd{=} \hlnum{1.5}\hlstd{)}
 \hlstd{temp.pal} \hlkwb{=} \hlkwd{brewer.pal}\hlstd{(}\hlkwd{length}\hlstd{(}\hlkwd{unique}\hlstd{(gg.groups.dresden)),} \hlstr{"Dark2"}\hlstd{)[}\hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{3}\hlstd{,} \hlnum{2}\hlstd{)]}
 \hlkwd{names}\hlstd{(temp.pal)} \hlkwb{=} \hlkwd{sort}\hlstd{(}\hlkwd{unique}\hlstd{(gg.groups.dresden))}
 \hlkwa{for} \hlstd{(temp.i} \hlkwa{in} \hlkwd{factor}\hlstd{(}\hlkwd{sort}\hlstd{(}\hlkwd{unique}\hlstd{(gg.groups.dresden))))}
@@ -3410,7 +3411,7 @@ Still strong evidence of misspecification or poor fit.  However, the above calib
 
 
 \begin{kframe}\begin{alltt}
-\hlkwd{plot}\hlstd{(}\hlnum{0} \hlopt{~} \hlnum{0}\hlstd{,} \hlkwc{type} \hlstd{=} \hlstr{"n"}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{5}\hlopt{*}\hlnum{12}\hlstd{),} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{1}\hlstd{),} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (months)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Fraction alive"}\hlstd{,} \hlkwc{cex.lab} \hlstd{=} \hlnum{1.2}\hlstd{,} \hlkwc{cex.axis} \hlstd{=} \hlnum{1.2}\hlstd{)}
+\hlkwd{plot}\hlstd{(}\hlnum{0} \hlopt{~} \hlnum{0}\hlstd{,} \hlkwc{type} \hlstd{=} \hlstr{"n"}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{5}\hlopt{*}\hlnum{12}\hlstd{),} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{1}\hlstd{),} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (months)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Fraction alive"}\hlstd{,} \hlkwc{cex.lab} \hlstd{=} \hlnum{1.5}\hlstd{,} \hlkwc{cex.axis} \hlstd{=} \hlnum{1.5}\hlstd{)}
 \hlstd{temp.pal} \hlkwb{=} \hlkwd{brewer.pal}\hlstd{(}\hlkwd{length}\hlstd{(}\hlkwd{unique}\hlstd{(gg.groups.dresden)),} \hlstr{"Dark2"}\hlstd{)[}\hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{3}\hlstd{,} \hlnum{2}\hlstd{)]}
 \hlkwd{names}\hlstd{(temp.pal)} \hlkwb{=} \hlkwd{sort}\hlstd{(}\hlkwd{unique}\hlstd{(gg.groups.dresden))}
 \hlkwa{for} \hlstd{(temp.i} \hlkwa{in} \hlkwd{factor}\hlstd{(}\hlkwd{sort}\hlstd{(}\hlkwd{unique}\hlstd{(gg.groups.dresden))))}
@@ -3772,18 +3773,17 @@ Decision curve analysis.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlkwd{plot}\hlstd{(gg.path.glasgow.brier}\hlopt{$}\hlstd{eval_times}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{, gg.path.glasgow.brier}\hlopt{$}\hlstd{bsc,} \hlkwc{col} \hlstd{= pal[}\hlstr{"gg"}\hlstd{],} \hlkwc{type} \hlstd{=} \hlstr{"l"}\hlstd{,} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{0.3}\hlstd{),} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (months)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Brier score"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{main} \hlstd{=} \hlstr{"Glasgow"}\hlstd{)}
-\hlkwd{lines}\hlstd{(gg.path.glasgow.brier}\hlopt{$}\hlstd{eval_times}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{, km0.path.glasgow.brier}\hlopt{$}\hlstd{bsc,} \hlkwc{col} \hlstd{= pal[}\hlstr{"km0"}\hlstd{],} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
-\hlkwd{points}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{12}\hlstd{,} \hlnum{24}\hlstd{,} \hlnum{36}\hlstd{),} \hlkwd{c}\hlstd{(mskcc_post.12mo.glasgow.brier, mskcc_post.24mo.glasgow.brier, mskcc_post.36mo.glasgow.brier),} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.pre"}\hlstd{],} \hlkwc{cex} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{pch} \hlstd{=} \hlnum{16}\hlstd{)}
-\hlkwd{points}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{12}\hlstd{,} \hlnum{24}\hlstd{,} \hlnum{36}\hlstd{),} \hlkwd{c}\hlstd{(mskcc_pre.12mo.glasgow.brier, mskcc_pre.24mo.glasgow.brier, mskcc_pre.36mo.glasgow.brier),} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.post"}\hlstd{],} \hlkwc{cex} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{pch} \hlstd{=} \hlnum{16}\hlstd{)}
-\hlkwd{abline}\hlstd{(}\hlkwc{h} \hlstd{=} \hlnum{0.25}\hlstd{,} \hlkwc{col} \hlstd{=} \hlstr{"grey"}\hlstd{,} \hlkwc{lty} \hlstd{=} \hlstr{"dotted"}\hlstd{)}
-\hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{7}\hlstd{,} \hlnum{34}\hlstd{))}
-\hlkwd{legend}\hlstd{(}\hlstr{"topright"}\hlstd{,}
-        \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}     \hlstr{"GG1 Preop"}\hlstd{,}    \hlstr{"KM0"}\hlstd{,}          \hlstr{"MSKCC Postop"}\hlstd{,}         \hlstr{"MSKCC Preop"}\hlstd{),}
-        \hlkwc{pch} \hlstd{=} \hlkwd{c}\hlstd{(}        \hlnum{NA}\hlstd{,}                     \hlnum{NA}\hlstd{,}             \hlnum{16}\hlstd{,}                             \hlnum{16}\hlstd{),}
-        \hlkwc{col} \hlstd{=} \hlkwd{c}\hlstd{(        pal[}\hlstr{"gg"}\hlstd{],              pal[}\hlstr{"km0"}\hlstd{], pal[}\hlstr{"mskcc.pre"}\hlstd{],   pal[}\hlstr{"mskcc.post"}\hlstd{]),}
-        \hlkwc{lty} \hlstd{=} \hlkwd{c}\hlstd{(}        \hlstr{"solid"}\hlstd{,}                \hlstr{"solid"}\hlstd{,}        \hlnum{NA}\hlstd{,}                             \hlnum{NA}\hlstd{),}
-        \hlkwc{inset} \hlstd{=} \hlnum{0.05}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
+\hlkwd{plot}\hlstd{(gg.path.glasgow.brier}\hlopt{$}\hlstd{eval_times}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{, gg.path.glasgow.brier}\hlopt{$}\hlstd{bsc,} \hlkwc{col} \hlstd{= pal[}\hlstr{"gg"}\hlstd{],} \hlkwc{type} \hlstd{=} \hlstr{"l"}\hlstd{,} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{0.3}\hlstd{),} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (months)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Brier score"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{3}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{40}\hlstd{),} \hlkwc{cex.lab} \hlstd{=} \hlnum{1.5}\hlstd{,} \hlkwc{cex.axis} \hlstd{=} \hlnum{1.5}\hlstd{)}
+\hlkwd{lines}\hlstd{(gg.path.glasgow.brier}\hlopt{$}\hlstd{eval_times}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{, km0.path.glasgow.brier}\hlopt{$}\hlstd{bsc,} \hlkwc{col} \hlstd{= pal[}\hlstr{"km0"}\hlstd{],} \hlkwc{lwd} \hlstd{=} \hlnum{3}\hlstd{)}
+\hlkwd{points}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{12}\hlstd{,} \hlnum{24}\hlstd{,} \hlnum{36}\hlstd{),} \hlkwd{c}\hlstd{(mskcc_pre.12mo.glasgow.brier, mskcc_pre.24mo.glasgow.brier, mskcc_pre.36mo.glasgow.brier),} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.pre"}\hlstd{],} \hlkwc{cex} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{pch} \hlstd{=} \hlnum{16}\hlstd{)}
+\hlkwd{abline}\hlstd{(}\hlkwc{h} \hlstd{=} \hlnum{0.25}\hlstd{,} \hlkwc{col} \hlstd{=} \hlstr{"grey"}\hlstd{,} \hlkwc{lty} \hlstd{=} \hlstr{"dashed"}\hlstd{)}
+\hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{7}\hlstd{,} \hlnum{34}\hlstd{),} \hlkwc{lty} \hlstd{=} \hlstr{"dashed"}\hlstd{)}
+\hlkwd{legend}\hlstd{(}\hlstr{"bottom"}\hlstd{,}
+        \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}     \hlstr{"PCOP"}\hlstd{,}                 \hlstr{"KM0"}\hlstd{,}          \hlstr{"MSKCC"}\hlstd{),}
+        \hlkwc{pch} \hlstd{=} \hlkwd{c}\hlstd{(}        \hlnum{NA}\hlstd{,}                     \hlnum{NA}\hlstd{,}             \hlnum{16}\hlstd{),}
+        \hlkwc{col} \hlstd{=} \hlkwd{c}\hlstd{(        pal[}\hlstr{"gg"}\hlstd{],              pal[}\hlstr{"km0"}\hlstd{], pal[}\hlstr{"mskcc.pre"}\hlstd{]),}
+        \hlkwc{lty} \hlstd{=} \hlkwd{c}\hlstd{(}        \hlstr{"solid"}\hlstd{,}                \hlstr{"solid"}\hlstd{,}        \hlnum{NA}\hlstd{),}
+        \hlkwc{inset} \hlstd{=} \hlnum{0.05}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{3}\hlstd{,} \hlkwc{bty} \hlstd{=} \hlstr{"n"}\hlstd{)}
 \end{alltt}
 \end{kframe}
 
@@ -3792,68 +3792,6 @@ Decision curve analysis.
 }
 
 
-\begin{kframe}\begin{alltt}
-\hlkwd{plot}\hlstd{(gg.path.glasgow.brier}\hlopt{$}\hlstd{eval_times}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{, gg.path.glasgow.brier}\hlopt{$}\hlstd{bsc,} \hlkwc{col} \hlstd{= pal[}\hlstr{"gg"}\hlstd{],} \hlkwc{type} \hlstd{=} \hlstr{"l"}\hlstd{,} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{0.3}\hlstd{),} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (months)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Brier score"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{40}\hlstd{))}
-\hlkwd{lines}\hlstd{(gg.path.glasgow.brier}\hlopt{$}\hlstd{eval_times}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{, km0.path.glasgow.brier}\hlopt{$}\hlstd{bsc,} \hlkwc{col} \hlstd{= pal[}\hlstr{"km0"}\hlstd{],} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
-\hlkwd{points}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{12}\hlstd{,} \hlnum{24}\hlstd{,} \hlnum{36}\hlstd{),} \hlkwd{c}\hlstd{(mskcc_pre.12mo.glasgow.brier, mskcc_pre.24mo.glasgow.brier, mskcc_pre.36mo.glasgow.brier),} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.pre"}\hlstd{],} \hlkwc{cex} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{pch} \hlstd{=} \hlnum{16}\hlstd{)}
-\hlkwd{abline}\hlstd{(}\hlkwc{h} \hlstd{=} \hlnum{0.25}\hlstd{,} \hlkwc{col} \hlstd{=} \hlstr{"grey"}\hlstd{,} \hlkwc{lty} \hlstd{=} \hlstr{"dotted"}\hlstd{)}
-\hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{7}\hlstd{,} \hlnum{34}\hlstd{))}
-\hlkwd{legend}\hlstd{(}\hlstr{"bottom"}\hlstd{,}
-        \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}     \hlstr{"PCOP"}\hlstd{,}                 \hlstr{"KM0"}\hlstd{,}          \hlstr{"MSKCC"}\hlstd{),}
-        \hlkwc{pch} \hlstd{=} \hlkwd{c}\hlstd{(}        \hlnum{NA}\hlstd{,}                     \hlnum{NA}\hlstd{,}             \hlnum{16}\hlstd{),}
-        \hlkwc{col} \hlstd{=} \hlkwd{c}\hlstd{(        pal[}\hlstr{"gg"}\hlstd{],              pal[}\hlstr{"km0"}\hlstd{], pal[}\hlstr{"mskcc.pre"}\hlstd{]),}
-        \hlkwc{lty} \hlstd{=} \hlkwd{c}\hlstd{(}        \hlstr{"solid"}\hlstd{,}                \hlstr{"solid"}\hlstd{,}        \hlnum{NA}\hlstd{),}
-        \hlkwc{inset} \hlstd{=} \hlnum{0.05}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
-\end{alltt}
-\end{kframe}
-
-{\centering \includegraphics[width=\maxwidth]{figure/07-prob-bs-paths-plot-glasgow-2} 
-
-}
-
-
-\begin{kframe}\begin{alltt}
-\hlkwd{plot}\hlstd{(gg.path.glasgow.brier}\hlopt{$}\hlstd{eval_times}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{, km0.path.glasgow.brier}\hlopt{$}\hlstd{bsc} \hlopt{-} \hlstd{gg.path.glasgow.brier}\hlopt{$}\hlstd{bsc,} \hlkwc{col} \hlstd{= pal[}\hlstr{"gg"}\hlstd{],} \hlkwc{type} \hlstd{=} \hlstr{"l"}\hlstd{,} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlopt{-}\hlnum{0.05}\hlstd{,} \hlnum{0.05}\hlstd{),} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (months)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Brier score (Improvement over KM0)"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{main} \hlstd{=} \hlstr{"Glasgow"}\hlstd{)}
-\hlkwd{points}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{12}\hlstd{,} \hlnum{24}\hlstd{,} \hlnum{36}\hlstd{),} \hlkwd{approx}\hlstd{(km0.path.glasgow.brier}\hlopt{$}\hlstd{eval_times}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{, km0.path.glasgow.brier}\hlopt{$}\hlstd{bsc,} \hlkwd{c}\hlstd{(}\hlnum{12}\hlstd{,} \hlnum{24}\hlstd{,} \hlnum{36}\hlstd{))}\hlopt{$}\hlstd{y} \hlopt{-} \hlkwd{c}\hlstd{(mskcc_post.12mo.glasgow.brier, mskcc_post.24mo.glasgow.brier, mskcc_post.36mo.glasgow.brier),} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.pre"}\hlstd{],} \hlkwc{cex} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{pch} \hlstd{=} \hlnum{16}\hlstd{)}
-\hlkwd{points}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{12}\hlstd{,} \hlnum{24}\hlstd{,} \hlnum{36}\hlstd{),} \hlkwd{approx}\hlstd{(km0.path.glasgow.brier}\hlopt{$}\hlstd{eval_times}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{, km0.path.glasgow.brier}\hlopt{$}\hlstd{bsc,} \hlkwd{c}\hlstd{(}\hlnum{12}\hlstd{,} \hlnum{24}\hlstd{,} \hlnum{36}\hlstd{))}\hlopt{$}\hlstd{y} \hlopt{-} \hlkwd{c}\hlstd{(mskcc_pre.12mo.glasgow.brier, mskcc_pre.24mo.glasgow.brier, mskcc_pre.36mo.glasgow.brier),} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.post"}\hlstd{],} \hlkwc{cex} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{pch} \hlstd{=} \hlnum{16}\hlstd{)}
-\hlkwd{lines}\hlstd{(gg.path.glasgow.brier}\hlopt{$}\hlstd{eval_times}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{, km0.path.glasgow.brier}\hlopt{$}\hlstd{bsc} \hlopt{-} \hlnum{0.25}\hlstd{,} \hlkwc{col} \hlstd{=} \hlstr{"grey"}\hlstd{,} \hlkwc{lty} \hlstd{=} \hlstr{"dotted"}\hlstd{)}
-\hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{7}\hlstd{,} \hlnum{34}\hlstd{))}
-\hlkwd{abline}\hlstd{(}\hlkwc{h} \hlstd{=} \hlnum{0}\hlstd{,} \hlkwc{col} \hlstd{= pal[}\hlstr{"km0"}\hlstd{],} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
-\hlkwd{legend}\hlstd{(}\hlstr{"topright"}\hlstd{,}
-        \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}     \hlstr{"GG1 Preop"}\hlstd{,}    \hlstr{"MSKCC Postop"}\hlstd{,}         \hlstr{"MSKCC Preop"}\hlstd{),}
-        \hlkwc{pch} \hlstd{=} \hlkwd{c}\hlstd{(}        \hlnum{NA}\hlstd{,}                     \hlnum{16}\hlstd{,}                             \hlnum{16}\hlstd{),}
-        \hlkwc{col} \hlstd{=} \hlkwd{c}\hlstd{(        pal[}\hlstr{"gg"}\hlstd{],              pal[}\hlstr{"mskcc.pre"}\hlstd{],       pal[}\hlstr{"mskcc.post"}\hlstd{]),}
-        \hlkwc{lty} \hlstd{=} \hlkwd{c}\hlstd{(}        \hlstr{"solid"}\hlstd{,}                \hlnum{NA}\hlstd{,}                             \hlnum{NA}\hlstd{),}
-        \hlkwc{inset} \hlstd{=} \hlnum{0.05}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
-\end{alltt}
-\end{kframe}
-
-{\centering \includegraphics[width=\maxwidth]{figure/07-prob-bs-paths-plot-glasgow-3} 
-
-}
-
-
-\begin{kframe}\begin{alltt}
-\hlkwd{plot}\hlstd{(gg.path.glasgow.brier}\hlopt{$}\hlstd{eval_times}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{, km0.path.glasgow.brier}\hlopt{$}\hlstd{bsc} \hlopt{-} \hlstd{gg.path.glasgow.brier}\hlopt{$}\hlstd{bsc,} \hlkwc{col} \hlstd{= pal[}\hlstr{"gg"}\hlstd{],} \hlkwc{type} \hlstd{=} \hlstr{"l"}\hlstd{,} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlopt{-}\hlnum{0.05}\hlstd{,} \hlnum{0.05}\hlstd{),} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (months)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Brier score (Improvement over KM0)"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{40}\hlstd{),} \hlkwc{main} \hlstd{=} \hlstr{"Glasgow"}\hlstd{)}
-\hlkwd{points}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{12}\hlstd{,} \hlnum{24}\hlstd{,} \hlnum{36}\hlstd{),} \hlkwd{approx}\hlstd{(km0.path.glasgow.brier}\hlopt{$}\hlstd{eval_times}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{, km0.path.glasgow.brier}\hlopt{$}\hlstd{bsc,} \hlkwd{c}\hlstd{(}\hlnum{12}\hlstd{,} \hlnum{24}\hlstd{,} \hlnum{36}\hlstd{))}\hlopt{$}\hlstd{y} \hlopt{-} \hlkwd{c}\hlstd{(mskcc_post.12mo.glasgow.brier, mskcc_post.24mo.glasgow.brier, mskcc_post.36mo.glasgow.brier),} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.pre"}\hlstd{],} \hlkwc{cex} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{pch} \hlstd{=} \hlnum{16}\hlstd{)}
-\hlkwd{points}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{12}\hlstd{,} \hlnum{24}\hlstd{,} \hlnum{36}\hlstd{),} \hlkwd{approx}\hlstd{(km0.path.glasgow.brier}\hlopt{$}\hlstd{eval_times}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{, km0.path.glasgow.brier}\hlopt{$}\hlstd{bsc,} \hlkwd{c}\hlstd{(}\hlnum{12}\hlstd{,} \hlnum{24}\hlstd{,} \hlnum{36}\hlstd{))}\hlopt{$}\hlstd{y} \hlopt{-} \hlkwd{c}\hlstd{(mskcc_pre.12mo.glasgow.brier, mskcc_pre.24mo.glasgow.brier, mskcc_pre.36mo.glasgow.brier),} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.post"}\hlstd{],} \hlkwc{cex} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{pch} \hlstd{=} \hlnum{16}\hlstd{)}
-\hlkwd{lines}\hlstd{(gg.path.glasgow.brier}\hlopt{$}\hlstd{eval_times}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{, km0.path.glasgow.brier}\hlopt{$}\hlstd{bsc} \hlopt{-} \hlnum{0.25}\hlstd{,} \hlkwc{col} \hlstd{=} \hlstr{"grey"}\hlstd{,} \hlkwc{lty} \hlstd{=} \hlstr{"dotted"}\hlstd{)}
-\hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{7}\hlstd{,} \hlnum{34}\hlstd{))}
-\hlkwd{abline}\hlstd{(}\hlkwc{h} \hlstd{=} \hlnum{0}\hlstd{,} \hlkwc{col} \hlstd{= pal[}\hlstr{"km0"}\hlstd{],} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
-\hlkwd{legend}\hlstd{(}\hlstr{"bottom"}\hlstd{,}
-        \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}     \hlstr{"GG1 Preop"}\hlstd{,}    \hlstr{"MSKCC Postop"}\hlstd{,}         \hlstr{"MSKCC Preop"}\hlstd{),}
-        \hlkwc{pch} \hlstd{=} \hlkwd{c}\hlstd{(}        \hlnum{NA}\hlstd{,}                     \hlnum{16}\hlstd{,}                             \hlnum{16}\hlstd{),}
-        \hlkwc{col} \hlstd{=} \hlkwd{c}\hlstd{(        pal[}\hlstr{"gg"}\hlstd{],              pal[}\hlstr{"mskcc.pre"}\hlstd{],       pal[}\hlstr{"mskcc.post"}\hlstd{]),}
-        \hlkwc{lty} \hlstd{=} \hlkwd{c}\hlstd{(}        \hlstr{"solid"}\hlstd{,}                \hlnum{NA}\hlstd{,}                             \hlnum{NA}\hlstd{),}
-        \hlkwc{inset} \hlstd{=} \hlnum{0.05}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
-\end{alltt}
-\end{kframe}
-
-{\centering \includegraphics[width=\maxwidth]{figure/07-prob-bs-paths-plot-glasgow-4} 
-
-}
-
-
 
 \end{knitrout}
 
@@ -3861,18 +3799,17 @@ Decision curve analysis.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlkwd{plot}\hlstd{(gg.path.apgi.brier}\hlopt{$}\hlstd{eval_times}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{, gg.path.apgi.brier}\hlopt{$}\hlstd{bsc,} \hlkwc{col} \hlstd{= pal[}\hlstr{"gg"}\hlstd{],} \hlkwc{type} \hlstd{=} \hlstr{"l"}\hlstd{,} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{0.3}\hlstd{),} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (months)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Brier score"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{main} \hlstd{=} \hlstr{"APGI"}\hlstd{)}
-\hlkwd{lines}\hlstd{(gg.path.apgi.brier}\hlopt{$}\hlstd{eval_times}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{, km0.path.apgi.brier}\hlopt{$}\hlstd{bsc,} \hlkwc{col} \hlstd{= pal[}\hlstr{"km0"}\hlstd{],} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
-\hlkwd{points}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{12}\hlstd{,} \hlnum{24}\hlstd{,} \hlnum{36}\hlstd{),} \hlkwd{c}\hlstd{(mskcc_post.12mo.apgi.brier, mskcc_post.24mo.apgi.brier, mskcc_post.36mo.apgi.brier),} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.pre"}\hlstd{],} \hlkwc{cex} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{pch} \hlstd{=} \hlnum{16}\hlstd{)}
-\hlkwd{points}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{12}\hlstd{,} \hlnum{24}\hlstd{,} \hlnum{36}\hlstd{),} \hlkwd{c}\hlstd{(mskcc_pre.12mo.apgi.brier, mskcc_pre.24mo.apgi.brier, mskcc_pre.36mo.apgi.brier),} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.post"}\hlstd{],} \hlkwc{cex} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{pch} \hlstd{=} \hlnum{16}\hlstd{)}
-\hlkwd{abline}\hlstd{(}\hlkwc{h} \hlstd{=} \hlnum{0.25}\hlstd{,} \hlkwc{col} \hlstd{=} \hlstr{"grey"}\hlstd{,} \hlkwc{lty} \hlstd{=} \hlstr{"dotted"}\hlstd{)}
-\hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{7}\hlstd{,} \hlnum{34}\hlstd{))}
-\hlkwd{legend}\hlstd{(}\hlstr{"topright"}\hlstd{,}
-        \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}     \hlstr{"GG1 Preop"}\hlstd{,}    \hlstr{"KM0"}\hlstd{,}          \hlstr{"MSKCC Postop"}\hlstd{,}         \hlstr{"MSKCC Preop"}\hlstd{),}
-        \hlkwc{pch} \hlstd{=} \hlkwd{c}\hlstd{(}        \hlnum{NA}\hlstd{,}                     \hlnum{NA}\hlstd{,}             \hlnum{16}\hlstd{,}                             \hlnum{16}\hlstd{),}
-        \hlkwc{col} \hlstd{=} \hlkwd{c}\hlstd{(        pal[}\hlstr{"gg"}\hlstd{],              pal[}\hlstr{"km0"}\hlstd{], pal[}\hlstr{"mskcc.pre"}\hlstd{],   pal[}\hlstr{"mskcc.post"}\hlstd{]),}
-        \hlkwc{lty} \hlstd{=} \hlkwd{c}\hlstd{(}        \hlstr{"solid"}\hlstd{,}                \hlstr{"solid"}\hlstd{,}        \hlnum{NA}\hlstd{,}                             \hlnum{NA}\hlstd{),}
-        \hlkwc{inset} \hlstd{=} \hlnum{0.05}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
+\hlkwd{plot}\hlstd{(gg.path.apgi.brier}\hlopt{$}\hlstd{eval_times}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{, gg.path.apgi.brier}\hlopt{$}\hlstd{bsc,} \hlkwc{col} \hlstd{= pal[}\hlstr{"gg"}\hlstd{],} \hlkwc{type} \hlstd{=} \hlstr{"l"}\hlstd{,} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{0.3}\hlstd{),} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (months)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Brier score"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{3}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{40}\hlstd{),} \hlkwc{cex.axis} \hlstd{=} \hlnum{1.5}\hlstd{,} \hlkwc{cex.lab} \hlstd{=} \hlnum{1.5}\hlstd{)}
+\hlkwd{lines}\hlstd{(gg.path.apgi.brier}\hlopt{$}\hlstd{eval_times}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{, km0.path.apgi.brier}\hlopt{$}\hlstd{bsc,} \hlkwc{col} \hlstd{= pal[}\hlstr{"km0"}\hlstd{],} \hlkwc{lwd} \hlstd{=} \hlnum{3}\hlstd{)}
+\hlkwd{points}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{12}\hlstd{,} \hlnum{24}\hlstd{,} \hlnum{36}\hlstd{),} \hlkwd{c}\hlstd{(mskcc_pre.12mo.apgi.brier, mskcc_pre.24mo.apgi.brier, mskcc_pre.36mo.apgi.brier),} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.pre"}\hlstd{],} \hlkwc{cex} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{pch} \hlstd{=} \hlnum{16}\hlstd{)}
+\hlkwd{abline}\hlstd{(}\hlkwc{h} \hlstd{=} \hlnum{0.25}\hlstd{,} \hlkwc{col} \hlstd{=} \hlstr{"grey"}\hlstd{,} \hlkwc{lty} \hlstd{=} \hlstr{"dashed"}\hlstd{)}
+\hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{7}\hlstd{,} \hlnum{34}\hlstd{),} \hlkwc{lty} \hlstd{=} \hlstr{"dashed"}\hlstd{)}
+\hlkwd{legend}\hlstd{(}\hlstr{"bottom"}\hlstd{,}
+        \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}     \hlstr{"PCOP"}\hlstd{,}                 \hlstr{"KM0"}\hlstd{,}          \hlstr{"MSKCC"}\hlstd{),}
+        \hlkwc{pch} \hlstd{=} \hlkwd{c}\hlstd{(}        \hlnum{NA}\hlstd{,}                     \hlnum{NA}\hlstd{,}             \hlnum{16}\hlstd{),}
+        \hlkwc{col} \hlstd{=} \hlkwd{c}\hlstd{(        pal[}\hlstr{"gg"}\hlstd{],              pal[}\hlstr{"km0"}\hlstd{], pal[}\hlstr{"mskcc.pre"}\hlstd{]),}
+        \hlkwc{lty} \hlstd{=} \hlkwd{c}\hlstd{(}        \hlstr{"solid"}\hlstd{,}                \hlstr{"solid"}\hlstd{,}        \hlnum{NA}\hlstd{),}
+        \hlkwc{inset} \hlstd{=} \hlnum{0.05}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{3}\hlstd{,} \hlkwc{bty} \hlstd{=} \hlstr{"n"}\hlstd{)}
 \end{alltt}
 \end{kframe}
 
@@ -3881,68 +3818,6 @@ Decision curve analysis.
 }
 
 
-\begin{kframe}\begin{alltt}
-\hlkwd{plot}\hlstd{(gg.path.apgi.brier}\hlopt{$}\hlstd{eval_times}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{, gg.path.apgi.brier}\hlopt{$}\hlstd{bsc,} \hlkwc{col} \hlstd{= pal[}\hlstr{"gg"}\hlstd{],} \hlkwc{type} \hlstd{=} \hlstr{"l"}\hlstd{,} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{0.3}\hlstd{),} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (months)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Brier score"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{40}\hlstd{))}
-\hlkwd{lines}\hlstd{(gg.path.apgi.brier}\hlopt{$}\hlstd{eval_times}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{, km0.path.apgi.brier}\hlopt{$}\hlstd{bsc,} \hlkwc{col} \hlstd{= pal[}\hlstr{"km0"}\hlstd{],} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
-\hlkwd{points}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{12}\hlstd{,} \hlnum{24}\hlstd{,} \hlnum{36}\hlstd{),} \hlkwd{c}\hlstd{(mskcc_pre.12mo.apgi.brier, mskcc_pre.24mo.apgi.brier, mskcc_pre.36mo.apgi.brier),} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.pre"}\hlstd{],} \hlkwc{cex} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{pch} \hlstd{=} \hlnum{16}\hlstd{)}
-\hlkwd{abline}\hlstd{(}\hlkwc{h} \hlstd{=} \hlnum{0.25}\hlstd{,} \hlkwc{col} \hlstd{=} \hlstr{"grey"}\hlstd{,} \hlkwc{lty} \hlstd{=} \hlstr{"dotted"}\hlstd{)}
-\hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{7}\hlstd{,} \hlnum{34}\hlstd{))}
-\hlkwd{legend}\hlstd{(}\hlstr{"bottom"}\hlstd{,}
-        \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}     \hlstr{"PCOP"}\hlstd{,}                 \hlstr{"KM0"}\hlstd{,}          \hlstr{"MSKCC"}\hlstd{),}
-        \hlkwc{pch} \hlstd{=} \hlkwd{c}\hlstd{(}        \hlnum{NA}\hlstd{,}                     \hlnum{NA}\hlstd{,}             \hlnum{16}\hlstd{),}
-        \hlkwc{col} \hlstd{=} \hlkwd{c}\hlstd{(        pal[}\hlstr{"gg"}\hlstd{],              pal[}\hlstr{"km0"}\hlstd{], pal[}\hlstr{"mskcc.pre"}\hlstd{]),}
-        \hlkwc{lty} \hlstd{=} \hlkwd{c}\hlstd{(}        \hlstr{"solid"}\hlstd{,}                \hlstr{"solid"}\hlstd{,}        \hlnum{NA}\hlstd{),}
-        \hlkwc{inset} \hlstd{=} \hlnum{0.05}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
-\end{alltt}
-\end{kframe}
-
-{\centering \includegraphics[width=\maxwidth]{figure/07-prob-bs-paths-plot-apgi-2} 
-
-}
-
-
-\begin{kframe}\begin{alltt}
-\hlkwd{plot}\hlstd{(gg.path.apgi.brier}\hlopt{$}\hlstd{eval_times}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{, km0.path.apgi.brier}\hlopt{$}\hlstd{bsc} \hlopt{-} \hlstd{gg.path.apgi.brier}\hlopt{$}\hlstd{bsc,} \hlkwc{col} \hlstd{= pal[}\hlstr{"gg"}\hlstd{],} \hlkwc{type} \hlstd{=} \hlstr{"l"}\hlstd{,} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlopt{-}\hlnum{0.05}\hlstd{,} \hlnum{0.05}\hlstd{),} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (months)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Brier score (Improvement over KM0)"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{main} \hlstd{=} \hlstr{"APGI"}\hlstd{)}
-\hlkwd{points}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{12}\hlstd{,} \hlnum{24}\hlstd{,} \hlnum{36}\hlstd{),} \hlkwd{approx}\hlstd{(km0.path.apgi.brier}\hlopt{$}\hlstd{eval_times}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{, km0.path.apgi.brier}\hlopt{$}\hlstd{bsc,} \hlkwd{c}\hlstd{(}\hlnum{12}\hlstd{,} \hlnum{24}\hlstd{,} \hlnum{36}\hlstd{))}\hlopt{$}\hlstd{y} \hlopt{-} \hlkwd{c}\hlstd{(mskcc_post.12mo.apgi.brier, mskcc_post.24mo.apgi.brier, mskcc_post.36mo.apgi.brier),} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.pre"}\hlstd{],} \hlkwc{cex} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{pch} \hlstd{=} \hlnum{16}\hlstd{)}
-\hlkwd{points}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{12}\hlstd{,} \hlnum{24}\hlstd{,} \hlnum{36}\hlstd{),} \hlkwd{approx}\hlstd{(km0.path.apgi.brier}\hlopt{$}\hlstd{eval_times}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{, km0.path.apgi.brier}\hlopt{$}\hlstd{bsc,} \hlkwd{c}\hlstd{(}\hlnum{12}\hlstd{,} \hlnum{24}\hlstd{,} \hlnum{36}\hlstd{))}\hlopt{$}\hlstd{y} \hlopt{-} \hlkwd{c}\hlstd{(mskcc_pre.12mo.apgi.brier, mskcc_pre.24mo.apgi.brier, mskcc_pre.36mo.apgi.brier),} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.post"}\hlstd{],} \hlkwc{cex} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{pch} \hlstd{=} \hlnum{16}\hlstd{)}
-\hlkwd{lines}\hlstd{(gg.path.apgi.brier}\hlopt{$}\hlstd{eval_times}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{, km0.path.apgi.brier}\hlopt{$}\hlstd{bsc} \hlopt{-} \hlnum{0.25}\hlstd{,} \hlkwc{col} \hlstd{=} \hlstr{"grey"}\hlstd{,} \hlkwc{lty} \hlstd{=} \hlstr{"dotted"}\hlstd{)}
-\hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{7}\hlstd{,} \hlnum{34}\hlstd{))}
-\hlkwd{abline}\hlstd{(}\hlkwc{h} \hlstd{=} \hlnum{0}\hlstd{,} \hlkwc{col} \hlstd{= pal[}\hlstr{"km0"}\hlstd{],} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
-\hlkwd{legend}\hlstd{(}\hlstr{"topright"}\hlstd{,}
-        \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}     \hlstr{"GG1 Preop"}\hlstd{,}    \hlstr{"MSKCC Postop"}\hlstd{,}         \hlstr{"MSKCC Preop"}\hlstd{),}
-        \hlkwc{pch} \hlstd{=} \hlkwd{c}\hlstd{(}        \hlnum{NA}\hlstd{,}                     \hlnum{16}\hlstd{,}                             \hlnum{16}\hlstd{),}
-        \hlkwc{col} \hlstd{=} \hlkwd{c}\hlstd{(        pal[}\hlstr{"gg"}\hlstd{],              pal[}\hlstr{"mskcc.pre"}\hlstd{],       pal[}\hlstr{"mskcc.post"}\hlstd{]),}
-        \hlkwc{lty} \hlstd{=} \hlkwd{c}\hlstd{(}        \hlstr{"solid"}\hlstd{,}                \hlnum{NA}\hlstd{,}                             \hlnum{NA}\hlstd{),}
-        \hlkwc{inset} \hlstd{=} \hlnum{0.05}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
-\end{alltt}
-\end{kframe}
-
-{\centering \includegraphics[width=\maxwidth]{figure/07-prob-bs-paths-plot-apgi-3} 
-
-}
-
-
-\begin{kframe}\begin{alltt}
-\hlkwd{plot}\hlstd{(gg.path.apgi.brier}\hlopt{$}\hlstd{eval_times}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{, km0.path.apgi.brier}\hlopt{$}\hlstd{bsc} \hlopt{-} \hlstd{gg.path.apgi.brier}\hlopt{$}\hlstd{bsc,} \hlkwc{col} \hlstd{= pal[}\hlstr{"gg"}\hlstd{],} \hlkwc{type} \hlstd{=} \hlstr{"l"}\hlstd{,} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlopt{-}\hlnum{0.05}\hlstd{,} \hlnum{0.05}\hlstd{),} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (months)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Brier score (Improvement over KM0)"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{40}\hlstd{),} \hlkwc{main} \hlstd{=} \hlstr{"APGI"}\hlstd{)}
-\hlkwd{points}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{12}\hlstd{,} \hlnum{24}\hlstd{,} \hlnum{36}\hlstd{),} \hlkwd{approx}\hlstd{(km0.path.apgi.brier}\hlopt{$}\hlstd{eval_times}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{, km0.path.apgi.brier}\hlopt{$}\hlstd{bsc,} \hlkwd{c}\hlstd{(}\hlnum{12}\hlstd{,} \hlnum{24}\hlstd{,} \hlnum{36}\hlstd{))}\hlopt{$}\hlstd{y} \hlopt{-} \hlkwd{c}\hlstd{(mskcc_post.12mo.apgi.brier, mskcc_post.24mo.apgi.brier, mskcc_post.36mo.apgi.brier),} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.pre"}\hlstd{],} \hlkwc{cex} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{pch} \hlstd{=} \hlnum{16}\hlstd{)}
-\hlkwd{points}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{12}\hlstd{,} \hlnum{24}\hlstd{,} \hlnum{36}\hlstd{),} \hlkwd{approx}\hlstd{(km0.path.apgi.brier}\hlopt{$}\hlstd{eval_times}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{, km0.path.apgi.brier}\hlopt{$}\hlstd{bsc,} \hlkwd{c}\hlstd{(}\hlnum{12}\hlstd{,} \hlnum{24}\hlstd{,} \hlnum{36}\hlstd{))}\hlopt{$}\hlstd{y} \hlopt{-} \hlkwd{c}\hlstd{(mskcc_pre.12mo.apgi.brier, mskcc_pre.24mo.apgi.brier, mskcc_pre.36mo.apgi.brier),} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.post"}\hlstd{],} \hlkwc{cex} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{pch} \hlstd{=} \hlnum{16}\hlstd{)}
-\hlkwd{lines}\hlstd{(gg.path.apgi.brier}\hlopt{$}\hlstd{eval_times}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{, km0.path.apgi.brier}\hlopt{$}\hlstd{bsc} \hlopt{-} \hlnum{0.25}\hlstd{,} \hlkwc{col} \hlstd{=} \hlstr{"grey"}\hlstd{,} \hlkwc{lty} \hlstd{=} \hlstr{"dotted"}\hlstd{)}
-\hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{7}\hlstd{,} \hlnum{34}\hlstd{))}
-\hlkwd{abline}\hlstd{(}\hlkwc{h} \hlstd{=} \hlnum{0}\hlstd{,} \hlkwc{col} \hlstd{= pal[}\hlstr{"km0"}\hlstd{],} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
-\hlkwd{legend}\hlstd{(}\hlstr{"bottom"}\hlstd{,}
-        \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}     \hlstr{"GG1 Preop"}\hlstd{,}    \hlstr{"MSKCC Postop"}\hlstd{,}         \hlstr{"MSKCC Preop"}\hlstd{),}
-        \hlkwc{pch} \hlstd{=} \hlkwd{c}\hlstd{(}        \hlnum{NA}\hlstd{,}                     \hlnum{16}\hlstd{,}                             \hlnum{16}\hlstd{),}
-        \hlkwc{col} \hlstd{=} \hlkwd{c}\hlstd{(        pal[}\hlstr{"gg"}\hlstd{],              pal[}\hlstr{"mskcc.pre"}\hlstd{],       pal[}\hlstr{"mskcc.post"}\hlstd{]),}
-        \hlkwc{lty} \hlstd{=} \hlkwd{c}\hlstd{(}        \hlstr{"solid"}\hlstd{,}                \hlnum{NA}\hlstd{,}                             \hlnum{NA}\hlstd{),}
-        \hlkwc{inset} \hlstd{=} \hlnum{0.05}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
-\end{alltt}
-\end{kframe}
-
-{\centering \includegraphics[width=\maxwidth]{figure/07-prob-bs-paths-plot-apgi-4} 
-
-}
-
-
 
 \end{knitrout}
 
@@ -3950,84 +3825,21 @@ Decision curve analysis.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlkwd{plot}\hlstd{(gg.path.dresden.brier}\hlopt{$}\hlstd{eval_times}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{, gg.path.dresden.brier}\hlopt{$}\hlstd{bsc,} \hlkwc{col} \hlstd{= pal[}\hlstr{"gg"}\hlstd{],} \hlkwc{type} \hlstd{=} \hlstr{"l"}\hlstd{,} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{0.3}\hlstd{),} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (months)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Brier score"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{main} \hlstd{=} \hlstr{"Dresden"}\hlstd{)}
-\hlkwd{lines}\hlstd{(gg.path.dresden.brier}\hlopt{$}\hlstd{eval_times}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{, km0.path.dresden.brier}\hlopt{$}\hlstd{bsc,} \hlkwc{col} \hlstd{= pal[}\hlstr{"km0"}\hlstd{],} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
-\hlkwd{points}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{12}\hlstd{,} \hlnum{24}\hlstd{,} \hlnum{36}\hlstd{),} \hlkwd{c}\hlstd{(mskcc_post.12mo.dresden.brier, mskcc_post.24mo.dresden.brier, mskcc_post.36mo.dresden.brier),} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.pre"}\hlstd{],} \hlkwc{cex} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{pch} \hlstd{=} \hlnum{16}\hlstd{)}
-\hlkwd{points}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{12}\hlstd{,} \hlnum{24}\hlstd{,} \hlnum{36}\hlstd{),} \hlkwd{c}\hlstd{(mskcc_pre.12mo.dresden.brier, mskcc_pre.24mo.dresden.brier, mskcc_pre.36mo.dresden.brier),} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.post"}\hlstd{],} \hlkwc{cex} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{pch} \hlstd{=} \hlnum{16}\hlstd{)}
-\hlkwd{abline}\hlstd{(}\hlkwc{h} \hlstd{=} \hlnum{0.25}\hlstd{,} \hlkwc{col} \hlstd{=} \hlstr{"grey"}\hlstd{,} \hlkwc{lty} \hlstd{=} \hlstr{"dotted"}\hlstd{)}
-\hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{7}\hlstd{,} \hlnum{34}\hlstd{))}
-\hlkwd{legend}\hlstd{(}\hlstr{"topright"}\hlstd{,}
-        \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}     \hlstr{"GG1 Preop"}\hlstd{,}    \hlstr{"KM0"}\hlstd{,}          \hlstr{"MSKCC Postop"}\hlstd{,}         \hlstr{"MSKCC Preop"}\hlstd{),}
-        \hlkwc{pch} \hlstd{=} \hlkwd{c}\hlstd{(}        \hlnum{NA}\hlstd{,}                     \hlnum{NA}\hlstd{,}             \hlnum{16}\hlstd{,}                             \hlnum{16}\hlstd{),}
-        \hlkwc{col} \hlstd{=} \hlkwd{c}\hlstd{(        pal[}\hlstr{"gg"}\hlstd{],              pal[}\hlstr{"km0"}\hlstd{], pal[}\hlstr{"mskcc.pre"}\hlstd{],   pal[}\hlstr{"mskcc.post"}\hlstd{]),}
-        \hlkwc{lty} \hlstd{=} \hlkwd{c}\hlstd{(}        \hlstr{"solid"}\hlstd{,}                \hlstr{"solid"}\hlstd{,}        \hlnum{NA}\hlstd{,}                             \hlnum{NA}\hlstd{),}
-        \hlkwc{inset} \hlstd{=} \hlnum{0.05}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
-\end{alltt}
-\end{kframe}
-
-{\centering \includegraphics[width=\maxwidth]{figure/07-prob-bs-paths-plot-dresden-1} 
-
-}
-
-
-\begin{kframe}\begin{alltt}
-\hlkwd{plot}\hlstd{(gg.path.dresden.brier}\hlopt{$}\hlstd{eval_times}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{, gg.path.dresden.brier}\hlopt{$}\hlstd{bsc,} \hlkwc{col} \hlstd{= pal[}\hlstr{"gg"}\hlstd{],} \hlkwc{type} \hlstd{=} \hlstr{"l"}\hlstd{,} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{0.3}\hlstd{),} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (months)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Brier score"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{40}\hlstd{))}
-\hlkwd{lines}\hlstd{(gg.path.dresden.brier}\hlopt{$}\hlstd{eval_times}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{, km0.path.dresden.brier}\hlopt{$}\hlstd{bsc,} \hlkwc{col} \hlstd{= pal[}\hlstr{"km0"}\hlstd{],} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
+\hlkwd{plot}\hlstd{(gg.path.dresden.brier}\hlopt{$}\hlstd{eval_times}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{, gg.path.dresden.brier}\hlopt{$}\hlstd{bsc,} \hlkwc{col} \hlstd{= pal[}\hlstr{"gg"}\hlstd{],} \hlkwc{type} \hlstd{=} \hlstr{"l"}\hlstd{,} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{0.3}\hlstd{),} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (months)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Brier score"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{3}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{40}\hlstd{),} \hlkwc{cex.axis} \hlstd{=} \hlnum{1.5}\hlstd{,} \hlkwc{cex.lab} \hlstd{=} \hlnum{1.5}\hlstd{)}
+\hlkwd{lines}\hlstd{(gg.path.dresden.brier}\hlopt{$}\hlstd{eval_times}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{, km0.path.dresden.brier}\hlopt{$}\hlstd{bsc,} \hlkwc{col} \hlstd{= pal[}\hlstr{"km0"}\hlstd{],} \hlkwc{lwd} \hlstd{=} \hlnum{3}\hlstd{)}
 \hlkwd{points}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{12}\hlstd{,} \hlnum{24}\hlstd{,} \hlnum{36}\hlstd{),} \hlkwd{c}\hlstd{(mskcc_pre.12mo.dresden.brier, mskcc_pre.24mo.dresden.brier, mskcc_pre.36mo.dresden.brier),} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.pre"}\hlstd{],} \hlkwc{cex} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{pch} \hlstd{=} \hlnum{16}\hlstd{)}
-\hlkwd{abline}\hlstd{(}\hlkwc{h} \hlstd{=} \hlnum{0.25}\hlstd{,} \hlkwc{col} \hlstd{=} \hlstr{"grey"}\hlstd{,} \hlkwc{lty} \hlstd{=} \hlstr{"dotted"}\hlstd{)}
-\hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{7}\hlstd{,} \hlnum{34}\hlstd{))}
+\hlkwd{abline}\hlstd{(}\hlkwc{h} \hlstd{=} \hlnum{0.25}\hlstd{,} \hlkwc{col} \hlstd{=} \hlstr{"grey"}\hlstd{,} \hlkwc{lty} \hlstd{=} \hlstr{"dashed"}\hlstd{)}
+\hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{7}\hlstd{,} \hlnum{34}\hlstd{),} \hlkwc{lty} \hlstd{=} \hlstr{"dashed"}\hlstd{)}
 \hlkwd{legend}\hlstd{(}\hlstr{"bottom"}\hlstd{,}
         \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}     \hlstr{"PCOP"}\hlstd{,}                 \hlstr{"KM0"}\hlstd{,}          \hlstr{"MSKCC"}\hlstd{),}
         \hlkwc{pch} \hlstd{=} \hlkwd{c}\hlstd{(}        \hlnum{NA}\hlstd{,}                     \hlnum{NA}\hlstd{,}             \hlnum{16}\hlstd{),}
         \hlkwc{col} \hlstd{=} \hlkwd{c}\hlstd{(        pal[}\hlstr{"gg"}\hlstd{],              pal[}\hlstr{"km0"}\hlstd{], pal[}\hlstr{"mskcc.pre"}\hlstd{]),}
         \hlkwc{lty} \hlstd{=} \hlkwd{c}\hlstd{(}        \hlstr{"solid"}\hlstd{,}                \hlstr{"solid"}\hlstd{,}        \hlnum{NA}\hlstd{),}
-        \hlkwc{inset} \hlstd{=} \hlnum{0.05}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
+        \hlkwc{inset} \hlstd{=} \hlnum{0.05}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{3}\hlstd{,} \hlkwc{bty} \hlstd{=} \hlstr{"n"}\hlstd{)}
 \end{alltt}
 \end{kframe}
 
-{\centering \includegraphics[width=\maxwidth]{figure/07-prob-bs-paths-plot-dresden-2} 
-
-}
-
-
-\begin{kframe}\begin{alltt}
-\hlkwd{plot}\hlstd{(gg.path.dresden.brier}\hlopt{$}\hlstd{eval_times}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{, km0.path.dresden.brier}\hlopt{$}\hlstd{bsc} \hlopt{-} \hlstd{gg.path.dresden.brier}\hlopt{$}\hlstd{bsc,} \hlkwc{col} \hlstd{= pal[}\hlstr{"gg"}\hlstd{],} \hlkwc{type} \hlstd{=} \hlstr{"l"}\hlstd{,} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlopt{-}\hlnum{0.05}\hlstd{,} \hlnum{0.05}\hlstd{),} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (months)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Brier score (Improvement over KM0)"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{main} \hlstd{=} \hlstr{"Dresden"}\hlstd{)}
-\hlkwd{points}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{12}\hlstd{,} \hlnum{24}\hlstd{,} \hlnum{36}\hlstd{),} \hlkwd{approx}\hlstd{(km0.path.dresden.brier}\hlopt{$}\hlstd{eval_times}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{, km0.path.dresden.brier}\hlopt{$}\hlstd{bsc,} \hlkwd{c}\hlstd{(}\hlnum{12}\hlstd{,} \hlnum{24}\hlstd{,} \hlnum{36}\hlstd{))}\hlopt{$}\hlstd{y} \hlopt{-} \hlkwd{c}\hlstd{(mskcc_post.12mo.dresden.brier, mskcc_post.24mo.dresden.brier, mskcc_post.36mo.dresden.brier),} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.pre"}\hlstd{],} \hlkwc{cex} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{pch} \hlstd{=} \hlnum{16}\hlstd{)}
-\hlkwd{points}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{12}\hlstd{,} \hlnum{24}\hlstd{,} \hlnum{36}\hlstd{),} \hlkwd{approx}\hlstd{(km0.path.dresden.brier}\hlopt{$}\hlstd{eval_times}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{, km0.path.dresden.brier}\hlopt{$}\hlstd{bsc,} \hlkwd{c}\hlstd{(}\hlnum{12}\hlstd{,} \hlnum{24}\hlstd{,} \hlnum{36}\hlstd{))}\hlopt{$}\hlstd{y} \hlopt{-} \hlkwd{c}\hlstd{(mskcc_pre.12mo.dresden.brier, mskcc_pre.24mo.dresden.brier, mskcc_pre.36mo.dresden.brier),} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.post"}\hlstd{],} \hlkwc{cex} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{pch} \hlstd{=} \hlnum{16}\hlstd{)}
-\hlkwd{lines}\hlstd{(gg.path.dresden.brier}\hlopt{$}\hlstd{eval_times}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{, km0.path.dresden.brier}\hlopt{$}\hlstd{bsc} \hlopt{-} \hlnum{0.25}\hlstd{,} \hlkwc{col} \hlstd{=} \hlstr{"grey"}\hlstd{,} \hlkwc{lty} \hlstd{=} \hlstr{"dotted"}\hlstd{)}
-\hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{7}\hlstd{,} \hlnum{34}\hlstd{))}
-\hlkwd{abline}\hlstd{(}\hlkwc{h} \hlstd{=} \hlnum{0}\hlstd{,} \hlkwc{col} \hlstd{= pal[}\hlstr{"km0"}\hlstd{],} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
-\hlkwd{legend}\hlstd{(}\hlstr{"topright"}\hlstd{,}
-        \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}     \hlstr{"GG1 Preop"}\hlstd{,}    \hlstr{"MSKCC Postop"}\hlstd{,}         \hlstr{"MSKCC Preop"}\hlstd{),}
-        \hlkwc{pch} \hlstd{=} \hlkwd{c}\hlstd{(}        \hlnum{NA}\hlstd{,}                     \hlnum{16}\hlstd{,}                             \hlnum{16}\hlstd{),}
-        \hlkwc{col} \hlstd{=} \hlkwd{c}\hlstd{(        pal[}\hlstr{"gg"}\hlstd{],              pal[}\hlstr{"mskcc.pre"}\hlstd{],       pal[}\hlstr{"mskcc.post"}\hlstd{]),}
-        \hlkwc{lty} \hlstd{=} \hlkwd{c}\hlstd{(}        \hlstr{"solid"}\hlstd{,}                \hlnum{NA}\hlstd{,}                             \hlnum{NA}\hlstd{),}
-        \hlkwc{inset} \hlstd{=} \hlnum{0.05}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
-\end{alltt}
-\end{kframe}
-
-{\centering \includegraphics[width=\maxwidth]{figure/07-prob-bs-paths-plot-dresden-3} 
-
-}
-
-
-\begin{kframe}\begin{alltt}
-\hlkwd{plot}\hlstd{(gg.path.dresden.brier}\hlopt{$}\hlstd{eval_times}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{, km0.path.dresden.brier}\hlopt{$}\hlstd{bsc} \hlopt{-} \hlstd{gg.path.dresden.brier}\hlopt{$}\hlstd{bsc,} \hlkwc{col} \hlstd{= pal[}\hlstr{"gg"}\hlstd{],} \hlkwc{type} \hlstd{=} \hlstr{"l"}\hlstd{,} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlopt{-}\hlnum{0.05}\hlstd{,} \hlnum{0.05}\hlstd{),} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (months)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Brier score (Improvement over KM0)"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{40}\hlstd{),} \hlkwc{main} \hlstd{=} \hlstr{"Dresden"}\hlstd{)}
-\hlkwd{points}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{12}\hlstd{,} \hlnum{24}\hlstd{,} \hlnum{36}\hlstd{),} \hlkwd{approx}\hlstd{(km0.path.dresden.brier}\hlopt{$}\hlstd{eval_times}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{, km0.path.dresden.brier}\hlopt{$}\hlstd{bsc,} \hlkwd{c}\hlstd{(}\hlnum{12}\hlstd{,} \hlnum{24}\hlstd{,} \hlnum{36}\hlstd{))}\hlopt{$}\hlstd{y} \hlopt{-} \hlkwd{c}\hlstd{(mskcc_post.12mo.dresden.brier, mskcc_post.24mo.dresden.brier, mskcc_post.36mo.dresden.brier),} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.pre"}\hlstd{],} \hlkwc{cex} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{pch} \hlstd{=} \hlnum{16}\hlstd{)}
-\hlkwd{points}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{12}\hlstd{,} \hlnum{24}\hlstd{,} \hlnum{36}\hlstd{),} \hlkwd{approx}\hlstd{(km0.path.dresden.brier}\hlopt{$}\hlstd{eval_times}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{, km0.path.dresden.brier}\hlopt{$}\hlstd{bsc,} \hlkwd{c}\hlstd{(}\hlnum{12}\hlstd{,} \hlnum{24}\hlstd{,} \hlnum{36}\hlstd{))}\hlopt{$}\hlstd{y} \hlopt{-} \hlkwd{c}\hlstd{(mskcc_pre.12mo.dresden.brier, mskcc_pre.24mo.dresden.brier, mskcc_pre.36mo.dresden.brier),} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.post"}\hlstd{],} \hlkwc{cex} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{pch} \hlstd{=} \hlnum{16}\hlstd{)}
-\hlkwd{lines}\hlstd{(gg.path.dresden.brier}\hlopt{$}\hlstd{eval_times}\hlopt{/}\hlnum{365.25}\hlopt{*}\hlnum{12}\hlstd{, km0.path.dresden.brier}\hlopt{$}\hlstd{bsc} \hlopt{-} \hlnum{0.25}\hlstd{,} \hlkwc{col} \hlstd{=} \hlstr{"grey"}\hlstd{,} \hlkwc{lty} \hlstd{=} \hlstr{"dotted"}\hlstd{)}
-\hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{7}\hlstd{,} \hlnum{34}\hlstd{))}
-\hlkwd{abline}\hlstd{(}\hlkwc{h} \hlstd{=} \hlnum{0}\hlstd{,} \hlkwc{col} \hlstd{= pal[}\hlstr{"km0"}\hlstd{],} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
-\hlkwd{legend}\hlstd{(}\hlstr{"bottom"}\hlstd{,}
-        \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}     \hlstr{"GG1 Preop"}\hlstd{,}    \hlstr{"MSKCC Postop"}\hlstd{,}         \hlstr{"MSKCC Preop"}\hlstd{),}
-        \hlkwc{pch} \hlstd{=} \hlkwd{c}\hlstd{(}        \hlnum{NA}\hlstd{,}                     \hlnum{16}\hlstd{,}                             \hlnum{16}\hlstd{),}
-        \hlkwc{col} \hlstd{=} \hlkwd{c}\hlstd{(        pal[}\hlstr{"gg"}\hlstd{],              pal[}\hlstr{"mskcc.pre"}\hlstd{],       pal[}\hlstr{"mskcc.post"}\hlstd{]),}
-        \hlkwc{lty} \hlstd{=} \hlkwd{c}\hlstd{(}        \hlstr{"solid"}\hlstd{,}                \hlnum{NA}\hlstd{,}                             \hlnum{NA}\hlstd{),}
-        \hlkwc{inset} \hlstd{=} \hlnum{0.05}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
-\end{alltt}
-\end{kframe}
-
-{\centering \includegraphics[width=\maxwidth]{figure/07-prob-bs-paths-plot-dresden-4} 
+{\centering \includegraphics[width=\maxwidth]{figure/07-prob-bs-paths-plot-dresden-1} 
 
 }
 
@@ -4542,10 +4354,10 @@ Incident-dynamic:
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlkwd{plot}\hlstd{(rrROC_boot.mskcc_pre.glasgow,} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.pre"}\hlstd{],} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (months)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"AUC"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{3}\hlstd{)}
+\hlkwd{plot}\hlstd{(rrROC_boot.mskcc_pre.glasgow,} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.pre"}\hlstd{],} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (months)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"AUC"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{3}\hlstd{,} \hlkwc{cex.lab} \hlstd{=} \hlnum{1.5}\hlstd{,} \hlkwc{cex.axis} \hlstd{=} \hlnum{1.5}\hlstd{)}
 \hlkwd{plot}\hlstd{(rrROC_boot.gg.glasgow,} \hlkwc{col} \hlstd{= pal[}\hlstr{"gg"}\hlstd{],} \hlkwc{add} \hlstd{=} \hlnum{TRUE}\hlstd{,} \hlkwc{ci} \hlstd{=} \hlnum{TRUE}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{3}\hlstd{)}
-\hlkwd{legend}\hlstd{(}\hlstr{"topright"}\hlstd{,} \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"MSKCC"}\hlstd{,} \hlstr{"PCOP"}\hlstd{),} \hlkwc{col} \hlstd{=} \hlkwd{c}\hlstd{(pal[}\hlstr{"mskcc.pre"}\hlstd{], pal[}\hlstr{"gg"}\hlstd{]),} \hlkwc{lty} \hlstd{=} \hlstr{"solid"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{3}\hlstd{,} \hlkwc{inset} \hlstd{=} \hlnum{0.05}\hlstd{)}
-\hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{7}\hlstd{,} \hlnum{31}\hlstd{))}
+\hlkwd{legend}\hlstd{(}\hlstr{"topright"}\hlstd{,} \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"MSKCC"}\hlstd{,} \hlstr{"PCOP"}\hlstd{),} \hlkwc{col} \hlstd{=} \hlkwd{c}\hlstd{(pal[}\hlstr{"mskcc.pre"}\hlstd{], pal[}\hlstr{"gg"}\hlstd{]),} \hlkwc{lty} \hlstd{=} \hlstr{"solid"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{3}\hlstd{,} \hlkwc{inset} \hlstd{=} \hlnum{0.05}\hlstd{,} \hlkwc{bty} \hlstd{=} \hlstr{"n"}\hlstd{)}
+\hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{7}\hlstd{,} \hlnum{31}\hlstd{),} \hlkwc{lty} \hlstd{=} \hlstr{"dashed"}\hlstd{)}
 \end{alltt}
 \end{kframe}
 
@@ -4571,10 +4383,10 @@ Incident-dynamic:
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlkwd{plot}\hlstd{(rrROC_boot.mskcc_pre.apgi,} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.pre"}\hlstd{],} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (months)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"AUC"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{3}\hlstd{)}
+\hlkwd{plot}\hlstd{(rrROC_boot.mskcc_pre.apgi,} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.pre"}\hlstd{],} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (months)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"AUC"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{3}\hlstd{,} \hlkwc{cex.lab} \hlstd{=} \hlnum{1.5}\hlstd{,} \hlkwc{cex.axis} \hlstd{=} \hlnum{1.5}\hlstd{)}
 \hlkwd{plot}\hlstd{(rrROC_boot.gg.apgi,} \hlkwc{col} \hlstd{= pal[}\hlstr{"gg"}\hlstd{],} \hlkwc{add} \hlstd{=} \hlnum{TRUE}\hlstd{,} \hlkwc{ci} \hlstd{=} \hlnum{TRUE}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{3}\hlstd{)}
-\hlkwd{legend}\hlstd{(}\hlstr{"topright"}\hlstd{,} \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"MSKCC"}\hlstd{,} \hlstr{"PCOP"}\hlstd{),} \hlkwc{col} \hlstd{=} \hlkwd{c}\hlstd{(pal[}\hlstr{"mskcc.pre"}\hlstd{], pal[}\hlstr{"gg"}\hlstd{]),} \hlkwc{lty} \hlstd{=} \hlstr{"solid"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{3}\hlstd{,} \hlkwc{inset} \hlstd{=} \hlnum{0.05}\hlstd{)}
-\hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{7}\hlstd{,} \hlnum{31}\hlstd{))}
+\hlkwd{legend}\hlstd{(}\hlstr{"topright"}\hlstd{,} \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"MSKCC"}\hlstd{,} \hlstr{"PCOP"}\hlstd{),} \hlkwc{col} \hlstd{=} \hlkwd{c}\hlstd{(pal[}\hlstr{"mskcc.pre"}\hlstd{], pal[}\hlstr{"gg"}\hlstd{]),} \hlkwc{lty} \hlstd{=} \hlstr{"solid"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{3}\hlstd{,} \hlkwc{inset} \hlstd{=} \hlnum{0.05}\hlstd{,} \hlkwc{bty} \hlstd{=} \hlstr{"n"}\hlstd{)}
+\hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{7}\hlstd{,} \hlnum{31}\hlstd{),} \hlkwc{lty} \hlstd{=} \hlstr{"dashed"}\hlstd{)}
 \end{alltt}
 \end{kframe}
 
@@ -4600,10 +4412,10 @@ Incident-dynamic:
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlkwd{plot}\hlstd{(rrROC_boot.mskcc_pre.dresden,} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.pre"}\hlstd{],} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (months)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"AUC"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{3}\hlstd{)}
+\hlkwd{plot}\hlstd{(rrROC_boot.mskcc_pre.dresden,} \hlkwc{col} \hlstd{= pal[}\hlstr{"mskcc.pre"}\hlstd{],} \hlkwc{xlab} \hlstd{=} \hlstr{"Time from diagnosis (months)"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"AUC"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{3}\hlstd{,} \hlkwc{cex.lab} \hlstd{=} \hlnum{1.5}\hlstd{,} \hlkwc{cex.axis} \hlstd{=} \hlnum{1.5}\hlstd{)}
 \hlkwd{plot}\hlstd{(rrROC_boot.gg.dresden,} \hlkwc{col} \hlstd{= pal[}\hlstr{"gg"}\hlstd{],} \hlkwc{add} \hlstd{=} \hlnum{TRUE}\hlstd{,} \hlkwc{ci} \hlstd{=} \hlnum{TRUE}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{3}\hlstd{)}
-\hlkwd{legend}\hlstd{(}\hlstr{"topright"}\hlstd{,} \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"MSKCC"}\hlstd{,} \hlstr{"PCOP"}\hlstd{),} \hlkwc{col} \hlstd{=} \hlkwd{c}\hlstd{(pal[}\hlstr{"mskcc.pre"}\hlstd{], pal[}\hlstr{"gg"}\hlstd{]),} \hlkwc{lty} \hlstd{=} \hlstr{"solid"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{3}\hlstd{,} \hlkwc{inset} \hlstd{=} \hlnum{0.05}\hlstd{)}
-\hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{7}\hlstd{,} \hlnum{31}\hlstd{))}
+\hlkwd{legend}\hlstd{(}\hlstr{"topright"}\hlstd{,} \hlkwc{legend} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"MSKCC"}\hlstd{,} \hlstr{"PCOP"}\hlstd{),} \hlkwc{col} \hlstd{=} \hlkwd{c}\hlstd{(pal[}\hlstr{"mskcc.pre"}\hlstd{], pal[}\hlstr{"gg"}\hlstd{]),} \hlkwc{lty} \hlstd{=} \hlstr{"solid"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{3}\hlstd{,} \hlkwc{inset} \hlstd{=} \hlnum{0.05}\hlstd{,} \hlkwc{bty} \hlstd{=} \hlstr{"n"}\hlstd{)}
+\hlkwd{abline}\hlstd{(}\hlkwc{v} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{7}\hlstd{,} \hlnum{31}\hlstd{),} \hlkwc{lty} \hlstd{=} \hlstr{"dashed"}\hlstd{)}
 \end{alltt}
 \end{kframe}
 
