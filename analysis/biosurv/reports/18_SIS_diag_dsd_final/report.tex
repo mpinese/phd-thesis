@@ -3206,7 +3206,63 @@
 }
 
 
-
+\begin{kframe}\begin{alltt}
+\hlkwd{cor.test}\hlstd{(axis_coefs.diag_dsd[,}\hlnum{1}\hlstd{], x.diag_dsd[}\hlstr{"S100A2"}\hlstd{,],} \hlkwc{method} \hlstd{=} \hlstr{"kendall"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## 
+## 	Kendall's rank correlation tau
+## 
+## data:  axis_coefs.diag_dsd[, 1] and x.diag_dsd["S100A2", ]
+## z = 4.009, p-value = 6.099e-05
+## alternative hypothesis: true tau is not equal to 0
+## sample estimates:
+##    tau 
+## 0.2589
+\end{verbatim}
+\begin{alltt}
+\hlkwd{cor.test}\hlstd{(axis_coefs.diag_dsd[,}\hlnum{2}\hlstd{], x.diag_dsd[}\hlstr{"S100A2"}\hlstd{,],} \hlkwc{method} \hlstd{=} \hlstr{"kendall"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## 
+## 	Kendall's rank correlation tau
+## 
+## data:  axis_coefs.diag_dsd[, 2] and x.diag_dsd["S100A2", ]
+## z = 4.655, p-value = 3.245e-06
+## alternative hypothesis: true tau is not equal to 0
+## sample estimates:
+##    tau 
+## 0.3006
+\end{verbatim}
+\begin{alltt}
+\hlkwd{cor.test}\hlstd{(axis_coefs.diag_dsd[,}\hlnum{1}\hlstd{], x.diag_dsd[}\hlstr{"S100A4"}\hlstd{,],} \hlkwc{method} \hlstd{=} \hlstr{"kendall"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## 
+## 	Kendall's rank correlation tau
+## 
+## data:  axis_coefs.diag_dsd[, 1] and x.diag_dsd["S100A4", ]
+## z = 1.428, p-value = 0.1532
+## alternative hypothesis: true tau is not equal to 0
+## sample estimates:
+##     tau 
+## 0.09226
+\end{verbatim}
+\begin{alltt}
+\hlkwd{cor.test}\hlstd{(axis_coefs.diag_dsd[,}\hlnum{2}\hlstd{], x.diag_dsd[}\hlstr{"S100A4"}\hlstd{,],} \hlkwc{method} \hlstd{=} \hlstr{"kendall"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## 
+## 	Kendall's rank correlation tau
+## 
+## data:  axis_coefs.diag_dsd[, 2] and x.diag_dsd["S100A4", ]
+## z = 4.538, p-value = 5.666e-06
+## alternative hypothesis: true tau is not equal to 0
+## sample estimates:
+##    tau 
+## 0.2931
+\end{verbatim}
+\end{kframe}
 \end{knitrout}
 Underwhelming, but the poor detection rate of A2 and A4 probes is a likely culprit.  When I get APGI scores from DC, I can directly compare the staining patterns to A1 and A2 signals -- this would be a better comparison to the work of chapter 2 anyway.
 

@@ -643,6 +643,10 @@ for (subtable_index in 1:length(tables))
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 <<s100s-vs-a2>>=
 pairs(cbind(axis_coefs.diag_dsd, t(x.diag_dsd[c("S100A2", "S100A4"),])))
+cor.test(axis_coefs.diag_dsd[,1], x.diag_dsd["S100A2",], method = "kendall")
+cor.test(axis_coefs.diag_dsd[,2], x.diag_dsd["S100A2",], method = "kendall")
+cor.test(axis_coefs.diag_dsd[,1], x.diag_dsd["S100A4",], method = "kendall")
+cor.test(axis_coefs.diag_dsd[,2], x.diag_dsd["S100A4",], method = "kendall")
 @
 Underwhelming, but the poor detection rate of A2 and A4 probes is a likely culprit.  When I get APGI scores from DC, I can directly compare the staining patterns to A1 and A2 signals -- this would be a better comparison to the work of chapter 2 anyway.
 
