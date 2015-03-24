@@ -178,14 +178,14 @@ where $T$ is an individual's failure time, $GG$ is the generalized gamma distrib
 \begin{figure}
 \centering
   \includegraphics[width=.7\linewidth]{analysis/nomogram/figure/05-model-selection-roc-id-1}
-  \caption[Time-dependent \texorpdfstring{\acrshort{AUC}}{AUC} paths for candidate models on holdout data]{Incident / dynamic \gls{TDROC} \gls{AUC} paths for candidate models on the holdout \gls{NSWPCN} model test set.  Slight differences in performance were evident, with model GG providing superior discrimination up to approximately 15 months post-diagnosis, but models RSF and CPH performing better from approximately 20 months post-diagnosis.  These differences were not significant, as assessed by pointwise $95\%$ bootstrap confidence intervals (confidence bands not shown).}
+  \caption[Time-dependent \texorpdfstring{\acrshort{AUC}}{AUC} paths for candidate models on holdout data]{Incident / dynamic \gls{TDROC} \gls{AUC} paths for candidate models on the holdout \gls{NSWPCN} model test set.  Slight differences in performance were evident, with model GG1 providing superior discrimination up to approximately 15 months post-diagnosis, but models RSF and CP1 performing better from approximately 20 months post-diagnosis.  These differences were not significant, as assessed by pointwise $95\%$ bootstrap confidence intervals (confidence bands not shown).  The $7-34$ month interval in which most patients died is indicated by dashed vertical lines.}
 \label{fig:nomo-tdauc-paths}
 \end{figure}
 
 \begin{figure}
 \centering
   \includegraphics[width=.7\linewidth]{analysis/nomogram/figure/05-model-selection-bs-paths-1}
-  \caption[Brier score paths for candidate models on holdout data]{Brier score paths for candidate models on the holdout \gls{NSWPCN} model test set.  All models outperformed the no-information KM0 trace from approximately four months to 21 months post-diagnosis, and no strong differences were apparent between candidate models.}
+  \caption[Brier score paths for candidate models on holdout data]{Brier score paths for candidate models on the holdout \gls{NSWPCN} model test set.  All models outperformed the no-information KM0 trace from approximately four months to 21 months post-diagnosis, and no strong differences were apparent between candidate models.  The $7-34$ month interval in which the majority of patients died is indicated by dashed lines, and the theoretical worst-case Brier score by a horizontal line at $0.25$.}
 \label{fig:nomo-brier-paths}
 \end{figure}
 
@@ -254,13 +254,13 @@ The Brier score summarises overall model prediction error over time, without req
 \begin{figure}
 \centering
   \subbottom[Glasgow]{
-    \includegraphics[width=.6\linewidth]{analysis/nomogram/figure/07-prob-bs-paths-plot-glasgow-2}
+    \includegraphics[width=.6\linewidth]{analysis/nomogram/figure/07-prob-bs-paths-plot-glasgow-1}
     \label{fig:nomo-val-brier-glasgow}}
   \subbottom[APGI]{
-    \includegraphics[width=.6\linewidth]{analysis/nomogram/figure/07-prob-bs-paths-plot-apgi-2}
+    \includegraphics[width=.6\linewidth]{analysis/nomogram/figure/07-prob-bs-paths-plot-apgi-1}
     \label{fig:nomo-val-brier-apgi}}
   \subbottom[Dresden]{
-    \includegraphics[width=.6\linewidth]{analysis/nomogram/figure/07-prob-bs-paths-plot-dresden-2}
+    \includegraphics[width=.6\linewidth]{analysis/nomogram/figure/07-prob-bs-paths-plot-dresden-1}
     \label{fig:nomo-val-brier-dresden}}
 \caption[Brier score paths for \texorpdfstring{\acrshort{PCOP}}{PCOP} on validation cohorts]{Brier score paths for \acrshort{PCOP} on validation cohorts.  The Brier score measures overall prognostic error, as a combination of calibration and discrimination; lower values are better, and the worst-case theoretical value is 0.25.  Brier score paths over time are shown for outcome predictions by \acrshort{PCOP} (green line), and the \acrshort{MSKCC} nomogram on preoperative data (pink dots).  Also shown is a marginal \acrshort{KM} prediction of outcome (orange), and the theoretical no-information Brier score limit (horizontal dotted line) -- outcome predictors must be substantially better than both of these to be usefully prognostic.  The $7-34$ month period in which most patients die is delimited by vertical lines.  \acrshort{PCOP} is substantially better than either the \acrshort{KM} or \acrshort{MSKCC} predictors in the Glasgow cohort, but all predictors are equally poor in the \acrshort{APGI} and Dresden cohorts.}
 \label{fig:nomo-val-brier}
@@ -325,7 +325,7 @@ In both the Glasgow and \gls{APGI} cohorts, the \gls{PCOP} displayed consistentl
   \subbottom[Dresden]{
     \includegraphics[width=.6\linewidth]{analysis/nomogram/figure/07-risksetROC-plot-dresden-1}
     \label{fig:nomo-val-tdroc-dresden}}
-\caption[\texorpdfstring{\acrshort{TDROC}}{TD-ROC} \texorpdfstring{\acrshort{AUC}}{AUC} paths for \texorpdfstring{\acrshort{PCOP}}{PCOP} in validation data]{\gls{TDROC} \gls{AUC} over time in validation cohorts.  Bootstrap summaries of the \gls{AUC} are shown for \glspl{PI} from the \gls{PCOP} (mean: green solid lines; BCa $95\%$ confidence intervals: green dotted lines), and the \gls{MSKCC} nomogram on preoperative data (mean: red lines).  The \gls{PCOP} displays consistently superior discrimination to the no-information level (horizontal line at $0.5$) in the Glasgow and \gls{APGI} cohorts, but performs much more poorly in the Dresden cohort.  The \gls{MSKCC} nomogram \gls{PI} performs poorly in all cohorts.  Vertical black lines indicate the $7-34$ month region in which most patients die.}
+\caption[\texorpdfstring{\acrshort{TDROC}}{TD-ROC} \texorpdfstring{\acrshort{AUC}}{AUC} paths for \texorpdfstring{\acrshort{PCOP}}{PCOP} in validation data]{\gls{TDROC} \gls{AUC} over time in validation cohorts.  Bootstrap summaries of the \gls{AUC} are shown for \glspl{PI} from the \gls{PCOP} (mean: green solid lines; BCa $95\%$ confidence intervals: green dotted lines), and the \gls{MSKCC} nomogram on preoperative data (mean: red lines).  The \gls{PCOP} displays consistently superior discrimination to the no-information level (horizontal line at $0.5$) in the Glasgow and \gls{APGI} cohorts, but performs much more poorly in the Dresden cohort.  The \gls{MSKCC} nomogram \gls{PI} performs poorly in all cohorts.  Vertical dashed lines indicate the $7-34$ month region in which most patients die.}
 \label{fig:nomo-val-tdroc}
 \end{figure}
 
@@ -335,7 +335,7 @@ A range of complementary validation approaches were applied to test the performa
 \subsection{PCOP web application}
 A serious barrier to the use of complex prognostic tools such as the \gls{PCOP} is the difficulty in their calculation.  To address this, a simple web application was created to encapsulate the \gls{PCOP}, and allow its easy evaluation from any web browser.  The \gls{PCOP} web application interface is illustrated in \fref{fig:nomo-web-example}.  In response to user input of basic clinical parameters, the web interface dynamically recalculates survival estimates, and returns them in graph and table form.  Up to two survival curves may be shown simultaneously, to allow the easy comparison of cases.  The demonstration \gls{PCOP} web application resides on the \gls{AWS} framework, and so is straightforward to deploy both publicly, and privately, as required.
 
-A demonstration instance of the \gls{PCOP} web application is available at \url{http://54.66.150.159:3277/}.\mpfatal{Get a real domain name?}\mpfatal{Update the web app with the final PCOP}
+A demonstration instance of the \gls{PCOP} web application is available at \url{http://www.pancpredict.net:3277/}.\mpfatal{Update the web app with the final PCOP}
 
 \begin{figure}
 \centering
@@ -377,18 +377,16 @@ Independence between date of diagnosis and all preoperative variables in the \gl
 
 Both the incident/dynamic \gls{TDROC}, and the \gls{IBS}, were used to compare model prognostic performance.  \glspl{TDROC} were estimated using R package \texttt{risksetROC}, and Brier score paths and \glspl{IBS} were calculated with custom code, following the Graf derivation~\cite{Graf1999}.
 
-
-\subsection{External validation}
-\subsubsection{Calculation of a \texorpdfstring{\acrshort{PCOP}}{PCOP} \texorpdfstring{\acrlong{PI}}{prognostic index}}
+\subsection{Calculation of a \texorpdfstring{\acrshort{PCOP}}{PCOP} \texorpdfstring{\acrlong{PI}}{prognostic index}}
 As the \gls{PCOP} integrates non-proportional hazards in its survival predictions, it cannot be summarised into a \gls{PI} as for a proportional hazards Cox model.  However, validation methods such as Harrell's $c$-index, Cox calibration fits, and \glspl{TDROC}, require a patient hazard ranking, as is supplied by the \gls{PI}.  For these methods, each patient's value of the \gls{PCOP} \gls{GG} distribution location parameter ($\beta$) was used as an approximation to the \gls{PI}.
 
-\subsubsection{\texorpdfstring{\acrshort{MSKCC}}{MSKCC} nomogram calculation}
+\subsection{\texorpdfstring{\acrshort{MSKCC}}{MSKCC} nomogram calculation}
 The \gls{MSKCC} prognostic nomogram for resected pancreas cancer~\cite{Brennan2004} was digitized and transformed into \texttt{R} code that produced 12-, 24-, and 36-month disease-specific survival estimates given patient \glspl{CPV} (see \Aref{app:nomo-mskcc-code} on \pref{app:nomo-mskcc-code}).  Predictions for patients with data missing for some nomogram variables were generated by marginalizing over the missing predictors, using the reported \gls{MSKCC} training set variable distributions~\cite{Brennan2004}.
 
 \subsection{\texorpdfstring{\acrshort{PCOP}}{PCOP} web application}
-The \texttt{R} \texttt{shiny} infrastructure was used to create a simple web application to predict patient outcome using the final \gls{PCOP} model.
+The \texttt{R} \texttt{shiny} infrastructure was used to create a simple web application to predict patient outcome using the final \gls{PCOP} model.  This application is available at \url{http://www.pancpredict.net:3277/}.  \mpfatal{Add repo link, or maybe AWS AMI ID?  The issue is that the flexsurvreg object contains, and I believe requires, the training set data, which shouldn't be public.  I can get around this by manually doing the PCOP fit, but that's work.  Save for later.}
 
 \section{Attribution}
-The project was initially conceived by myself and Dr David Chang.  Dr Chang was responsible for collating and curating all raw data for both the \gls{NSWPCN} and validation cohorts, and performed the biomarker staining and scoring.  From the point of raw data generation onwards, all work, from low level quality checks and exploratory analysis, through analysis planning and execution, to interpretation and writing, was done solely by me.
+The project was initially conceived by myself and Dr David Chang.  Dr Chang was responsible for obtaining and curating all raw data for both the \gls{NSWPCN} and validation cohorts, and performed the biomarker staining and scoring.  All subsequent work, from low level quality checks and exploratory analysis, through analysis planning and execution, to interpretation and writing, was done solely by me.
 
 \end{document}

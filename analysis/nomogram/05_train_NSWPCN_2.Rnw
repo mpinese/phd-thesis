@@ -18,9 +18,8 @@ options(
 )
 knit_hooks$set(crop = hook_pdfcrop)
 opts_chunk$set(
-	fig.align = 'center', fig.path = "figure/05-", dev = 'tikz', dev.args = list(pointsize = 12), 
-	cache = TRUE, cache.lazy = FALSE, cache.path = "cache/05-", autodep = TRUE, crop = TRUE,
-	fig.width = 6, fig.height = 6)
+	fig.align = 'center', fig.path = "figure/05-", dev = 'tikz', dev.args = list(pointsize = 16), fig.width = 6, fig.height = 6, dpi = 144,
+	cache = TRUE, cache.lazy = FALSE, cache.path = "cache/05-", autodep = TRUE, crop = TRUE)
 opts_knit$set(progress = TRUE, verbose = TRUE)
 options(warn = 1)
 @
@@ -598,14 +597,15 @@ abline(v = c(7, 34))
 Incident-dynamic:
 <<model-selection-roc-id>>=
 library(risksetROC)
-invisible(risksetAUC(data.val$Time/365.25*12, status = data.val$DSD, marker = val.linpred.gg, tmax = 36, col = pal["GG"], lwd = 2, method = "Schoenfeld", span = 0.4))
-par(new = TRUE)
-invisible(risksetAUC(data.val$Time/365.25*12, status = data.val$DSD, marker = val.linpred.rsf, tmax = 36, col = pal["RSF"], lwd = 2, method = "Schoenfeld", span = 0.4))
-par(new = TRUE)
-invisible(risksetAUC(data.val$Time/365.25*12, status = data.val$DSD, marker = val.linpred.cph, tmax = 36, col = pal["CPH"], lwd = 2, method = "Schoenfeld", span = 0.4))
-par(new = TRUE)
-legend("top", legend = c("GG", "RSF", "CPH"), col = pal[c("GG", "RSF", "CPH")], lty = "solid")
-abline(v = c(7, 31))
+temp.gg1 = risksetAUC(data.val$Time/365.25*12, status = data.val$DSD, marker = val.linpred.gg, tmax = 36, method = "Schoenfeld", span = 0.4, plot = FALSE)
+temp.rsf = risksetAUC(data.val$Time/365.25*12, status = data.val$DSD, marker = val.linpred.rsf, tmax = 36, method = "Schoenfeld", span = 0.4, plot = FALSE)
+temp.cp1 = risksetAUC(data.val$Time/365.25*12, status = data.val$DSD, marker = val.linpred.cph, tmax = 36, method = "Schoenfeld", span = 0.4, plot = FALSE)
+plot(temp.gg1$utimes, temp.gg1$AUC, lwd = 3, col = pal["GG"], xlim = c(0, 36), ylim = c(0.4, 1), type = "l", xlab = "Time from diagnosis (months)", ylab = "AUC")
+lines(temp.rsf$utimes, temp.rsf$AUC, lwd = 3, col = pal["RSF"], xlim = c(0, 36), ylim = c(0.4, 1))
+lines(temp.cp1$utimes, temp.cp1$AUC, lwd = 3, col = pal["CPH"], xlim = c(0, 36), ylim = c(0.4, 1))
+abline(h = 0.5)
+abline(v = c(7, 31), lty = "dashed")
+legend("top", legend = c("GG1", "RSF", "CP1"), col = pal[c("GG", "RSF", "CPH")], lty = "solid", lwd = 3, inset = 0.05, bty = "n")
 @
 
 
@@ -623,12 +623,12 @@ invisible(stdca(data = temp.data, outcome = "DSD", ttoutcome = "Time", predictor
 @
 
 
-<<model-selection-bs-paths, fig.height = 5>>=
+<<model-selection-bs-paths, fig.height=4.5>>=
 temp = sapply(list(GG1 = ibs_preds_gg, CP1 = ibs_preds_cph, RSF = ibs_preds_rsf, KM0 = ibs_preds_km0), function(preds) calcIBS(Surv(data.val$Time, data.val$DSD), preds, ibs_times, max(data.val$Time))$bsc)
 temp = melt(temp)
 colnames(temp) = c("Time", "Model", "BS")
 temp$Time = temp$Time/365.25*12
-ggplot(temp, aes(x = Time, y = BS, colour = Model)) + geom_line() + ylab("Brier Score") + geom_hline(yintercept = 0.25) + geom_vline(xintercept = c(7, 34)) + theme_bw()
+ggplot(temp, aes(x = Time, y = BS, colour = Model)) + geom_line(lwd = 2) + ylab("Brier Score") + geom_hline(yintercept = 0.25, lty = "solid", colour = "darkgrey") + geom_vline(xintercept = c(7, 34), lty = "dashed") + theme_bw()
 @
 
 BCA bootstrapping on the differences.
