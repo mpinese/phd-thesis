@@ -19,7 +19,7 @@ A simple synthetic example illustrates the problem and process of \gls{GEX} deco
 
 Accurately knowing the metagenes at work within a biological system considerably simplifies reasoning about transcription within the system.  In the example of \fref{fig:sigs-example-matrixfactor-data}, state A is associated with high metagene 1, state B with high metagene 2, and the transition state with low scores of both.  Additionally, the loadings of genes on the metagenes themselves (the directions of the metagene arrows) provides information on transcriptional control within the system: metagenes define the axes along which cell state must move, and so provide a simpler and more accurate representation of cell state than the full set of gene expression measurements.  Metagenes can also be considered to capture co-expressed modules of genes, with likely biological significance.  The advantages of a metagene-centric perspective to interpreting \gls{GEX} become increasingly apparent as more genes are considered, and when thousands of genes are measured per sample, deconvolving the highly complex patterns of expression of thousands of genes, to only tens of metagenes, represents a powerful reduction in complexity.  However, in practical use deconvolution methods must operate in thousand dimensional spaces, rather than the two dimensions in this example, and the computational and methodological complexities involved, as well as the poor results yielded by traditional approaches, have limited the application of \gls{GEX} deconvolution.
 
-\begin{figure}
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=.7\linewidth]{analysis/biosurv/reports/PCA_ICA_NMF_comparison/figure/plots-1}
 \caption[Illustration of the gene deconvolution problem]{The gene deconvolution problem.  Shown are the hypothetical expression levels of two genes across three biological states, where each point represents the gene expression of a single sample in one of the three biological states.  State A (hollow circles) is characterised by gene 2 $>$ gene 1; state B (solid circles) by gene 1 $>$ gene 2; and the intermediate state (crosses) by low levels of both genes.  The challenge of gene deconvolution is to automatically infer, from unlabelled data (ie state is unknown), the dominant lines of gene expression (metagenes) along which most samples lie.}\label{fig:sigs-example-matrixfactor-data}
@@ -27,7 +27,7 @@ Accurately knowing the metagenes at work within a biological system considerably
 
 A number of techniques from the field of matrix factorization have been applied to the \gls{GEX} deconvolution problem, first \gls{PCA}~\cite{Alter2000}, then \gls{ICA}~\cite{Liebermeister2002}, and more recently various forms of \gls{NMF}~\cite{Brunet2004}.  A number of reports have highlighted the unsuitability of \gls{PCA} for \gls{GEX} deconvolution, and the relative superiority of \gls{ICA}~\cite{Lee2003, Saidi2004, Teschendorff2007}; this is primarily due to the \gls{PCA} requirement that metagenes be orthogonal~\cite{Lewicki2000}, a situation that is not supported by our knowledge of biology, and results in bizarre artefacts such as \gls{PCA} metagenes not actually being aligned with the expression pattern of any sample (\fref{fig:sigs-example-matrixfactor-methods-pca}).  Although the results from \gls{ICA} are more interpretable than those from \gls{PCA}, they still do not consider that \gls{GEX} is a non-negative process: it is impossible to have a concentration of mRNA that is less than zero, and therefore for best interpretability we wish metagenes to have non-negative `expression' as well.  \gls{ICA} does not produce solutions satisfying this requirement, and more importantly its non-Gaussianity objective is not necessarily optimal for \gls{GEX} deconvolution (\fref{fig:sigs-example-matrixfactor-methods-ica}), reducing its ultimate utility.  \gls{NMF} techniques have the potential to produce excellent \gls{GEX} decompositions (\fref{fig:sigs-example-matrixfactor-methods-nmf}), but are relatively new methods that have very high computational requirements, and often require careful tuning, making their effective application challenging.
 
-\begin{figure}
+\begin{figure}[!htbp]
   \centering
   \subbottom[\texorpdfstring{\acrshort{PCA}}{PCA}]{
     \includegraphics[width=.3\textwidth]{analysis/biosurv/reports/PCA_ICA_NMF_comparison/figure/smallplots-1}
@@ -116,7 +116,7 @@ Unsupervised filtering to remove lowly-expressed, invariant, and redundant probe
 
 The expression of the \fcardinal{361} survival-associated genes across the \fcardinal{110} patients of the \gls{APGI} \gls{PDAC} cohort was decomposed into metagenes by the \gls{SNMFL} \gls{NMF} algorithm.  The number of metagenes (factorization rank) was automatically estimated to be 6, being the lowest rank for which the improvement in estimation error achieved by adding the next rank, was less than that observed for permuted data (\fref{fig:sigs-nmf-rank}).
 
-\begin{figure}
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=.7\linewidth]{analysis/biosurv/reports/18_SIS_diag_dsd_final/figure/nmf-rank-plots-2}
 \caption[Automatic selection of \texorpdfstring{\acrshort{NMF}}{NMF} factorization rank]{Automatic selection of factorization rank.  \acrshort{SNMFL} was performed for varying ranks on either unpermuted data (black line) or data permuted within samples (orange lines), and the improvement in total residual approximation error $\|A - W H\|_F$ calculated.  The highest added rank for which the error improvement on unpermuted data exceeded that of permuted data plus two standard deviations (threshold shown by dotted orange line) was the final selected rank (indicated by a green line).}\label{fig:sigs-nmf-rank}
@@ -124,13 +124,13 @@ The expression of the \fcardinal{361} survival-associated genes across the \fcar
 
 \fcardinal{500} random restarts of rank 6 \gls{SNMFL} were then performed on the survival-associated gene matrix to yield the final factorization.  The resultant clustering consensus matrix was stable (\fref{fig:sigs-nmf-consensus}), and the basis matrix $W$ was reasonably sparse (\fref{fig:sigs-nmf-basis}).  Sparsity of the basis matrix is a desirable condition for this analysis, as it indicates that metagenes are largely distinct transcriptional modules, with little overlap in terms of shared transcripts with high loadings; \gls{SNMFL} was selected against alternative \gls{NMF} algorithms as its design favours solutions with sparse $W$.  A table of values of the basis matrix $W$ is available as \Aref{app:sigs-w-matrix} on \pref{app:sigs-w-matrix}.
 
-\begin{figure}
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=.7\linewidth]{analysis/biosurv/reports/18_SIS_diag_dsd_final/figure/nmf-plots-1}
 \caption[Consensus matrix for the final rank-6 clustering]{Clustering consensus matrix for the final rank-6 clustering.  Colours indicate the stability of gene (in rows) and sample (in columns) clusters across random restarts of the factorization; at rank 6 this factorization was largely stable, with identical clusters assigned in all \fcardinal{500} random restarts to the majority of genes and samples.}\label{fig:sigs-nmf-consensus}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=.7\linewidth]{analysis/biosurv/reports/18_SIS_diag_dsd_final/figure/nmf-plots-2}
 \caption[Basis matrix \texorpdfstring{$W$}{W} of the final \texorpdfstring{\acrshort{SNMFL}}{SNMF/L} factorization]{Basis matrix $W$ of the final \acrshort{SNMFL} factorization.  Rows represent genes, and columns metagenes, with cell colours proportional to the loading of a given gene on a given metagene.  The loadings are sparse within rows, indicating that the metagenes are modular, each affecting the expression of largely distinct sets of target genes.  A table of values of this basis matrix is available as \Aref{app:sigs-w-matrix} on \pref{app:sigs-w-matrix}.}\label{fig:sigs-nmf-basis}
@@ -139,7 +139,7 @@ The expression of the \fcardinal{361} survival-associated genes across the \fcar
 \paragraph{Three metagenes together formed a prognostic model}
 The transcription patterns of genes associated with survival in the \gls{APGI} cohort could be decomposed into just six largely distinct metagenes.  Due to the presence of false positives in the 361 screened input genes, some of the metagenes will have no strong association with outcome.  To identify which of the six metagenes were ultimately predictive of patient survival, I performed \gls{LASSO} regression on the 110-patient \gls{APGI} discovery cohort data, using \gls{NNLS}-estimated coefficients of each of the six metagenes as marginal predictors of outcome.  The \gls{LASSO} regularization parameter $\lambda$ was chosen by 10-fold cross-validation to be the highest value for which the mean test set partial likelihood deviance was within one standard error of the lowest mean value.  This resulted in a final model in which three metagenes, MG1, MG2, and MG5, were selected as prognostic (\fref{fig:sigs-resub-lasso-track}).
 
-\begin{figure}
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=.7\linewidth]{analysis/biosurv/reports/18_SIS_diag_dsd_final/figure/nmf-metagene-glmnet-plots-2}
 \caption[Fit trajectory of the \texorpdfstring{\acrshort{LASSO}}{LASSO} predicting \texorpdfstring{\acrshort{DSS}}{DSS} from metagene coefficients]{Coefficient vs penalty fit trajectories for the \acrshort{LASSO} model predicting \gls{DSS} from metagene expression.  Each line represents the model coefficient for a metagene as the model is smoothly varied from a null model (L1 norm = 0), to a full unpenalised Cox fit (L1 norm $\approx$ 16).  The vertical line indicates the optimal value of L1 norm as selected by the 1SE criterion on 10-fold cross-validation; at this point in the trajectory only metagenes MG1, MG2, and MG5 contribute to prognosis estimates.}\label{fig:sigs-resub-lasso-track}
@@ -148,14 +148,14 @@ The transcription patterns of genes associated with survival in the \gls{APGI} c
 \paragraph{Prognostic metagenes define two axes of cell transcription}
 Further investigation of the three prognostic metagenes revealed that they were associated: \gls{APGI} patient coefficients for pairs MG1 and MG5, and MG2 and MG6 (the latter not selected by the \gls{LASSO}), were mutually exclusive (\fref{fig:sigs-coef-mutualexclusion}, Kendall's $\tau$ test $P < 1 \times 10^{-6}$ for each pair).  This suggested that both metagenes in each pair captured the signal of a single axis of cell behaviour, with one measuring activation of the axis, and the other deactivation.  For subsequent work I therefore combined the signals of the metagenes within each axis, to give axis activity summaries: $\text{Axis A1 activity} = \text{MG1 coefficient} - \text{MG5 coefficient}$; $\text{Axis A2 activity} = \text{MG6 coefficient} - \text{MG2 coefficient}$.  Activation values for axes A1 and A2 were uncorrelated, indicating that these axes were orthogonal processes operating in the \gls{APGI} cohort tumours (\fref{fig:sigs-axis-pairs}, Kendall's $\tau$ test $P = 0.21$).  Metagenes MG3 and MG4 also formed a mutually exclusive pair (not shown), but were not investigated further, as neither was determined to be prognostic by the metagene \gls{LASSO}.
 
-\begin{figure}
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=.45\linewidth]{analysis/biosurv/reports/18_SIS_diag_dsd_final/figure/metagene-pairs-8}
 \includegraphics[width=.45\linewidth]{analysis/biosurv/reports/18_SIS_diag_dsd_final/figure/metagene-pairs-9}
 \caption[Prognostic metagenes form two axes of cell state]{Prognostic metagenes form two axes of cell state.  Metagene pairs MG1 and MG5, and MG2 and MG6, displayed mutually exclusive coefficient patterns in the \acrshort{APGI} cohort, and could be combined to form just two axes of cell state.}\label{fig:sigs-coef-mutualexclusion}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=.7\linewidth]{analysis/biosurv/reports/18_SIS_diag_dsd_final/figure/metagene-pairs-10}
 \caption[Prognostic axes are uncorrelated]{Prognostic axis signals are uncorrelated.  Activity estimates of axes defined by highly correlated mutually exclusive metagene pairs (Axis A1 = MG1 - MG5, axis A2 = MG6 - MG2) were uncorrelated (Kendall $\tau$ test $P = 0.21$), indicating that these axis signals encoded orthogonal outcome-associated processes within tumours.}\label{fig:sigs-axis-pairs}
@@ -239,7 +239,7 @@ A number of \gls{MSigDB} signatures were associated with A2 signals, among them 
 \paragraph{Link to S100 prognostic biomarkers}
 \Cref{chap:nomogram} uses the tissue levels of proteins S100A2 and S100A4 to predict survival with resected \gls{PDAC}.  S100A2 and S100A4 are both considered to be biomarkers of metastasis~\cite{Biankin2009, Tsukamoto2013, Lee2014}, and so we expect their expression to be associated with the putative metastasis-related axis A2.  Although neither S100A2 nor S100A4 were among the set of \fcardinal{361} survival-associated genes, their mRNA abundance estimates were significantly positively correlated with axis A2 signal, with Kendall's $\tau = 0.30$ ($P = 3.25 \times 10^{-6}$) for S100A2, and $\tau = 0.29$ ($P = 5.67 \times 10^{-6}$) for S100A4.
 
-\begin{figure}
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=.7\linewidth]{analysis/biosurv/reports/18_SIS_diag_dsd_final/figure/nmf-msigdb-cor-plots-5}
 \caption[A1 signal is closely associated with meta-PCNA score]{Axis A1 signal is closely associated with the meta-PCNA signature.  A1 signal and meta-PCNA~\cite{Venet2011} scores were as evaluated on the \acrshort{APGI} training set; Kendall's $\tau = 0.663$, $n = 110$, linear model $R^2 = 0.740$.}\label{fig:sigs-axis1-pcna}
@@ -281,7 +281,7 @@ Tumour longest axis length & 0.844                         & 0.171              
 \end{tabular}
 \end{table}
 
-\begin{figure}
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=.7\linewidth]{analysis/biosurv/reports/18_SIS_diag_dsd_final/figure/nmf-msigdb-cor-plots-8}
 \caption[A2 signal is closely associated with meta-EMT score]{Axis A2 signal is closely associated with a signature of the \gls{EMT}.  A2 signal and meta-EMT~\cite{Groger2012} scores were as evaluated on the \acrshort{APGI} training set; Kendall's $\tau = 0.568$, $n = 110$, linear model $R^2 = 0.557$.}\label{fig:sigs-axis2-emt}
