@@ -216,7 +216,7 @@ Recall that \gls{NMF} finds factorizations of the form $A = W H$, with all eleme
 \end{align}
 where $P$ is the vector of \gls{PARSE} score values, $L$ is the metagene loadings for the \gls{PARSE} score, $L = \irow{1.354&-1.548&0&0&-1.354&1.548}$, and $k$ is a row vector of gene loadings for calculation of an approximate \gls{PARSE} score.  Approximation of $P$ by $k A$ appears excellent; when tested on \gls{APGI} gene expression measurements, the approximation closely matched the more laborious exact \gls{NNLS} solution (\fref{fig:app-parse-approx-matching}).
 
-\begin{figure}
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=.7\linewidth]{analysis/biosurv/reports/18_SIS_diag_dsd_final/figure/approx-calc-1}
 \caption[Performance of the \texorpdfstring{\acrshort{PARSE}}{PARSE} score approximation]{The linear \acrshort{PARSE} score approximation $P \approx k A$ closely matches the exact version calculated using \gls{NNLS}, when evaluated on \gls{APGI} \gls{GEX} data.}\label{fig:app-parse-approx-matching}
