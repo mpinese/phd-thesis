@@ -1,0 +1,141 @@
+\documentclass{article}
+\usepackage{geometry}
+\usepackage{amsmath}
+\usepackage{lscape}
+\geometry{verbose,tmargin=2.5cm,bmargin=2.5cm,lmargin=2.5cm,rmargin=2.5cm}
+
+\begin{document}
+
+<<setup, include=FALSE>>=
+library(knitr)
+library(tikzDevice)
+options(
+	tikzDocumentDeclaration = "\\documentclass[11pt]{memoir}",
+	tikzLatexPackages = c(
+		getOption("tikzLatexPackages"),
+		"\\usepackage{amsmath}"),
+	tikzMetricsDictionary="tikzMetrics"
+)
+knit_hooks$set(crop = hook_pdfcrop)
+opts_chunk$set(
+	fig.align = 'center', dev = 'tikz', dev.args = list(pointsize = 16), fig.width = 6, fig.height = 6, dpi = 144, cache = TRUE, cache.lazy = FALSE)
+opts_knit$set(progress = TRUE, verbose = TRUE)
+options(warn = 1)
+@
+
+<<variability, sanitize = TRUE>>=
+library(survival)
+load("cpvs.20150119.RData")
+
+sapply(data.clin, function(d) c("days_to_death", "days_to_last_followup", "vital_status") %in% colnames(d))
+data.clin.merged = do.call(rbind, lapply(data.clin, function(d) apply(d[,c("bcr_patient_barcode", "days_to_initial_pathologic_diagnosis", "days_to_death", "days_to_last_followup", "vital_status")], 2, as.character)))
+data.clin.merged = data.frame(data.clin.merged, stringsAsFactors = FALSE)
+data.clin.merged$days_to_death = as.numeric(data.clin.merged$days_to_death)
+data.clin.merged$days_to_initial_pathologic_diagnosis = as.numeric(data.clin.merged$days_to_initial_pathologic_diagnosis)
+data.clin.merged$days_to_last_followup = as.numeric(data.clin.merged$days_to_last_followup)
+data.clin.merged$vital_status = as.factor(data.clin.merged$vital_status)
+data.clin.merged$cancer = factor(rep(names(data.clin), sapply(data.clin, nrow)))
+data.clin.merged$event = data.clin.merged$vital_status %in% c("Dead", "DECEASED")
+
+data.clin.merged$time = NA
+data.clin.merged$time[data.clin.merged$event] = data.clin.merged$days_to_death[data.clin.merged$event] - data.clin.merged$days_to_initial_pathologic_diagnosis[data.clin.merged$event]
+data.clin.merged$time[!data.clin.merged$event] = data.clin.merged$days_to_last_followup[!data.clin.merged$event] - data.clin.merged$days_to_initial_pathologic_diagnosis[!data.clin.merged$event]
+
+data.clin.merged = data.clin.merged[!is.na(data.clin.merged$time) & !is.na(data.clin.merged$event),]
+
+library(plyr)
+fits = dlply(data.clin.merged, .(cancer), function(d) survreg(Surv(d$time, d$event) ~ 1, dist = "logistic"))
+
+sort(sapply(fits, function(f) f$scale) / sapply(fits, coef))
+
+rel_iqrs = dlply(data.clin.merged, .(cancer), function(d) {
+	fit = survfit(Surv(d$time, d$event) ~ 1)
+	qs = approx(fit$surv, fit$time, c(0.25, 0.5, 0.75))$y
+	(qs[1]-qs[3]) / qs[2]
+})
+
+sort(unlist(rel_iqrs))
+
+# Right.  So PDAC is basically one of the most consistent cancers re: survival time.
+# Well there goes *that* argument.
+@
+
+
+<<historical-survival-all, sanitize = TRUE, fig.height=7>>=
+# Top 10 from AIHW2014:
+# Prostate (C61) 19,993
+# Colorectal (C18–C20) 15,151
+# Breast in females (C50) 14,465
+# Melanoma of the skin (C43) 11,570
+# Lung (C33–C34) 10,511
+# Non-Hodgkin lymphoma (C82–C85) 4,631
+# Kidney (C64) 2,847
+# Pancreas (C25) 2,748
+# Bladder (C67) 2,404
+# Uterus (C54–C55) 2,238
+
+# Stomach (C16) 2,093
+
+library(ggplot2)
+library(grid)
+
+rm(list = ls())
+cancer =            c("Prostate", "Colorectal",	"Breast", "Melanoma", "Lung", "Non-Hodgkin Lymphoma", "Kidney",  "Pancreas", "Bladder", "Uterus")
+incidence_2011 =    c(19993,      15151,        14465,    11570,      10511,  4631,                   2847,      2748,       2404,      2238)
+survival_5yr_1982 = c(58.2,       48.0,	        71.9,     85.8,       8.7,    46.6,                   47.4,      3.0,        67.9,      74.7)
+survival_5yr_2010 = c(92.0,       66.2,	        89.4,     90.7,       14.1,   70.6,                   71.9,      5.2,        57.5,      82.0)
+
+# survival_historical = data.frame(cancer = rep(cancer, 2), incidence = rep(incidence_2011, 2), incidence_order = rep(order(incidence_2011), 2), time = rep(c("1982-1987", "2006-2010"), each = length(cancer)), surv = c(survival_5yr_1982, survival_5yr_2010))
+survival_historical = data.frame(cancer = cancer, incidence = incidence_2011, incidence_rank = rank(incidence_2011), surv_rank = rank(survival_5yr_2010), surv1 = survival_5yr_1982, surv2 = survival_5yr_2010)
+
+survival_historical$cancer = ordered(as.character(survival_historical$cancer), levels = as.character(survival_historical$cancer)[order(survival_historical$surv2)])
+ggplot(survival_historical, aes(x = cancer, xend = cancer, y = surv1, yend = surv2)) + 
+	coord_flip() + 
+	geom_segment(arrow = arrow(length = unit(0.2, "cm"), type = "closed"), lwd = 1.5) + 
+	ylab("5 year survival (percent)") + xlab("") + theme_bw() + ylim(0, 100) + 
+	annotate("rect", xmin = 0.85, xmax = 1.7, ymin = 55, ymax = 90, fill = "white", colour = "grey", linetype = "solid") + 
+	annotate("segment", x = 1.4, xend = 1.4, y = 65, yend = 80, colour = "lightgrey", lwd = 1.5, arrow = arrow(length = unit(0.2, "cm"), type = "closed")) + 
+	annotate("text", x = 1.1, y = 65, label = "1982-1987", cex = 2.5) + 
+	annotate("text", x = 1.1, y = 80, label = "2006-2010", cex = 2.5)
+
+survival_historical$cancer = ordered(as.character(survival_historical$cancer), levels = as.character(survival_historical$cancer)[order(survival_historical$incidence)])
+ggplot(survival_historical, aes(x = cancer, xend = cancer, y = surv1, yend = surv2)) + 
+	coord_flip() + 
+	geom_segment(arrow = arrow(length = unit(0.2, "cm"), type = "closed"), lwd = 1.5) + 
+	ylab("5 year survival (percent)") + xlab("") + theme_bw() + ylim(0, 100)
+@
+
+<<historical-survival-pdac, sanitize = TRUE, fig.height=4>>=
+# Digitized data from AIHW2012:
+pdac_survival_5yr_aus_surv = c(4.55696, 3.92405, 3.41772, 2.91139, 2.53165, 3.03797, 3.29114, 3.67089, 3.67089, 3.5443, 3.41772, 3.29114, 3.16456, 3.03797, 2.91139, 2.78481, 3.03797, 3.16456, 3.41772, 3.5443, 3.5443, 3.5443, 3.5443, 3.67089, 3.67089, 3.79747, 3.79747, 3.92405, 4.05063, 4.17722, 4.17722, 3.79747, 3.5443, 3.29114, 3.5443, 3.79747, 4.05063, 4.3038, 4.3038, 4.3038, 4.17722, 4.43038, 4.55696, 4.55696, 4.81013, 4.68354, 4.68354, 4.55696, 4.55696, 4.68354, 4.68354, 4.81013, 4.81013, 4.93671, 5.18987, 5.18987, 5.18987, 5.18987, 5.18987, 5.31646, 5.18987, 5.18987, 5.31646, 5.18987, 5.18987, 5.06329, 5.06329, 5.06329, 4.93671, 5.06329, 4.93671, 4.68354, 4.43038, 4.3038, 4.3038, 4.3038, 4.17722)
+pdac_survival_5yr_aus_yr = c(1985.996, 1986.263, 1986.53, 1986.798, 1987.065, 1987.315, 1987.6, 1987.868, 1988.135, 1988.421, 1988.688, 1988.955, 1989.241, 1989.508, 1989.776, 1990.061, 1990.328, 1990.596, 1990.881, 1991.149, 1991.416, 1991.701, 1991.969, 1992.236, 1992.522, 1992.789, 1993.056, 1993.342, 1993.609, 1993.877, 1994.162, 1994.429, 1994.697, 1994.964, 1995.232, 1995.517, 1995.785, 1996.052, 1996.337, 1996.605, 1996.872, 1997.14, 1997.425, 1997.692, 1997.96, 1998.245, 1998.513, 1998.798, 1999.065, 1999.333, 1999.618, 1999.886, 2000.153, 2000.438, 2000.706, 2000.973, 2001.259, 2001.526, 2001.811, 2002.079, 2002.346, 2002.632, 2002.899, 2003.184, 2003.452, 2003.719, 2004.004, 2004.272, 2004.539, 2004.825, 2005.092, 2005.36, 2005.645, 2005.912, 2006.18, 2006.447, 2006.733)
+pdac_survival_5yr_aus_yr2 = seq(1986, 2007, 3)
+pdac_survival_5yr_aus_surv2 = predict(smooth.spline(pdac_survival_5yr_aus_yr, pdac_survival_5yr_aus_surv, spar = 0.75), pdac_survival_5yr_aus_yr2)$y
+plot(pdac_survival_5yr_aus_surv ~ pdac_survival_5yr_aus_yr)
+lines(pdac_survival_5yr_aus_surv2 ~ pdac_survival_5yr_aus_yr2)
+pdac_survival_5yr_aus = data.frame(Year = pdac_survival_5yr_aus_yr2, Survival = pdac_survival_5yr_aus_surv2)
+
+# Digitized data from NCI SEER:
+pdac_survival_5yr_usa_year = c(seq(1976, 1997, 3), 2001, 2007)
+pdac_survival_5yr_usa_surv = c(2.5, 2.8, 2.7, 2.9, 3.5, 4.3, 3.9, 4.4, 5.2, 7.2)
+pdac_survival_5yr_usa = data.frame(Year = pdac_survival_5yr_usa_year, Survival = pdac_survival_5yr_usa_surv)
+
+pdac_survival_5yr = rbind(cbind(pdac_survival_5yr_aus, Country = "Australia"), cbind(pdac_survival_5yr_usa, Country = "USA"))
+ggplot(pdac_survival_5yr, aes(x = Year, y = Survival, colour = Country)) + 
+	geom_line(lwd = 2, alpha = 0.5) + 
+	geom_point(cex = 4) + 
+	ylim(0, 10) + 
+	theme_bw() + 
+	geom_segment(x = 1997, xend = 1997, y = 5.5, yend = 5, colour = "#fc8d62", alpha = 0.5, lwd = 1.5, arrow = arrow(length = unit(0.2, "cm"))) +
+	geom_segment(x = 2007, xend = 2007, y = 3, yend = 3.5, colour = "#66c2a5", alpha = 0.5, lwd = 1.5, arrow = arrow(length = unit(0.2, "cm"))) +
+	ylab("5-year survival (percent)") + 
+	scale_colour_brewer(palette = "Set2")
+
+# Surgery (adjuvant): Gemcitabine / 5-FU / capecitabine (w/ or w/o radio)
+# Metastatic: FOLFIRINOX / Gem-nabpac / Gem-erlotinib / gem / 5-FU
+
+# FOLFIRINOX 2010
+# Gem 1996 (UK) - 1997 (USA) - 2007 (Aus)
+@
+
+\end{document}
