@@ -36,16 +36,16 @@
         <task id="219" name="Write and submit abstract" color="#8cb6ce" meeting="false" start="2015-03-23" duration="1" complete="100" expand="true">
             <depend id="143" type="2" difference="0" hardness="Rubber"/>
         </task>
-        <task id="8" name="Dissertation" color="#8cb6ce" meeting="false" start="2015-03-19" duration="10" complete="36" expand="true">
-            <task id="12" name="Ch 1: Introduction" color="#8cb6ce" meeting="false" start="2015-03-25" duration="3" complete="16" expand="true">
+        <task id="8" name="Dissertation" color="#8cb6ce" meeting="false" start="2015-03-19" duration="11" complete="46" expand="true">
+            <task id="12" name="Ch 1: Introduction" color="#8cb6ce" meeting="false" start="2015-03-24" duration="3" complete="100" expand="false">
                 <depend id="140" type="2" difference="0" hardness="Rubber"/>
-                <task id="29" name="Write introduction" color="#8cb6ce" meeting="false" start="2015-03-25" duration="1" complete="50" expand="true">
+                <task id="29" name="Write introduction" color="#8cb6ce" meeting="false" start="2015-03-24" duration="1" complete="100" expand="true">
                     <depend id="36" type="2" difference="0" hardness="Rubber"/>
                 </task>
-                <task id="36" name="Proofread introduction" color="#8cb6ce" meeting="false" start="2015-03-26" duration="1" complete="0" expand="true">
+                <task id="36" name="Proofread introduction" color="#8cb6ce" meeting="false" start="2015-03-25" duration="1" complete="100" expand="true">
                     <depend id="37" type="2" difference="0" hardness="Rubber"/>
                 </task>
-                <task id="37" name="Complete introduction" color="#8cb6ce" meeting="false" start="2015-03-27" duration="1" complete="0" expand="true"/>
+                <task id="37" name="Complete introduction" color="#8cb6ce" meeting="false" start="2015-03-26" duration="1" complete="100" expand="true"/>
             </task>
             <task id="16" name="Ch 2: Nomogram" color="#8cb6ce" meeting="false" start="2015-03-21" duration="3" complete="83" expand="true">
                 <depend id="12" type="2" difference="0" hardness="Rubber"/>
@@ -62,44 +62,48 @@
                 <depend id="140" type="2" difference="0" hardness="Rubber"/>
                 <task id="57" name="Complete signatures" color="#8cb6ce" meeting="false" start="2015-03-21" duration="2" complete="100" expand="true"/>
             </task>
-            <task id="20" name="Ch 4: Messina" color="#8cb6ce" meeting="false" start="2015-03-19" duration="8" complete="25" expand="true">
+            <task id="20" name="Ch 4: Messina" color="#8cb6ce" meeting="false" start="2015-03-19" duration="11" complete="25" expand="true">
                 <depend id="140" type="2" difference="0" hardness="Rubber"/>
                 <task id="70" name="Experiments for Messina" color="#8cb6ce" meeting="false" start="2015-03-19" duration="4" complete="100" expand="false">
                     <depend id="59" type="2" difference="0" hardness="Rubber"/>
                     <depend id="219" type="2" difference="0" hardness="Rubber"/>
-                    <task id="221" name="E1A" color="#8cb6ce" meeting="false" start="2015-03-19" duration="1" complete="100" expand="true"/>
-                    <task id="232" name="E2A" color="#8cb6ce" meeting="false" start="2015-03-19" duration="1" complete="100" expand="true"/>
-                    <task id="233" name="E2B" color="#8cb6ce" meeting="false" start="2015-03-19" duration="3" complete="100" expand="true"/>
-                    <task id="230" name="E3" color="#8cb6ce" meeting="false" start="2015-03-19" duration="4" complete="100" expand="true"/>
+                    <task id="221" name="E1A" color="#8cb6ce" meeting="false" start="2015-03-19" duration="1" complete="100" expand="true">
+                        <depend id="22" type="2" difference="0" hardness="Rubber"/>
+                    </task>
+                    <task id="232" name="E2A" color="#8cb6ce" meeting="false" start="2015-03-19" duration="1" complete="100" expand="true">
+                        <depend id="22" type="2" difference="0" hardness="Rubber"/>
+                    </task>
+                    <task id="233" name="E2B" color="#8cb6ce" meeting="false" start="2015-03-19" duration="3" complete="100" expand="true">
+                        <depend id="22" type="2" difference="0" hardness="Rubber"/>
+                    </task>
+                    <task id="230" name="E3" color="#8cb6ce" meeting="false" start="2015-03-19" duration="4" complete="100" expand="true">
+                        <depend id="22" type="2" difference="0" hardness="Rubber"/>
+                    </task>
                 </task>
-                <task id="59" name="Write Messina" color="#8cb6ce" meeting="false" start="2015-03-23" duration="2" complete="20" expand="true">
-                    <depend id="12" type="2" difference="0" hardness="Rubber"/>
-                    <depend id="22" type="2" difference="0" hardness="Rubber"/>
+                <task id="59" name="Write Messina" color="#8cb6ce" meeting="false" start="2015-03-26" duration="2" complete="20" expand="true">
                     <depend id="61" type="2" difference="0" hardness="Rubber"/>
                 </task>
-                <task id="61" name="Proofread Messina" color="#8cb6ce" meeting="false" start="2015-03-25" duration="1" complete="0" expand="true">
+                <task id="61" name="Proofread Messina" color="#8cb6ce" meeting="false" start="2015-03-28" duration="1" complete="0" expand="true">
                     <depend id="63" type="2" difference="0" hardness="Rubber"/>
                 </task>
-                <task id="63" name="Complete Messina" color="#8cb6ce" meeting="false" start="2015-03-26" duration="1" complete="0" expand="true"/>
+                <task id="63" name="Complete Messina" color="#8cb6ce" meeting="false" start="2015-03-29" duration="1" complete="0" expand="true"/>
             </task>
-            <task id="22" name="Ch 5: Conclusion" color="#8cb6ce" meeting="false" start="2015-03-26" duration="3" complete="0" expand="true">
+            <task id="22" name="Ch 5: Conclusion" color="#8cb6ce" meeting="false" start="2015-03-27" duration="3" complete="0" expand="true">
                 <depend id="140" type="2" difference="0" hardness="Rubber"/>
-                <task id="81" name="Write conclusion" color="#8cb6ce" meeting="false" start="2015-03-26" duration="1" complete="0" expand="true">
+                <task id="81" name="Write conclusion" color="#8cb6ce" meeting="false" start="2015-03-27" duration="1" complete="0" expand="true">
                     <depend id="82" type="2" difference="0" hardness="Rubber"/>
                 </task>
-                <task id="82" name="Proofread conclusion" color="#8cb6ce" meeting="false" start="2015-03-27" duration="1" complete="0" expand="true">
+                <task id="82" name="Proofread conclusion" color="#8cb6ce" meeting="false" start="2015-03-28" duration="1" complete="0" expand="true">
                     <depend id="80" type="2" difference="0" hardness="Rubber"/>
                 </task>
-                <task id="80" name="Complete conclusion" color="#8cb6ce" meeting="false" start="2015-03-28" duration="1" complete="0" expand="true"/>
+                <task id="80" name="Complete conclusion" color="#8cb6ce" meeting="false" start="2015-03-29" duration="1" complete="0" expand="true"/>
             </task>
         </task>
         <task id="150" name="Complete misc matter, fix refs" color="#8cb6ce" meeting="false" start="2015-03-19" duration="10" complete="100" expand="true">
             <depend id="140" type="2" difference="0" hardness="Rubber"/>
         </task>
-        <task id="140" name="Final check" color="#8cb6ce" meeting="false" start="2015-03-29" duration="1" complete="0" expand="true">
+        <task id="140" name="Final check, print" color="#8cb6ce" meeting="false" start="2015-03-30" duration="1" complete="0" expand="true">
             <depend id="142" type="2" difference="0" hardness="Rubber"/>
-        </task>
-        <task id="142" name="Print" color="#8cb6ce" meeting="false" start="2015-03-30" duration="1" complete="0" expand="true">
             <depend id="143" type="2" difference="0" hardness="Rubber"/>
         </task>
         <task id="143" name="Deliver" color="#8cb6ce" meeting="false" start="2015-03-31" duration="1" complete="0" expand="true"/>
