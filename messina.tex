@@ -13,39 +13,44 @@
 
 \section{Introduction}
 
-Research and molecular pathology laboratories take strikingly different approaches to the measurement of biomarkers in patient samples.  Research work favours costly manual techniques, which quantify a large number of biomarkers in a relatively small number of samples.  Conversely, pathology laboratories make extensive use of highly automated turnkey systems, to robustly measure a relatively small number of biomarkers in a large number of samples.  In keeping with this divide, research and pathology laboratories often use very different technologies for the measurement of the same type of biomarker, such as RNA sequencing in research, and quantitative PCR in the clinical realm.  This difference in base technology complicates the translation of discoveries in research into application in the clinic.
+Research and molecular pathology laboratories take strikingly different approaches to the measurement of biomarkers in patient samples.  Research work favours costly manual techniques, which quantify a large number of biomarkers in a relatively small number of samples.  Conversely, pathology laboratories make extensive use of highly automated turnkey systems, to robustly measure a relatively small number of biomarkers in a large number of samples.  In keeping with this divide, research and pathology laboratories often use very different technologies for the measurement of the same type of biomarker, such as RNA sequencing in research, and quantitative PCR in the clinical realm.  This difference in base technology, and the generally increased variability of clinical samples over research ones~\cite{Hewitt2008}, complicates the translation of discoveries in research into application in the clinic.
 
-Unfortunately, this difficult translation of research discoveries into clinical practice is absolutely necessary.  Although technologically not a perfect match, research and pathology techniques are complementary: biomarker \emph{discovery} requires research techniques capable of interrogating a huge number of potential biomarkers, but the \emph{application} of any discoveries needs pathology techniques that can reliably and economically handle a huge number of patient samples.  The two approaches are inseparable, and so finding effective ways to translate research findings into clinical application is critically important.  
+Although difficult, this translation of research discoveries into clinical practice is absolutely necessary.  Research and pathology techniques are complementary: biomarker \emph{discovery} requires research techniques capable of interrogating a huge number of potential biomarkers, but the \emph{application} of any discoveries needs pathology techniques that can reliably and economically handle a potentially huge number of patient samples.  Finding effective ways to translate research findings into clinical application is critically important.  This problem can be approached from two angles: by harmonising measurement technology between research and diagnostic laboratories, or by identifying lead biomarkers in the research laboratory that have a high likelihood of effectively translating to diagnostic measurement.  The former approach may represent a long-term solution, but does not reflect the current state of technology.  To implement the latter approach requires bioinformatic techniques that can search large bodies of research measurement data, to identify a small number of biomarkers that are most likely to make good diagnostic tests.
+
+Effective clinical tests must satisfy a number of requirements, which can be used to guide the translation of a research finding into a clinical tool.  Ideally, a clinical diagnostic or prognostic test should be based on the measurement of only a small number of biomarkers~\cite{Lesko2001, Pepe2001}.  Additionally, it should be highly robust to technical effects, and the inevitable variation in sample quality and handling that comes with clinical specimens~\cite{Hewitt2008}.  The results of most tests will be interpreted as a simple binary outcome, and the detection performance of this binary variable should match the particular clinical application~\cite{Pepe2001}.  Taking all these requirements into account, a technique to translate discovery biomarker measurements into a clinical test should identify a single biomarker that, when its level is thresholded, yields a particular class separation performance, with maximal robustness to technical effects.
+
+Existing methods for the mining of research data for potential biomarkers do not meet these requirements.  For both diagnostic and prognostic endpoints, common biomarker prioritization techniques either do not provide fine control of classification accuracy and robustness, or yield sets of biomarkers that are far too large to practically deploy.  Two broad strategies are generally employed to identify biomarkers in large research data sets: univariate statistics, and machine learning.  The first strategy encompasses approaches such as per-biomarker regression tests for association between the biomarker and a biological state or outcome, and the second covers the use of algorithms such as \glspl{SVM} to construct high-performance predictors from the measurements of many biomarkers.
+
+Univariate statistic approaches identify single biomarkers of interest, but supply no guarantee as to the suitability of these biomarkers for translation into clinical tests.  These statistics are designed to identify differences in average value between two groups, not to construct classifiers.  Significance testing and classifier learning are distinct problems, and usually have different solutions: a biomarker that shows a statistically significant difference in signal between two groups may still be a poor classifier; and vice versa (\fref{fig:messina-example-stats-class} TODO).  Univariate tests also do not take the particular requirements of a clinical problem into account.  For example, consider two tests for the same disease -- one test is intended to be used as a population screen, and the other to rule out a suspected diagnosis.  These two tests would have very different performance requirements, and quite possibly could be best served by two different biomarkers.  Univariate test approaches to candidate biomarker selection cannot take this nuance into account, which further limits their usefulness for biomarker selection.  These special test performance requirements can be accommodated by machine learning algorithms, but the classifiers produced by these algorithms are also usually poorly-suited to clinical test development.
+
+\begin{figure}[!htbp]
+\begin{tikzpicture}[scale=1.25]
+   \begin{scope}[smooth,draw=gray!20,y=0.3989422804cm]
+        \filldraw [fill=gray] plot[id=f1,domain=-3:3] function {exp(-x*x/2)}
+            -- (-3,0) -- (3,0) -- cycle;
+        \draw[black] plot[id=f7,domain=-4.25:4.25,samples=100]
+            function {exp(-x*x/2)};
+   \end{scope}
+       \draw[->] (-4.25,0) -- (4.25,0) node [right] {$x$};
+\end{tikzpicture}
+\caption{Test}
+\label{fig:messina-example-stats-class}
+\end{figure}
+
+Machine learning algorithms can produce highly accurate classifiers matching given performance requirements~\cite{Bach2006}, but these classifiers generally rely on a large number of biomarkers.  A number of powerful algorithms have been successfully used to construct accurate classifiers and prognostic tools from large biomarker measurement data, but universally their strength comes from the combined use of information from many biomarkers.  This has not entirely prevented multi-gene tests based on these biomarkers from achieving clinical use (an early example of a multi-gene test in clinical use is MammaPrint\texttrademark, a simple linear classifier based on measurements of 70 transcripts~\cite{Veer2002}), but does drastically increase the complexity of translation from the research laboratory to the clinical, and the final cost of the test (for MammaPrint, approximately \fpcardinal{4200} USD per patient).  Many approaches are available to limit the number of biomarkers in classifiers returned by machine learning algorithms~\cite{Guyon2003}, but this eventually comes at the cost of performance (TODO cite?).  For the limiting case of single-biomarker classifiers and prognostics, a machine learning algorithm designed exclusively for the task is needed.
+% Things I didn't mention: interpretability (Breiman2001b), difficulty in getting analysis right (Aliferis2009), small classifiers can do well
+
+To address this need, in 2009 I reported the Messina algorithm, for the efficient cost-sensitive training of single-feature binary classifiers~\cite{Pinese2009}.  Messina addressed two problems: the selection of biomarkers that are well-suited for development into single-measurement diagnostic tests, and the identification of biomarkers with differential signal between two sample groups.  The latter functionality was the focus of the original Messina paper, which demonstrated that Messina was a strong alternative to more classical tests of differential expression, that allowed the user to smoothly trade robustness to outliers against sensitivity to subtle changes in expression.  Messina was recommended by an independent comparison of outlier differential expression methods~\cite{Karrila2011}, but remains a relatively limited tool: Messina is only available as a standalone program, and its objective function is hard-coded for binary classification, and so cannot identify prognostic biomarkers.
+
+MAXSTAT?! TODO
+
+REFER BACK TO NOMOGRAM TODO
+
+TODO: mention the preponderance of biomarkers that never get used?  Sigs. especially!
+
+In this chapter I present Messina2, a more general algorithm derived from Messina.  Messina2 is capable of using arbitrary objective functions, making it a very general framework for the construction of maximum margin cost-sensitive single feature threshold classifiers.  As with the original Messina, Messina2 can be used to identify differentially-expressed biomolecules, as well as to train classifiers.  To facilitate Messina2's use in bioinformatic workflows, it has been made into the \texttt{R} package \texttt{Messina}, available as part of the Bioconductor project~\cite{Gentleman2004}\footnote{The version of Messina2 used for this thesis is not yet in the latest Bioconductor release.  To access the thesis version, clone the \texttt{thesis} branch from the Bitbucket repository \texttt{marpin/r-messina}, or from \texttt{R}, with \texttt{devtools} installed, run the command \texttt{ devtools::install_bitbucket("marpin/r-messina", ref = "thesis")}}.  Messina2 is not a direct extension of Messina, but produces very similar results.  This chapter will describe the general problem framework, detail the Messina2 algorithm and how it differs from Messina, and demonstrate its characteristics and performance relative to other techniques.  An application to the problem of identifying better prognostic biomarkers in pancreas cancer will illustrate the utility of Messina2 in real data.
+
 \begin{verbatim}
-* How can we get around this?
-  - We can harmonise techniques.  Unfortunately, unlikely right now.
-    OR...
-  - We can find the best possible way to translate research -> clinical.
-\end{verbatim}
-
-Effective clinical tests must satisfy a number of requirements, which can be used to guide the translation of a research finding into a clinical test.  Ideally, a clinical diagnostic or prognostic test should be based on the measurement of only a small number of biomarkers (TODO).  Additionally, it should be highly robust to technical effects, and the inevitable variation in sample quality and handling that comes with clinical specimens (TODO).  The results of most tests will be interpreted as a simple binary outcome, and the optimal detection performance of this binary variable will vary depending on the particular clinical application (TODO).  Taking all these requirements into account, a technique to translate discovery biomarker measurements into a clinical test should identify a single biomarker that, when its level is thresholded, yields a particular class separation performance with maximal robustness.
-
-\begin{verbatim}
-* Existing methods do not do this.
-* Consider common ML algos.  They all benefit from many features (eg. SVM, PAM, RF).
-* Feature selection can be used to reduce feature count, obviously.
-* However, what we need is:
-  A Cutting down all the way to just one feature
-  B With defined separation performance
-  C At maximal robustness.
-* There's nothing really out there to achieve that, because A is featsel, but B,C are class, and B is cost-sensitive.
-* There *is* evidence that it is possible.  Cue small classifier papers.
-
-* Enter Messina.  Single-feature cost-sensitive maximum-margin classifiers.
-* Maximum margin -> robustness (Vapnik)
-* Messina paper.
-* Messina in lit., comparisons.
-* Hook to limitations
-
-* Messina2 addresses limitations in 1.
-  - More general objective function
-  - Makes it possible to do prognostics as well
-
 * Ok, now chapter outline:
   1) Messina
   2) Messina2
@@ -58,39 +63,6 @@ Effective clinical tests must satisfy a number of requirements, which can be use
   6) Methods (for sims only -- cover algos in 1 \& 2)
 \end{verbatim}
 
-
-A core task in bioinformatics is identifying biomolecules that are differentially-expressed between experimental groups. When groups are homogeneous sets of replicates, all identical except for random measurement noise, the detection of differential expression is effectively addressed by techniques based in classical statistics.  Unfortunately, this ideal laboratory situation rarely exists in clinical samples, such as the tumour samples collected as part of large-scale observational studies like the ICGC and TCGA.
-
-The expression levels of biomolecules within clinical samples may vary widely within sample groups due to many factors, such as the presence of latent biological subtypes, different stages of disease, environmental factors, and a range of technical effects. The net result of this heterogeneity is increased within-group variance, leading to a reduction in the power of classical techniques to detect differential expression. Importantly, this reduction in power is strongest for biomolecules with the most intra-group expression variance. The levels of such high-variance molecules potentially reflect latent biological subtypes, and thus they are of great interest, yet are the most likely to be ignored by classical differential expression detection techniques. Consequently, a real need exists for methods to reliably identify differential expression in complex and poorly-controlled observational data, such as those generated by current disease genomics efforts.
-
-Recently, a number of techniques have been reported for the identification of differential expression in the presence of outlier samples and expression heterogeneity (for overviews see for example Karrila et al. (2011) and Bottomly et al. (2013)). Of these, the Messina algorithm (Pinese et al., 2009) is unique in that it is tunable, allowing the user to smoothly trade robustness to outliers against sensitivity to subtle changes in expression. In the presence of outliers, Messina outperformed limma (Smyth, 2004) for the detection of differential expression, and has been recommended for this purpose in an independent comparison of existing methods (Karrila et al., 2011). However, Messina is only available as a standalone program, reducing its utility in bioinformatic pipelines, and, in common with other outlier-aware techniques, cannot identify biomolecules associated with outcome.
-
-Here we present Messina2, an enhanced version of Messina that is implemented as the ‘messina’ R package, available in Bioconductor versions 2.14 and above. It contains all the original functionality of Messina, with the additional unique capability to identify biomolecules associated with a censored outcome variable. In the following we describe the Messina2 algorithm and demonstrate its application with case studies.
-
-There are things on prognostic biomarkers that really should be here. Stuff on the ad-hoc nature of current approaches (eg. median split, or cutpoint optimization), and the general unsuitability of stats-based approaches (eg. Cox) for the generation of a good biomarker. There’s also the more general problem of cardinality – most of the prognostic biomarker stuff out there is based on large signatures, because that’s a way to get a good split from the kind of genes found by current methods. There’s very little on good ways to choose single-gene biomarkers. No room for all of that, though!
-
-marcow’s idea for some intro text:``Two of the most common analytical scenarios for clinical samples are classification and survival; the former has been addressed by a number of methods, including Messina, in the context of heterogeneity, as reviewed by refs. Survival in the presence of heterogeneity remains largely unsolved. Here we extend Messina to solve
-survival in the context of hereogeneity and additionally extend the capabilities of the original Messina algorithm via R''
-
-\begin{verbatim}
-http://en.wikipedia.org/wiki/NanoString_Technologies
-http://en.wikipedia.org/wiki/Oncotype_DX_Colon_Cancer_Assay
-http://en.wikipedia.org/wiki/Oncotype_DX
-http://en.wikipedia.org/wiki/MammaPrint
-http://en.wikipedia.org/wiki/Symphony_(Agendia)
-http://www.agendia.com/healthcare-professionals/colon-cancer/
-http://www.agendia.com/healthcare-professionals/breast-cancer/mammaprint/
-
-
-TODO: mention the preponderance of biomarkers that never get used?  Sigs. especially!
-
-A number of factors contribute to the divide in methodology between research and clinical laboratories.  Relative to clinical tests, research techniques are labour-intensive, costly, likely less robust, and have low sample throughput.  Being research methods, they are also not offered by manufacturers as validated and complete turnkey tests, and so require extensive work on in-house development and certification.  These elements, combined with the noted inertia in the medical profession for adopting new techniques, combine to make bespoke and complex research-grade methods 
-
-* Inertia -- complex cert. process, doc uptake slow.
-* Development -- no turn-key solns.  Ties in with cert issues.
-* Cost -- much higher for research methods.  Also buy-in cost.
-* Scalability -- disc. methods are low n, high p.  Path. are high n, low p.
-\end{verbatim}
 
 
 \section{Results}
