@@ -6,12 +6,17 @@ Unless otherwise specified, the following conventions are used throughout this d
   \item Indices in algorithm pseudocode are 1-based.
   \item Logarithms ($\log$) and exponentiations ($\exp$) are to base $e$.
   \item Square brackets around a predicate $P$ denote the Iverson bracket: $\left[P\right] \Leftrightarrow 1\ \mathrm{if}\ P \mathrm{~is~true,~else}\ 0$.
-  \item Square brackets around a function-predicate pair $f(i)~|~P(i)$, indicate tuple builder notation: 
+  \item Round brackets around a function-predicate pair $f(i)~|~P(i)$, indicate tuple builder notation: 
   \[
-  \left[f(i)~|~P(i)\right]_{i=a}^b \Leftrightarrow \left[ f(a)~\mathrm{if}~P(a), f(a+1)~\mathrm{if}~P(a+1), \dots, f(b)~\mathrm{if}~P(b) \right]
+  \left(f(i)~|~P(i)\right)_{i=a}^b \Leftrightarrow \left( f(a)~\mathrm{if}~P(a), f(a+1)~\mathrm{if}~P(a+1), \dots, f(b)~\mathrm{if}~P(b) \right)
   \]
   where an element $f(i)$ is only included in the tuple if $P(i)$ is true.
+  \item The symbol $\oplus$ is reserved for tuple concatenation: 
+  \[
+  \left(a_1, a_2, \dots, a_n\right) \oplus \left(b_1, b_2, \dots, b_m\right) \equiv \left(a_1, a_2, \dots, a_n, b_1, b_2, \dots, b_m\right)
+  \]
   \item $x_+$ indicates the value of the ramp function at real $x$, $x_+ \equiv \max(0, x)$.
   \item $\mathbf{0}^n$ denotes the vector in $\mathbf{R}^n$ with all entries equal to zero.
   \item $\mathbb{B}$ denotes the Boolean set $\{true, false\}$.
 \end{itemize}
+                                                                 

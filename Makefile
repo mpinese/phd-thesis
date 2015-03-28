@@ -8,7 +8,7 @@ dissertation: dissertation.pdf
 	-pdflatex -interaction=nonstopmode $*.tex
 
 dissertation.aux dissertation.glo: *.tex dissertation.bib
-	-pdflatex -interaction=nonstopmode dissertation.tex
+	-pdflatex --enable-write18 -interaction=nonstopmode dissertation.tex
 	bibtex dissertation.aux
 	makeglossaries dissertation
 	-pdflatex -interaction=nonstopmode dissertation.tex
