@@ -258,7 +258,7 @@ e2b.design4 = rbind(
 @
 
 
-<<E2B-plots,fig.height=4,fig.width=5>>=
+<<E2B-plots,fig.height=3.5,fig.width=6>>=
 library(ggplot2)
 
 e2b.design$method = as.character(e2b.design$method)
@@ -275,13 +275,18 @@ e2b.design4$method[e2b.design4$method == "mc"] = "'Optimal'"
 e2b.design4$method[e2b.design4$method == "mcH"] = "'Optimal' + MTC"
 e2b.design4$method = as.factor(e2b.design4$method)
 
-ggplot(e2b.design[e2b.design$n == 25,], aes(x = margin, y = detrate, colour = factor(method))) + geom_line(lwd = 1) + xlab("Margin") + ylab("Detection rate") + labs(colour = "Method") + theme_bw() + facet_grid(p1 ~ pc ~ R1)
-ggplot(e2b.design[e2b.design$n == 50,], aes(x = margin, y = detrate, colour = factor(method))) + geom_line(lwd = 1) + xlab("Margin") + ylab("Detection rate") + labs(colour = "Method") + theme_bw() + facet_grid(p1 ~ pc ~ R1)
-ggplot(e2b.design[e2b.design$n == 100,], aes(x = margin, y = detrate, colour = factor(method))) + geom_line(lwd = 1) + xlab("Margin") + ylab("Detection rate") + labs(colour = "Method") + theme_bw() + facet_grid(p1 ~ pc ~ R1)
+# ggplot(e2b.design[e2b.design$n == 25,], aes(x = margin, y = detrate, colour = factor(method))) + geom_line(lwd = 1) + xlab("Margin") + ylab("Detection rate") + labs(colour = "Method") + theme_bw() + facet_grid(p1 ~ pc ~ R1)
+# ggplot(e2b.design[e2b.design$n == 50,], aes(x = margin, y = detrate, colour = factor(method))) + geom_line(lwd = 1) + xlab("Margin") + ylab("Detection rate") + labs(colour = "Method") + theme_bw() + facet_grid(p1 ~ pc ~ R1)
+# ggplot(e2b.design[e2b.design$n == 100,], aes(x = margin, y = detrate, colour = factor(method))) + geom_line(lwd = 1) + xlab("Margin") + ylab("Detection rate") + labs(colour = "Method") + theme_bw() + facet_grid(p1 ~ pc ~ R1)
 
-ggplot(e2b.design2[e2b.design2$n == 25,], aes(x = margin, y = detrate, colour = factor(method))) + geom_line(lwd = 1) + xlab("Margin") + ylab("Detection rate") + labs(colour = "Method") + theme_bw() + facet_grid(p1 ~ pc ~ R1)
-ggplot(e2b.design2[e2b.design2$n == 50,], aes(x = margin, y = detrate, colour = factor(method))) + geom_line(lwd = 1) + xlab("Margin") + ylab("Detection rate") + labs(colour = "Method") + theme_bw() + facet_grid(p1 ~ pc ~ R1)
-ggplot(e2b.design2[e2b.design2$n == 100,], aes(x = margin, y = detrate, colour = factor(method))) + geom_line(lwd = 1) + xlab("Margin") + ylab("Detection rate") + labs(colour = "Method") + theme_bw() + facet_grid(p1 ~ pc ~ R1)
+# ggplot(e2b.design2[e2b.design2$n == 25,], aes(x = margin, y = detrate, colour = factor(method))) + geom_line(lwd = 1) + xlab("Margin") + ylab("Detection rate") + labs(colour = "Method") + theme_bw() + facet_grid(p1 ~ pc ~ R1)
+# ggplot(e2b.design2[e2b.design2$n == 50,], aes(x = margin, y = detrate, colour = factor(method))) + geom_line(lwd = 1) + xlab("Margin") + ylab("Detection rate") + labs(colour = "Method") + theme_bw() + facet_grid(p1 ~ pc ~ R1)
+# ggplot(e2b.design2[e2b.design2$n == 100,], aes(x = margin, y = detrate, colour = factor(method))) + geom_line(lwd = 1) + xlab("Margin") + ylab("Detection rate") + labs(colour = "Method") + theme_bw() + facet_grid(p1 ~ pc ~ R1)
+
+e2b.design2$method = as.character(e2b.design2$method)
+e2b.design2$method[e2b.design2$method == "c1"] = "Median cut"
+e2b.design2$method[e2b.design2$method == "messina"] = "Messina2"
+ggplot(e2b.design2[e2b.design2$margin >= 0 & e2b.design2$R1 == 4 & e2b.design2$pc == 0.2 & e2b.design2$method %in% c("maxstat", "Median cut", "Messina2"),], aes(x = margin, y = detrate, colour = factor(method))) + geom_line(lwd = 1) + xlab("Margin") + ylab("Detection rate") + labs(colour = "Method") + theme_bw() + facet_grid(p1 ~ n) + geom_vline(xintercept = 1, alpha = 0.5, linetype = "dashed")
 
 ggplot(e2b.design3[e2b.design3$method %in% c("c1", "maxstat", "messina"),], aes(x = p1, y = detrate, colour = factor(method))) + geom_line(lwd = 1) + xlab("Class balance") + ylab("Detection rate") + labs(colour = "Method") + theme_bw()
 ggplot(e2b.design4, aes(x = multicut.n, y = detrate, colour = factor(method))) + geom_line(lwd = 1) + xlab("Number of cutpoints") + ylab("False discovery rate") + labs(colour = "Method") + theme_bw() + ylim(0, 1) + geom_hline(yintercept = 0.05, linetype = "dashed", alpha = 0.5)
