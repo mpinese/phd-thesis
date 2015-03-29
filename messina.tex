@@ -5,7 +5,7 @@
 \label{chap:messina}
 
 
-\emph{Thesis: Decision stump classifiers can be efficiently trained on high-throughput biomarker data, and provide a principled way to translate large multi-measurement research data into simple but high-performance clinical tests.}
+\emph{Thesis: Binary decision stump classifiers can be efficiently trained on high-throughput biomarker data, and provide a principled way to translate large multi-measurement research data into simple but high-performance clinical tests.}
 
 
 \paragraph{Summary}
@@ -43,25 +43,109 @@ Univariate statistic approaches identify single biomarkers of interest, but supp
 
 Machine learning algorithms can produce highly accurate classifiers matching given performance requirements~\cite{Bach2006}, but these classifiers generally rely on combining information from a large number of biomarkers.  This has not entirely prevented multi-gene tests based on these classifiers from achieving clinical use (an early example of a multi-gene clinical test is MammaPrint\texttrademark, a simple linear classifier based on measurements of 70 transcripts~\cite{Veer2002}), but does drastically increase the complexity of translation from the research laboratory to the clinical, and the final cost of the test (for MammaPrint, approximately \fcardinal{4200} USD per patient).  As well as being difficult to translate into a clinical diagnostic, high-performance multi-feature classifiers require care when training~\cite{Aliferis2009}, their complex workings usually defy human interpretation~\cite{Breiman2001b}, and their complexity often simply isn't required for good classification~\cite{Grate2005}.  Many approaches are available to limit the number of biomarkers in classifiers returned by machine learning algorithms~\cite{Guyon2003}, but as the number of biomarkers is reduced to one, this generally comes at the cost of performance (TODO cite?).  For the limiting case of single-biomarker classifiers and prognostics, a machine learning algorithm designed exclusively for the task is needed.
 
-To address this need, in 2009 I reported the Messina algorithm, for the efficient cost-sensitive training of single-feature binary threshold classifiers~\cite{Pinese2009}.  The single-feature binary threshold classifiers found by Messina use the abundance of a single biomarker to place samples into two groups: one containing samples with biomarker levels below a threshold, and the other containing samples with biomarker levels at or above the threshold.  Given measurements of many biomarkers in a set of samples from two groups, Messina identifies the biomarkers, and their optimal thresholds, that will separate the two groups well.  Messina could be used to address two problems: the selection of biomarkers that are well-suited for development into single-measurement diagnostic tests, and the identification of biomarkers with differential signal between two sample groups.  The latter functionality was the focus of the original Messina paper, which demonstrated that Messina was a strong alternative to more classical tests of differential expression, that allowed the user to smoothly trade robustness to outliers against sensitivity to subtle changes in expression.  Messina was recommended by an independent comparison of outlier differential expression methods~\cite{Karrila2011}, but remains a relatively limited tool: Messina is only available as a standalone program, and its objective function is hard-coded for binary classification, and so it can not generate more general classifiers, such as for prognosis.
+To address this need, in 2009 I reported the Messina algorithm, for the efficient cost-sensitive training of single-feature binary decision stump classifiers~\cite{Pinese2009}.  The classifiers found by Messina use the abundance of a single biomarker to place samples into two groups: one containing samples with biomarker levels below a threshold, and the other containing samples with biomarker levels at or above the threshold.  Given measurements of many biomarkers in a set of samples from two groups, Messina identifies the biomarkers, and their optimal thresholds, that will separate the two groups well.  Messina could be used to address two problems: the selection of biomarkers that are well-suited for development into single-measurement diagnostic tests, and the identification of biomarkers with differential signal between two sample groups.  The latter functionality was the focus of the original Messina paper, which demonstrated that Messina was a strong alternative to more classical tests of differential expression, that allowed the user to smoothly trade robustness to outliers against sensitivity to subtle changes in expression.  Messina was recommended by an independent comparison of outlier differential expression methods~\cite{Karrila2011}, but remains a relatively limited tool: Messina is only available as a standalone program, and its objective function is hard-coded for binary classification, and so it can not generate more general classifiers, such as for prognosis.
 
 Tools to identify biomarkers that can yield accurate estimates of prognosis remain relatively crude, compared to those for classification problems.  As discussed in \Cref{chap:nomogram}, there is a pressing need in \gls{PDAC} for effective methods to preoperatively stage patients.  Biomarkers of prognosis can be measured preoperatively, but the S100A2 and S100A4 markers tested in \Cref{chap:nomogram} were relatively poor at predicting outcome following resection of \gls{PDAC}.  S100A2 and S100A4 were identified following only a small candidate screen, and it is reasonable to expect that a global search for \gls{PDAC} biomarkers of prognosis will yield candidates with better performance.  Prognostic tests have the same clinical translation requirements as diagnostic tests: they must be based on a small number of biomarker measurements, and by simple thresholding of these measurements, yield a robust prediction of differential outcome.  Machine learning algorithms such as random forests and \glspl{SVM} have been adapted to the prediction of outcome, but suffer the same general problem of machine learning solutions: too many biomarkers must be measured to achieve accurate prediction.  Most univariate statistics approaches also suffer the same problem as their classification counterparts, by failing to take the particular class separation needs of the application into account.  These problems with conventional approaches have led to the common use of ad-hoc analyses when identifying biomarkers of prognosis.
 
 The poor suitability of conventional approaches for identifying biomarkers of prognosis has led to the common use of ad-hoc analyses for this problem, but these usually perform very poorly.  Methods in common use are the median cut, in which the cohort is divided into two groups by the median value of each biomarker, and then a log-rank test performed on these two groups; and the so-called `optimal' cut, in which many cutpoints are tried, and the best log-rank statistic is used as the final test statistic.  The median cut approach presupposes that the poor- and good-prognosis subgroups in the data are equal in size, and has poor power if this is not the case, and the `optimal' cut procedure is decidedly non-optimal, with an unsurprising high false detection rate due to uncorrected multiple testing.  Although discussion of the significant deficiencies in these approaches has been in the medical literature for over twenty years~\cite{Altman1994}, they continue to see routine use and further development~\cite{Budczies2012,Camp2004,Chorlton2014,Yau2010}.  A natural approach to correcting the `optimal' procedure is by incorporating multiple testing correction, and software is available to perform this as \texttt{R} package \texttt{maxstat}~\cite{Chorlton2014,Hothorn2003}.  However, in common with more conventional univariate approaches, \texttt{maxstat} and similar methods do not allow for control over any desired aspects of the prognostic classifier, such as the hazard ratio between the poor- and good-prognosis groups, or the relative group sizes.  As in the classification case, a biomarker selection procedure specifically designed for clinical translation is needed.
 
-In this chapter I present Messina2, a general algorithm for single-feature threshold classifier learning.  Like its predecessor Messina, Messina2 aims to produce maximally robust classifiers that satisfy user-supplied performance requirements.  Unlike Messina, Messina2 accepts any performance metric, and so can be used to create binary classifiers for any task, including diagnosis and prognosis.  Messina2's emphasis on maximally robust classifiers means that the biomarkers that it selects are especially well suited for translation to the clinical diagnostic laboratory, helping to address the divide between research discovery and clinical application.  To facilitate Messina2's use in bioinformatic workflows, it has been made into the \texttt{R} package \texttt{messina}, available as part of the Bioconductor project~\cite{Gentleman2004}\footnote{The version of Messina2 used for this thesis is not yet in the latest Bioconductor release.  To access the thesis version, clone the \texttt{thesis} branch from the Bitbucket repository \texttt{marpin/r-messina}, or from \texttt{R}, with \texttt{devtools} installed, run the command \texttt{ devtools::install\_bitbucket("marpin/r-messina", ref = "thesis")}.}.  This chapter will describe the general framework of binary threshold classifiers, detail the Messina2 algorithm and how it differs from Messina, and demonstrate its characteristics and performance relative to other techniques.  An application to the problem of identifying better prognostic biomarkers in pancreas cancer will illustrate the utility of Messina2 in real data.
+In this chapter I present Messina2, a general algorithm for single-feature decision stump classifier learning.  Like its predecessor Messina, Messina2 aims to produce maximally robust classifiers that satisfy user-supplied performance requirements.  Unlike Messina, Messina2 accepts any performance metric, and so can be used to create binary classifiers for any task, including diagnosis and prognosis.  Messina2's emphasis on maximally robust classifiers means that the biomarkers that it selects are especially well suited for translation to the clinical diagnostic laboratory, helping to address the divide between research discovery and clinical application.  To facilitate Messina2's use in bioinformatic workflows, it has been made into the \texttt{R} package \texttt{messina}, available as part of the Bioconductor project~\cite{Gentleman2004}\footnote{The version of Messina2 used for this thesis is not yet in the latest Bioconductor release.  To access the thesis version, clone the \texttt{thesis} branch from the Bitbucket repository \texttt{marpin/r-messina}, or from \texttt{R}, with \texttt{devtools} installed, run the command \texttt{ devtools::install\_bitbucket("marpin/r-messina", ref = "thesis")}.}.  This chapter will describe the general framework of binary decision stump classifiers, detail the Messina2 algorithm and how it differs from Messina, and demonstrate its characteristics and performance relative to other techniques.  An application to the problem of identifying better prognostic biomarkers in pancreas cancer will illustrate the utility of Messina2 in real data.
 
-\section{Messina and Messina2}
-Messina and Messina2 are algorithms that take as input measurements of biomarker abundance in a number of samples, and return as output threshold classifiers that can separate the input samples into two groups.  For Messina, these groups are based on user-supplied sample labels, such as cancer and non-cancer, and the classifiers are designed to separate these two sample types as robustly as possible, whilst still meeting user-supplied minimum sensitivity and specificity requirements\footnote{Here sensitivity and specificity are used in their binary classification sense.  In a binary classification problem (for example, a diagnostic test to detect the presence of a disease, where the result is either `diseased,' or `not diseased,' with no intermediate `uncertain'), a given classifier tested on a population of samples will have associated rates of true positive, true negative, false positive, and false negative calls.  The sensitivity of this classifier on that population is then the true positive call rate divided by the total positive sample rate, and the specificity is the true negative call rate divided by the total negative sample rate.  Symbolically, let $R_{ab}$ be the rate at which a sample which is truly of class $a$ is called as class $b$, $a, b \in \{0,1\}$, where $1$ represents the positive class, and $0$ the negative.  Then, $\mathrm{Sens} = p_n = R_{11} \div R_{1\bullet}$, and $\mathrm{Spec} = p_c = R_{00} \div R_{0\bullet}$.}.  Messina2 is more general, and can produce both diagnostic and prognostic classifiers, by identifying thresholds that satisfy any user-supplied objective function.  As the Messina2 algorithm is both more general than, and very similar to, Messina, this chapter will primarily describe Messina2, drawing comparisons to Messina where appropriate.
+\section{Messina2}
+Messina and Messina2 are algorithms that take as input measurements of biomarker abundance in a number of samples, and return as output decision stump classifiers that can separate the input samples into two groups.  For Messina, these groups are based on user-supplied sample labels, such as cancer and non-cancer, and the classifiers are designed to separate these two sample types as robustly as possible, whilst still meeting user-supplied minimum sensitivity and specificity requirements\footnote{Here sensitivity and specificity are used in their binary classification sense.  In a binary classification problem (for example, a diagnostic test to detect the presence of a disease, where the result is either `diseased,' or `not diseased,' with no intermediate `uncertain'), a given classifier tested on a population of samples will have associated rates of true positive, true negative, false positive, and false negative calls.  The sensitivity of this classifier on that population is then the true positive call rate divided by the total positive sample rate, and the specificity is the true negative call rate divided by the total negative sample rate.  Symbolically, let $R_{ab}$ be the rate at which a sample which is truly of class $a$ is called as class $b$, $a, b \in \{0,1\}$, where $1$ represents the positive class, and $0$ the negative.  Then, $\mathrm{Sens} = p_n = R_{11} \div R_{1\bullet}$, and $\mathrm{Spec} = p_c = R_{00} \div R_{0\bullet}$.}.  Messina2 is more general, producing classifiers that satisfy a user-supplied objective function as robustly as possible.  One specific form for this objective function yields results very similar to those of Messina, but through use of different objective functions, Messina2 can be used to address effectively any binary separation problem, such as the creation of decision stump classifiers to distinguish between good- and poor-prognosis patients.  This chapter will primarily describe Messina2, drawing comparisons to Messina where appropriate.
+
+\subsection{Messina2 framework}
+\paragraph{Decision stump classifiers}
+A decision stump classifier is a very simple classifier that is equivalent to a one-level decision tree\cite{Iba1992}.  In the binary variant employed by Messina2, an unknown sample is assigned to one of two classes, depending on whether that sample's abundance of a certain biomarker is above, or below, a threshold value.  More precisely, let the abundance of a certain biomarker in sample $i$ be $x_i$.  Suppose sample $i$ can be one of two classes, here called 0 and 1, and the goal is to predict the class of $i$ based on $x_i$.  Then, a decision stump classifier will predict the class of $i$, $w_i$, as $w_i = [ d x_i \geq d t ]$, where $t$ is the threshold level at which the predicted class changes, and $d \in {-1, 1}$ is the classifier direction: if $d = 1$, then values of $x$ at or above $t$ are predicted to be class 1, if $d = -1$, then values of $x$ of at least $t$ are predicted to be class 0.  This situation, for $d = 1$, is shown in the top two lines of \fref{fig:mess-thresh-1}.  A decision stump classifier for a given biomarker is completely specified by the values of $t$ and $d$; finding values for these two variables that in some way meet desired criteria is the goal of classifier training.
+
+\begin{figure}[!htbp]
+\centering
+\def\svgwidth{\linewidth} 
+\input{messina_threshold_1.pdf_tex}
+\caption[]{TODO}\label{fig:mess-thresh-1}
+\end{figure}
+
+\paragraph{Objective function}
+To identify optimal values of $t$ and $d$ for a given problem, Messina2 employs the concept of an \emph{objective function}.  Suppose that we have measurements of a certain biomarker $x$ for each of $n$ samples.  For each sample, we also have the value of a dependent variable $y$; this may be a biological class (eg. cancer or non-cancer), a survival time, or any multidimensional measurement.  Our goal is to create a decision stump classifier that operates on $x$, so that the two groups of samples so created are somehow `well-separated' in their values for $y$.  The concept of `well-separated' is left deliberately vague, because it is under the control of the user, via the objective function.  Common examples of good separation would be: for cancer diagnosis, most of the cancer samples are in one group, and most of the non-cancer samples are in the other; and for survival, there is a large difference in prognosis between the two sample groups.  We formalise this concept of objective function as follows.  Let the objective function $f: (\mathbb{B}^n, \mathbb{Y}^n) \rightarrow \mathbb{B}$ accept an $n$-tuple of sample groupings (as defined by $t$ and $d$) $w$, and an $n$-tuple of dependent values $y$, and return a binary value -- $\mathrm{true}$ if the split of $y$ given by $w$ is desirable, otherwise $\mathrm{false}$.  The operation of the objective $f$ for a binary $y$ is illustrated in \fref{fig:mess-thresh-1}.  Here $w$ is expressed as a function of $t$ and $d$, and the particular split given is considered desirable, so that $f(w(t, d), y) = \mathrm{true}$.  For a given $x$, $y$, and $f$, it is possible that many values of $t$ and $d$ satisfy the objective function, that is, $f(w(t, d), y) = \mathrm{true}$ does not have a unique solution in $(t, d)$.  In this case, a principled way to select a $(t, d)$ that is in some sense optimal, is required.
+
+\paragraph{Margin}
+A concept in machine learning is that of the \emph{margin}.  Informally, the margin describes the distance between the decision boundary (here, the threshold $t$) and the data, and is a measure of the confidence and robustness of a classifier: a classifier with a high relative margin has all observed data points safely `far away' from the decision boundary, and unlikely to change class following a perturbation.  Messina and Messina2 use a slightly different concept of margin, as the smallest distance that the decision boundary must move for the objective function to be violated.  Using the heuristic that classifiers with the greatest margin are the most robust, Messina2 chooses the optimal threshold $t^*$ as the midpoint of the largest real interval for which $f(w, y) = \mathrm{true}$, and selects the optimal direction $d^*$ as the one associated with $t^*$.  The intuition behind this selection is that such a choice of threshold and direction maximises the size of the smallest threshold perturbation that is necessary to make the classifier violate its performance requirements, that is, 
+\begin{equation}
+(t^*, d^*) = \argmax_{t,d} \mathrm{min}\left\{ \vert\delta\vert~:~\delta \in \mathbb{R} \wedge \neg f\left(~\left(~\left[d x_i \geq d \left(t + \delta\right)\right]~\right)_{i=1}^n, y\right) \right\}
+\end{equation}
+where $f([~[d x_i \geq d (t + \delta)]~]_{i=1}^n, y)$ is the value of the objective $f$ when the threshold $t + \delta$ is applied to the data $x$, with $\delta$ the perturbation.  This concept is illustrated in \fref{fig:mess-thresh-2}, which shows a wide region of potential thresholds $t$ in which the objective function $f$ is true.  The optimal threshold $t^*$ is in the centre of the largest interval for which $f$ is true, thereby maximising the margin $\Delta$.
+
+\begin{figure}[!htbp]
+\centering
+\def\svgwidth{\linewidth} 
+\input{messina_threshold_2.pdf_tex}
+\caption[]{TODO}\label{fig:mess-thresh-2}
+\end{figure}
+
+\paragraph{Resampling}
+Messina2 considers all possible thresholds and directions $t \in \mathbb{R}, d \in \{-1,1\}$ when searching for $(t^*, d^*)$, and as such is at risk of overfitting the data, and reporting spurious classifiers.  To overcome this problem, Messina2 by default employs an outer bootstrap loop to verify that a classifier under consideration still satisfies the objective function $f$, when tested on holdout data.  Multiple bootstrap draws of the training data $(x, y)$ are made, and for each draw a Messina2 classifier is trained on the drawn samples, the trained classifier is used to separate the undrawn (so-called `out-of-bag') samples into two classes, and the objective $f$ is evaluated on the resulting two classes in the out-of-bag data.  Messina2 only returns classifiers for which the objective $f$ is $\mathrm{true}$ in at least half of the out-of-bag evaluations.  This outer bootstrap layer adds an additional level of stringency to the Messina2 results, but dramatically increases the runtime of the algorithm, and in some applications may not be required: the Vapnik–Chervonenkis dimension of a single-feature threshold classifier is $2$, and so Messina2's potential for overfitting is relatively low~\cite{Vapnik1999}, even before bootstrapping is performed.
+
+\subsection{Objective functions}
+Messina2 is designed to accept any objective function $f$, to allow custom analyses, but is also supplied with two reasonable default objective functions, designed to handle common tasks in classification and survival analysis.
+
+\paragraph{Classification}
+The objective function $f_M$ is designed to mimic the behaviour of the original Messina algorithm for classification and differential expression detection.  This function returns $\mathrm{true}$ if the data split $w$ separates the classes in $y$, with sensitivity and specificity at least as good as user-supplied minimum values:
+\begin{align*}
+f_M(w, y) &= \left[ p_n \geq l_n \wedge p_c \geq l_c \right] \\
+p_n &= \frac{\sum_i{\left[ w_i \wedge y_i \right]}}{\sum_i{\left[ y_i \right]}} \\
+p_c &= \frac{\sum_i{\left[ \neg w_i \wedge \neg y_i \right]}}{\sum_i{\left[ \neg y_i \right]}} \\
+\end{align*}
+In the above, $p_n$ and $p_c$ are the observed sensitivity and specificity, respectively, and $l_n$ and $l_c$ are their user-supplied minimum acceptable values.  When used with this objective function, Messina2 will return maximum-margin classifiers that separate the two groups defined in $y$ with at least the required minimum sensitivity and specificity.  When identifying lead biomarkers for the construction of a clinical test, the analyst can set the sensitivity and specificity requirements to values matching the intended application of the test, and be confident that the biomarkers reported by Messina2 will robustly separate the sample groups with at least this desired level of performance.
+
+\paragraph{Prognosis}
+The objective function $f_H$ is intended for survival analysis, where the goal is to identify biomarkers that can robustly separate a cohort into good- and poor-outcome groups.  Messina2 in this mode provides a more principled approach to thresholding biomarker levels for prognosis than median-cut or multiple-cut procedures.  $f_H(w, y)$ returns $\mathrm{true}$ if the approximate hazard ratio (using survival data in $y$) between the groups defined by $w$ is at least a user-supplied value.  The approximate hazard ratio is calculated from the log-rank test statistic, as:
+\begin{align*}
+f_H(s, y) &= \left[ \vert \log{p_h} \vert \geq \log{l_h} \right] \\
+\log{p_h} &= Z\sqrt{\frac{4}{n_e}}
+\end{align*}
+where $p_h$ is the approximate hazard ratio achieved by the data split in $w$, $l_h$ is the minimum hazard ratio desired, $Z$ is the value of the log-rank test statistic\footnote{$Z$ is the signed log-rank test statistic, not to be confused with the $\chi^2$ statistic, which is also encountered.  $\chi^2 = Z^2$.}, and $n_e$ is the number of events in $y$.
 
 \subsection{Algorithm}
-Messina2 operates on each biomarker in a data set separately, reporting whether that biomarker can be used to build a threshold classifier with the desired performance characteristics, and, if so, the optimal such classifier.  We represent the available data for a given biomarker as pairs of the form $(x_i, y_i)$, where $x_i \in \mathbb{R}$ is the biomarker abundance, and $y_i \in \mathbb{Y}$ is a dependent variable that we wish to predict in new samples, for sample $i$ of $n$ samples total.  The domain of $y_i$, $\mathbb{Y}$, depends on the problem at hand, and is determined by the form of the objective function\footnote{For example, in classification, $y_i \in \{0, 1\}$, whereas for right-censored survival analysis, $y_i$ is a (time, event) pair, $y_i \in (\mathbb{R}^+, \mathbb{B})$.}.
+Messina2 operates on each biomarker in a data set separately, reporting whether that biomarker can be used to build a threshold classifier with the desired performance characteristics, and, if so, the optimal such classifier.  The main entry point for Messina2 is given in as algorithm Messina2Entry (Algorithm \ref{alg:mess-messina2}), which performs bootstrap validation and final training for a single biomarker.  Messina2Entry calls algorithm MessinaCore (Algorithm \ref{alg:mess-core}), which performs the actual classifier training.  Although the preceding text described the search for the optimal $t$ as being over $\mathbb{R}$, this is not required in practice.  For given $d$, $w(t,d)$ only changes at values observed in $x$, so it is only necessary to check one value of $t$ per interval between consecutive values of $x$.  Candidate cutpoints satisfying this requirement are generated by the algorithm MakeCutpoints (Algorithm \ref{alg:mess-cutpoints}).  The resultant sparse $w(t,d)$ requires some care to recover correct threshold and margin values; the logic for this is in algorithm BestInterval (Algorithm \ref{alg:mess-bestinterval}), the operation of which is illustrated in \fref{fig:mess-bestinterval}.
 
-The core Messina2 learning process is given in Algorithm \ref{alg:mess-messina2}.  
+\begin{algorithm}
+  \KwData{Covariate measurements $x \in \mathbb{R}^n$, associated dependent values $y \in \mathbb{Y}^n$, objective function $f: (\mathbb{B}^n, \mathbb{Y}^n) \rightarrow \mathbb{B}$, minimum subclass fraction $b \in [0, \frac{1}{2})$, and a number of bootstrap rounds $r$.  $x$ is to be sorted in ascending order.  $\mathbb{Y}$ varies between modes of Messina2.}
+  \KwResult{A 3-tuple.  If the fit failed, $(0, 0, 0)$.  Otherwise, optimal classifier parameters $(t^*, d^*, \Delta^*)$, with threshold $t^* \in \mathbb{R}$, direction $d^* \in \{-1, 1\}$, and margin $\Delta^* \in \mathbb{R}^+$.}
+
+  \Begin {
+  	$n_{\mathrm{pass}} \longleftarrow 0$\;
+  	\For{$i \leftarrow 1$ \KwTo $r$}{
+  		\tcp{Generate a bootstrap sample of (x, y)}
+  		$(x_{\mathrm{in}}, y_{\mathrm{in}}, x_{\mathrm{out}}, y_{\mathrm{out}}) \longleftarrow \mathrm{BootstrapSample}\left( x, y \right)$\;
+  		
+  		\tcp{Train MessinaCore on this bootstrap sample}
+  		$(t_{\mathrm{in}}, d_{\mathrm{in}}, \Delta_{\mathrm{in}}) \longleftarrow \mathrm{MessinaCore}\left( x_{\mathrm{in}}, y_{\mathrm{in}}, b, f \right)$\;
+  		
+  		\tcp{Assess performance of the MessinaCore classifier on the out-of-bag samples}
+  		\If{$d_{\mathrm{in}} \neq 0$}{
+  			$w_\mathrm{out} \longleftarrow \left(~\left[ x_{\mathrm{out}_j} d_{\mathrm{in}} \geq t_{\mathrm{in}} d_{\mathrm{in}}\right]~\right)_{j=1}^{\vert x_\mathrm{out} \vert}$\;
+  			\If {$f\left(w_\mathrm{out}, y_{\mathrm{out}}\right) = \mathrm{true}$}{
+  				$n_{\mathrm{pass}} \longleftarrow n_{\mathrm{pass}} + 1$\;
+  			}
+  		}
+  	}
+  	
+  	\tcp{Did the in-bag trained classifiers satisfy out-of-bag performance requirements in at least half of the bootstrap rounds?}
+  	\eIf{$r = 0 \vee n_{\mathrm{pass}} \geq \frac{1}{2}r$}{
+	  	\tcp{Yes; return the fit on the full data}
+  		\KwRet{$\mathrm{MessinaCore}\left( x, y, b, f \right)$}\;
+  	}{
+  		\tcp{No; this fit failed.}
+  		\KwRet{$(0, 0, 0)$}\;
+	}
+  }
+  \caption[Messina2Entry]{Messina2Entry, a bootstrap validation wrapper around MessinaCore.  $\mathrm{BootstrapSample}$ is a function that generates a bootstrap sample of its matched tuple arguments $x$ and $y$, returning both the in-bag and out-of-bag $x$ and $y$ values as tuples.  If the number of bootstrap iterations $r$ is zero, no bootstrap validation is performed and this algorithm falls through to MessinaCore.}
+  \label{alg:mess-messina2}
+\end{algorithm}
 
 \begin{algorithm}[!htbp]
-  \KwData{An $n$-tuple of covariate measurements $x$, an $n$-tuple of associated dependent values $y$, a minimum subclass fraction $b$, and an objective function $f: (\mathbb{B}^n, \mathbb{Y}^n) \rightarrow \mathbb{B}$.  $x$ and $c$ are to be in ascending order.  The domain of $y$ is given as $\mathbb{Y}^n$, as it varies between modes of Messina.}
-  \KwResult{A tuple of three values.  If the fit failed, $(0, 0, 0)$.  If the fit succeeded, (optimal classifier threshold, optimal classifier direction, resultant classifier margin).}
+  \KwData{Covariate measurements $x \in \mathbb{R}^n$, associated dependent values $y \in \mathbb{Y}^n$, minimum subclass fraction $b \in [0, \frac{1}{2})$, and objective function $f: (\mathbb{B}^n, \mathbb{Y}^n) \rightarrow \mathbb{B}$.  $x$ is to be in ascending order.  $\mathbb{Y}$ varies between modes of Messina2.}
+  \KwResult{A 3-tuple.  If the fit failed, $(0, 0, 0)$.  If the fit succeeded, optimal classifier values $(t^*, d^*, \Delta^*)$, with threshold $t^* \in \mathbb{R}$, direction $d^* \in \{-1, 1\}$, and margin $\Delta^* \in \mathbb{R}^+$.}
 
   \Begin {
   	\tcp{Define candidate thresholds $c$ as the midpoints between consecutive unique values of $x$}
@@ -96,70 +180,28 @@ The core Messina2 learning process is given in Algorithm \ref{alg:mess-messina2}
   \label{alg:mess-core}
 \end{algorithm}
 
-The user-specified objective function $f(w, y)$, $f: (\mathbb{B}^n, \mathbb{Y}^n) \rightarrow \mathbb{B}$ is the core of the Messina2 algorithm.  It takes as input $w$, a binary $n$-vector that separates the samples into two groups, and the dependent variable $y$, and returns $\mathrm{true}$ if the data split given by $w$ provides a desired separation of the values of $y$, or otherwise $\mathrm{false}$.  The data split $w$ is made by testing the values of $x$ against a threshold $t \in \mathbb{R}$, as $w_i = [x_i \geq t]$; $f(w, y)$ therefore tests whether cutting the samples into two groups, one with $x < t$, and the other with $x \geq t$, yields a desired difference in $y$ between the two groups.  The form of $f$ is completely under user control, although the Messina2 package does provide some reasonable defaults that yield classifiers with certain desirable characteristics.
-
-In all practical cases, either $f(w, y) = \mathrm{false}$ for all $t$, or there will be a range of thresholds $t$ for which $f(w, y) = \mathrm{true}$.  In the former case, the biomarker under consideration is discarded by Messina2, but in the latter case, a principled way is needed to choose an optimal threshold $t^* \in \{t~:~t \wedge f(w, y) = \mathrm{true}\}$.  For this task, Messina2 uses a maximum margin heuristic and chooses $t^*$ as the midpoint of the largest real interval for which $f(w, y) = \mathrm{true}$.  The intuition behind this selection is that such a choice of threshold maximises the size of the smallest threshold perturbation that is necessary to make the classifier violate its performance requirements, that is, 
-\begin{equation}
-t^* = \argmax_t \mathrm{min}\{ \vert\delta\vert~:~\delta \in \mathbb{R} \wedge \neg f\left(~\left(~[x_i \geq t + \delta]~\right)_{i=1}^n, y\right) \}
-\end{equation}
-where $f([~[x_i \geq t + \delta]~]_{i=1}^n, y)$ is the value of the objective $f$ when the threshold $t + \delta$ is applied to the data $x$, with $\delta$ the perturbation.
-
-Messina2 considers all possible thresholds $t \in \mathbb{R}$ when searching for the optimal threshold $t^*$, and as such is at risk of overfitting the data, and reporting spurious classifiers.  To overcome this problem, Messina2 by default employs an outer bootstrap loop to verify that a classifier under consideration still satisfies the objective function $f$, when tested on holdout data.  Multiple bootstrap draws of the data $(x, y)$ are made, and for each draw a Messina2 classifier is trained on the drawn samples, the trained classifier is used to separate the undrawn (so-called `out-of-bag') samples into two classes, and the objective $f$ is evaluated on the resulting separation of the out-of-bag data.  Messina2 only returns classifiers for which the objective $f$ is $\mathrm{true}$ in at least half of the out-of-bag evaluations.  This outer bootstrap layer adds an additional level of stringency to the Messina2 results, but dramatically increases the runtime of the algorithm, and in some applications may not be required: the Vapnik–Chervonenkis dimension of a single-feature threshold classifier is $2$, and so Messina2's potential for overfitting is relatively low~\cite{Vapnik1999}, even before bootstrapping is performed.
-
-\subsection{Objective functions}
-Messina2 is designed to accept any objective function $f$, to allow custom analyses, but is also supplied with two reasonable default objective functions, designed to handle common tasks in classification and survival analysis.
-
-The objective function $f_M$ is designed to mimic the behaviour of the original Messina algorithm for classification and differential expression detection.  This function returns $\mathrm{true}$ if the data split $w$ separates the classes in $y$, with sensitivity and specificity at least as good as user-supplied minimum values:
-\begin{align*}
-f_M(w, y) &= \left[ p_n \geq l_n \wedge p_c \geq l_c \right] \\
-p_n &= \frac{\sum_i{\left[ w_i \wedge y_i \right]}}{\sum_i{\left[ y_i \right]}} \\
-p_c &= \frac{\sum_i{\left[ \neg w_i \wedge \neg y_i \right]}}{\sum_i{\left[ \neg y_i \right]}} \\
-\end{align*}
-In the above, $p_n$ and $p_c$ are the observed sensitivity and specificity, respectively, and $l_n$ and $l_c$ are their user-supplied minimum acceptable values.  When used with this objective function, Messina2 will return maximum-margin classifiers that separate the two groups defined in $y$ with at least the required minimum sensitivity and specificity.  When identifying lead biomarkers for the construction of a clinical test, the analyst can set the sensitivity and specificity requirements to values matching the intended application of the test, and be confident that the biomarkers reported by Messina2 will robustly separate the sample groups with at least this desired level of performance.
-
-TODO: ADVANTAGE OVER ROC.  See above para.  So basically, someone might argue -- why not just do a ROC with a cost-sensitive threshold?  That way it can be done with any classifier that gives a continuous output.  Problem is that the ROC doesn't include margin information.  So it's not just about hitting the right balance of sens & spec, but doing so ROBUSTLY.  How sure can we be that our target sens & spec will be achieved on a test set?  What about a completely different cohort?  Using a different technology?  Best option is to MAXIMIZE MARGIN.  I need to put this thinking somewhere.
-
-The objective function $f_H$ is intended for survival analysis, where the goal is to identify biomarkers that can robustly separate a cohort into good- and poor-outcome groups.  Messina2 in this mode provides a more principled approach to thresholding biomarker levels for prognosis than the commonly employed median-cut or multiple-cut procedures \cite{TODO}.  $f_H(w, y)$ returns $\mathrm{true}$ if the approximate hazard ratio (using survival data in $y$) between the groups defined by $w$ is at least a user-supplied value.  The approximate hazard ratio is calculated from the log-rank test statistic, as:
-\begin{align*}
-f_H(s, y) &= \left[ \vert \log{p_h} \vert \geq \log{l_h} \right] \\
-\log{p_h} &= Z\sqrt{\frac{4}{n_e}}
-\end{align*}
-where $p_h$ is the approximate hazard ratio achieved by the data split in $w$, $l_h$ is the minimum hazard ratio desired, $Z$ is the value of the log-rank test statistic\footnote{$Z$ is the signed log-rank test statistic, not to be confused with the $\Chi^2$ statistic, which is also used.  $\Chi^2 = Z^2$.}, and $n_e$ is the number of events in $y$.
-
-\subsection{Algorithm}
 \begin{algorithm}
-  \KwData{An $n$-tuple of covariate measurements $x$, an $n$-tuple of associated dependent values $y$, an objective function $f: (\mathbb{B}^n, \mathbb{Y}^n) \rightarrow \mathbb{B}$, a minimum subclass fraction $b$, and a number of bootstrap rounds $r$.  $x$ is to be sorted in ascending order.  The domain of $y$ is given as $\mathbb{Y}^n$, as it varies between modes of Messina.}
-  \KwResult{If the fit failed, $\varnothing$.  Otherwise, a tuple of two real values: $(t^*$, $\Delta^*)$, encoding the optimal classifier threshold, resultant classifier margin).}
+  \KwData{Covariate measurements $x \in \mathbb{R}^n$, and a minimum subclass fraction $b \in [0, \frac{1}{2})$.  $x$ is to be sorted in ascending order.}
+  \KwResult{A tuple of candidate cutpoints $c$, with values sorted in ascending order.}
 
   \Begin {
-  	$n_{\mathrm{pass}} \longleftarrow 0$\;
-  	\For{$i \leftarrow 1$ \KwTo $r$}{
-  		\tcp{Generate a bootstrap sample of (x, y)}
-  		$(x_{\mathrm{in}}, y_{\mathrm{in}}, x_{\mathrm{out}}, y_{\mathrm{out}}) \longleftarrow \mathrm{BootstrapSample}\left( x, y \right)$\;
-  		
-  		\tcp{Train MessinaCore on this bootstrap sample}
-  		$(t_{\mathrm{in}}, d_{\mathrm{in}}, \Delta_{\mathrm{in}}) \longleftarrow \mathrm{MessinaCore}\left( x_{\mathrm{in}}, y_{\mathrm{in}}, b, f \right)$\;
-  		
-  		\tcp{Assess performance of the MessinaCore classifier on the out-of-bag samples}
-  		\If{$d_{\mathrm{in}} \neq 0$}{
-  			$w_\mathrm{out} \longleftarrow \left(~\left[ x_{\mathrm{out}_j} d_{\mathrm{in}} \geq t_{\mathrm{in}} d_{\mathrm{in}}\right]~\right)_{j=1}^{\vert x_\mathrm{out} \vert}$\;
-  			\If {$f\left(w_\mathrm{out}, y_{\mathrm{out}}\right) = \mathrm{true}$}{
-  				$n_{\mathrm{pass}} \longleftarrow n_{\mathrm{pass}} + 1$\;
-  			}
-  		}
+  	$x' \longleftarrow \mathrm{unique}(x)$\;
+  	$c \longleftarrow ()$\;
+  	\For{$i \leftarrow 1$ \KwTo $\vert x' \vert - 1$}{
+  		$p \longleftarrow \frac{1}{2} \left({x'}_i + {x'}_{i+1}\right)$\;
+  		$s \longleftarrow \frac{1}{n} \sum_{i=1}^n \left[ x_i < p \right] $\;
+  		\If{$s \geq b \wedge s \leq 1-b$}{
+	  		$c \longleftarrow c \oplus p$\;
+	  	}
   	}
-  	
-  	\tcp{Did the in-bag trained classifiers satisfy out-of-bag performance requirements in at least half of the bootstrap rounds?}
-  	\eIf{$r = 0 \vee n_{\mathrm{pass}} \geq \frac{1}{2}r$}{
-	  	\tcp{Yes; return the fit on the full data}
-  		\KwRet{$\mathrm{MessinaCore}\left( x, y, b, f \right)$}\;
-  	}{
-  		\tcp{No; this fit failed.}
-  		\KwRet{$\varnothing$}\;
+  	\If{$b = 0$}{
+	  	$c \longleftarrow -\infty \oplus c \oplus \infty$\;
 	}
+  	
+	\KwRet{$c$}\;
   }
-  \caption[Messina2]{Messina2.  This is essentially a bootstrap validation wrapper around MessinaCore, which in turn performs the core learning.  The purpose of the wrapper is to ensure that the MessinaCore classifiers satisfy the objective function, when assessed on out-of-bag data.  $\mathrm{BootstrapSample}$ is a function that generates a bootstrap sample of its matched tuple arguments $x$ and $y$, returning both the in-bag and out-of-bag $x$ and $y$ values as tuples.  If the number of bootstrap iterations $r$ is zero, no bootstrap validation is performed and this algorithm effectively falls through to MessinaCore.}
-  \label{alg:mess-messina2}
+  \caption[MakeCutpoints]{MakeCutpoints.  Returns a sorted list of candidate cutpoints, each dividing the values in $x$ into two groups, with the restriction that all groups must contain at least fraction $b$ of the original values of $x$.  The function $\mathrm{unique}$ accepts a tuple argument, and returns a tuple containing the unique values of its argument, in ascending order.  The symbol $\oplus$ is used to represent tuple concatenation, and $()$ is the empty tuple.}
+  \label{alg:mess-cutpoints}
 \end{algorithm}
 
 \begin{algorithm}
@@ -195,121 +237,9 @@ where $p_h$ is the approximate hazard ratio achieved by the data split in $w$, $
     \KwRet{$(t^*, \Delta^*)$}\;
   }
   
-  \caption[BestInterval]{BestInterval.}
+  \caption[BestInterval]{BestInterval.  Identifies the centre ($t^*$) and half-width ($\Delta^*$) of the largest interval on $t$ for which $o(t) = true$.  $o$ is only sampled at values in $c$, but changes value only at values in $x$; the process by which this algorithm translates between these representations is illustrated in \fref{fig:mess-bestinterval}.}
   \label{alg:mess-bestinterval}
 \end{algorithm}
-
-\begin{algorithm}
-  \KwData{An $n$-tuple of covariate measurements $x$, and a minimum subclass fraction $b$.  $x$ is to be sorted in ascending order.}
-  \KwResult{A tuple of candidate cutpoints $c$, with values sorted in ascending order.}
-
-  \Begin {
-  	$x' \longleftarrow \mathrm{unique}(x)$\;
-  	\For{$i \leftarrow 1$ \KwTo $\vert x' \vert - 1$}{
-  		$p \longleftarrow \frac{1}{2} \left({x'}_i + {x'}_{i+1}\right)$\;
-  		$s \longleftarrow \frac{1}{n} \sum_{i=1}^n \left[ x_i < p \right] $\;
-  		\If{$s \geq b \wedge s \leq 1-b$}{
-	  		$c \longleftarrow c \oplus p$\;
-	  	}
-  	}
-  	\If{$b = 0$}{
-	  	$c \longleftarrow -\infty \oplus c \oplus \infty$\;
-	}
-  	
-	\KwRet{$c$}\;
-  }
-  \caption[MakeCutpoints]{MakeCutpoints.  Returns a sorted list of candidate cutpoints, each dividing the values in $x$ into two groups, with the restriction that all groups must contain at least fraction $b$ of the original values of $x$.  The function $\mathrm{unique}$ accepts a tuple argument, and returns a tuple containing the unique values of its argument, in ascending order.}
-  \label{alg:mess-cutpoints}
-\end{algorithm}
-
-
-
-\begin{figure}[!htbp]
-\centering
-\def\svgwidth{\linewidth} 
-\input{messina_class_cdfs.pdf_tex}
-\caption[]{}\label{fig:mess-class-cdf-link}
-\end{figure}
-
-
-\section{Results}
-
-
-\subsection{Messina2 is more effective than maxstat at finding validating biomarkers}
-
-\subsection{Application of Messina2 to identify biomarkers for \acrshort{PDAC} prognosis}
-
-\section{Discussion}
-
-\section{Methods}
-
-
-\begin{verbatim}
-"How can we select markers that have the best possible chances of making it in the clinic?"
-
-* Ok, now chapter outline:
-  1) Messina
-  2) Messina2
-  3) Simulation Experiments:
-     A) Margin => Perf robustness.  Two expts: symbolic on class, simul on surv.
-     B) Messina2 class better than competing approaches.
-     C) Messina2 surv better than competing approaches.
-  4) Application example: MessinaSurv on APGI to find better biomarker leads.
-  5) Discussion
-  6) Methods (for sims only -- cover algos in 1 \& 2)
-
-The Messina chapter.  What is this all about?  Selecting biomolecules.  For what purpose?  Differently how?  What makes this special?
-
-OK back up.  Let's go back to basics.  Consider this situation.  There is a need to develop a diagnostic or prognostic test, for clinical application.  What requirements does this test have?
-  * High performance
-    - But notably, performance can be nuanced, not simply correct -- perhaps some errors are preferable to others.
-  * Robustness (ie. performance is good, even in the face of:
-    - cohort differences
-    - technical differences (eg inter-lab)
-    - sample handling differences (eg degradation, alternate storage or processing, sample age)
-  * Ease of use
-    - measures a small number of variables, as small as possible.
-  * Translatability (can be easily moved to a clinical setting)
-    - measures a small number of variables
-    - uses existing technologies, as much as possible
-
-Rolling all these together, it means we basically need an IHC- or ELISA-based measurement, on as few biomarkers as possible.  Just one would be ideal.
-
-So what do we know about IHC?
-  * It's very nonlinear
-  * It's protein level based
-  * There can be significant differences between labs, due to tissue processing, AR, and staining.  The latter two are less serious for clinical-grade stuff, but tissue processing is still a problem.  Time before fixation, conditions before fixation, time in fixative, type of fixative, conditions of embedding, time in storage in paraffin.
-  * There can be differences between pathologists re: scoring.
-
-What we get from this is that we need a very robust marker.  If we only have mRNA levels, then for starters the mRNA-protein correlation is only approximate.  We want to stack the deck in our favour as much as we can, by choosing mRNAs with huge gaps between the expression levels of interest.  Even if we have protein, all the other aspects again reinforce the need for a high-margin feature.  The bigger the margin, the bigger the likely robustness to all the various sources of error.
-
-Remember this is not a proof or guarantee that a given marker will make a good test.  It's rather an answer to the question: "How can we select markers that have the best possible chances of making it in the clinic?"
-
-
-Relevant literature ideas:
-  * That reference on cutpoint searching => high FDR
-  * Something about margins and performance?  Surely Vaponik's early stuff will cover this.
-
-Bad practice:
-  * Median cut:
-    * Examples of use:
-      - http://www.biomedcentral.com/1756-0500/7/546
-      - http://breast-cancer-research.com/content/12/5/r85
-  * "Optimal" cut: 
-    * Examples of use: 
-      - http://clincancerres.aacrjournals.org/content/10/21/7252.full
-      - http://journals.plos.org/plosone/article?id=10.1371/journal.pone.0051862
-    * Statistical corrections:
-      - http://www.mayo.edu/research/documents/biostat-79pdf/doc-10027230   (also lots of useful refs here)
-      - https://books.google.com.au/books?id=KSq0e-6VFJ0C&pg=PA273&lpg=PA273&dq=log+rank+cut+points&source=bl&ots=0c07185Yb1&sig=Y7g8m9U0LHepQr1FxjrJzE0_rv8&hl=en&sa=X&ei=Lj_6VJII1OPwBY7ZgZgE&ved=0CEEQ6AEwBg#v=onepage&q=log%20rank%20cut%20points&f=false
-      - https://www.fdm.uni-freiburg.de/publications-preprints/preprints/papers/pre73.pdf
-      - https://books.google.com.au/books?id=C753uzZztPAC&pg=PA423&lpg=PA423&dq=log+rank+optimal+cut+points&source=bl&ots=__ay7uRwZ4&sig=e4IF1oKV71mw8XYU5qUiSl7JQ3g&hl=en&sa=X&ei=1z_6VOu1CImG8QW4o4LQAw&ved=0CFcQ6AEwCA#v=onepage&q=log%20rank%20optimal%20cut%20points&f=false
-      - But note that these generally only correct P-values, and *do not* correct for overestimation (inflation) of differences.
-    * Issues: 
-      - http://europepmc.org/backend/ptpmcrender.fcgi?accid=PMC2063091&blobtype=pdf
-      -~\cite{Altman1994}
-\end{verbatim}
-
 
 \begin{figure}[!htbp]
 \centering
@@ -394,18 +324,39 @@ Bad practice:
     (-1.75\f,2.5\f) -- (-1.75\f,6.5\f)
     (-1.5\f,6.5\f) -- (-1.75\f,6.5\f);
 
-  \node at (-3\f,4.5\f) {\footnotesize $o(t)$};
+  \node at (-3\f,4.5\f) {\footnotesize $o$};
 
 %  \draw[decorate,decoration={brace,amplitude=10\f},rotate=0] (4.5\f,7\f) -- (7\f,7\f);
   \draw[decorate,decoration={brace,amplitude=10\f},rotate=0] (9\f,7\f) -- (13\f,7\f);
 
   \node[align=center] at (5.75\f,6.5\f) {\scriptsize Region 1};
   \node[align=center] at (11\f,6.5\f) {\scriptsize Region 2};
-  \node[align=center] at (11\f,7.75\f) {\scriptsize $\Delta^*$};
+  \node[align=center] at (11\f,7.75\f) {\scriptsize $2\Delta^*$};
 \end{tikzpicture}
-\caption[Operation of the BestInterval algorithm]{Operation of the BestInterval algorithm.  Example values of a binary objective function $o(t)$ are shown for a range of input thresholds $t$.  At discrete points defined by observed data values (shown as dots), this objective function can transition, as an observed data point changes its value relative to $t$, and therefore its assigned class.  Two regions in which $o(t) = \mathrm{true}$ are shown.  BestInterval locates all such regions, selects the one with largest measure on $t$ (margin), and returns its centre and margin as $(t^*, \Delta^*)$.  In this example, the centre and margin of region 2 would be returned.  To ensure that $o(t)$ is sampled at sufficient density, candidate thresholds $c_1, c_2, \dots$ are defined between all consecutive values, and beyond the extrema, of $x$; these are indicated by small arrows.  Each $c_i$ is associated with an $o_i$, as $o_i = o(c_i)$.}
+\caption[Operation of the BestInterval algorithm]{Operation of the BestInterval algorithm.  Example values of a binary objective $o(t)$ are shown for a range of input thresholds $t$.  $o$ is a sparse sample of the objective function $f$, evaluated at candidate cutpoints $c$, $o_i = f(w(c_i,d),y)$.  At discrete points defined by observed data values (shown as dots), the objective function $f$ can transition, as an observed data point changes its value relative to $t$, and therefore its assigned class.  Two regions in which $o = \mathrm{true}$ are shown.  BestInterval locates all such regions, selects the one with largest measure on $t$ (margin), and returns its centre and margin as $(t^*, \Delta^*)$.  In this example, the centre and margin of region 2 would be returned.  To ensure that $o$ is sampled at sufficient density, candidate thresholds $c_1, c_2, \dots$ are defined between all consecutive values, and beyond the extrema, of $x$; these are indicated by small arrows.}
 \label{fig:mess-bestinterval}
 \end{figure}
+
+
+\section{Results}
+
+
+\subsection{Messina2 is more effective than maxstat at finding validating biomarkers}
+
+\subsection{Application of Messina2 to identify biomarkers for \acrshort{PDAC} prognosis}
+
+\section{Discussion}
+
+\section{Methods}
+
+
+\begin{figure}[!htbp]
+\centering
+\def\svgwidth{\linewidth} 
+\input{messina_class_cdfs.pdf_tex}
+\caption[]{}\label{fig:mess-class-cdf-link}
+\end{figure}
+
 
 
 \begin{figure}[!htbp]
@@ -420,5 +371,7 @@ Bad practice:
 \caption[]{}\label{fig:mess-val-detrel}
 \end{figure}
 
+
+TODO: ADVANTAGE OVER ROC.  See above para.  So basically, someone might argue -- why not just do a ROC with a cost-sensitive threshold?  That way it can be done with any classifier that gives a continuous output.  Problem is that the ROC doesn't include margin information.  So it's not just about hitting the right balance of sens & spec, but doing so ROBUSTLY.  How sure can we be that our target sens & spec will be achieved on a test set?  What about a completely different cohort?  Using a different technology?  Best option is to MAXIMIZE MARGIN.  I need to put this thinking somewhere.  TODO: DISCUSSION
 
 \end{document}
