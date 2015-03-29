@@ -16,7 +16,7 @@ dissertation.aux dissertation.glo: *.tex dissertation.bib
 	makeglossaries dissertation
 
 clean:
-	rm -f *.aux *.bbl *.blg *.glg *.glo *.gls *.ist *.log *.out *.loa *.lof *.lot *.lox *.toc *.synctex.gz
+	rm -f *.aux *.bbl *.blg *.glg *.glo *.gls *.ist *.log *.out *.loa *.lof *.lot *.lox *.toc *.synctex.gz *.gnuplot *.table
 
 ultraclean: clean
 	rm *.pdf
