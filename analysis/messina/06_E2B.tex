@@ -325,7 +325,18 @@
 \hlstd{e2b.design4}\hlopt{$}\hlstd{method[e2b.design4}\hlopt{$}\hlstd{method} \hlopt{==} \hlstr{"mcH"}\hlstd{]} \hlkwb{=} \hlstr{"'Optimal' + MTC"}
 \hlstd{e2b.design4}\hlopt{$}\hlstd{method} \hlkwb{=} \hlkwd{as.factor}\hlstd{(e2b.design4}\hlopt{$}\hlstd{method)}
 
-\hlkwd{ggplot}\hlstd{(e2b.design[e2b.design}\hlopt{$}\hlstd{n} \hlopt{==} \hlnum{25}\hlstd{,],} \hlkwd{aes}\hlstd{(}\hlkwc{x} \hlstd{= margin,} \hlkwc{y} \hlstd{= detrate,} \hlkwc{colour} \hlstd{=} \hlkwd{factor}\hlstd{(method)))} \hlopt{+} \hlkwd{geom_line}\hlstd{(}\hlkwc{lwd} \hlstd{=} \hlnum{1}\hlstd{)} \hlopt{+} \hlkwd{xlab}\hlstd{(}\hlstr{"Margin"}\hlstd{)} \hlopt{+} \hlkwd{ylab}\hlstd{(}\hlstr{"Detection rate"}\hlstd{)} \hlopt{+} \hlkwd{labs}\hlstd{(}\hlkwc{colour} \hlstd{=} \hlstr{"Method"}\hlstd{)} \hlopt{+} \hlkwd{theme_bw}\hlstd{()} \hlopt{+} \hlkwd{facet_grid}\hlstd{(p1} \hlopt{~} \hlstd{pc} \hlopt{~} \hlstd{R1)}
+\hlcom{# ggplot(e2b.design[e2b.design$n == 25,], aes(x = margin, y = detrate, colour = factor(method))) + geom_line(lwd = 1) + xlab("Margin") + ylab("Detection rate") + labs(colour = "Method") + theme_bw() + facet_grid(p1 ~ pc ~ R1)}
+\hlcom{# ggplot(e2b.design[e2b.design$n == 50,], aes(x = margin, y = detrate, colour = factor(method))) + geom_line(lwd = 1) + xlab("Margin") + ylab("Detection rate") + labs(colour = "Method") + theme_bw() + facet_grid(p1 ~ pc ~ R1)}
+\hlcom{# ggplot(e2b.design[e2b.design$n == 100,], aes(x = margin, y = detrate, colour = factor(method))) + geom_line(lwd = 1) + xlab("Margin") + ylab("Detection rate") + labs(colour = "Method") + theme_bw() + facet_grid(p1 ~ pc ~ R1)}
+
+\hlcom{# ggplot(e2b.design2[e2b.design2$n == 25,], aes(x = margin, y = detrate, colour = factor(method))) + geom_line(lwd = 1) + xlab("Margin") + ylab("Detection rate") + labs(colour = "Method") + theme_bw() + facet_grid(p1 ~ pc ~ R1)}
+\hlcom{# ggplot(e2b.design2[e2b.design2$n == 50,], aes(x = margin, y = detrate, colour = factor(method))) + geom_line(lwd = 1) + xlab("Margin") + ylab("Detection rate") + labs(colour = "Method") + theme_bw() + facet_grid(p1 ~ pc ~ R1)}
+\hlcom{# ggplot(e2b.design2[e2b.design2$n == 100,], aes(x = margin, y = detrate, colour = factor(method))) + geom_line(lwd = 1) + xlab("Margin") + ylab("Detection rate") + labs(colour = "Method") + theme_bw() + facet_grid(p1 ~ pc ~ R1)}
+
+\hlstd{e2b.design2}\hlopt{$}\hlstd{method} \hlkwb{=} \hlkwd{as.character}\hlstd{(e2b.design2}\hlopt{$}\hlstd{method)}
+\hlstd{e2b.design2}\hlopt{$}\hlstd{method[e2b.design2}\hlopt{$}\hlstd{method} \hlopt{==} \hlstr{"c1"}\hlstd{]} \hlkwb{=} \hlstr{"Median cut"}
+\hlstd{e2b.design2}\hlopt{$}\hlstd{method[e2b.design2}\hlopt{$}\hlstd{method} \hlopt{==} \hlstr{"messina"}\hlstd{]} \hlkwb{=} \hlstr{"Messina2"}
+\hlkwd{ggplot}\hlstd{(e2b.design2[e2b.design2}\hlopt{$}\hlstd{margin} \hlopt{>=} \hlnum{0} \hlopt{&} \hlstd{e2b.design2}\hlopt{$}\hlstd{R1} \hlopt{==} \hlnum{4} \hlopt{&} \hlstd{e2b.design2}\hlopt{$}\hlstd{pc} \hlopt{==} \hlnum{0.2} \hlopt{&} \hlstd{e2b.design2}\hlopt{$}\hlstd{method} \hlopt{%in%} \hlkwd{c}\hlstd{(}\hlstr{"maxstat"}\hlstd{,} \hlstr{"Median cut"}\hlstd{,} \hlstr{"Messina2"}\hlstd{),],} \hlkwd{aes}\hlstd{(}\hlkwc{x} \hlstd{= margin,} \hlkwc{y} \hlstd{= detrate,} \hlkwc{colour} \hlstd{=} \hlkwd{factor}\hlstd{(method)))} \hlopt{+} \hlkwd{geom_line}\hlstd{(}\hlkwc{lwd} \hlstd{=} \hlnum{1}\hlstd{)} \hlopt{+} \hlkwd{xlab}\hlstd{(}\hlstr{"Margin"}\hlstd{)} \hlopt{+} \hlkwd{ylab}\hlstd{(}\hlstr{"Detection rate"}\hlstd{)} \hlopt{+} \hlkwd{labs}\hlstd{(}\hlkwc{colour} \hlstd{=} \hlstr{"Method"}\hlstd{)} \hlopt{+} \hlkwd{theme_bw}\hlstd{()} \hlopt{+} \hlkwd{facet_grid}\hlstd{(p1} \hlopt{~} \hlstd{n)} \hlopt{+} \hlkwd{geom_vline}\hlstd{(}\hlkwc{xintercept} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{alpha} \hlstd{=} \hlnum{0.5}\hlstd{,} \hlkwc{linetype} \hlstd{=} \hlstr{"dashed"}\hlstd{)}
 \end{alltt}
 \end{kframe}
 
@@ -335,7 +346,7 @@
 
 
 \begin{kframe}\begin{alltt}
-\hlkwd{ggplot}\hlstd{(e2b.design[e2b.design}\hlopt{$}\hlstd{n} \hlopt{==} \hlnum{50}\hlstd{,],} \hlkwd{aes}\hlstd{(}\hlkwc{x} \hlstd{= margin,} \hlkwc{y} \hlstd{= detrate,} \hlkwc{colour} \hlstd{=} \hlkwd{factor}\hlstd{(method)))} \hlopt{+} \hlkwd{geom_line}\hlstd{(}\hlkwc{lwd} \hlstd{=} \hlnum{1}\hlstd{)} \hlopt{+} \hlkwd{xlab}\hlstd{(}\hlstr{"Margin"}\hlstd{)} \hlopt{+} \hlkwd{ylab}\hlstd{(}\hlstr{"Detection rate"}\hlstd{)} \hlopt{+} \hlkwd{labs}\hlstd{(}\hlkwc{colour} \hlstd{=} \hlstr{"Method"}\hlstd{)} \hlopt{+} \hlkwd{theme_bw}\hlstd{()} \hlopt{+} \hlkwd{facet_grid}\hlstd{(p1} \hlopt{~} \hlstd{pc} \hlopt{~} \hlstd{R1)}
+\hlkwd{ggplot}\hlstd{(e2b.design3[e2b.design3}\hlopt{$}\hlstd{method} \hlopt{%in%} \hlkwd{c}\hlstd{(}\hlstr{"c1"}\hlstd{,} \hlstr{"maxstat"}\hlstd{,} \hlstr{"messina"}\hlstd{),],} \hlkwd{aes}\hlstd{(}\hlkwc{x} \hlstd{= p1,} \hlkwc{y} \hlstd{= detrate,} \hlkwc{colour} \hlstd{=} \hlkwd{factor}\hlstd{(method)))} \hlopt{+} \hlkwd{geom_line}\hlstd{(}\hlkwc{lwd} \hlstd{=} \hlnum{1}\hlstd{)} \hlopt{+} \hlkwd{xlab}\hlstd{(}\hlstr{"Class balance"}\hlstd{)} \hlopt{+} \hlkwd{ylab}\hlstd{(}\hlstr{"Detection rate"}\hlstd{)} \hlopt{+} \hlkwd{labs}\hlstd{(}\hlkwc{colour} \hlstd{=} \hlstr{"Method"}\hlstd{)} \hlopt{+} \hlkwd{theme_bw}\hlstd{()}
 \end{alltt}
 \end{kframe}
 
@@ -345,61 +356,11 @@
 
 
 \begin{kframe}\begin{alltt}
-\hlkwd{ggplot}\hlstd{(e2b.design[e2b.design}\hlopt{$}\hlstd{n} \hlopt{==} \hlnum{100}\hlstd{,],} \hlkwd{aes}\hlstd{(}\hlkwc{x} \hlstd{= margin,} \hlkwc{y} \hlstd{= detrate,} \hlkwc{colour} \hlstd{=} \hlkwd{factor}\hlstd{(method)))} \hlopt{+} \hlkwd{geom_line}\hlstd{(}\hlkwc{lwd} \hlstd{=} \hlnum{1}\hlstd{)} \hlopt{+} \hlkwd{xlab}\hlstd{(}\hlstr{"Margin"}\hlstd{)} \hlopt{+} \hlkwd{ylab}\hlstd{(}\hlstr{"Detection rate"}\hlstd{)} \hlopt{+} \hlkwd{labs}\hlstd{(}\hlkwc{colour} \hlstd{=} \hlstr{"Method"}\hlstd{)} \hlopt{+} \hlkwd{theme_bw}\hlstd{()} \hlopt{+} \hlkwd{facet_grid}\hlstd{(p1} \hlopt{~} \hlstd{pc} \hlopt{~} \hlstd{R1)}
-\end{alltt}
-\end{kframe}
-
-{\centering \includegraphics[width=\maxwidth]{figure/06-E2B-E2B-plots-3} 
-
-}
-
-
-\begin{kframe}\begin{alltt}
-\hlkwd{ggplot}\hlstd{(e2b.design2[e2b.design2}\hlopt{$}\hlstd{n} \hlopt{==} \hlnum{25}\hlstd{,],} \hlkwd{aes}\hlstd{(}\hlkwc{x} \hlstd{= margin,} \hlkwc{y} \hlstd{= detrate,} \hlkwc{colour} \hlstd{=} \hlkwd{factor}\hlstd{(method)))} \hlopt{+} \hlkwd{geom_line}\hlstd{(}\hlkwc{lwd} \hlstd{=} \hlnum{1}\hlstd{)} \hlopt{+} \hlkwd{xlab}\hlstd{(}\hlstr{"Margin"}\hlstd{)} \hlopt{+} \hlkwd{ylab}\hlstd{(}\hlstr{"Detection rate"}\hlstd{)} \hlopt{+} \hlkwd{labs}\hlstd{(}\hlkwc{colour} \hlstd{=} \hlstr{"Method"}\hlstd{)} \hlopt{+} \hlkwd{theme_bw}\hlstd{()} \hlopt{+} \hlkwd{facet_grid}\hlstd{(p1} \hlopt{~} \hlstd{pc} \hlopt{~} \hlstd{R1)}
-\end{alltt}
-\end{kframe}
-
-{\centering \includegraphics[width=\maxwidth]{figure/06-E2B-E2B-plots-4} 
-
-}
-
-
-\begin{kframe}\begin{alltt}
-\hlkwd{ggplot}\hlstd{(e2b.design2[e2b.design2}\hlopt{$}\hlstd{n} \hlopt{==} \hlnum{50}\hlstd{,],} \hlkwd{aes}\hlstd{(}\hlkwc{x} \hlstd{= margin,} \hlkwc{y} \hlstd{= detrate,} \hlkwc{colour} \hlstd{=} \hlkwd{factor}\hlstd{(method)))} \hlopt{+} \hlkwd{geom_line}\hlstd{(}\hlkwc{lwd} \hlstd{=} \hlnum{1}\hlstd{)} \hlopt{+} \hlkwd{xlab}\hlstd{(}\hlstr{"Margin"}\hlstd{)} \hlopt{+} \hlkwd{ylab}\hlstd{(}\hlstr{"Detection rate"}\hlstd{)} \hlopt{+} \hlkwd{labs}\hlstd{(}\hlkwc{colour} \hlstd{=} \hlstr{"Method"}\hlstd{)} \hlopt{+} \hlkwd{theme_bw}\hlstd{()} \hlopt{+} \hlkwd{facet_grid}\hlstd{(p1} \hlopt{~} \hlstd{pc} \hlopt{~} \hlstd{R1)}
-\end{alltt}
-\end{kframe}
-
-{\centering \includegraphics[width=\maxwidth]{figure/06-E2B-E2B-plots-5} 
-
-}
-
-
-\begin{kframe}\begin{alltt}
-\hlkwd{ggplot}\hlstd{(e2b.design2[e2b.design2}\hlopt{$}\hlstd{n} \hlopt{==} \hlnum{100}\hlstd{,],} \hlkwd{aes}\hlstd{(}\hlkwc{x} \hlstd{= margin,} \hlkwc{y} \hlstd{= detrate,} \hlkwc{colour} \hlstd{=} \hlkwd{factor}\hlstd{(method)))} \hlopt{+} \hlkwd{geom_line}\hlstd{(}\hlkwc{lwd} \hlstd{=} \hlnum{1}\hlstd{)} \hlopt{+} \hlkwd{xlab}\hlstd{(}\hlstr{"Margin"}\hlstd{)} \hlopt{+} \hlkwd{ylab}\hlstd{(}\hlstr{"Detection rate"}\hlstd{)} \hlopt{+} \hlkwd{labs}\hlstd{(}\hlkwc{colour} \hlstd{=} \hlstr{"Method"}\hlstd{)} \hlopt{+} \hlkwd{theme_bw}\hlstd{()} \hlopt{+} \hlkwd{facet_grid}\hlstd{(p1} \hlopt{~} \hlstd{pc} \hlopt{~} \hlstd{R1)}
-\end{alltt}
-\end{kframe}
-
-{\centering \includegraphics[width=\maxwidth]{figure/06-E2B-E2B-plots-6} 
-
-}
-
-
-\begin{kframe}\begin{alltt}
-\hlkwd{ggplot}\hlstd{(e2b.design3[e2b.design3}\hlopt{$}\hlstd{method} \hlopt{%in%} \hlkwd{c}\hlstd{(}\hlstr{"c1"}\hlstd{,} \hlstr{"maxstat"}\hlstd{,} \hlstr{"messina"}\hlstd{),],} \hlkwd{aes}\hlstd{(}\hlkwc{x} \hlstd{= p1,} \hlkwc{y} \hlstd{= detrate,} \hlkwc{colour} \hlstd{=} \hlkwd{factor}\hlstd{(method)))} \hlopt{+} \hlkwd{geom_line}\hlstd{(}\hlkwc{lwd} \hlstd{=} \hlnum{1}\hlstd{)} \hlopt{+} \hlkwd{xlab}\hlstd{(}\hlstr{"Class balance"}\hlstd{)} \hlopt{+} \hlkwd{ylab}\hlstd{(}\hlstr{"Detection rate"}\hlstd{)} \hlopt{+} \hlkwd{labs}\hlstd{(}\hlkwc{colour} \hlstd{=} \hlstr{"Method"}\hlstd{)} \hlopt{+} \hlkwd{theme_bw}\hlstd{()}
-\end{alltt}
-\end{kframe}
-
-{\centering \includegraphics[width=\maxwidth]{figure/06-E2B-E2B-plots-7} 
-
-}
-
-
-\begin{kframe}\begin{alltt}
 \hlkwd{ggplot}\hlstd{(e2b.design4,} \hlkwd{aes}\hlstd{(}\hlkwc{x} \hlstd{= multicut.n,} \hlkwc{y} \hlstd{= detrate,} \hlkwc{colour} \hlstd{=} \hlkwd{factor}\hlstd{(method)))} \hlopt{+} \hlkwd{geom_line}\hlstd{(}\hlkwc{lwd} \hlstd{=} \hlnum{1}\hlstd{)} \hlopt{+} \hlkwd{xlab}\hlstd{(}\hlstr{"Number of cutpoints"}\hlstd{)} \hlopt{+} \hlkwd{ylab}\hlstd{(}\hlstr{"False discovery rate"}\hlstd{)} \hlopt{+} \hlkwd{labs}\hlstd{(}\hlkwc{colour} \hlstd{=} \hlstr{"Method"}\hlstd{)} \hlopt{+} \hlkwd{theme_bw}\hlstd{()} \hlopt{+} \hlkwd{ylim}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{1}\hlstd{)} \hlopt{+} \hlkwd{geom_hline}\hlstd{(}\hlkwc{yintercept} \hlstd{=} \hlnum{0.05}\hlstd{,} \hlkwc{linetype} \hlstd{=} \hlstr{"dashed"}\hlstd{,} \hlkwc{alpha} \hlstd{=} \hlnum{0.5}\hlstd{)}
 \end{alltt}
 \end{kframe}
 
-{\centering \includegraphics[width=\maxwidth]{figure/06-E2B-E2B-plots-8} 
+{\centering \includegraphics[width=\maxwidth]{figure/06-E2B-E2B-plots-3} 
 
 }
 

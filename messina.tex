@@ -37,7 +37,7 @@ Univariate statistic approaches identify single biomarkers of interest, but supp
     \def\svgwidth{.4\linewidth}
 	\input{messina_class_test_comparison_b.pdf_tex}
     \label{fig:messina-example-stats-class-class}}
-  \caption[Statistical significance does not imply good classification ability]{Statistical significance does not imply good classification ability.  The left and right panels show the distributions of two hypothetical biomarkers, $a$ and $b$, in two sample classes, shown in orange and green.  The intent is to construct a single-feature classifier separating the two sample classes.  The levels of biomarker $a$ (left panel) are significantly different between the two classes, but the large overlap in distributions would make it a poor choice for a classifier, with sensitivity and specificity both approximately $0.6$.  Conversely, biomarker $b$ (right panel) could be used to form an effective threshold-based classifier, with sensitivity and specificity each around $0.8$.  This comparison also demonstrates the unsuitability of many univariate statistical tests for classifier selection: for example, biomarker b does not show significantly different expression between the groups by the t and Mann-Whitney U tests, although it does by the more general Kolmogorov- Smirnov test (data not shown).}
+  \caption[Statistical significance does not imply good classification ability]{Statistical significance does not imply good classification ability.  The left and right panels show the distributions of two hypothetical biomarkers, $a$ and $b$, in two sample classes, shown in orange and green.  The intent is to construct a single-feature classifier separating the two sample classes.  The levels of biomarker $a$ (left panel) are significantly different between the two classes, but the large overlap in distributions would make it a poor choice for a classifier, with sensitivity and specificity both approximately $0.6$.  Conversely, biomarker $b$ (right panel) could be used to form an effective threshold-based classifier, with sensitivity and specificity each around $0.8$.  This comparison also demonstrates the unsuitability of many univariate statistical tests for classifier selection: for example, biomarker b does not show significantly different expression between the groups by the t and Mann-Whitney U tests, although it does by the more general Kolmogorov-Smirnov test (data not shown).}
 \label{fig:messina-example-stats-class}
 \end{figure}
 
@@ -56,7 +56,7 @@ Messina and Messina2 are algorithms that take as input measurements of biomarker
 
 \subsection{Messina2 framework}
 \paragraph{Decision stump classifiers}
-A decision stump classifier is a very simple classifier that is equivalent to a one-level decision tree\cite{Iba1992}.  In the binary variant employed by Messina2, an unknown sample is assigned to one of two classes, depending on whether that sample's abundance of a certain biomarker is above, or below, a threshold value.  More precisely, let the abundance of a certain biomarker in sample $i$ be $x_i$.  Suppose sample $i$ can be one of two classes, here called 0 and 1, and the goal is to predict the class of $i$ based on $x_i$.  Then, a decision stump classifier will predict the class of $i$, $w_i$, as $w_i = [ d x_i \geq d t ]$, where $t$ is the threshold level at which the predicted class changes, and $d \in {-1, 1}$ is the classifier direction: if $d = 1$, then values of $x$ at or above $t$ are predicted to be class 1, if $d = -1$, then values of $x$ of at least $t$ are predicted to be class 0.  This situation, for $d = 1$, is shown in the top two lines of \fref{fig:mess-thresh-1}.  A decision stump classifier for a given biomarker is completely specified by the values of $t$ and $d$; finding values for these two variables that in some way meet desired criteria is the goal of classifier training.
+A decision stump classifier is a very simple classifier that is equivalent to a one-level decision tree~\cite{Iba1992}.  In the binary variant employed by Messina2, an unknown sample is assigned to one of two classes, depending on whether that sample's abundance of a certain biomarker is above, or below, a threshold value.  More precisely, let the abundance of a certain biomarker in sample $i$ be $x_i$.  Suppose sample $i$ can be one of two classes, here called 0 and 1, and the goal is to predict the class of $i$ based on $x_i$.  Then, a decision stump classifier will predict the class of $i$, $w_i$, as $w_i = [ x_i d \geq t d ]$, where $t$ is the threshold level at which the predicted class changes, and $d \in {-1, 1}$ is the classifier direction: if $d = 1$, then values of $x$ at or above $t$ are predicted to be class 1, if $d = -1$, then values of $x$ of at least $t$ are predicted to be class 0.  This situation, for $d = 1$, is shown in the top two lines of \fref{fig:mess-thresh-1}.  A decision stump classifier for a given biomarker is completely specified by the values of $t$ and $d$; finding values for these two variables that in some way meet desired criteria is the goal of classifier training.
 
 \begin{figure}[!htbp]
 \centering
@@ -71,9 +71,9 @@ To identify optimal values of $t$ and $d$ for a given problem, Messina2 employs 
 \paragraph{Margin}
 A concept in machine learning is that of the \emph{margin}.  Informally, the margin describes the distance between the decision boundary (here, the threshold $t$) and the data, and is a measure of the confidence and robustness of a classifier: a classifier with a high relative margin has all observed data points safely `far away' from the decision boundary, and unlikely to change class following a perturbation.  Messina and Messina2 use a slightly different concept of margin, as the smallest distance that the decision boundary must move for the objective function to be violated.  Using the heuristic that classifiers with the greatest margin are the most robust, Messina2 chooses the optimal threshold $t^*$ as the midpoint of the largest real interval for which $f(w, y) = \mathrm{true}$, and selects the optimal direction $d^*$ as the one associated with $t^*$.  The intuition behind this selection is that such a choice of threshold and direction maximises the size of the smallest threshold perturbation that is necessary to make the classifier violate its performance requirements, that is, 
 \begin{equation}
-(t^*, d^*) = \argmax_{t,d} \mathrm{min}\left\{ \vert\delta\vert~:~\delta \in \mathbb{R} \wedge \neg f\left(~\left(~\left[d x_i \geq d \left(t + \delta\right)\right]~\right)_{i=1}^n, y\right) \right\}
+(t^*, d^*) = \argmax_{t,d} \mathrm{min}\left\{ \vert\delta\vert~:~\delta \in \mathbb{R} \wedge \neg f\left(~\left(~\left[x_i d \geq \left(t + \delta\right)d\right]~\right)_{i=1}^n, y\right) \right\}
 \end{equation}
-where $f([~[d x_i \geq d (t + \delta)]~]_{i=1}^n, y)$ is the value of the objective $f$ when the threshold $t + \delta$ is applied to the data $x$, with $\delta$ the perturbation.  This concept is illustrated in \fref{fig:mess-thresh-2}, which shows a wide region of potential thresholds $t$ in which the objective function $f$ is true.  The optimal threshold $t^*$ is in the centre of the largest interval for which $f$ is true, thereby maximising the margin $\Delta$.
+where $f([~[x_i d \geq (t + \delta)d]~]_{i=1}^n, y)$ is the value of the objective $f$ when the threshold $t + \delta$ is applied to the data $x$, with $\delta$ the perturbation.  This concept is illustrated in \fref{fig:mess-thresh-2}, which shows a wide region of potential thresholds $t$ in which the objective function $f$ is true.  The optimal threshold $t^*$ is in the centre of the largest interval for which $f$ is true, thereby maximising the margin $\Delta$.
 
 \begin{figure}[!htbp]
 \centering
@@ -82,7 +82,7 @@ where $f([~[d x_i \geq d (t + \delta)]~]_{i=1}^n, y)$ is the value of the object
 \caption[]{TODO}\label{fig:mess-thresh-2}
 \end{figure}
 
-\paragraph{Resampling}
+\paragraph{Internal validation}
 Messina2 considers all possible thresholds and directions $t \in \mathbb{R}, d \in \{-1,1\}$ when searching for $(t^*, d^*)$, and as such is at risk of overfitting the data, and reporting spurious classifiers.  To overcome this problem, Messina2 by default employs an outer bootstrap loop to verify that a classifier under consideration still satisfies the objective function $f$, when tested on holdout data.  Multiple bootstrap draws of the training data $(x, y)$ are made, and for each draw a Messina2 classifier is trained on the drawn samples, the trained classifier is used to separate the undrawn (so-called `out-of-bag') samples into two classes, and the objective $f$ is evaluated on the resulting two classes in the out-of-bag data.  Messina2 only returns classifiers for which the objective $f$ is $\mathrm{true}$ in at least half of the out-of-bag evaluations.  This outer bootstrap layer adds an additional level of stringency to the Messina2 results, but dramatically increases the runtime of the algorithm, and in some applications may not be required: the Vapnik–Chervonenkis dimension of a single-feature threshold classifier is $2$, and so Messina2's potential for overfitting is relatively low~\cite{Vapnik1999}, even before bootstrapping is performed.
 
 \subsection{Objective functions}
@@ -95,7 +95,14 @@ f_M(w, y) &= \left[ p_n \geq l_n \wedge p_c \geq l_c \right] \\
 p_n &= \frac{\sum_i{\left[ w_i \wedge y_i \right]}}{\sum_i{\left[ y_i \right]}} \\
 p_c &= \frac{\sum_i{\left[ \neg w_i \wedge \neg y_i \right]}}{\sum_i{\left[ \neg y_i \right]}} \\
 \end{align*}
-In the above, $p_n$ and $p_c$ are the observed sensitivity and specificity, respectively, and $l_n$ and $l_c$ are their user-supplied minimum acceptable values.  When used with this objective function, Messina2 will return maximum-margin classifiers that separate the two groups defined in $y$ with at least the required minimum sensitivity and specificity.  When identifying lead biomarkers for the construction of a clinical test, the analyst can set the sensitivity and specificity requirements to values matching the intended application of the test, and be confident that the biomarkers reported by Messina2 will robustly separate the sample groups with at least this desired level of performance.
+In the above, $p_n$ and $p_c$ are the observed sensitivity and specificity, respectively, and $l_n$ and $l_c$ are their user-supplied minimum acceptable values.  When used with this objective function, Messina2 will return maximum-margin classifiers that separate the two groups defined in $y$ with at least the required minimum sensitivity and specificity.  When identifying lead biomarkers for the construction of a clinical test, the analyst can set the sensitivity and specificity requirements to values matching the intended application of the test, and be confident that the biomarkers reported by Messina2 will robustly separate the sample groups with at least this desired level of performance.  As sensitivity and specificity are closely related to a variable's \gls{CDF}, the objective function $f_M$ has close links with the data population \glspl{CDF}.  The optimal threshold $t*$ is the midpoint between values of $t$ for which the minimum sensitivity and specificity requirements are violated, and if the true \gls{CDF} were known for positive and negative sample populations, could be directly calculated from the inverse \glspl{CDF} (\fref{fig:mess-class-cdf-link}).
+
+\begin{figure}[!htbp]
+\centering
+\def\svgwidth{\linewidth} 
+\input{messina_class_cdfs.pdf_tex}
+\caption[]{}\label{fig:mess-class-cdf-link}
+\end{figure}
 
 \paragraph{Prognosis}
 The objective function $f_H$ is intended for survival analysis, where the goal is to identify biomarkers that can robustly separate a cohort into good- and poor-outcome groups.  Messina2 in this mode provides a more principled approach to thresholding biomarker levels for prognosis than median-cut or multiple-cut procedures.  $f_H(w, y)$ returns $\mathrm{true}$ if the approximate hazard ratio (using survival data in $y$) between the groups defined by $w$ is at least a user-supplied value.  The approximate hazard ratio is calculated from the log-rank test statistic, as:
@@ -339,9 +346,61 @@ Messina2 operates on each biomarker in a data set separately, reporting whether 
 
 
 \section{Results}
+In the following, the performance of Messina2 is characterised through simulation, and its behaviour compared to alternative techniques.  \gls{PDAC} outcome cohorts are used to demonstrate that prognostic biomarkers identified by Messina2 are more likely to validate in external cohorts than those identified by the \texttt{maxstat} method.  Finally, Messina2 is applied to \gls{PDAC} prognostic data from the \gls{APGI}, to identify biomarkers that may form better preoperative measures of prognosis than those used in \Cref{chap:nomogram}.
 
+\subsection{Large-margin classifiers are more robust}
+We consider a simple technology translation scenario in which a diagnostic classifier developed on one platform is moved to another.  The classifier is based on the abundance of biomarker $x$, which is used to predict disease state $y \in \{0, 1\}$, by comparing $x$ against a threshold $t$, $\hat{y_i} = [x_i \geq t]$.  Suppose that $t$ was originally derived from many measurements of $x$ made on one measurement platform, as $x_i = D y_i + \epsilon_i$, $\epsilon_i \sim \mathcal{N}(0, 1)$ is the measurement error of the platform.  No generality is lost by forcing the error to be standard normal, as this situation can be achieved simply by scaling $D$.  We use the link between margin and the distribution of $x, y$ for objective $f_M$ (\fref{fig:mess-class-cdf-link}) to derive an expression for the margin of this original classifier.  Given a minimum desired sensitivity and specificity of $0.9$ each, the Messina2 classifier trained on sufficient samples of $x, y$ will have $t = \frac{1}{2}D$ and $\Delta = \frac{1}{2}(\Phi^{-1}(1-0.9)+D-\Phi^{-1}(0.9)) \approx \frac{1}{2}D - 1.28$.  Messina2 will not return a classifier with a non-positive margin, so $\Delta > 0 \Rightarrow D > 2.56$ for this example.
+
+The classifier described above is now to be applied on a new measurement platform, and we are interested in determining how its performance will be affected by this change.  It is reasonable to expect that the new platform will be calibrated to approximately match the original, so that no significant translation or scaling of the values of $x$ will occur.  However, the post-calibration error of the new platform may be very different from that of the old, and this disparity can't be easily corrected.  Let the measurements of $x$ on the new platform be $x'_i = D y_i + \epsilon'_i$, with $\epsilon'_i \sim \mathcal{N}(0, \sigma'^2)$, and the predictions on the new platform be $\hat{y'_i} = [x'_i \geq t]$.  Our intent is to characterise how the error rate of $\hat{y'}$ changes as a function of $\Delta$ and $\sigma'$.  False positives will occur when $\epsilon'_i \geq t$, and false negatives when $D + \epsilon'_i < t$; these two error types together will occur at a rate of
+\begin{align*}
+R_E &= f_0\left(1-\Phi\left(\frac{t}{\sigma'}\right)\right) + f_1\left(\Phi\left(\frac{t-D}{\sigma'}\right)\right) \\
+    &= f_0\left(1-\Phi\left(\frac{D}{2\sigma'}\right)\right) + f_1\left(\Phi\left(-\frac{D}{2\sigma'}\right)\right) \\
+    &= \Phi\left(-\frac{D}{2\sigma'}\right) \\
+    &= \Phi\left(-\frac{\Delta}{\sigma'} - \frac{1.28}{\sigma'}\right)
+\end{align*}
+where $f_0$ and $f_1$ are the relative proportions of class 0 and 1 in the test population; these disappear from the expression following simplification.
+
+In this simulation, the total error rate therefore increases with increasing measurement error $\sigma'$, and decreases with increasing margin $\Delta$: as intuitively expected, classifiers with higher margin are more robust to measurement error.  This is shown in \fref{fig:mess-margin-good}, in which increasing margin can be seen to offset the increase in error rate caused by a high $\sigma'$.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=.7\linewidth]{analysis/messina/figure/05-E1-E1A3-1}
+\caption[TODO]{TODO}\label{fig:mess-margin-good}
+\end{figure}
+
+\subsection{Messina2 provides accurate control over classifier margin}
+High-margin classifiers are desirable due to their robustness, but is Messina2 effective in building classifiers with the desired margin, and how does this compare to other techniques?  To address this, Messina2 and representative other techniques were applied to simulated diagnostic and prognostic data.  Methods were compared for sensitivity -- the rate at which they detected simulated biomarkers with desired characteristics -- and specificity -- the rate at which they rejected simulated biomarkers that lacked desired characteristics.
+
+\paragraph{Classification ($f_M$)}
+Messina2 with an $f_M$ objective was compared to the t-test.  Simulated $x_i$ were drawn from a normal distribution, as $x_i \sim \mathcal{N}(D y_i, 1)$, with $D \in [0, 5]$ and $y \in \{0, 1\}$.  Classes were balanced, so that near-equal numbers of $y = 0$ and $y = 1$ samples were present in all runs.  The total number of samples in a run, $n$, was either 25, 50, or 100.  For each combination of $D$ and $n$, \fcardinal{1000} random cohorts were generated and supplied to Messina2 and the t-test, and detection rates recorded.  Messina2's $f_M$ parameters were $l_n \geq 0.8$, $l_c \geq 0.8$, and $\Delta \geq 1$, and the t-test was used with a size ($\alpha$) of $0.05$.
+
+Across all sample sizes, Messina2 consistently only selected a biomarker when its true margin was near the target value of 1 (\fref{fig:mess-vs-t}).  Conversely, the t-test was far less selective, identifying even biomarkers with a zero margin as being differentially-expressed.  This sensitivity to small differences, particularly in large samples, is a concrete example of the effect illustrated in \fref{fig:messina-example-stats-class}: a statistically significant result does not necessarily indicate that a good classifier can be made.  The result of this simulation suggests that if the t-test were used to identify single-gene diagnostic biomarkers, a very high false positive rate could be expected, and many of the reported biomarkers would lead to small-margin classifiers that would be unlikely to be robust.  This effect only becomes more pronounced as the sample size increases.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=\linewidth]{analysis/messina/figure/06-E2A-E2A-plots-1}
+\caption[TODO]{TODO}\label{fig:mess-vs-t}
+\end{figure}
+
+\paragraph{Prognosis ($f_H$)}
+Messina2 using the $f_H$ objective function was compared to the \texttt{maxstat} corrected optimal cut procedure, and the simple median-cut log-rank test.  Simulated data were generated in a similar fashion to the $f_M$ test above, as follows.  Simulated $x_i$ were drawn as $x_i \sim \mathcal{N}(D s_i, 1)$, $D \in [0, 5]$, and $c_i \in \{0, 1\}$ the class membership indicator.  The fraction of class 1 in the sample was either $0.2$ or $0.5$, with simulated data sets containing either 25, 50, or 100 samples.  Event times were sampled from an exponential distribution with rate $4 c_i$, and censoring times from an exponential distribution, with rate calculated to give an expected censoring rate of $0.2$~\footnote{A number of values of the censoring fraction were tested, which for reasonable levels was observed to have only minor effects on results (data not shown)}.  500 simulations were performed for each unique combination of parameters.  Messina2's $f_H$ arguments were $l_h \geq 2$ and $\Delta \geq 1$, and \texttt{maxstat} was used with test \texttt{"LogRank"} and correction method \texttt{"HL"}.  For \texttt{maxstat} and the median-cut, a biomarker was considered detected if its corrected P-value was less than $0.05$.
+
+The detection results on these simulated data are shown in \fref{fig:mess-vs-maxstat}.  Messina2 was not as reliable at controlling classifier margin in these prognostic data as it was in the classification case (\fref{fig:mess-vs-t}); this discrepancy may be due to the greater uncertainty inherent in censored data.  Despite this, Messina2 remained competitive with the other cut optimization procedure \texttt{maxstat}, particularly in small samples.  Messina2 was also substantially faster than \texttt{maxstat}, taking $0.41$ seconds per biomarker for 100 samples, versus $4.80$ seconds for \texttt{maxstat}.  As expected, the median cut procedure was very sensitive when the survival subgroups were balanced, but performed very poorly otherwise.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=\linewidth]{analysis/messina/figure/06-E2B-E2B-plots-1}
+\caption[TODO]{TODO}\label{fig:mess-vs-maxstat}
+\end{figure}
 
 \subsection{Messina2 is more effective than maxstat at finding validating biomarkers}
+The above development of Messina2 contains some heuristic arguments for classifiers with large margins, but 
+
+that classifiers with large margins are more likely to be accurate in 
+
+for a high classifier margin being desirable
+
+various heuristic arguments have 
 
 \subsection{Application of Messina2 to identify biomarkers for \acrshort{PDAC} prognosis}
 
@@ -349,13 +408,6 @@ Messina2 operates on each biomarker in a data set separately, reporting whether 
 
 \section{Methods}
 
-
-\begin{figure}[!htbp]
-\centering
-\def\svgwidth{\linewidth} 
-\input{messina_class_cdfs.pdf_tex}
-\caption[]{}\label{fig:mess-class-cdf-link}
-\end{figure}
 
 
 
