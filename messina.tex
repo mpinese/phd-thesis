@@ -5,11 +5,14 @@
 \label{chap:messina}
 
 
-\emph{Thesis: Binary decision stump classifiers can be efficiently trained on high-throughput biomarker data, and provide a principled way to translate large multi-measurement research data into simple but high-performance clinical tests.}
+\emph{Thesis: Large margin binary decision stump classifiers can provide a principled way to translate research biomarker measurement data into simple but high-performance clinical tests.}
 
 
-\paragraph{Summary}
-TODO
+%\paragraph{Summary}
+%The barrier between the research and clinical laboratory is often a major hurdle when translating research findings into clinical application.  Molecular pathology uses different measurement techniques to research, and clinical specimens are seldom as well-controlled as research ones, resulting in 
+%
+%A significant challenge in the translation of research findings into clinical use is the different
+
 
 \section{Introduction}
 
@@ -22,8 +25,6 @@ Effective clinical tests must satisfy a number of requirements, which can be use
 Existing methods for the mining of research data for potential biomarkers do not meet these requirements.  For both diagnostic and prognostic endpoints, common biomarker prioritization techniques either do not provide fine control of classification accuracy and robustness, or yield sets of biomarkers that are far too large to practically deploy.  Two broad strategies are generally employed to identify biomarkers in large research data sets: univariate statistics, and machine learning.  The first strategy encompasses approaches such as per-biomarker regression tests for association between the biomarker and a sample group or outcome, and the second covers the use of algorithms such as \glspl{SVM} to construct high-performance predictors of group or prognosis from the measurements of many biomarkers.
 
 Univariate statistic approaches identify single biomarkers of interest, but supply no guarantee as to the suitability of these biomarkers for translation into clinical tests.  These statistics are designed to identify differences in average value between two groups, not to construct classifiers.  Significance testing and classifier learning are distinct problems, and usually have different solutions: a biomarker that shows a statistically significant difference in signal between two groups may still be a poor classifier; and vice versa (\fref{fig:messina-example-stats-class}).  Univariate tests also do not take the particular requirements of a clinical problem into account.  For example, consider two tests for the same disease -- one test is intended to be used as a population screen, and the other to rule out a suspected diagnosis.  These two tests would have very different performance requirements, and quite possibly would be best served by two different biomarkers.  Univariate test approaches to candidate biomarker selection cannot take this nuance into account, which further limits their usefulness for biomarker selection.
-% These special test performance requirements can be accommodated by machine learning algorithms, but the classifiers produced by these algorithms are also usually poorly-suited to clinical test development.
-% Mention that this is because of the sqrt(n) factor in the tests?  Testing hypotheses on population mean, not on population distrib.
 
 \begin{figure}[!htbp]
   \centering
@@ -56,7 +57,7 @@ Messina and Messina2 are algorithms that take as input measurements of biomarker
 
 \subsection{Messina2 framework}
 \paragraph{Decision stump classifiers}
-A decision stump classifier is a very simple classifier that is equivalent to a one-level decision tree~\cite{Iba1992}.  In the binary variant employed by Messina2, an unknown sample is assigned to one of two classes, depending on whether that sample's abundance of a certain biomarker is above, or below, a threshold value.  More precisely, let the abundance of a specific biomarker in sample $i$ be $x_i$.  Sample $i$ can be a member of one of two classes, here denoted 0 and 1, and the goal is to predict the class of $i$ based on $x_i$.  Then, a decision stump classifier will predict the class of $i$, $w_i$, as $w_i = [ x_i d \geq t d ]$, where $t$ is the threshold level at which the predicted class changes, and $d \in {-1, 1}$ is the classifier direction: if $d = 1$, then values of $x$ at or above $t$ are predicted to be class 1, if $d = -1$, then values of $x$ of at or above $t$ are predicted to be class 0.  This is illustrated for $d = 1$ in the top two lines of \fref{fig:mess-thresh-1}.  A decision stump classifier for a given biomarker is completely specified by the values of $t$ and $d$; finding values for these two variables that in some way meet desired criteria is the goal of classifier training.
+A decision stump classifier is a very simple classifier that is equivalent to a one-level decision tree~\cite{Iba1992}.  In the binary variant employed by Messina2, an unknown sample is assigned to one of two classes, depending on whether that sample's abundance of a certain biomarker is above, or below, a threshold value.  More precisely, let the abundance of a specific biomarker in sample $i$ be $x_i$.  Sample $i$ can be a member of one of two classes, here denoted 0 and 1, and the goal is to predict the class of $i$ based on $x_i$.  Then, a decision stump classifier will predict the class of $i$, $w_i$, as $w_i = [ x_i d \geq t d ]$, where $t$ is the threshold level at which the predicted class changes, and $d \in {-1, 1}$ is the classifier direction: if $d = 1$, then values of $x$ at or above $t$ are predicted to be class 1, if $d = -1$, then values of $x$ of at or above $t$ are predicted to be class 0.  $[ ]$ denotes the Iverson bracket (see Conventions on \pageref{chap:conventions}).  This is illustrated for $d = 1$ in the top two lines of \fref{fig:mess-thresh-1}.  A decision stump classifier for a given biomarker is completely specified by the values of $t$ and $d$; finding values for these two variables that in some way meet desired criteria is the goal of classifier training.
 
 \begin{figure}[!htbp]
 \centering
@@ -85,8 +86,6 @@ where $f([~[x_i d \geq (t + \delta)d]~]_{i=1}^n, y)$ is the value of the objecti
 \paragraph{Internal validation}
 Messina2 considers all possible thresholds and directions $t \in \mathbb{R}, d \in \{-1,1\}$ when searching for $(t^*, d^*)$, and as such is at risk of overfitting the data, and reporting spurious classifiers.  To overcome this problem, Messina2 by default employs an outer bootstrap loop to verify that a classifier under consideration still satisfies the objective function $f$, when tested on holdout data.  Multiple bootstrap draws of the training data $(x, y)$ are made, and for each draw a Messina2 classifier is trained on the drawn samples, the trained classifier is used to separate the undrawn (so-called `out-of-bag') samples into two classes, and the objective $f$ is evaluated on the resulting two classes in the out-of-bag data.  Messina2 only returns classifiers for which the objective $f$ is $\mathrm{true}$ in at least half of the out-of-bag evaluations.  This outer bootstrap layer adds an additional level of stringency to the Messina2 results, but dramatically increases the runtime of the algorithm, and in some applications may not be required: the Vapnik–Chervonenkis dimension of a single-feature threshold classifier is $2$, and so Messina2's potential for overfitting is relatively low~\cite{Vapnik1999}, even before bootstrapping is performed.
 
-TODO: Add comparison vs Messina1 here.
-
 \subsection{Objective functions}
 Messina2 is designed to accept any objective function $f$, to allow custom analyses, but is also supplied with two reasonable default objective functions, designed to handle common tasks in classification and survival analysis.
 
@@ -114,219 +113,13 @@ f_H(s, y) &= \left[ \vert \log{p_h} \vert \geq \log{l_h} \right] \\
 \end{align*}
 where $p_h$ is the approximate hazard ratio achieved by the data split in $w$, $l_h$ is the minimum hazard ratio desired, $Z$ is the value of the log-rank test statistic\footnote{$Z$ is the signed log-rank test statistic, not to be confused with the $\chi^2$ statistic, which is also encountered.  $\chi^2 = Z^2$.}, and $n_e$ is the number of events in $y$.
 
+\subsection{Messina2 vs Messina}
+Messina2 using objective function $f_M$ produces results almost identical to those of the original Messina (results not shown).  The fundamental point of departure between Messina2 using $f_M$, and Messina, is in the internal validation step.  In Messina2, a classifier is considered to have passed internal validation if more than half of the validation bootstrap iterations had acceptable out-of-bag sensitivity and specificity.  Conversely, in Messina, classifiers pass internal validation if the mean out-of-bag sensitivity, and mean out-of-bag specificity, were acceptable (that is, at least as high as the user-supplied limits).  If the out-of-bag sensitivity and specificity estimates are well-behaved (in preliminary investigations, this appears to be the case), then these two criteria should produce very similar results.
+
 \subsection{Algorithm}
+For brevity, the algorithms for Messina2 are contained in \Aref{app:mess-algos} on \pref{app:mess-algos}.  Their overall architecture and function is briefly described here.
+
 Messina2 operates on each biomarker in a data set separately, reporting whether that biomarker can be used to build a threshold classifier with the desired performance characteristics, and, if so, the optimal such classifier.  The main entry point for Messina2 is Messina2Entry (Algorithm \ref{alg:mess-messina2}), which performs bootstrap validation and final training for a single biomarker.  Messina2Entry calls Messina2Core (Algorithm \ref{alg:mess-core}), which performs the actual classifier training.  Although the preceding text described the search for the optimal $t$ as being over $\mathbb{R}$, this is not required in practice.  For given $d$, $w(t,d)$ only changes at values observed in $x$, so it is only necessary to check one value of $t$ in each interval spanning consecutive unique values of $x$.  Candidate cutpoints satisfying this requirement are generated by MakeCutpoints (Algorithm \ref{alg:mess-cutpoints}).  The resultant sparse $w(t,d)$ requires some care to recover correct threshold and margin values; the logic for this is in BestInterval (Algorithm \ref{alg:mess-bestinterval}), the operation of which is illustrated in \fref{fig:mess-bestinterval}.
-
-\begin{algorithm}[!htbp]
-  \KwData{Covariate measurements $x \in \mathbb{R}^n$, associated dependent values $y \in \mathbb{Y}^n$, objective function $f: (\mathbb{B}^n, \mathbb{Y}^n) \rightarrow \mathbb{B}$, minimum subclass fraction $b \in [0, \frac{1}{2})$, and a number of bootstrap rounds $r$.  $x$ is to be sorted in ascending order.  $\mathbb{Y}$ varies between modes of Messina2.}
-  \KwResult{A 3-tuple.  If the fit failed, $(0, 0, 0)$.  Otherwise, optimal classifier parameters $(t^*, d^*, \Delta^*)$, with threshold $t^* \in \mathbb{R}$, direction $d^* \in \{-1, 1\}$, and margin $\Delta^* \in \mathbb{R}^+$.}
-
-  \Begin {
-  	$n_{\mathrm{pass}} \longleftarrow 0$\;
-  	\For{$i \leftarrow 1$ \KwTo $r$}{
-  		\tcp{Generate a bootstrap sample of (x, y)}
-  		$(x_{\mathrm{in}}, y_{\mathrm{in}}, x_{\mathrm{out}}, y_{\mathrm{out}}) \longleftarrow \mathrm{BootstrapSample}\left( x, y \right)$\;
-  		
-  		\tcp{Train Messina2Core on this bootstrap sample}
-  		$(t_{\mathrm{in}}, d_{\mathrm{in}}, \Delta_{\mathrm{in}}) \longleftarrow \mathrm{Messina2Core}\left( x_{\mathrm{in}}, y_{\mathrm{in}}, b, f \right)$\;
-  		
-  		\tcp{Assess performance of the Messina2Core classifier on the out-of-bag samples}
-  		\If{$d_{\mathrm{in}} \neq 0$}{
-  			$w_\mathrm{out} \longleftarrow \left(~\left[ x_{\mathrm{out}_j} d_{\mathrm{in}} \geq t_{\mathrm{in}} d_{\mathrm{in}}\right]~\right)_{j=1}^{\vert x_\mathrm{out} \vert}$\;
-  			\If {$f\left(w_\mathrm{out}, y_{\mathrm{out}}\right) = \mathrm{true}$}{
-  				$n_{\mathrm{pass}} \longleftarrow n_{\mathrm{pass}} + 1$\;
-  			}
-  		}
-  	}
-  	
-  	\tcp{Did the in-bag trained classifiers satisfy out-of-bag performance requirements in at least half of the bootstrap rounds?}
-  	\eIf{$r = 0 \vee n_{\mathrm{pass}} \geq \frac{1}{2}r$}{
-	  	\tcp{Yes; return the fit on the full data}
-  		\KwRet{$\mathrm{Messina2Core}\left( x, y, b, f \right)$}\;
-  	}{
-  		\tcp{No; this fit failed.}
-  		\KwRet{$(0, 0, 0)$}\;
-	}
-  }
-  \caption[Messina2Entry]{Messina2Entry, a bootstrap validation wrapper around Messina2Core.  $\mathrm{BootstrapSample}$ is a function that generates a bootstrap sample of its matched tuple arguments $x$ and $y$, returning both the in-bag and out-of-bag $x$ and $y$ values as tuples.  If the number of bootstrap iterations $r$ is zero, no bootstrap validation is performed and this algorithm falls through to Messina2Core.}
-  \label{alg:mess-messina2}
-\end{algorithm}
-
-\begin{algorithm}[!htbp]
-  \KwData{Covariate measurements $x \in \mathbb{R}^n$, associated dependent values $y \in \mathbb{Y}^n$, minimum subclass fraction $b \in [0, \frac{1}{2})$, and objective function $f: (\mathbb{B}^n, \mathbb{Y}^n) \rightarrow \mathbb{B}$.  $x$ is to be in ascending order.  $\mathbb{Y}$ varies between modes of Messina2.}
-  \KwResult{A 3-tuple.  If the fit failed, $(0, 0, 0)$.  If the fit succeeded, optimal classifier values $(t^*, d^*, \Delta^*)$, with threshold $t^* \in \mathbb{R}$, direction $d^* \in \{-1, 1\}$, and margin $\Delta^* \in \mathbb{R}^+$.}
-
-  \Begin {
-  	\tcp{Define candidate thresholds $c$ as the midpoints between consecutive unique values of $x$}
-  	$c \longleftarrow \mathrm{MakeCutpoints}\left(x, b\right)$\;
-  	$m \longleftarrow \vert c \vert$\;
-  
-	\tcp{Test the objective $f$ on each threshold in $c$}
-	\For{$i \leftarrow 1$ \KwTo $m$}{
-		$w^+ \longleftarrow \left(~\left[x_j \geq c_i\right]~\right)_{j=1}^n$\;
-		$w^- \longleftarrow \left(~\left[x_j < c_i\right]~\right)_{j=1}^n$\;
-		$o^+_i \longleftarrow f\left(w^+, y\right)$\;
-		$o^-_i \longleftarrow f\left(w^-, y\right)$\;
-	}
-	
-	\tcp{If no threshold passed $f$, return $\varnothing$}
-	\If{$o^+ \vee o^-$ is all $\mathrm{false}$}{
-      \KwRet $\varnothing$\;
-    }
-	
-	\tcp{Search $o^+$ and $o^-$ for the widest margin contiguous interval that passes $f$}
-	$(t^+, \Delta^+) \longleftarrow$ BestInterval$\left(o^+, c\right)$\;
-	$(t^-, \Delta^-) \longleftarrow$ BestInterval$\left(o^-, c\right)$\;
-	
-	\tcp{Return the best of the $o^+$ and $o^-$ results}
-	\eIf{$\Delta^+ \geq \Delta^-$}{
-	  \KwRet{$(t^+, +1, \Delta^+)$}\;
-	}{
-	  \KwRet{$(t^-, -1, \Delta^-)$}\;
-	}
-  }
-  \caption[Messina2Core]{Messina2Core.  Searches the real line for the largest interval for which the objective $f(w, y)$ is true, and returns the centre and half-width of that interval.}
-  \label{alg:mess-core}
-\end{algorithm}
-
-\begin{algorithm}[!htbp]
-  \KwData{Covariate measurements $x \in \mathbb{R}^n$, and a minimum subclass fraction $b \in [0, \frac{1}{2})$.  $x$ is to be sorted in ascending order.}
-  \KwResult{A tuple of candidate cutpoints $c$, with values sorted in ascending order.}
-
-  \Begin {
-  	$x' \longleftarrow \mathrm{unique}(x)$\;
-  	$c \longleftarrow ()$\;
-  	\For{$i \leftarrow 1$ \KwTo $\vert x' \vert - 1$}{
-  		$p \longleftarrow \frac{1}{2} \left({x'}_i + {x'}_{i+1}\right)$\;
-  		$s \longleftarrow \frac{1}{n} \sum_{i=1}^n \left[ x_i < p \right] $\;
-  		\If{$s \geq b \wedge s \leq 1-b$}{
-	  		$c \longleftarrow c \oplus p$\;
-	  	}
-  	}
-  	\If{$b = 0$}{
-	  	$c \longleftarrow -\infty \oplus c \oplus \infty$\;
-	}
-  	
-	\KwRet{$c$}\;
-  }
-  \caption[MakeCutpoints]{MakeCutpoints.  Returns a sorted list of candidate cutpoints, each dividing the values in $x$ into two groups, with the restriction that all groups must contain at least fraction $b$ of the original values of $x$.  The function $\mathrm{unique}$ accepts a tuple argument, and returns a tuple containing the unique values of its argument, in ascending order.  The symbol $\oplus$ is used to represent tuple concatenation, and $()$ is the empty tuple.}
-  \label{alg:mess-cutpoints}
-\end{algorithm}
-
-\begin{algorithm}[!htbp]
-  \KwData{$o \in \mathbb{B}^m$, $c \in \mathbb{R}^m$, $x \in \mathbb{R}^n$}
-  \KwResult{$(t^* \in \mathbb{R}, \Delta^* \in \mathbb{R}^+)$}
-
-  \Begin {
-    $\Delta^* \longleftarrow 0$\;
-    $t^* \longleftarrow 0$\;
-    
-    $i \longleftarrow 1$\;
-    \While{$i \leq m$}{
-      \If{$o_i$ is $\mathrm{true}$}{
-        $r_L \longleftarrow \sup \{x_k~|~x_k \leq c_i \wedge k \in \mathbb{N}^+ \wedge k \leq n \}$\;
-        \For{$j \leftarrow i$ \KwTo $m$}{
-          \eIf{$o_j$ is $\mathrm{true}$}{
-            $r_R \longleftarrow \sup \{x_k~|~x_k \leq c_j \wedge k \in \mathbb{N}^+ \wedge k \leq n \}$\;
-          }{
-            break\;
-          }
-        }
-
-		$\Delta \longleftarrow \frac{1}{2}\left(r_R - r_L\right)$\;
-        \If{$\Delta > \Delta^*$}{
-          $\Delta^* \longleftarrow \Delta$\;
-          $t^* \longleftarrow r_L + \frac{1}{2}\Delta$\;
-        }
-        
-        $i \longleftarrow j$\;
-      }
-      $i \longleftarrow i + 1$\;
-    }
-    \KwRet{$(t^*, \Delta^*)$}\;
-  }
-  
-  \caption[BestInterval]{BestInterval.  Identifies the centre ($t^*$) and half-width ($\Delta^*$) of the largest interval on $t$ for which $o(t) = true$.  $o$ is only sampled at values in $c$, but changes value only at values in $x$; the process by which this algorithm translates between these representations is illustrated in \fref{fig:mess-bestinterval}.}
-  \label{alg:mess-bestinterval}
-\end{algorithm}
-
-\begin{figure}[!htbp]
-\centering
-\begin{tikzpicture}[
-    axis/.style={thick,<->,>=stealth},
-    guide/.style={thick,dotted,gray},
-    graphline/.style={thick,black},
-    threshmark/.style={thin,->,>=stealth}]
-
-  \def\f{*0.6}
-
-  \draw[axis]
-    (1\f,2\f) -- (16\f,2\f);
-
-  \draw[guide]
-    (1\f,3\f) -- (16\f,3\f)
-    (1\f,6\f) -- (16\f,6\f);
-
-  \draw[graphline,<-,>=stealth]
-    (1\f,3\f) -- (4.5\f,3\f);
-  \draw[graphline,->,>=stealth]
-    (13\f,3\f) -- (16\f,3\f);
-  \draw[graphline]
-    (4.5\f,6\f) -- (7\f,6\f)
-    (7\f,3\f) -- (9\f,3\f)
-    (9\f,6\f) -- (13\f,6\f);
-
-  \filldraw[black,draw=black] (2\f,3\f) circle [radius=0.1\f];
-  \filldraw[black,draw=black] (3\f,3\f) circle [radius=0.1\f];
-  \filldraw[black,draw=black] (4.5\f,6\f) circle [radius=0.1\f];
-  \filldraw[black,draw=black] (6\f,6\f) circle [radius=0.1\f];
-  \filldraw[black,draw=black] (7\f,3\f) circle [radius=0.1\f];
-  \filldraw[black,draw=black] (9\f,6\f) circle [radius=0.1\f];
-  \filldraw[black,draw=black] (13\f,3\f) circle [radius=0.1\f];
-  \filldraw[black,draw=black] (14.5\f,3\f) circle [radius=0.1\f];
-  \filldraw[black,draw=black] (15\f,3\f) circle [radius=0.1\f];
-  \filldraw[white,draw=black] (4.5\f,3\f) circle [radius=0.1\f];
-  \filldraw[white,draw=black] (7\f,6\f) circle [radius=0.1\f];
-  \filldraw[white,draw=black] (9\f,3\f) circle [radius=0.1\f];
-  \filldraw[white,draw=black] (13\f,6\f) circle [radius=0.1\f];
-
-  \draw[threshmark] (1.5\f,1.5\f) -- (1.5\f,1.95\f);
-  \draw[threshmark] (2.5\f,1.5\f) -- (2.5\f,1.95\f);
-  \draw[threshmark] (3.75\f,1.5\f) -- (3.75\f,1.95\f);
-  \draw[threshmark] (5.25\f,1.5\f) -- (5.25\f,1.95\f);
-  \draw[threshmark] (6.5\f,1.5\f) -- (6.5\f,1.95\f);
-  \draw[threshmark] (8\f,1.5\f) -- (8\f,1.95\f);
-  \draw[threshmark] (11\f,1.5\f) -- (11\f,1.95\f);
-  \draw[threshmark] (13.75\f,1.5\f) -- (13.75\f,1.95\f);
-  \draw[threshmark] (14.75\f,1.5\f) -- (14.75\f,1.95\f);
-  \draw[threshmark] (15.5\f,1.5\f) -- (15.5\f,1.95\f);
-
-  \node[align=left] at (1.5\f,1.2\f) {\tiny $c_1$};
-  \node[align=left] at (2.5\f,1.2\f) {\tiny $c_2$};
-  \node[align=left,text width=10\f] at (3.75\f,1.2\f) {\tiny $c_3...$};
-  \node[align=left,text width=10\f] at (11\f,1.2\f) {\tiny $t^*$};
-
-  \node[align=right,text width=30\f] at (-0.5\f,2\f) {\footnotesize $t$};
-  \node[align=left,text width=30\f] at (-0.5\f,3\f) {\scriptsize 0};
-  \node[align=left,text width=30\f] at (-0.5\f,6\f) {\scriptsize 1};
-
-  \draw 
-    (-1.5\f,2.5\f) -- (-1.75\f,2.5\f)
-    (-1.75\f,2.5\f) -- (-1.75\f,6.5\f)
-    (-1.5\f,6.5\f) -- (-1.75\f,6.5\f);
-
-  \node at (-3\f,4.5\f) {\footnotesize $o$};
-
-  \draw[decorate,decoration={brace,amplitude=10\f},rotate=0] (9\f,7\f) -- (13\f,7\f);
-
-  \node[align=center] at (5.75\f,6.5\f) {\scriptsize Region 1};
-  \node[align=center] at (11\f,6.5\f) {\scriptsize Region 2};
-  \node[align=center] at (11\f,7.75\f) {\scriptsize $2\Delta^*$};
-\end{tikzpicture}
-\caption[Operation of the BestInterval algorithm]{Operation of the BestInterval algorithm.  Example values of a binary objective $o$ are shown for a range of input thresholds $t$.  $o$ is a sparse sample of the objective function $f$, evaluated at candidate cutpoints $c$, $o_i = f(w(c_i,d),y)$.  At discrete points defined by observed data values (shown as dots), the objective function $f$ can transition, as an observed data point changes its value relative to $t$, and therefore its assigned class.  Two regions in which $o = 1$ are shown.  BestInterval locates all such regions, selects the one with largest measure on $t$ (margin), and returns its centre and margin as $(t^*, \Delta^*)$.  In this example, the centre and margin of region 2 would be returned.  To ensure that $o$ is sampled at sufficient density, candidate thresholds $c_1, c_2, \dots$ are defined between all consecutive values, and beyond the extrema, of $x$; these are indicated by small arrows.}
-\label{fig:mess-bestinterval}
-\end{figure}
-
 
 \section{Results}
 In the following, the performance of Messina2 is characterised through simulation, and its behaviour compared to alternative techniques.  \gls{PDAC} outcome cohorts are used to demonstrate that prognostic biomarkers identified by Messina2 are more likely to validate in external cohorts than those identified by the \texttt{maxstat} method.  Finally, Messina2 is applied to \gls{PDAC} prognostic data from the \gls{APGI}, in an attempt to identify biomarkers that may form better preoperative measures of prognosis than those used in \Cref{chap:nomogram}.
@@ -351,7 +144,7 @@ In this simulation, the total error rate therefore increases with increasing mea
 \caption[High margin increases classifier robustness]{High margin increases a classifier's robustness to technology translation.  The class prediction error rate of a Messina2-type classifier is shown as a function of the classifier margin $\Delta$, and the noise level of a new measurement technology, $\sigma'$.  To facilitate dimensionless comparison, $\Delta$ and $\sigma'$ are shown scaled relative to the noise level $\sigma$ of the technology used to generate the Messina2 training data.}\label{fig:mess-margin-good}
 \end{figure}
 
-\subsection{Messina2 provides accurate control over classifier margin}
+\subsection[Messina2 controls classifier margin]{Messina2 provides accurate control over classifier margin}
 High-margin classifiers are desirable due to their robustness, but is Messina2 actually effective in building classifiers with high margin, and how does this compare to other techniques?  To address this, Messina2 and representative other techniques were applied to simulated diagnostic and prognostic data.  Methods were compared for sensitivity -- the rate at which they detected simulated biomarkers with desired characteristics -- and specificity -- the rate at which they rejected simulated biomarkers lacking desired characteristics.
 
 \paragraph{Classification ($f_M$)}
@@ -376,10 +169,10 @@ The detection results on these simulated data are shown in \fref{fig:mess-vs-max
 \caption[Messina2 prognostic performance compared to alternative methods]{Messina2 $f_H$ prognostic performance, compared to \texttt{maxstat} and median cut.  Detection rate for each method is shown as a function of margin, for sample sizes of 25, 50, and 100 samples (top bars), and class 1 proportions of $0.2$ and $0.5$ (side bars).  The target classification margin of 1 is shown as dashed vertical lines.  Although Messina2 (blue) did not control margin as effectively as in the $f_M$ classification case, it performed competitively against \texttt{maxstat} (red), particularly in the case of small sample sizes.  The median cut procedure (green) was highly sensitive when classes were balanced (class 1 proportion of $0.5$), but performed poorly otherwise.}\label{fig:mess-vs-maxstat}
 \end{figure}
 
-\subsection{Messina2 is more effective than maxstat at finding validating prognostic biomarkers}
+\subsection[Messina2 vs maxstat: prognostic classifier training]{Messina2 is more effective than maxstat at finding validating prognostic biomarkers}
 The preceding simulation studies have indicated that high-margin threshold classifiers are robust to measurement noise, and that Messina2 is efficient at learning such classifiers, but the advantage of Messina2 over other methods on real data remains to be shown.  The \gls{GEX} measurements in \gls{PDAC} cohorts used in \Cref{chap:signatures} provide a platform for this comparison, by examining the rate at which a prognostic biomarker found by a given technique in one cohort, will validate as prognostic in a separate cohort.  The \gls{PDAC} cohorts contain patients from different countries, with differing clinical characteristics, and with biomarkers measured by different technologies, and so provide a strong test of the generalization ability of classifiers built by Messina2 and \texttt{maxstat}.
 
-Pseudo-\gls{ROC} curves were generated to compare the validation performance of default Messina2, Messina2 without bootstrap (Messina2Core), and \texttt{maxstat}.  Classifiers of each type were trained on data from the \gls{APGI} \gls{PDAC} cohort, and validated on data from cohorts GSE28735, and \gls{TCGA} paad.  To generate a pseudo-\gls{ROC} curve for each method, classifiers were ranked by a quality metric (increasing margin for Messina2, decreasing P-value for \texttt{maxstat}), and for each rank of the metric $r$, the proportion of classifiers with rank at least as good as $r$ that validated (the validation rate, similar to the true positive rate of a conventional \gls{ROC}), was plotted against the proportion of classifiers with rank worse than $r$ that did not validate (the non-validation rate, similar to the false positive rate of \gls{ROC}).  A detailed description of the validation procedure and pseudo-ROC calculation can be found in the Methods section.
+Pseudo-\gls{ROC} curves were generated to compare the validation performance of default Messina2, Messina2 without bootstrap (Messina2Core), and \texttt{maxstat}.  Classifiers of each type were trained on data from the \gls{APGI} \gls{PDAC} cohort, and validated on data from cohorts GSE28735, and \gls{TCGA} paad.  To generate a pseudo-\gls{ROC} curve for each method, the trained classifiers were first ranked by a quality metric (increasing margin for Messina2, decreasing P-value for \texttt{maxstat}).  Then, for each rank of the metric $r$, two values were calculated: the proportion of classifiers with rank at least as good as $r$ that did validate (the validation rate, similar to the true positive rate of a conventional \gls{ROC}), and the proportion of classifiers with rank worse than $r$ that did \emph{not} validate (the non-validation rate, similar to the false positive rate of \gls{ROC}).  The pseudo-\gls{ROC} is then the curve formed by plotting the validation rate against the non-validation rate, for all ranks of the metric.  A detailed description of the validation procedure and pseudo-ROC calculation can be found in the Methods section.
 
 Both Messina2 and Messina2Core produced classifiers that were far more likely to validate than those returned by \texttt{maxstat} (\fref{fig:mess-val-detrel}).  Messina2Core in particular demonstrated excellent validation performance, suggesting that -- at least for the objective $f_H$ -- the increased stringency introduced by Messina2's bootstrap validation procedure came at the expense of substantial sensitivity.  For the very highest-margin classifiers, Messina2's performance was close to that of Messina2Core, indicating that the sensitivity loss is primarily restricted to lower-margin biomarkers.  \texttt{maxstat} gave very disappointing performance in general, with validation performance only marginally better than that of random selection, emphasising the robustness of classifiers generated from a machine learning perspective, rather than a statistical one.
 
@@ -391,12 +184,10 @@ Both Messina2 and Messina2Core produced classifiers that were far more likely to
 \end{figure}
 
 
-\subsection{Application of Messina2 to identify biomarkers for \texorpdfstring{\acrshort{PDAC}}{PDAC} prognosis}
+\subsection[Messina2 identifies candidate \texorpdfstring{\acrshort{PDAC}}{PDAC} biomarkers]{Application of Messina2 to identify biomarkers for \texorpdfstring{\acrshort{PDAC}}{PDAC} prognosis}
 The very promising results of Messina2 in pseudo-ROC analysis prompted its use in the \gls{APGI} \gls{PDAC} cohort, to identify new prognostic biomarkers for use in a preoperative prognostic tool like that developed in \Cref{chap:nomogram}.  Messina2 was used to identify prognostic biomarkers in the \gls{APGI} \gls{GEX} and follow-up data described in \Cref{chap:signatures}, using objective function $f_H$ with $l_h = 2$, and $\Delta \geq 1$.  Of \fcardinal{13000} mRNAs tested, three passed these requirements (\tref{tab:mess-apgi-leads}).  The genes associated with these mRNAs have been reported to be linked to cancer: KRT6A and KRT6C are associated with poor prognosis basal cancers~\cite{Choi2014,Livasy2006}, KRT6A in particular has been linked to poor prognosis in \gls{PDAC}~\cite{VandenBroeck2012}, and ANGPTL4 is involved in metastasis in a range of cancers~\cite{Adhikary2013,Kim2011b,Padua2008,Xiao2012}.
-% IGFBP1 is overexpressed in, and probably secreted by \gls{PDAC}~\cite{Karna2002,Mauri2005}
-% and ANGPTL4 and LOX are involved in metastasis of a range of cancers~\cite{Adhikary2013,Kim2011b,Padua2008,Xiao2012}, with LOX inhibition improving survival in mouse models of \gls{PDAC}~(Jamison et al, manuscript in preparation).
 
-\begin{table}[h]
+\begin{table}[!htb]
 \centering
 \caption[Outcome-associated biomarkers found by Messina2 in the \texorpdfstring{\acrshort{APGI}}{APGI} \texorpdfstring{\acrshort{PDAC}}{PDAC} cohort]{High-margin outcome-associated biomarkers found by Messina2 in the \acrshort{APGI} \acrshort{PDAC} cohort.}
 \label{tab:mess-apgi-leads}
@@ -406,11 +197,6 @@ Gene    & Threshold ($t^*$) & Direction ($d^*$) & Margin ($\Delta^*$) \\ \midrul
 KRT6A   & 9.50              & 1                 & 2.00                \\
 ANGPTL4 & 8.90              & 1                 & 1.36                \\
 KRT6C   & 7.46              & 1                 & 1.17                \\
-%IGFBP1  & 7.07              & 1                 & 0.74                \\
-%FGG     & 8.59              & 1                 & 0.68                \\
-%LYNX1   & 7.02              & 1                 & 0.67                \\
-%PPY     & 11.93             & -1                & 0.55                \\
-%LOX     & 7.69              & 1                 & 0.53                \\ 
 \bottomrule
 \end{tabular}
 \end{table}
@@ -420,20 +206,44 @@ TODO figures
 The Messina2 classifiers of \tref{tab:mess-apgi-leads}, trained on the \gls{APGI} cohort, were tested for prognostic differentiation in the GSE28735 and \gls{TCGA} paad validation cohorts, but none produced sample groupings with significantly different prognosis (Four log-rank tests, as not all genes of \tref{tab:mess-apgi-leads} were present in the validation cohorts, all $\chi^2 < 1.64$).  This lack of validation, while disappointing, is quite plausibly due to small cohort size (TCGA), microarray probe dropout (GSE28735), or simply the very small number of genes tested, and more involved validation (by immunohistochemistry, for example) may prove fruitful.
 
 \section{Discussion}
+The thesis driving this work was that ``large margin binary decision stump classifiers can provide a principled way to translate research biomarker measurement data into simple but high-performance clinical tests.''  Confirming this hypothesis, the preceding sections have established the robustness of Messina2's classifiers for both diagnosis and prognosis, showed that Messina2 provides control over classifier margin, and demonstrated on real data that Messina2 represents a principled way to select classifiers with a high likelihood of validating in external cohorts.  These capabilities of Messina2 are -- as far as I am aware -- unique, and Messina2 shows promise for the much-needed identification of more effective prognostic biomarkers in \gls{PDAC}.  One of the particular strengths of Messina2 is its great generality, and through user-supplied objective functions Messina can be used to learn effectively any type of binary separation.  Messina2's most salient limitation at this time is its restriction to univariate binary classifiers; relaxing these restrictions may improve performance and detection rate, although computational issues may make this infeasible.
 
-Discuss:
-  * 
-  * 
+Direct simulation and the \gls{PDAC} validation demonstrated that high-margin Messina2 classifiers were more robust to the inflation in measurement noise that may come with technology translation.  In additional work not shown here, classifiers with large margins were also found to be more resistant to the differences in measurement slope and intercept that accompany poor calibration.  The low error rate and high robustness of large-margin classifiers is intuitively reasonable, and has strong theoretical support~\cite{Vapnik2000}, making methods capable of controlling classifier margin important tools in designing robust biomarker-based clinical tests.
 
-TODO: Refer back to thesis
+In simulation experiments, Messina2 $f_M$ provided highly accurate control of the classifier margin, allowing the analyst to confidently train large-margin diagnostic classifiers with a high likelihood of validating in external data.  This capability is unique to Messina2: competing univariate test-based methods of biomarker selection do not control for margin size, and in a classification context are likely to have an unacceptably high non-validation rate (\fref{fig:mess-vs-t}).  In contrast to the $f_M$ case, Messina2 $f_H$ provided poor control over classifier margin, although it was generally competitive with alternate approaches (\fref{fig:mess-vs-maxstat}).  The relatively poor selectivity of Messina2 $f_H$ may simply be a consequence of the greater uncertainty encountered in outcome data, but warrants further investigation.  In both the diagnosis and prognosis contexts, it can be argued that univariate statistical tests can still be used to achieve a form of margin control, through increasing the stringency of P-value selection.  Although this will indirectly lead to margin improvements, a remaining issues with univariate test selection methods is that they can not integrate asymmetric costs, or more complex selection criteria, while still optimizing margin.  Asymmetric cost is very commonly encountered in medical decision making~\cite{Pepe2001}, and the utility of univariate test methods in clinical test development is severely limited by their inability to perform cost-sensitive selection.
 
-TODO: ADVANTAGE OVER ROC.  See above para.  So basically, someone might argue -- why not just do a ROC with a cost-sensitive threshold?  That way it can be done with any classifier that gives a continuous output.  Problem is that the ROC doesn't include margin information.  So it's not just about hitting the right balance of sens & spec, but doing so ROBUSTLY.  How sure can we be that our target sens & spec will be achieved on a test set?  What about a completely different cohort?  Using a different technology?  Best option is to MAXIMIZE MARGIN.  I need to put this thinking somewhere.  TODO: DISCUSSION
+Messina2's use of general objective functions gives it immense flexibility.  Two example objectives have been presented, $f_M$ for cost-sensitive classification, and $f_H$ for prognosis, but any objective that can be adapted into the binary separation framework can be optimized by Messina2.  This generality represents a distinct advantage of Messina2 over machine-learning techniques, which usually\footnote{The only exception of which the author is aware is nearest neighbour techniques, which can be completely agnostic of the domain $\mathbb{Y}$.} require bespoke adaptation to a new predicted variable domain.
+
+When applied to real data reflecting a translation scenario, Messina2 demonstrated excellent performance in identifying biomarkers that would validate in external cohorts (\fref{fig:mess-val-detrel}).  The sensitivity of both Messina2, and Messina2Core, was far superior to that of the competing biomarker selection technique \texttt{maxstat}, with Messina2Core performing particularly well.  Messina2Core lacks the bootstrap validation step used by Messina2, and the large difference in sensitivity between the two techniques indicates that Messina2's higher stringency comes at the expense of great sensitivity.  However, it is notable that for the most specific bottom-left region of the pseudo-\gls{ROC} curves of \fref{fig:mess-val-detrel}, Messina2 and Messina2Core show similar performance.  This region is the one that is of most interest during classifier development, and so the lower sensitivity of Messina2 away from this region is of little practical consequence.  The very poor performance of \texttt{maxstat} was surprising, with the technique constructing classifiers that validated little better than chance, and was particularly puzzling given the competitive performance of \texttt{maxstat} in simulation studies (\fref{fig:mess-vs-maxstat}).  The huge divide in validation performance between the Messina2 classifiers, and the \texttt{maxstat} method, may well reflect again the divide between statistical significance and classifier performance (\fref{fig:messina-example-stats-class}): although \texttt{maxstat} is an effective statistical test for differential survival, it is a poor method for the construction of actual prognostic classifiers.
+
+The work of \Cref{chap:nomogram} investigated the use prognostic biomarkers to predict survival with resected \gls{PDAC}, with underwhelming results.  It could be that \gls{PDAC} is a disease with a fundamentally unpredictable course -- although the results of \Cref{chap:signatures} suggest that this is not the case -- or the biomarkers used in \Cref{chap:nomogram} may simply be poor markers of outcome.  To identify potential better biomarkers of \gls{PDAC} prognosis following resection, Messina2 was applied to data from the \gls{APGI} \gls{PDAC} cohort.  Three high-margin genes were identified TODO fig link -- KRT6A, ANGPTL4, and KRT6C -- all with plausible literature connections to outcome with \gls{PDAC}~\cite{Adhikary2013,Choi2014,Kim2011b,Livasy2006,Padua2008,VandenBroeck2012,Xiao2012}.  Unfortunately, none of the three biomarkers validated on either of the GSE28735, or the \gls{TCGA} paad cohorts.  This disappointing result may be due to technical effects, and a more careful validation of these three markers is certainly warranted, given their strong literature ties to outcome and metastasis.  Although, given more complete data, better single-gene biomarkers of prognosis will likely be found in \gls{PDAC}, the orthogonal metagene result of \Cref{chap:signatures} suggests that optimal prognosis will require a variant of Messina that can work with joint biomarker distributions.
+
+Messina2's greatest limitation is its restriction to examining biomarkers singly.  This was a practical choice made for a number of reasons: it vastly restricts the classifier search space, reduces the quantity of data required for stable fitting, and matches well the clinical desire for classifiers that use as few biomarkers as possible.  However, these benefits come at the cost of prediction performance: with a Vapnik-Chervonenkis dimension~\cite{Vapnik2000} of 2, Messina2 classifiers are capable of learning only extremely simple data patterns.  There is evidence that excellent classification performance can be achieved from measurement of only a few biomarkers~\cite{Grate2005}; this is still a small enough number to be attractive as a clinical diagnostic, and could potentially provide large gains in performance over Messina2.  However, the issues of computational tractability, and stability in reasonable-sized data sets, remain.  Very little work has been done in this direction, and it remains an area for future development.
+
 
 \section{Methods}
 
-TODO
+\subsection{Messina2 version}
+The version of Messina2 used in this chapter is implemented in the \texttt{R} environment, and is available as the \texttt{thesis} branch in the Bitbucket repository \texttt{marpin/r-messina}.  This can be directly installed from an instance of \texttt{R} that has the \texttt{devtools} package installed, by running the command \texttt{devtools::install\_bitbucket("marpin/r-messina", ref = "thesis")}.
 
-Prognostic classifiers were built on the \gls{APGI} cohort data, using both Messina2 $f_H$ and \texttt{maxstat}, and for each technique the classifiers produced were ranked by a quality metric.  For Messina2, this metric was the classifier margin, with higher margin considered better; for \texttt{maxstat}, the metric used was the corrected test P-value, with lower values considered to be better.  Each trained classifier from each method was then tested on a validation cohort, by placing validation samples into two groups using the trained classifier, and then performing a log-rank test on the difference in validation cohort survival between the two validation groups.  Cohorts GSE28735 and \gls{TCGA} paad were used for validation, and a classifier was considered to have validated in a cohort if its log-rank test P-value was less than 0.05.
+\subsection{Simulation studies}
+Simulation experiments were as described in the text.  All calculations were performed in the \texttt{R} environment.
+
+\subsection{\texorpdfstring{\acrshort{PDAC}}{PDAC} data}
+\gls{PDAC} \gls{GEX} and outcome data were from the \gls{APGI}, \gls{TCGA} paad, and GSE28735 cohorts, following unsupervised selection, processed as described in \Cref{chap:signatures}.
+
+\subsection{Pseudo-\texorpdfstring{\acrshort{ROC}}{ROC} generation}
+A pseudo-\gls{ROC} curve for a given training technique and validation cohort was calculated as follows.
+
+The training technique was applied to the \gls{APGI} \gls{PDAC} \gls{GEX}-outcome data, to yield a list of threshold prognostic classifiers.  This list was then sorted in order of decreasing classifier figure of merit.  For Messina2 and MessinaSurv, this figure of merit was the margin, $\Delta^*$; for \texttt{maxstat}, this was the negative of the classifier P-value.  Classifiers based on transcripts which were not present in the validation data were discarded from the list.  Each classifier in the list was then tested for prognostic significance in the validation set.  This was achieved by first affinely scaling the optimal classifier threshold $t^*$, which based on the distribution of biomarker measurements in the \gls{APGI} training data, to approximately match the distribution of measurements in the validation data, as follows: 
+\begin{equation*}
+t'^* = \left(t^* - \mu(x)\right)\frac{\sigma(x')}{\sigma(x)} + \mu(x')
+\end{equation*}
+where $t'^*$ is the threshold to be used on validation data; $x$ is the \gls{APGI} training data, and $x'$ the validation data, for the biomarker under consideration; and $\mu$ and $\sigma$ are the $\tau$-estimators of location and scale~\cite{Maronna2002}, as implemented in the \texttt{R} package \texttt{robustbase}.  The scaled $t'^*$  was then used to partition the validation data into two subgroups, defined by $w'_i = [x'_i \geq t'^*]$, and a log-rank test for differences in outcome between the groups $w = 0$ and $w = 1$ was performed.  The classifier was considered to have validated if the uncorrected test P-value was less than $0.05$.
+
+To plot the pseudo-\gls{ROC} curve, for each classifier in the sorted list, two quantities were calculated.  The first was the true validation rate, which was the fraction of classifiers with figure of merit at least as good as the classifier under consideration, that did validate; the second was the false validation rate, being the fraction of classifiers with figure of merit at least as good as the  classifier under consideration, that did not validate.  A plot of the true validation rate versus the false validation rate, for all figures of merit, yielded the pseudo-\gls{ROC} curve.
+
+Pseudo-\gls{ROC} curves were calculated for three training techniques: Messina2 ($f_H$ with $l_h \geq 2$ and $\Delta^* \geq 1$), Messina2Core (parameters as for Messina2), and \texttt{maxstat} (test \texttt{"LogRank"}, correction method \texttt{"HL"}); and two validation cohorts: \gls{TCGA} paad, and GSE28735.
 
 \section{Attribution}
 The conception and planning of this project, and all work, was performed solely by me.
