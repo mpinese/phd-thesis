@@ -276,55 +276,40 @@ plot(chisq ~ merit, val.comb.messina)
 @
 
 
-<<E3-val-detcurves,sanitize=TRUE,fig.height=4,fig.width=6>>=
-detCurve = function(val_list, alpha = 0.05, relative = FALSE)
-{
-	if (is.null(names(val_list)))
-	{
-		names(val_list) = paste("Method", 1:length(val_list), sep = " ")
-	}
+<<E3-messina-plots,sanitize=TRUE>>=
+library(messina)
+library(ggplot2)
+# library(doMC)
+# registerDoMC(4)
+# temp.fit.messina = messinaSurv(APGI.x[c("KRT6A", "ANGPTL4", "KRT6C"),], APGI.y, messinaSurvObj.CoxCoef(round(log(2), 3)), parallel = FALSE, silent = FALSE, seed = 20150321)
+print(APGI.messina)
+pdf("07_E3_best.pdf", height = 10, width = 10)
+# plot(APGI.messina, indices = 1:3)
+# plot(APGI.messina, indices = 1:3, bootstrap_type = "ci")
 
-	val_list_annotated = lapply(val_list, function(val) {
-		val$merit[is.na(val$merit)] = -1
-		val = val[order(-val$merit),]
-		val$val = pchisq(val$chisq, df = 1, lower.tail = FALSE) < alpha
-		val$val[is.na(val$chisq)] = FALSE
-		val$cum_val = cumsum(val$val)
-		val$cum_nonval = cumsum(!val$val)
-		total_val = sum(val$val)
-		total_nonval = sum(!val$val)
-		val$rate_val = val$cum_val / total_val
-		val$rate_nonval = val$cum_nonval / total_nonval
-		val
-	})
+i = which(rownames(APGI.messina@fits@summary) == "KRT6A")
+print(messina:::messinaSurvObjPlot(APGI.messina, i) + geom_rug(aes(x = x), data = data.frame(x = APGI.x["KRT6A",], Objective = 0, Alpha = 0.25), sides = "b", size = 1.5))
+print(messina:::messinaSurvKMplot(y = APGI.y, group = (APGI.x["KRT6A",] > APGI.messina@fits@summary$threshold[i])*1, bootstrap_type = "ci", bootstrap_ci = 0.9, nboot = 500, parallel = FALSE) + ggtitle("Separation at Threshold") + theme(legend.position = "bottom"))
+print(messina:::messinaSurvKMplot(y = APGI.y, group = (APGI.x["KRT6A",] > APGI.messina@fits@summary$threshold[i] - APGI.messina@fits@summary$margin[i]/2)*1, bootstrap_type = "ci", bootstrap_ci = 0.9, nboot = 500, parallel = FALSE) + ggtitle("Separation at Lower Boundary") + theme(legend.position = "bottom"))
+print(messina:::messinaSurvKMplot(y = APGI.y, group = (APGI.x["KRT6A",] > APGI.messina@fits@summary$threshold[i] + APGI.messina@fits@summary$margin[i]/2)*1, bootstrap_type = "ci", bootstrap_ci = 0.9, nboot = 500, parallel = FALSE) + ggtitle("Separation at Upper Boundary") + theme(legend.position = "bottom"))
 
-	val_list_combined = do.call(rbind, val_list_annotated)
-	val_list_combined$Curve = rep(names(val_list), sapply(val_list, nrow))
+i = which(rownames(APGI.messina@fits@summary) == "ANGPTL4")
+print(messina:::messinaSurvObjPlot(APGI.messina, i) + geom_rug(aes(x = x), data = data.frame(x = APGI.x["ANGPTL4",], Objective = 0, Alpha = 0.25), sides = "b", size = 1.5))
+print(messina:::messinaSurvKMplot(y = APGI.y, group = (APGI.x["ANGPTL4",] > APGI.messina@fits@summary$threshold[i])*1, bootstrap_type = "ci", bootstrap_ci = 0.9, nboot = 500, parallel = FALSE) + ggtitle("Separation at Threshold") + theme(legend.position = "bottom"))
+print(messina:::messinaSurvKMplot(y = APGI.y, group = (APGI.x["ANGPTL4",] > APGI.messina@fits@summary$threshold[i] - APGI.messina@fits@summary$margin[i]/2)*1, bootstrap_type = "ci", bootstrap_ci = 0.9, nboot = 500, parallel = FALSE) + ggtitle("Separation at Lower Boundary") + theme(legend.position = "bottom"))
+print(messina:::messinaSurvKMplot(y = APGI.y, group = (APGI.x["ANGPTL4",] > APGI.messina@fits@summary$threshold[i] + APGI.messina@fits@summary$margin[i]/2)*1, bootstrap_type = "ci", bootstrap_ci = 0.9, nboot = 500, parallel = FALSE) + ggtitle("Separation at Upper Boundary") + theme(legend.position = "bottom"))
 
-	if (!relative)
-	{
-		nval = sapply(val_list_annotated, function(v) sum(v$val))
-		null_slopes = data.frame(Curve = names(nval), intercept = 0, slope = nval)
+i = which(rownames(APGI.messina@fits@summary) == "KRT6C")
+print(messina:::messinaSurvObjPlot(APGI.messina, i) + geom_rug(aes(x = x), data = data.frame(x = APGI.x["KRT6C",], Objective = 0, Alpha = 0.25), sides = "b", size = 1.5))
+print(messina:::messinaSurvKMplot(y = APGI.y, group = (APGI.x["KRT6C",] > APGI.messina@fits@summary$threshold[i])*1, bootstrap_type = "ci", bootstrap_ci = 0.9, nboot = 500, parallel = FALSE) + ggtitle("Separation at Threshold") + theme(legend.position = "bottom"))
+print(messina:::messinaSurvKMplot(y = APGI.y, group = (APGI.x["KRT6C",] > APGI.messina@fits@summary$threshold[i] - APGI.messina@fits@summary$margin[i]/2)*1, bootstrap_type = "ci", bootstrap_ci = 0.9, nboot = 500, parallel = FALSE) + ggtitle("Separation at Lower Boundary") + theme(legend.position = "bottom"))
+print(messina:::messinaSurvKMplot(y = APGI.y, group = (APGI.x["KRT6C",] > APGI.messina@fits@summary$threshold[i] + APGI.messina@fits@summary$margin[i]/2)*1, bootstrap_type = "ci", bootstrap_ci = 0.9, nboot = 500, parallel = FALSE) + ggtitle("Separation at Upper Boundary") + theme(legend.position = "bottom"))
 
-		theplot = ggplot(val_list_combined, aes(x = rate_nonval, y = cum_val, colour = Curve)) + 
-			geom_line(lwd = 2) + 
-			xlab("Non-validation rate") + 
-			ylab("Total validated") + 
-			geom_abline(aes(intercept = intercept, slope = slope, colour = Curve), null_slopes, linetype = "dashed", lwd = 1.5)
-	}
-	else
-	{
-		theplot = ggplot(val_list_combined, aes(x = rate_nonval, y = rate_val, colour = Curve)) + 
-			geom_line(lwd = 2) + 
-			xlab("Non-validation rate") + 
-			ylab("Validation rate") + 
-			geom_abline(intercept = 0, slope = 1, linetype = "dashed", lwd = 1.5) + 
-			xlim(0, 1) + ylim(0, 1)
-	}
+dev.off()
+@
 
-	theplot
-}
 
+<<E3-val-detcurves,sanitize=TRUE>>=
 val.GSE28735.messina = doValidation(as.character(APGI.feats$symbol), APGI.x, APGI.messina@fits@summary$threshold, APGI.messina@fits@summary$margin * APGI.messina@fits@summary$passed, 0, as.character(GSE28735.feats$Gene.symbol), GSE28735.x, GSE28735.y)
 val.GSE28735.maxstat = doValidation(as.character(APGI.feats$symbol), APGI.x, sapply(APGI.maxstat, function(x) x$threshold), -log10(sapply(APGI.maxstat, function(x) x$p.value)), 0, as.character(GSE28735.feats$Gene.symbol), GSE28735.x, GSE28735.y)
 val.GSE21501.messina = doValidation(as.character(APGI.feats$symbol), APGI.x, APGI.messina@fits@summary$threshold, APGI.messina@fits@summary$margin * APGI.messina@fits@summary$passed, 0, as.character(GSE21501.feats$Gene.symbol), GSE21501.x, GSE21501.y)
@@ -368,14 +353,78 @@ print(val.comb.maxstat[val.comb.maxstat$merit >= -log10(0.01),])
 # 	"maxstat GSE28735" = val.GSE28735.maxstat, 
 # 	"maxstat GSE21501" = val.GSE21501.maxstat, 
 # 	"maxstat TCGA" = val.TCGA.maxstat)) + theme_bw()
-detCurve(list(Messina = val.GSE28735.messina, maxstat = val.GSE28735.maxstat, MessinaCore = val.GSE28735.messina2)) + theme_bw() + xlim(0, 0.2) + ylim(0, 70)
-detCurve(list(Messina = val.GSE28735.messina, maxstat = val.GSE28735.maxstat, MessinaCore = val.GSE28735.messina2), relative = TRUE) + theme_bw()
-detCurve(list(Messina = val.GSE21501.messina, maxstat = val.GSE21501.maxstat, MessinaCore = val.GSE21501.messina2)) + theme_bw() + xlim(0, 0.2) + ylim(0, 60)
-detCurve(list(Messina = val.GSE21501.messina, maxstat = val.GSE21501.maxstat, MessinaCore = val.GSE21501.messina2), relative = TRUE) + theme_bw()
-detCurve(list(Messina = val.TCGA.messina, maxstat = val.TCGA.maxstat, MessinaCore = val.TCGA.messina2)) + theme_bw() + xlim(0, 0.2) + ylim(0, 200) + labs(colour = "Method")
-detCurve(list(Messina = val.TCGA.messina, maxstat = val.TCGA.maxstat, MessinaCore = val.TCGA.messina2), relative = TRUE) + theme_bw() + labs(colour = "Method")
-detCurve(list(Messina = val.comb.messina, maxstat = val.comb.maxstat, MessinaCore = val.comb.messina2)) + theme_bw() + xlim(0, 0.2) + ylim(0, 200) + labs(colour = "Method")
-detCurve(list(Messina = val.comb.messina, maxstat = val.comb.maxstat, MessinaCore = val.comb.messina2), relative = TRUE) + theme_bw() + labs(colour = "Method")
+@
+
+<<E3-val-detcurves-plots,sanitize=TRUE,fig.height=6,fig.width=6>>=
+detCurve = function(val_list, alpha = 0.05, relative = FALSE, dataonly = FALSE)
+{
+	if (is.null(names(val_list)))
+	{
+		names(val_list) = paste("Method", 1:length(val_list), sep = " ")
+	}
+
+	val_list_annotated = lapply(val_list, function(val) {
+		val$merit[is.na(val$merit)] = -1
+		val = val[order(-val$merit),]
+		val$val = pchisq(val$chisq, df = 1, lower.tail = FALSE) < alpha
+		val$val[is.na(val$chisq)] = FALSE
+		val$cum_val = cumsum(val$val)
+		val$cum_nonval = cumsum(!val$val)
+		total_val = sum(val$val)
+		total_nonval = sum(!val$val)
+		val$rate_val = val$cum_val / total_val
+		val$rate_nonval = val$cum_nonval / total_nonval
+		val
+	})
+
+	val_list_combined = do.call(rbind, val_list_annotated)
+	val_list_combined$Curve = rep(names(val_list), sapply(val_list, nrow))
+
+	if (dataonly)	{ return(val_list_combined) }
+	if (!relative)
+	{
+		nval = sapply(val_list_annotated, function(v) sum(v$val))
+		null_slopes = data.frame(Curve = names(nval), intercept = 0, slope = nval)
+
+		theplot = ggplot(val_list_combined, aes(x = rate_nonval, y = cum_val, colour = Curve)) + 
+			geom_line(lwd = 2) + 
+			xlab("Non-validation rate") + 
+			ylab("Total validated") + 
+			geom_abline(aes(intercept = intercept, slope = slope, colour = Curve), null_slopes, linetype = "dashed", lwd = 1.5)
+	}
+	else
+	{
+		theplot = ggplot(val_list_combined, aes(x = rate_nonval, y = rate_val, colour = Curve)) + 
+			geom_line(lwd = 2) + 
+			xlab("Non-validation rate") + 
+			ylab("Validation rate") + 
+			geom_abline(intercept = 0, slope = 1, linetype = "dashed", lwd = 1.5) + 
+			xlim(0, 1) + ylim(0, 1)
+	}
+
+	theplot
+}
+
+# detCurve(list(Messina = val.GSE28735.messina, maxstat = val.GSE28735.maxstat, MessinaCore = val.GSE28735.messina2)) + theme_bw() + xlim(0, 0.2) + ylim(0, 70) + theme(legend.position = "none")
+# detCurve(list(Messina = val.GSE28735.messina, maxstat = val.GSE28735.maxstat, MessinaCore = val.GSE28735.messina2), relative = TRUE) + theme_bw() + theme(legend.position = "none")
+# detCurve(list(Messina = val.GSE21501.messina, maxstat = val.GSE21501.maxstat, MessinaCore = val.GSE21501.messina2)) + theme_bw() + xlim(0, 0.2) + ylim(0, 60) + theme(legend.position = "none")
+# detCurve(list(Messina = val.GSE21501.messina, maxstat = val.GSE21501.maxstat, MessinaCore = val.GSE21501.messina2), relative = TRUE) + theme_bw() + theme(legend.position = "none")
+# detCurve(list(Messina = val.TCGA.messina, maxstat = val.TCGA.maxstat, MessinaCore = val.TCGA.messina2)) + theme_bw() + xlim(0, 0.2) + ylim(0, 200) + labs(colour = "Method") + theme(legend.position = "none")
+# detCurve(list(Messina = val.TCGA.messina, maxstat = val.TCGA.maxstat, MessinaCore = val.TCGA.messina2), relative = TRUE) + theme_bw() + labs(colour = "Method") + theme(legend.position = "none")
+# detCurve(list(Messina = val.comb.messina, maxstat = val.comb.maxstat, MessinaCore = val.comb.messina2)) + theme_bw() + xlim(0, 0.2) + ylim(0, 200) + labs(colour = "Method") + theme(legend.position = "none")
+# detCurve(list(Messina = val.comb.messina, maxstat = val.comb.maxstat, MessinaCore = val.comb.messina2), relative = TRUE) + theme_bw() + labs(colour = "Method") + theme(legend.position = "none")
+
+dat1 = detCurve(list(Messina = val.GSE28735.messina, maxstat = val.GSE28735.maxstat, Messina2Core = val.GSE28735.messina2), dataonly = TRUE)
+dat2 = detCurve(list(Messina = val.TCGA.messina, maxstat = val.TCGA.maxstat, Messina2Core = val.TCGA.messina2), dataonly = TRUE)
+data = as.data.frame(rbind(cbind(dat1, Cohort = "GSE28735"), cbind(dat2, Cohort = "TCGA paad")))
+ggplot(data, aes(x = rate_nonval, y = rate_val, colour = Curve)) + 
+	geom_line(lwd = 2) + 
+	xlab("Non-validation rate") + 
+	ylab("Validation rate") + 
+	geom_abline(intercept = 0, slope = 1, linetype = "dashed", lwd = 1.5) + 
+	xlim(0, 1) + ylim(0, 1) + coord_fixed() + 
+	theme_bw() + labs(colour = "Method") + 
+	facet_wrap(~ Cohort) + theme(legend.position = "bottom")
 @
 
 

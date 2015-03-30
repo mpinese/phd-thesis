@@ -7,10 +7,8 @@
 \newcommand{\thesisTitleSUB}{Why do some patients live longer than others, and how can we identify them?}
 \newcommand{\thesisTitle}{\thesisTitleMain{}:~\\\thesisTitleSub{}}
 
-
 % DRAFT STUFF -- TODO: REMOVE FOR FINAL
 \overfullrule=2cm
-
 
 % UNSW-mandated ugly
 \settrimmedsize{297mm}{210mm}{*}
@@ -23,6 +21,10 @@
 \setheaderspaces{*}{2\onelineskip}{*}
 \checkandfixthelayout
 
+% SPECIAL HYPHENATION RULES
+\hyphenation{mRNA}
+\hyphenation{mRNAs}
+
 % CHOPPING N CUTTING
 \usepackage{subfiles}
 
@@ -30,7 +32,7 @@
 \usepackage{mVersion}
 
 % FIXME
-\usepackage[draft,footnote,nomargin]{fixme}   	% TODO TODO: Remove draft flag for final!
+\usepackage[footnote,nomargin]{fixme}
 \FXRegisterAuthor{mp}{amp}{MP}
 \FXRegisterAuthor{mjc}{amjc}{MJC}
 

@@ -1642,54 +1642,101 @@
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{detCurve} \hlkwb{=} \hlkwa{function}\hlstd{(}\hlkwc{val_list}\hlstd{,} \hlkwc{alpha} \hlstd{=} \hlnum{0.05}\hlstd{,} \hlkwc{relative} \hlstd{=} \hlnum{FALSE}\hlstd{)}
-\hlstd{\{}
-        \hlkwa{if} \hlstd{(}\hlkwd{is.null}\hlstd{(}\hlkwd{names}\hlstd{(val_list)))}
-        \hlstd{\{}
-                \hlkwd{names}\hlstd{(val_list)} \hlkwb{=} \hlkwd{paste}\hlstd{(}\hlstr{"Method"}\hlstd{,} \hlnum{1}\hlopt{:}\hlkwd{length}\hlstd{(val_list),} \hlkwc{sep} \hlstd{=} \hlstr{" "}\hlstd{)}
-        \hlstd{\}}
+\hlkwd{library}\hlstd{(messina)}
+\hlkwd{library}\hlstd{(ggplot2)}
+\hlcom{# library(doMC)}
+\hlcom{# registerDoMC(4)}
+\hlcom{# temp.fit.messina = messinaSurv(APGI.x[c("KRT6A", "ANGPTL4", "KRT6C"),], APGI.y, messinaSurvObj.CoxCoef(round(log(2), 3)), parallel = FALSE, silent = FALSE, seed = 20150321)}
+\hlkwd{print}\hlstd{(APGI.messina)}
+\end{alltt}
+\begin{verbatim}
+## An object of class MessinaSurvResult
+## 
+## Problem type:survival
+## Parameters:
+##   An object of class MessinaParameters
+##   13000 features, 110 samples.
+##   Objective type: survival [messinaSurvObj.CoxCoef(coxcoef_threshold = 0.693)].
+##   Minimum group fraction: 0.1
+##   Training fraction: 0.8
+##   Number of bootstraps: 50
+##   Random seed: 20150321
+## 
+## Summary of results:
+##   An object of class MessinaFits
+##   159 / 13000 features passed performance requirements (1.22%)
+##   Top features:
+##         Passed Requirements Classifier Type Threshold Value Direction
+## KRT6A                  TRUE       Threshold           9.503         1
+## ANGPTL4                TRUE       Threshold           8.900         1
+## KRT6C                  TRUE       Threshold           7.458         1
+## IGFBP1                 TRUE       Threshold           7.070         1
+## FGG                    TRUE       Threshold           8.585         1
+## LYNX1                  TRUE       Threshold           7.020         1
+## PPY                    TRUE       Threshold          11.931        -1
+## LOX                    TRUE       Threshold           7.686         1
+## DCBLD2                 TRUE       Threshold          10.959         1
+## CDA                    TRUE       Threshold           8.205         1
+##         Margin
+## KRT6A   3.9988
+## ANGPTL4 2.7155
+## KRT6C   2.3334
+## IGFBP1  1.4736
+## FGG     1.3648
+## LYNX1   1.3442
+## PPY     1.0981
+## LOX     1.0514
+## DCBLD2  0.9851
+## CDA     0.9712
+\end{verbatim}
+\begin{alltt}
+\hlkwd{pdf}\hlstd{(}\hlstr{"07_E3_best.pdf"}\hlstd{,} \hlkwc{height} \hlstd{=} \hlnum{10}\hlstd{,} \hlkwc{width} \hlstd{=} \hlnum{10}\hlstd{)}
+\hlcom{# plot(APGI.messina, indices = 1:3)}
+\hlcom{# plot(APGI.messina, indices = 1:3, bootstrap_type = "ci")}
 
-        \hlstd{val_list_annotated} \hlkwb{=} \hlkwd{lapply}\hlstd{(val_list,} \hlkwa{function}\hlstd{(}\hlkwc{val}\hlstd{) \{}
-                \hlstd{val}\hlopt{$}\hlstd{merit[}\hlkwd{is.na}\hlstd{(val}\hlopt{$}\hlstd{merit)]} \hlkwb{=} \hlopt{-}\hlnum{1}
-                \hlstd{val} \hlkwb{=} \hlstd{val[}\hlkwd{order}\hlstd{(}\hlopt{-}\hlstd{val}\hlopt{$}\hlstd{merit),]}
-                \hlstd{val}\hlopt{$}\hlstd{val} \hlkwb{=} \hlkwd{pchisq}\hlstd{(val}\hlopt{$}\hlstd{chisq,} \hlkwc{df} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{lower.tail} \hlstd{=} \hlnum{FALSE}\hlstd{)} \hlopt{<} \hlstd{alpha}
-                \hlstd{val}\hlopt{$}\hlstd{val[}\hlkwd{is.na}\hlstd{(val}\hlopt{$}\hlstd{chisq)]} \hlkwb{=} \hlnum{FALSE}
-                \hlstd{val}\hlopt{$}\hlstd{cum_val} \hlkwb{=} \hlkwd{cumsum}\hlstd{(val}\hlopt{$}\hlstd{val)}
-                \hlstd{val}\hlopt{$}\hlstd{cum_nonval} \hlkwb{=} \hlkwd{cumsum}\hlstd{(}\hlopt{!}\hlstd{val}\hlopt{$}\hlstd{val)}
-                \hlstd{total_val} \hlkwb{=} \hlkwd{sum}\hlstd{(val}\hlopt{$}\hlstd{val)}
-                \hlstd{total_nonval} \hlkwb{=} \hlkwd{sum}\hlstd{(}\hlopt{!}\hlstd{val}\hlopt{$}\hlstd{val)}
-                \hlstd{val}\hlopt{$}\hlstd{rate_val} \hlkwb{=} \hlstd{val}\hlopt{$}\hlstd{cum_val} \hlopt{/} \hlstd{total_val}
-                \hlstd{val}\hlopt{$}\hlstd{rate_nonval} \hlkwb{=} \hlstd{val}\hlopt{$}\hlstd{cum_nonval} \hlopt{/} \hlstd{total_nonval}
-                \hlstd{val}
-        \hlstd{\})}
+\hlstd{i} \hlkwb{=} \hlkwd{which}\hlstd{(}\hlkwd{rownames}\hlstd{(APGI.messina}\hlopt{@}\hlkwc{fits}\hlopt{@}\hlkwc{summary}\hlstd{)} \hlopt{==} \hlstr{"KRT6A"}\hlstd{)}
+\hlkwd{print}\hlstd{(messina}\hlopt{:::}\hlkwd{messinaSurvObjPlot}\hlstd{(APGI.messina, i)} \hlopt{+} \hlkwd{geom_rug}\hlstd{(}\hlkwd{aes}\hlstd{(}\hlkwc{x} \hlstd{= x),} \hlkwc{data} \hlstd{=} \hlkwd{data.frame}\hlstd{(}\hlkwc{x} \hlstd{= APGI.x[}\hlstr{"KRT6A"}\hlstd{,],} \hlkwc{Objective} \hlstd{=} \hlnum{0}\hlstd{,} \hlkwc{Alpha} \hlstd{=} \hlnum{0.25}\hlstd{),} \hlkwc{sides} \hlstd{=} \hlstr{"b"}\hlstd{,} \hlkwc{size} \hlstd{=} \hlnum{1.5}\hlstd{))}
+\end{alltt}
 
-        \hlstd{val_list_combined} \hlkwb{=} \hlkwd{do.call}\hlstd{(rbind, val_list_annotated)}
-        \hlstd{val_list_combined}\hlopt{$}\hlstd{Curve} \hlkwb{=} \hlkwd{rep}\hlstd{(}\hlkwd{names}\hlstd{(val_list),} \hlkwd{sapply}\hlstd{(val_list, nrow))}
 
-        \hlkwa{if} \hlstd{(}\hlopt{!}\hlstd{relative)}
-        \hlstd{\{}
-                \hlstd{nval} \hlkwb{=} \hlkwd{sapply}\hlstd{(val_list_annotated,} \hlkwa{function}\hlstd{(}\hlkwc{v}\hlstd{)} \hlkwd{sum}\hlstd{(v}\hlopt{$}\hlstd{val))}
-                \hlstd{null_slopes} \hlkwb{=} \hlkwd{data.frame}\hlstd{(}\hlkwc{Curve} \hlstd{=} \hlkwd{names}\hlstd{(nval),} \hlkwc{intercept} \hlstd{=} \hlnum{0}\hlstd{,} \hlkwc{slope} \hlstd{= nval)}
+{\ttfamily\noindent\color{warningcolor}{\#\# Warning: Removed 2 rows containing missing values (geom\_path).}}\begin{alltt}
+\hlkwd{print}\hlstd{(messina}\hlopt{:::}\hlkwd{messinaSurvKMplot}\hlstd{(}\hlkwc{y} \hlstd{= APGI.y,} \hlkwc{group} \hlstd{= (APGI.x[}\hlstr{"KRT6A"}\hlstd{,]} \hlopt{>} \hlstd{APGI.messina}\hlopt{@}\hlkwc{fits}\hlopt{@}\hlkwc{summary}\hlopt{$}\hlstd{threshold[i])}\hlopt{*}\hlnum{1}\hlstd{,} \hlkwc{bootstrap_type} \hlstd{=} \hlstr{"ci"}\hlstd{,} \hlkwc{bootstrap_ci} \hlstd{=} \hlnum{0.9}\hlstd{,} \hlkwc{nboot} \hlstd{=} \hlnum{500}\hlstd{,} \hlkwc{parallel} \hlstd{=} \hlnum{FALSE}\hlstd{)} \hlopt{+} \hlkwd{ggtitle}\hlstd{(}\hlstr{"Separation at Threshold"}\hlstd{)} \hlopt{+} \hlkwd{theme}\hlstd{(}\hlkwc{legend.position} \hlstd{=} \hlstr{"bottom"}\hlstd{))}
+\hlkwd{print}\hlstd{(messina}\hlopt{:::}\hlkwd{messinaSurvKMplot}\hlstd{(}\hlkwc{y} \hlstd{= APGI.y,} \hlkwc{group} \hlstd{= (APGI.x[}\hlstr{"KRT6A"}\hlstd{,]} \hlopt{>} \hlstd{APGI.messina}\hlopt{@}\hlkwc{fits}\hlopt{@}\hlkwc{summary}\hlopt{$}\hlstd{threshold[i]} \hlopt{-} \hlstd{APGI.messina}\hlopt{@}\hlkwc{fits}\hlopt{@}\hlkwc{summary}\hlopt{$}\hlstd{margin[i]}\hlopt{/}\hlnum{2}\hlstd{)}\hlopt{*}\hlnum{1}\hlstd{,} \hlkwc{bootstrap_type} \hlstd{=} \hlstr{"ci"}\hlstd{,} \hlkwc{bootstrap_ci} \hlstd{=} \hlnum{0.9}\hlstd{,} \hlkwc{nboot} \hlstd{=} \hlnum{500}\hlstd{,} \hlkwc{parallel} \hlstd{=} \hlnum{FALSE}\hlstd{)} \hlopt{+} \hlkwd{ggtitle}\hlstd{(}\hlstr{"Separation at Lower Boundary"}\hlstd{)} \hlopt{+} \hlkwd{theme}\hlstd{(}\hlkwc{legend.position} \hlstd{=} \hlstr{"bottom"}\hlstd{))}
+\hlkwd{print}\hlstd{(messina}\hlopt{:::}\hlkwd{messinaSurvKMplot}\hlstd{(}\hlkwc{y} \hlstd{= APGI.y,} \hlkwc{group} \hlstd{= (APGI.x[}\hlstr{"KRT6A"}\hlstd{,]} \hlopt{>} \hlstd{APGI.messina}\hlopt{@}\hlkwc{fits}\hlopt{@}\hlkwc{summary}\hlopt{$}\hlstd{threshold[i]} \hlopt{+} \hlstd{APGI.messina}\hlopt{@}\hlkwc{fits}\hlopt{@}\hlkwc{summary}\hlopt{$}\hlstd{margin[i]}\hlopt{/}\hlnum{2}\hlstd{)}\hlopt{*}\hlnum{1}\hlstd{,} \hlkwc{bootstrap_type} \hlstd{=} \hlstr{"ci"}\hlstd{,} \hlkwc{bootstrap_ci} \hlstd{=} \hlnum{0.9}\hlstd{,} \hlkwc{nboot} \hlstd{=} \hlnum{500}\hlstd{,} \hlkwc{parallel} \hlstd{=} \hlnum{FALSE}\hlstd{)} \hlopt{+} \hlkwd{ggtitle}\hlstd{(}\hlstr{"Separation at Upper Boundary"}\hlstd{)} \hlopt{+} \hlkwd{theme}\hlstd{(}\hlkwc{legend.position} \hlstd{=} \hlstr{"bottom"}\hlstd{))}
 
-                \hlstd{theplot} \hlkwb{=} \hlkwd{ggplot}\hlstd{(val_list_combined,} \hlkwd{aes}\hlstd{(}\hlkwc{x} \hlstd{= rate_nonval,} \hlkwc{y} \hlstd{= cum_val,} \hlkwc{colour} \hlstd{= Curve))} \hlopt{+}
-                        \hlkwd{geom_line}\hlstd{(}\hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)} \hlopt{+}
-                        \hlkwd{xlab}\hlstd{(}\hlstr{"Non-validation rate"}\hlstd{)} \hlopt{+}
-                        \hlkwd{ylab}\hlstd{(}\hlstr{"Total validated"}\hlstd{)} \hlopt{+}
-                        \hlkwd{geom_abline}\hlstd{(}\hlkwd{aes}\hlstd{(}\hlkwc{intercept} \hlstd{= intercept,} \hlkwc{slope} \hlstd{= slope,} \hlkwc{colour} \hlstd{= Curve), null_slopes,} \hlkwc{linetype} \hlstd{=} \hlstr{"dashed"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{1.5}\hlstd{)}
-        \hlstd{\}}
-        \hlkwa{else}
-        \hlstd{\{}
-                \hlstd{theplot} \hlkwb{=} \hlkwd{ggplot}\hlstd{(val_list_combined,} \hlkwd{aes}\hlstd{(}\hlkwc{x} \hlstd{= rate_nonval,} \hlkwc{y} \hlstd{= rate_val,} \hlkwc{colour} \hlstd{= Curve))} \hlopt{+}
-                        \hlkwd{geom_line}\hlstd{(}\hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)} \hlopt{+}
-                        \hlkwd{xlab}\hlstd{(}\hlstr{"Non-validation rate"}\hlstd{)} \hlopt{+}
-                        \hlkwd{ylab}\hlstd{(}\hlstr{"Validation rate"}\hlstd{)} \hlopt{+}
-                        \hlkwd{geom_abline}\hlstd{(}\hlkwc{intercept} \hlstd{=} \hlnum{0}\hlstd{,} \hlkwc{slope} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{linetype} \hlstd{=} \hlstr{"dashed"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{1.5}\hlstd{)} \hlopt{+}
-                        \hlkwd{xlim}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{1}\hlstd{)} \hlopt{+} \hlkwd{ylim}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{1}\hlstd{)}
-        \hlstd{\}}
+\hlstd{i} \hlkwb{=} \hlkwd{which}\hlstd{(}\hlkwd{rownames}\hlstd{(APGI.messina}\hlopt{@}\hlkwc{fits}\hlopt{@}\hlkwc{summary}\hlstd{)} \hlopt{==} \hlstr{"ANGPTL4"}\hlstd{)}
+\hlkwd{print}\hlstd{(messina}\hlopt{:::}\hlkwd{messinaSurvObjPlot}\hlstd{(APGI.messina, i)} \hlopt{+} \hlkwd{geom_rug}\hlstd{(}\hlkwd{aes}\hlstd{(}\hlkwc{x} \hlstd{= x),} \hlkwc{data} \hlstd{=} \hlkwd{data.frame}\hlstd{(}\hlkwc{x} \hlstd{= APGI.x[}\hlstr{"ANGPTL4"}\hlstd{,],} \hlkwc{Objective} \hlstd{=} \hlnum{0}\hlstd{,} \hlkwc{Alpha} \hlstd{=} \hlnum{0.25}\hlstd{),} \hlkwc{sides} \hlstd{=} \hlstr{"b"}\hlstd{,} \hlkwc{size} \hlstd{=} \hlnum{1.5}\hlstd{))}
+\end{alltt}
 
-        \hlstd{theplot}
-\hlstd{\}}
 
+{\ttfamily\noindent\color{warningcolor}{\#\# Warning: Removed 2 rows containing missing values (geom\_path).}}\begin{alltt}
+\hlkwd{print}\hlstd{(messina}\hlopt{:::}\hlkwd{messinaSurvKMplot}\hlstd{(}\hlkwc{y} \hlstd{= APGI.y,} \hlkwc{group} \hlstd{= (APGI.x[}\hlstr{"ANGPTL4"}\hlstd{,]} \hlopt{>} \hlstd{APGI.messina}\hlopt{@}\hlkwc{fits}\hlopt{@}\hlkwc{summary}\hlopt{$}\hlstd{threshold[i])}\hlopt{*}\hlnum{1}\hlstd{,} \hlkwc{bootstrap_type} \hlstd{=} \hlstr{"ci"}\hlstd{,} \hlkwc{bootstrap_ci} \hlstd{=} \hlnum{0.9}\hlstd{,} \hlkwc{nboot} \hlstd{=} \hlnum{500}\hlstd{,} \hlkwc{parallel} \hlstd{=} \hlnum{FALSE}\hlstd{)} \hlopt{+} \hlkwd{ggtitle}\hlstd{(}\hlstr{"Separation at Threshold"}\hlstd{)} \hlopt{+} \hlkwd{theme}\hlstd{(}\hlkwc{legend.position} \hlstd{=} \hlstr{"bottom"}\hlstd{))}
+\hlkwd{print}\hlstd{(messina}\hlopt{:::}\hlkwd{messinaSurvKMplot}\hlstd{(}\hlkwc{y} \hlstd{= APGI.y,} \hlkwc{group} \hlstd{= (APGI.x[}\hlstr{"ANGPTL4"}\hlstd{,]} \hlopt{>} \hlstd{APGI.messina}\hlopt{@}\hlkwc{fits}\hlopt{@}\hlkwc{summary}\hlopt{$}\hlstd{threshold[i]} \hlopt{-} \hlstd{APGI.messina}\hlopt{@}\hlkwc{fits}\hlopt{@}\hlkwc{summary}\hlopt{$}\hlstd{margin[i]}\hlopt{/}\hlnum{2}\hlstd{)}\hlopt{*}\hlnum{1}\hlstd{,} \hlkwc{bootstrap_type} \hlstd{=} \hlstr{"ci"}\hlstd{,} \hlkwc{bootstrap_ci} \hlstd{=} \hlnum{0.9}\hlstd{,} \hlkwc{nboot} \hlstd{=} \hlnum{500}\hlstd{,} \hlkwc{parallel} \hlstd{=} \hlnum{FALSE}\hlstd{)} \hlopt{+} \hlkwd{ggtitle}\hlstd{(}\hlstr{"Separation at Lower Boundary"}\hlstd{)} \hlopt{+} \hlkwd{theme}\hlstd{(}\hlkwc{legend.position} \hlstd{=} \hlstr{"bottom"}\hlstd{))}
+\hlkwd{print}\hlstd{(messina}\hlopt{:::}\hlkwd{messinaSurvKMplot}\hlstd{(}\hlkwc{y} \hlstd{= APGI.y,} \hlkwc{group} \hlstd{= (APGI.x[}\hlstr{"ANGPTL4"}\hlstd{,]} \hlopt{>} \hlstd{APGI.messina}\hlopt{@}\hlkwc{fits}\hlopt{@}\hlkwc{summary}\hlopt{$}\hlstd{threshold[i]} \hlopt{+} \hlstd{APGI.messina}\hlopt{@}\hlkwc{fits}\hlopt{@}\hlkwc{summary}\hlopt{$}\hlstd{margin[i]}\hlopt{/}\hlnum{2}\hlstd{)}\hlopt{*}\hlnum{1}\hlstd{,} \hlkwc{bootstrap_type} \hlstd{=} \hlstr{"ci"}\hlstd{,} \hlkwc{bootstrap_ci} \hlstd{=} \hlnum{0.9}\hlstd{,} \hlkwc{nboot} \hlstd{=} \hlnum{500}\hlstd{,} \hlkwc{parallel} \hlstd{=} \hlnum{FALSE}\hlstd{)} \hlopt{+} \hlkwd{ggtitle}\hlstd{(}\hlstr{"Separation at Upper Boundary"}\hlstd{)} \hlopt{+} \hlkwd{theme}\hlstd{(}\hlkwc{legend.position} \hlstd{=} \hlstr{"bottom"}\hlstd{))}
+
+\hlstd{i} \hlkwb{=} \hlkwd{which}\hlstd{(}\hlkwd{rownames}\hlstd{(APGI.messina}\hlopt{@}\hlkwc{fits}\hlopt{@}\hlkwc{summary}\hlstd{)} \hlopt{==} \hlstr{"KRT6C"}\hlstd{)}
+\hlkwd{print}\hlstd{(messina}\hlopt{:::}\hlkwd{messinaSurvObjPlot}\hlstd{(APGI.messina, i)} \hlopt{+} \hlkwd{geom_rug}\hlstd{(}\hlkwd{aes}\hlstd{(}\hlkwc{x} \hlstd{= x),} \hlkwc{data} \hlstd{=} \hlkwd{data.frame}\hlstd{(}\hlkwc{x} \hlstd{= APGI.x[}\hlstr{"KRT6C"}\hlstd{,],} \hlkwc{Objective} \hlstd{=} \hlnum{0}\hlstd{,} \hlkwc{Alpha} \hlstd{=} \hlnum{0.25}\hlstd{),} \hlkwc{sides} \hlstd{=} \hlstr{"b"}\hlstd{,} \hlkwc{size} \hlstd{=} \hlnum{1.5}\hlstd{))}
+\end{alltt}
+
+
+{\ttfamily\noindent\color{warningcolor}{\#\# Warning: Removed 2 rows containing missing values (geom\_path).}}\begin{alltt}
+\hlkwd{print}\hlstd{(messina}\hlopt{:::}\hlkwd{messinaSurvKMplot}\hlstd{(}\hlkwc{y} \hlstd{= APGI.y,} \hlkwc{group} \hlstd{= (APGI.x[}\hlstr{"KRT6C"}\hlstd{,]} \hlopt{>} \hlstd{APGI.messina}\hlopt{@}\hlkwc{fits}\hlopt{@}\hlkwc{summary}\hlopt{$}\hlstd{threshold[i])}\hlopt{*}\hlnum{1}\hlstd{,} \hlkwc{bootstrap_type} \hlstd{=} \hlstr{"ci"}\hlstd{,} \hlkwc{bootstrap_ci} \hlstd{=} \hlnum{0.9}\hlstd{,} \hlkwc{nboot} \hlstd{=} \hlnum{500}\hlstd{,} \hlkwc{parallel} \hlstd{=} \hlnum{FALSE}\hlstd{)} \hlopt{+} \hlkwd{ggtitle}\hlstd{(}\hlstr{"Separation at Threshold"}\hlstd{)} \hlopt{+} \hlkwd{theme}\hlstd{(}\hlkwc{legend.position} \hlstd{=} \hlstr{"bottom"}\hlstd{))}
+\hlkwd{print}\hlstd{(messina}\hlopt{:::}\hlkwd{messinaSurvKMplot}\hlstd{(}\hlkwc{y} \hlstd{= APGI.y,} \hlkwc{group} \hlstd{= (APGI.x[}\hlstr{"KRT6C"}\hlstd{,]} \hlopt{>} \hlstd{APGI.messina}\hlopt{@}\hlkwc{fits}\hlopt{@}\hlkwc{summary}\hlopt{$}\hlstd{threshold[i]} \hlopt{-} \hlstd{APGI.messina}\hlopt{@}\hlkwc{fits}\hlopt{@}\hlkwc{summary}\hlopt{$}\hlstd{margin[i]}\hlopt{/}\hlnum{2}\hlstd{)}\hlopt{*}\hlnum{1}\hlstd{,} \hlkwc{bootstrap_type} \hlstd{=} \hlstr{"ci"}\hlstd{,} \hlkwc{bootstrap_ci} \hlstd{=} \hlnum{0.9}\hlstd{,} \hlkwc{nboot} \hlstd{=} \hlnum{500}\hlstd{,} \hlkwc{parallel} \hlstd{=} \hlnum{FALSE}\hlstd{)} \hlopt{+} \hlkwd{ggtitle}\hlstd{(}\hlstr{"Separation at Lower Boundary"}\hlstd{)} \hlopt{+} \hlkwd{theme}\hlstd{(}\hlkwc{legend.position} \hlstd{=} \hlstr{"bottom"}\hlstd{))}
+\hlkwd{print}\hlstd{(messina}\hlopt{:::}\hlkwd{messinaSurvKMplot}\hlstd{(}\hlkwc{y} \hlstd{= APGI.y,} \hlkwc{group} \hlstd{= (APGI.x[}\hlstr{"KRT6C"}\hlstd{,]} \hlopt{>} \hlstd{APGI.messina}\hlopt{@}\hlkwc{fits}\hlopt{@}\hlkwc{summary}\hlopt{$}\hlstd{threshold[i]} \hlopt{+} \hlstd{APGI.messina}\hlopt{@}\hlkwc{fits}\hlopt{@}\hlkwc{summary}\hlopt{$}\hlstd{margin[i]}\hlopt{/}\hlnum{2}\hlstd{)}\hlopt{*}\hlnum{1}\hlstd{,} \hlkwc{bootstrap_type} \hlstd{=} \hlstr{"ci"}\hlstd{,} \hlkwc{bootstrap_ci} \hlstd{=} \hlnum{0.9}\hlstd{,} \hlkwc{nboot} \hlstd{=} \hlnum{500}\hlstd{,} \hlkwc{parallel} \hlstd{=} \hlnum{FALSE}\hlstd{)} \hlopt{+} \hlkwd{ggtitle}\hlstd{(}\hlstr{"Separation at Upper Boundary"}\hlstd{)} \hlopt{+} \hlkwd{theme}\hlstd{(}\hlkwc{legend.position} \hlstd{=} \hlstr{"bottom"}\hlstd{))}
+
+\hlkwd{dev.off}\hlstd{()}
+\end{alltt}
+\begin{verbatim}
+## pdf 
+##   2
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
 \hlstd{val.GSE28735.messina} \hlkwb{=} \hlkwd{doValidation}\hlstd{(}\hlkwd{as.character}\hlstd{(APGI.feats}\hlopt{$}\hlstd{symbol), APGI.x, APGI.messina}\hlopt{@}\hlkwc{fits}\hlopt{@}\hlkwc{summary}\hlopt{$}\hlstd{threshold, APGI.messina}\hlopt{@}\hlkwc{fits}\hlopt{@}\hlkwc{summary}\hlopt{$}\hlstd{margin} \hlopt{*} \hlstd{APGI.messina}\hlopt{@}\hlkwc{fits}\hlopt{@}\hlkwc{summary}\hlopt{$}\hlstd{passed,} \hlnum{0}\hlstd{,} \hlkwd{as.character}\hlstd{(GSE28735.feats}\hlopt{$}\hlstd{Gene.symbol), GSE28735.x, GSE28735.y)}
 \hlstd{val.GSE28735.maxstat} \hlkwb{=} \hlkwd{doValidation}\hlstd{(}\hlkwd{as.character}\hlstd{(APGI.feats}\hlopt{$}\hlstd{symbol), APGI.x,} \hlkwd{sapply}\hlstd{(APGI.maxstat,} \hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{) x}\hlopt{$}\hlstd{threshold),} \hlopt{-}\hlkwd{log10}\hlstd{(}\hlkwd{sapply}\hlstd{(APGI.maxstat,} \hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{) x}\hlopt{$}\hlstd{p.value)),} \hlnum{0}\hlstd{,} \hlkwd{as.character}\hlstd{(GSE28735.feats}\hlopt{$}\hlstd{Gene.symbol), GSE28735.x, GSE28735.y)}
 \hlstd{val.GSE21501.messina} \hlkwb{=} \hlkwd{doValidation}\hlstd{(}\hlkwd{as.character}\hlstd{(APGI.feats}\hlopt{$}\hlstd{symbol), APGI.x, APGI.messina}\hlopt{@}\hlkwc{fits}\hlopt{@}\hlkwc{summary}\hlopt{$}\hlstd{threshold, APGI.messina}\hlopt{@}\hlkwc{fits}\hlopt{@}\hlkwc{summary}\hlopt{$}\hlstd{margin} \hlopt{*} \hlstd{APGI.messina}\hlopt{@}\hlkwc{fits}\hlopt{@}\hlkwc{summary}\hlopt{$}\hlstd{passed,} \hlnum{0}\hlstd{,} \hlkwd{as.character}\hlstd{(GSE21501.feats}\hlopt{$}\hlstd{Gene.symbol), GSE21501.x, GSE21501.y)}
@@ -2223,89 +2270,86 @@
 \hlcom{# 	"maxstat GSE28735" = val.GSE28735.maxstat, }
 \hlcom{# 	"maxstat GSE21501" = val.GSE21501.maxstat, }
 \hlcom{# 	"maxstat TCGA" = val.TCGA.maxstat)) + theme_bw()}
-\hlkwd{detCurve}\hlstd{(}\hlkwd{list}\hlstd{(}\hlkwc{Messina} \hlstd{= val.GSE28735.messina,} \hlkwc{maxstat} \hlstd{= val.GSE28735.maxstat,} \hlkwc{MessinaCore} \hlstd{= val.GSE28735.messina2))} \hlopt{+} \hlkwd{theme_bw}\hlstd{()} \hlopt{+} \hlkwd{xlim}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{0.2}\hlstd{)} \hlopt{+} \hlkwd{ylim}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{70}\hlstd{)}
 \end{alltt}
+\end{kframe}
+\end{knitrout}
 
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{detCurve} \hlkwb{=} \hlkwa{function}\hlstd{(}\hlkwc{val_list}\hlstd{,} \hlkwc{alpha} \hlstd{=} \hlnum{0.05}\hlstd{,} \hlkwc{relative} \hlstd{=} \hlnum{FALSE}\hlstd{,} \hlkwc{dataonly} \hlstd{=} \hlnum{FALSE}\hlstd{)}
+\hlstd{\{}
+        \hlkwa{if} \hlstd{(}\hlkwd{is.null}\hlstd{(}\hlkwd{names}\hlstd{(val_list)))}
+        \hlstd{\{}
+                \hlkwd{names}\hlstd{(val_list)} \hlkwb{=} \hlkwd{paste}\hlstd{(}\hlstr{"Method"}\hlstd{,} \hlnum{1}\hlopt{:}\hlkwd{length}\hlstd{(val_list),} \hlkwc{sep} \hlstd{=} \hlstr{" "}\hlstd{)}
+        \hlstd{\}}
 
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning: Removed 6892 rows containing missing values (geom\_path).}}\end{kframe}
+        \hlstd{val_list_annotated} \hlkwb{=} \hlkwd{lapply}\hlstd{(val_list,} \hlkwa{function}\hlstd{(}\hlkwc{val}\hlstd{) \{}
+                \hlstd{val}\hlopt{$}\hlstd{merit[}\hlkwd{is.na}\hlstd{(val}\hlopt{$}\hlstd{merit)]} \hlkwb{=} \hlopt{-}\hlnum{1}
+                \hlstd{val} \hlkwb{=} \hlstd{val[}\hlkwd{order}\hlstd{(}\hlopt{-}\hlstd{val}\hlopt{$}\hlstd{merit),]}
+                \hlstd{val}\hlopt{$}\hlstd{val} \hlkwb{=} \hlkwd{pchisq}\hlstd{(val}\hlopt{$}\hlstd{chisq,} \hlkwc{df} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{lower.tail} \hlstd{=} \hlnum{FALSE}\hlstd{)} \hlopt{<} \hlstd{alpha}
+                \hlstd{val}\hlopt{$}\hlstd{val[}\hlkwd{is.na}\hlstd{(val}\hlopt{$}\hlstd{chisq)]} \hlkwb{=} \hlnum{FALSE}
+                \hlstd{val}\hlopt{$}\hlstd{cum_val} \hlkwb{=} \hlkwd{cumsum}\hlstd{(val}\hlopt{$}\hlstd{val)}
+                \hlstd{val}\hlopt{$}\hlstd{cum_nonval} \hlkwb{=} \hlkwd{cumsum}\hlstd{(}\hlopt{!}\hlstd{val}\hlopt{$}\hlstd{val)}
+                \hlstd{total_val} \hlkwb{=} \hlkwd{sum}\hlstd{(val}\hlopt{$}\hlstd{val)}
+                \hlstd{total_nonval} \hlkwb{=} \hlkwd{sum}\hlstd{(}\hlopt{!}\hlstd{val}\hlopt{$}\hlstd{val)}
+                \hlstd{val}\hlopt{$}\hlstd{rate_val} \hlkwb{=} \hlstd{val}\hlopt{$}\hlstd{cum_val} \hlopt{/} \hlstd{total_val}
+                \hlstd{val}\hlopt{$}\hlstd{rate_nonval} \hlkwb{=} \hlstd{val}\hlopt{$}\hlstd{cum_nonval} \hlopt{/} \hlstd{total_nonval}
+                \hlstd{val}
+        \hlstd{\})}
 
-{\centering \includegraphics[width=\maxwidth]{figure/07-E3-E3-val-detcurves-1} 
+        \hlstd{val_list_combined} \hlkwb{=} \hlkwd{do.call}\hlstd{(rbind, val_list_annotated)}
+        \hlstd{val_list_combined}\hlopt{$}\hlstd{Curve} \hlkwb{=} \hlkwd{rep}\hlstd{(}\hlkwd{names}\hlstd{(val_list),} \hlkwd{sapply}\hlstd{(val_list, nrow))}
 
-}
+        \hlkwa{if} \hlstd{(dataonly)   \{} \hlkwd{return}\hlstd{(val_list_combined) \}}
+        \hlkwa{if} \hlstd{(}\hlopt{!}\hlstd{relative)}
+        \hlstd{\{}
+                \hlstd{nval} \hlkwb{=} \hlkwd{sapply}\hlstd{(val_list_annotated,} \hlkwa{function}\hlstd{(}\hlkwc{v}\hlstd{)} \hlkwd{sum}\hlstd{(v}\hlopt{$}\hlstd{val))}
+                \hlstd{null_slopes} \hlkwb{=} \hlkwd{data.frame}\hlstd{(}\hlkwc{Curve} \hlstd{=} \hlkwd{names}\hlstd{(nval),} \hlkwc{intercept} \hlstd{=} \hlnum{0}\hlstd{,} \hlkwc{slope} \hlstd{= nval)}
 
+                \hlstd{theplot} \hlkwb{=} \hlkwd{ggplot}\hlstd{(val_list_combined,} \hlkwd{aes}\hlstd{(}\hlkwc{x} \hlstd{= rate_nonval,} \hlkwc{y} \hlstd{= cum_val,} \hlkwc{colour} \hlstd{= Curve))} \hlopt{+}
+                        \hlkwd{geom_line}\hlstd{(}\hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)} \hlopt{+}
+                        \hlkwd{xlab}\hlstd{(}\hlstr{"Non-validation rate"}\hlstd{)} \hlopt{+}
+                        \hlkwd{ylab}\hlstd{(}\hlstr{"Total validated"}\hlstd{)} \hlopt{+}
+                        \hlkwd{geom_abline}\hlstd{(}\hlkwd{aes}\hlstd{(}\hlkwc{intercept} \hlstd{= intercept,} \hlkwc{slope} \hlstd{= slope,} \hlkwc{colour} \hlstd{= Curve), null_slopes,} \hlkwc{linetype} \hlstd{=} \hlstr{"dashed"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{1.5}\hlstd{)}
+        \hlstd{\}}
+        \hlkwa{else}
+        \hlstd{\{}
+                \hlstd{theplot} \hlkwb{=} \hlkwd{ggplot}\hlstd{(val_list_combined,} \hlkwd{aes}\hlstd{(}\hlkwc{x} \hlstd{= rate_nonval,} \hlkwc{y} \hlstd{= rate_val,} \hlkwc{colour} \hlstd{= Curve))} \hlopt{+}
+                        \hlkwd{geom_line}\hlstd{(}\hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)} \hlopt{+}
+                        \hlkwd{xlab}\hlstd{(}\hlstr{"Non-validation rate"}\hlstd{)} \hlopt{+}
+                        \hlkwd{ylab}\hlstd{(}\hlstr{"Validation rate"}\hlstd{)} \hlopt{+}
+                        \hlkwd{geom_abline}\hlstd{(}\hlkwc{intercept} \hlstd{=} \hlnum{0}\hlstd{,} \hlkwc{slope} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{linetype} \hlstd{=} \hlstr{"dashed"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{1.5}\hlstd{)} \hlopt{+}
+                        \hlkwd{xlim}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{1}\hlstd{)} \hlopt{+} \hlkwd{ylim}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{1}\hlstd{)}
+        \hlstd{\}}
 
-\begin{kframe}\begin{alltt}
-\hlkwd{detCurve}\hlstd{(}\hlkwd{list}\hlstd{(}\hlkwc{Messina} \hlstd{= val.GSE28735.messina,} \hlkwc{maxstat} \hlstd{= val.GSE28735.maxstat,} \hlkwc{MessinaCore} \hlstd{= val.GSE28735.messina2),} \hlkwc{relative} \hlstd{=} \hlnum{TRUE}\hlstd{)} \hlopt{+} \hlkwd{theme_bw}\hlstd{()}
+        \hlstd{theplot}
+\hlstd{\}}
+
+\hlcom{# detCurve(list(Messina = val.GSE28735.messina, maxstat = val.GSE28735.maxstat, MessinaCore = val.GSE28735.messina2)) + theme_bw() + xlim(0, 0.2) + ylim(0, 70) + theme(legend.position = "none")}
+\hlcom{# detCurve(list(Messina = val.GSE28735.messina, maxstat = val.GSE28735.maxstat, MessinaCore = val.GSE28735.messina2), relative = TRUE) + theme_bw() + theme(legend.position = "none")}
+\hlcom{# detCurve(list(Messina = val.GSE21501.messina, maxstat = val.GSE21501.maxstat, MessinaCore = val.GSE21501.messina2)) + theme_bw() + xlim(0, 0.2) + ylim(0, 60) + theme(legend.position = "none")}
+\hlcom{# detCurve(list(Messina = val.GSE21501.messina, maxstat = val.GSE21501.maxstat, MessinaCore = val.GSE21501.messina2), relative = TRUE) + theme_bw() + theme(legend.position = "none")}
+\hlcom{# detCurve(list(Messina = val.TCGA.messina, maxstat = val.TCGA.maxstat, MessinaCore = val.TCGA.messina2)) + theme_bw() + xlim(0, 0.2) + ylim(0, 200) + labs(colour = "Method") + theme(legend.position = "none")}
+\hlcom{# detCurve(list(Messina = val.TCGA.messina, maxstat = val.TCGA.maxstat, MessinaCore = val.TCGA.messina2), relative = TRUE) + theme_bw() + labs(colour = "Method") + theme(legend.position = "none")}
+\hlcom{# detCurve(list(Messina = val.comb.messina, maxstat = val.comb.maxstat, MessinaCore = val.comb.messina2)) + theme_bw() + xlim(0, 0.2) + ylim(0, 200) + labs(colour = "Method") + theme(legend.position = "none")}
+\hlcom{# detCurve(list(Messina = val.comb.messina, maxstat = val.comb.maxstat, MessinaCore = val.comb.messina2), relative = TRUE) + theme_bw() + labs(colour = "Method") + theme(legend.position = "none")}
+
+\hlstd{dat1} \hlkwb{=} \hlkwd{detCurve}\hlstd{(}\hlkwd{list}\hlstd{(}\hlkwc{Messina} \hlstd{= val.GSE28735.messina,} \hlkwc{maxstat} \hlstd{= val.GSE28735.maxstat,} \hlkwc{Messina2Core} \hlstd{= val.GSE28735.messina2),} \hlkwc{dataonly} \hlstd{=} \hlnum{TRUE}\hlstd{)}
+\hlstd{dat2} \hlkwb{=} \hlkwd{detCurve}\hlstd{(}\hlkwd{list}\hlstd{(}\hlkwc{Messina} \hlstd{= val.TCGA.messina,} \hlkwc{maxstat} \hlstd{= val.TCGA.maxstat,} \hlkwc{Messina2Core} \hlstd{= val.TCGA.messina2),} \hlkwc{dataonly} \hlstd{=} \hlnum{TRUE}\hlstd{)}
+\hlstd{data} \hlkwb{=} \hlkwd{as.data.frame}\hlstd{(}\hlkwd{rbind}\hlstd{(}\hlkwd{cbind}\hlstd{(dat1,} \hlkwc{Cohort} \hlstd{=} \hlstr{"GSE28735"}\hlstd{),} \hlkwd{cbind}\hlstd{(dat2,} \hlkwc{Cohort} \hlstd{=} \hlstr{"TCGA paad"}\hlstd{)))}
+\hlkwd{ggplot}\hlstd{(data,} \hlkwd{aes}\hlstd{(}\hlkwc{x} \hlstd{= rate_nonval,} \hlkwc{y} \hlstd{= rate_val,} \hlkwc{colour} \hlstd{= Curve))} \hlopt{+}
+        \hlkwd{geom_line}\hlstd{(}\hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)} \hlopt{+}
+        \hlkwd{xlab}\hlstd{(}\hlstr{"Non-validation rate"}\hlstd{)} \hlopt{+}
+        \hlkwd{ylab}\hlstd{(}\hlstr{"Validation rate"}\hlstd{)} \hlopt{+}
+        \hlkwd{geom_abline}\hlstd{(}\hlkwc{intercept} \hlstd{=} \hlnum{0}\hlstd{,} \hlkwc{slope} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{linetype} \hlstd{=} \hlstr{"dashed"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{1.5}\hlstd{)} \hlopt{+}
+        \hlkwd{xlim}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{1}\hlstd{)} \hlopt{+} \hlkwd{ylim}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{1}\hlstd{)} \hlopt{+} \hlkwd{coord_fixed}\hlstd{()} \hlopt{+}
+        \hlkwd{theme_bw}\hlstd{()} \hlopt{+} \hlkwd{labs}\hlstd{(}\hlkwc{colour} \hlstd{=} \hlstr{"Method"}\hlstd{)} \hlopt{+}
+        \hlkwd{facet_wrap}\hlstd{(}\hlopt{~} \hlstd{Cohort)} \hlopt{+} \hlkwd{theme}\hlstd{(}\hlkwc{legend.position} \hlstd{=} \hlstr{"bottom"}\hlstd{)}
 \end{alltt}
 \end{kframe}
 
-{\centering \includegraphics[width=\maxwidth]{figure/07-E3-E3-val-detcurves-2} 
-
-}
-
-
-\begin{kframe}\begin{alltt}
-\hlkwd{detCurve}\hlstd{(}\hlkwd{list}\hlstd{(}\hlkwc{Messina} \hlstd{= val.GSE21501.messina,} \hlkwc{maxstat} \hlstd{= val.GSE21501.maxstat,} \hlkwc{MessinaCore} \hlstd{= val.GSE21501.messina2))} \hlopt{+} \hlkwd{theme_bw}\hlstd{()} \hlopt{+} \hlkwd{xlim}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{0.2}\hlstd{)} \hlopt{+} \hlkwd{ylim}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{60}\hlstd{)}
-\end{alltt}
-
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning: Removed 6070 rows containing missing values (geom\_path).}}\end{kframe}
-
-{\centering \includegraphics[width=\maxwidth]{figure/07-E3-E3-val-detcurves-3} 
-
-}
-
-
-\begin{kframe}\begin{alltt}
-\hlkwd{detCurve}\hlstd{(}\hlkwd{list}\hlstd{(}\hlkwc{Messina} \hlstd{= val.GSE21501.messina,} \hlkwc{maxstat} \hlstd{= val.GSE21501.maxstat,} \hlkwc{MessinaCore} \hlstd{= val.GSE21501.messina2),} \hlkwc{relative} \hlstd{=} \hlnum{TRUE}\hlstd{)} \hlopt{+} \hlkwd{theme_bw}\hlstd{()}
-\end{alltt}
-\end{kframe}
-
-{\centering \includegraphics[width=\maxwidth]{figure/07-E3-E3-val-detcurves-4} 
-
-}
-
-
-\begin{kframe}\begin{alltt}
-\hlkwd{detCurve}\hlstd{(}\hlkwd{list}\hlstd{(}\hlkwc{Messina} \hlstd{= val.TCGA.messina,} \hlkwc{maxstat} \hlstd{= val.TCGA.maxstat,} \hlkwc{MessinaCore} \hlstd{= val.TCGA.messina2))} \hlopt{+} \hlkwd{theme_bw}\hlstd{()} \hlopt{+} \hlkwd{xlim}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{0.2}\hlstd{)} \hlopt{+} \hlkwd{ylim}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{200}\hlstd{)} \hlopt{+} \hlkwd{labs}\hlstd{(}\hlkwc{colour} \hlstd{=} \hlstr{"Method"}\hlstd{)}
-\end{alltt}
-
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning: Removed 28518 rows containing missing values (geom\_path).}}\end{kframe}
-
-{\centering \includegraphics[width=\maxwidth]{figure/07-E3-E3-val-detcurves-5} 
-
-}
-
-
-\begin{kframe}\begin{alltt}
-\hlkwd{detCurve}\hlstd{(}\hlkwd{list}\hlstd{(}\hlkwc{Messina} \hlstd{= val.TCGA.messina,} \hlkwc{maxstat} \hlstd{= val.TCGA.maxstat,} \hlkwc{MessinaCore} \hlstd{= val.TCGA.messina2),} \hlkwc{relative} \hlstd{=} \hlnum{TRUE}\hlstd{)} \hlopt{+} \hlkwd{theme_bw}\hlstd{()} \hlopt{+} \hlkwd{labs}\hlstd{(}\hlkwc{colour} \hlstd{=} \hlstr{"Method"}\hlstd{)}
-\end{alltt}
-\end{kframe}
-
-{\centering \includegraphics[width=\maxwidth]{figure/07-E3-E3-val-detcurves-6} 
-
-}
-
-
-\begin{kframe}\begin{alltt}
-\hlkwd{detCurve}\hlstd{(}\hlkwd{list}\hlstd{(}\hlkwc{Messina} \hlstd{= val.comb.messina,} \hlkwc{maxstat} \hlstd{= val.comb.maxstat,} \hlkwc{MessinaCore} \hlstd{= val.comb.messina2))} \hlopt{+} \hlkwd{theme_bw}\hlstd{()} \hlopt{+} \hlkwd{xlim}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{0.2}\hlstd{)} \hlopt{+} \hlkwd{ylim}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{200}\hlstd{)} \hlopt{+} \hlkwd{labs}\hlstd{(}\hlkwc{colour} \hlstd{=} \hlstr{"Method"}\hlstd{)}
-\end{alltt}
-
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning: Removed 6902 rows containing missing values (geom\_path).}}\end{kframe}
-
-{\centering \includegraphics[width=\maxwidth]{figure/07-E3-E3-val-detcurves-7} 
-
-}
-
-
-\begin{kframe}\begin{alltt}
-\hlkwd{detCurve}\hlstd{(}\hlkwd{list}\hlstd{(}\hlkwc{Messina} \hlstd{= val.comb.messina,} \hlkwc{maxstat} \hlstd{= val.comb.maxstat,} \hlkwc{MessinaCore} \hlstd{= val.comb.messina2),} \hlkwc{relative} \hlstd{=} \hlnum{TRUE}\hlstd{)} \hlopt{+} \hlkwd{theme_bw}\hlstd{()} \hlopt{+} \hlkwd{labs}\hlstd{(}\hlkwc{colour} \hlstd{=} \hlstr{"Method"}\hlstd{)}
-\end{alltt}
-\end{kframe}
-
-{\centering \includegraphics[width=\maxwidth]{figure/07-E3-E3-val-detcurves-8} 
+{\centering \includegraphics[width=\maxwidth]{figure/07-E3-E3-val-detcurves-plots-1} 
 
 }
 
