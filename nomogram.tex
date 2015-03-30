@@ -107,7 +107,7 @@ The \gls{CPH} framework was used to assess functional form for the two continuou
 \end{figure}
 
 \paragraph{Proportional hazards assumption}
-A Grambsch-Therneau test~\cite{Grambsch1994} on the \gls{CPH} model fit using all expanded terms indicated that patient sex violated the \glspl{PH} assumption ($P = 0.0104$, \fref{fig:nomo-ph-plot-sex}) -- in other words, the two sexes had significantly different baseline hazard shapes.  To account for this effect, all subsequent models were stratified by patient sex, so that the survival of male and female patients was modelled by two different baseline hazard functions.  A Grambsch-Thernau test on the stratified model indicated no further significant violations of the \gls{PH} assumption (global $P = 0.4194$).
+A Grambsch-Therneau test \cite{Grambsch1994} on the \gls{CPH} model fit using all expanded terms indicated that patient sex violated the \glspl{PH} assumption ($P = 0.0104$, \fref{fig:nomo-ph-plot-sex}) -- in other words, the two sexes had significantly different baseline hazard shapes.  To account for this effect, all subsequent models were stratified by patient sex, so that the survival of male and female patients was modelled by two different baseline hazard functions.  A Grambsch-Thernau test on the stratified model indicated no further significant violations of the \gls{PH} assumption (global $P = 0.4194$).
 
 \begin{figure}[!htbp]
 \centering
@@ -372,7 +372,7 @@ The cohort consisted of consecutive, unselected patients with a diagnosis of \gl
 Samples were from \gls{PDAC} resection specimens stored at the Institute of Pathology, University Hospital Dresden, collected between 1993 and 2011.  Informed consent for research use was obtained prior to sample collection.
 
 \subsection{Biomarker staining and scoring}
-Tissue processing and staining were performed as previously reported~\cite{Biankin2009}.  S100A2 was detected using anti-S100A2 mouse monoclonal antibody (clone DAK-S100A2/1, Dako corporation) at 1:50 dilution, and S100A4 using anti-S100A4 rabbit polyclonal antibody (Cat. #RB-1804, NeoMarkers USA) at 1:100 dilution.  Both primary antibodies were incubated for 60 minutes at room temperature prior to secondary staining, as previously described~\cite{Biankin2009}.  Positive S100A2 signal was defined as cytoplasmic staining with intensity 3+ in more than $30%$ of cancer cells, and positive S100A4 signal was defined as either nuclear or cytoplasmic staining of any intensity in at least $1%$ of transformed cells.
+Tissue processing and staining were performed as previously reported \cite{Biankin2009}.  S100A2 was detected using anti-S100A2 mouse monoclonal antibody (clone DAK-S100A2/1, Dako corporation) at 1:50 dilution, and S100A4 using anti-S100A4 rabbit polyclonal antibody (Cat. #RB-1804, NeoMarkers USA) at 1:100 dilution.  Both primary antibodies were incubated for 60 minutes at room temperature prior to secondary staining, as previously described~\cite{Biankin2009}.  Positive S100A2 signal was defined as cytoplasmic staining with intensity 3+ in more than $30%$ of cancer cells, and positive S100A4 signal was defined as either nuclear or cytoplasmic staining of any intensity in at least $1%$ of transformed cells.
 
 \subsection{Model building and selection}
 All statistical modelling was performed within the \texttt{R} environment.
