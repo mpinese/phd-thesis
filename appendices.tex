@@ -529,3 +529,220 @@ applyNomogram = function(nomogram, data)
 	cbind(Score = scores, outputs)
 }
 \end{lstlisting}
+
+
+
+
+
+\chapter{Messina2 Algorithms}
+\label{app:mess-algos}
+
+\begin{algorithm}[!htbp]
+  \KwData{Covariate measurements $x \in \mathbb{R}^n$, associated dependent values $y \in \mathbb{Y}^n$, objective function $f: (\mathbb{B}^n, \mathbb{Y}^n) \rightarrow \mathbb{B}$, minimum subclass fraction $b \in [0, \frac{1}{2})$, and a number of bootstrap rounds $r$.  $x$ is to be sorted in ascending order.  $\mathbb{Y}$ varies between modes of Messina2.}
+  \KwResult{A 3-tuple.  If the fit failed, $(0, 0, 0)$.  Otherwise, optimal classifier parameters $(t^*, d^*, \Delta^*)$, with threshold $t^* \in \mathbb{R}$, direction $d^* \in \{-1, 1\}$, and margin $\Delta^* \in \mathbb{R}^+$.}
+
+  \Begin {
+  	$n_{\mathrm{pass}} \longleftarrow 0$\;
+  	\For{$i \leftarrow 1$ \KwTo $r$}{
+  		\tcp{Generate a bootstrap sample of (x, y)}
+  		$(x_{\mathrm{in}}, y_{\mathrm{in}}, x_{\mathrm{out}}, y_{\mathrm{out}}) \longleftarrow \mathrm{BootstrapSample}\left( x, y \right)$\;
+  		
+  		\tcp{Train Messina2Core on this bootstrap sample}
+  		$(t_{\mathrm{in}}, d_{\mathrm{in}}, \Delta_{\mathrm{in}}) \longleftarrow \mathrm{Messina2Core}\left( x_{\mathrm{in}}, y_{\mathrm{in}}, b, f \right)$\;
+  		
+  		\tcp{Assess performance of the Messina2Core classifier on the out-of-bag samples}
+  		\If{$d_{\mathrm{in}} \neq 0$}{
+  			$w_\mathrm{out} \longleftarrow \left(~\left[ x_{\mathrm{out}_j} d_{\mathrm{in}} \geq t_{\mathrm{in}} d_{\mathrm{in}}\right]~\right)_{j=1}^{\vert x_\mathrm{out} \vert}$\;
+  			\If {$f\left(w_\mathrm{out}, y_{\mathrm{out}}\right) = \mathrm{true}$}{
+  				$n_{\mathrm{pass}} \longleftarrow n_{\mathrm{pass}} + 1$\;
+  			}
+  		}
+  	}
+  	
+  	\tcp{Did the in-bag trained classifiers satisfy out-of-bag performance requirements in at least half of the bootstrap rounds?}
+  	\eIf{$r = 0 \vee n_{\mathrm{pass}} \geq \frac{1}{2}r$}{
+	  	\tcp{Yes; return the fit on the full data}
+  		\KwRet{$\mathrm{Messina2Core}\left( x, y, b, f \right)$}\;
+  	}{
+  		\tcp{No; this fit failed.}
+  		\KwRet{$(0, 0, 0)$}\;
+	}
+  }
+  \caption[Messina2Entry]{Messina2Entry, a bootstrap validation wrapper around Messina2Core.  $\mathrm{BootstrapSample}$ is a function that generates a bootstrap sample of its matched tuple arguments $x$ and $y$, returning both the in-bag and out-of-bag $x$ and $y$ values as tuples.  If the number of bootstrap iterations $r$ is zero, no bootstrap validation is performed and this algorithm falls through to Messina2Core.}
+  \label{alg:mess-messina2}
+\end{algorithm}
+
+\begin{algorithm}[!htbp]
+  \KwData{Covariate measurements $x \in \mathbb{R}^n$, associated dependent values $y \in \mathbb{Y}^n$, minimum subclass fraction $b \in [0, \frac{1}{2})$, and objective function $f: (\mathbb{B}^n, \mathbb{Y}^n) \rightarrow \mathbb{B}$.  $x$ is to be in ascending order.  $\mathbb{Y}$ varies between modes of Messina2.}
+  \KwResult{A 3-tuple.  If the fit failed, $(0, 0, 0)$.  If the fit succeeded, optimal classifier values $(t^*, d^*, \Delta^*)$, with threshold $t^* \in \mathbb{R}$, direction $d^* \in \{-1, 1\}$, and margin $\Delta^* \in \mathbb{R}^+$.}
+
+  \Begin {
+  	\tcp{Define candidate thresholds $c$ as the midpoints between consecutive unique values of $x$}
+  	$c \longleftarrow \mathrm{MakeCutpoints}\left(x, b\right)$\;
+  	$m \longleftarrow \vert c \vert$\;
+  
+	\tcp{Test the objective $f$ on each threshold in $c$}
+	\For{$i \leftarrow 1$ \KwTo $m$}{
+		$w^+ \longleftarrow \left(~\left[x_j \geq c_i\right]~\right)_{j=1}^n$\;
+		$w^- \longleftarrow \left(~\left[x_j < c_i\right]~\right)_{j=1}^n$\;
+		$o^+_i \longleftarrow f\left(w^+, y\right)$\;
+		$o^-_i \longleftarrow f\left(w^-, y\right)$\;
+	}
+	
+	\tcp{If no threshold passed $f$, return $\varnothing$}
+	\If{$o^+ \vee o^-$ is all $\mathrm{false}$}{
+      \KwRet $\varnothing$\;
+    }
+	
+	\tcp{Search $o^+$ and $o^-$ for the widest margin contiguous interval that passes $f$}
+	$(t^+, \Delta^+) \longleftarrow$ BestInterval$\left(o^+, c\right)$\;
+	$(t^-, \Delta^-) \longleftarrow$ BestInterval$\left(o^-, c\right)$\;
+	
+	\tcp{Return the best of the $o^+$ and $o^-$ results}
+	\eIf{$\Delta^+ \geq \Delta^-$}{
+	  \KwRet{$(t^+, +1, \Delta^+)$}\;
+	}{
+	  \KwRet{$(t^-, -1, \Delta^-)$}\;
+	}
+  }
+  \caption[Messina2Core]{Messina2Core.  Searches the real line for the largest interval for which the objective $f(w, y)$ is true, and returns the centre and half-width of that interval.}
+  \label{alg:mess-core}
+\end{algorithm}
+
+\begin{algorithm}[!htbp]
+  \KwData{Covariate measurements $x \in \mathbb{R}^n$, and a minimum subclass fraction $b \in [0, \frac{1}{2})$.  $x$ is to be sorted in ascending order.}
+  \KwResult{A tuple of candidate cutpoints $c$, with values sorted in ascending order.}
+
+  \Begin {
+  	$x' \longleftarrow \mathrm{unique}(x)$\;
+  	$c \longleftarrow ()$\;
+  	\For{$i \leftarrow 1$ \KwTo $\vert x' \vert - 1$}{
+  		$p \longleftarrow \frac{1}{2} \left({x'}_i + {x'}_{i+1}\right)$\;
+  		$s \longleftarrow \frac{1}{n} \sum_{i=1}^n \left[ x_i < p \right] $\;
+  		\If{$s \geq b \wedge s \leq 1-b$}{
+	  		$c \longleftarrow c \oplus p$\;
+	  	}
+  	}
+  	\If{$b = 0$}{
+	  	$c \longleftarrow -\infty \oplus c \oplus \infty$\;
+	}
+  	
+	\KwRet{$c$}\;
+  }
+  \caption[MakeCutpoints]{MakeCutpoints.  Returns a sorted list of candidate cutpoints, each dividing the values in $x$ into two groups, with the restriction that all groups must contain at least fraction $b$ of the original values of $x$.  The function $\mathrm{unique}$ accepts a tuple argument, and returns a tuple containing the unique values of its argument, in ascending order.  The symbol $\oplus$ is used to represent tuple concatenation, and $()$ is the empty tuple.}
+  \label{alg:mess-cutpoints}
+\end{algorithm}
+
+\begin{algorithm}[!htbp]
+  \KwData{$o \in \mathbb{B}^m$, $c \in \mathbb{R}^m$, $x \in \mathbb{R}^n$}
+  \KwResult{$(t^* \in \mathbb{R}, \Delta^* \in \mathbb{R}^+)$}
+
+  \Begin {
+    $\Delta^* \longleftarrow 0$\;
+    $t^* \longleftarrow 0$\;
+    
+    $i \longleftarrow 1$\;
+    \While{$i \leq m$}{
+      \If{$o_i$ is $\mathrm{true}$}{
+        $r_L \longleftarrow \sup \{x_k~|~x_k \leq c_i \wedge k \in \mathbb{N}^+ \wedge k \leq n \}$\;
+        \For{$j \leftarrow i$ \KwTo $m$}{
+          \eIf{$o_j$ is $\mathrm{true}$}{
+            $r_R \longleftarrow \sup \{x_k~|~x_k \leq c_j \wedge k \in \mathbb{N}^+ \wedge k \leq n \}$\;
+          }{
+            break\;
+          }
+        }
+
+		$\Delta \longleftarrow \frac{1}{2}\left(r_R - r_L\right)$\;
+        \If{$\Delta > \Delta^*$}{
+          $\Delta^* \longleftarrow \Delta$\;
+          $t^* \longleftarrow r_L + \frac{1}{2}\Delta$\;
+        }
+        
+        $i \longleftarrow j$\;
+      }
+      $i \longleftarrow i + 1$\;
+    }
+    \KwRet{$(t^*, \Delta^*)$}\;
+  }
+  
+  \caption[BestInterval]{BestInterval.  Identifies the centre ($t^*$) and half-width ($\Delta^*$) of the largest interval on $t$ for which $o(t) = true$.  $o$ is only sampled at values in $c$, but changes value only at values in $x$; the process by which this algorithm translates between these representations is illustrated in \fref{fig:mess-bestinterval}.}
+  \label{alg:mess-bestinterval}
+\end{algorithm}
+
+\begin{figure}[!hp]
+\centering
+\begin{tikzpicture}[
+    axis/.style={thick,<->,>=stealth},
+    guide/.style={thick,dotted,gray},
+    graphline/.style={thick,black},
+    threshmark/.style={thin,->,>=stealth}]
+
+  \def\f{*0.6}
+
+  \draw[axis]
+    (1\f,2\f) -- (16\f,2\f);
+
+  \draw[guide]
+    (1\f,3\f) -- (16\f,3\f)
+    (1\f,6\f) -- (16\f,6\f);
+
+  \draw[graphline,<-,>=stealth]
+    (1\f,3\f) -- (4.5\f,3\f);
+  \draw[graphline,->,>=stealth]
+    (13\f,3\f) -- (16\f,3\f);
+  \draw[graphline]
+    (4.5\f,6\f) -- (7\f,6\f)
+    (7\f,3\f) -- (9\f,3\f)
+    (9\f,6\f) -- (13\f,6\f);
+
+  \filldraw[black,draw=black] (2\f,3\f) circle [radius=0.1\f];
+  \filldraw[black,draw=black] (3\f,3\f) circle [radius=0.1\f];
+  \filldraw[black,draw=black] (4.5\f,6\f) circle [radius=0.1\f];
+  \filldraw[black,draw=black] (6\f,6\f) circle [radius=0.1\f];
+  \filldraw[black,draw=black] (7\f,3\f) circle [radius=0.1\f];
+  \filldraw[black,draw=black] (9\f,6\f) circle [radius=0.1\f];
+  \filldraw[black,draw=black] (13\f,3\f) circle [radius=0.1\f];
+  \filldraw[black,draw=black] (14.5\f,3\f) circle [radius=0.1\f];
+  \filldraw[black,draw=black] (15\f,3\f) circle [radius=0.1\f];
+  \filldraw[white,draw=black] (4.5\f,3\f) circle [radius=0.1\f];
+  \filldraw[white,draw=black] (7\f,6\f) circle [radius=0.1\f];
+  \filldraw[white,draw=black] (9\f,3\f) circle [radius=0.1\f];
+  \filldraw[white,draw=black] (13\f,6\f) circle [radius=0.1\f];
+
+  \draw[threshmark] (1.5\f,1.5\f) -- (1.5\f,1.95\f);
+  \draw[threshmark] (2.5\f,1.5\f) -- (2.5\f,1.95\f);
+  \draw[threshmark] (3.75\f,1.5\f) -- (3.75\f,1.95\f);
+  \draw[threshmark] (5.25\f,1.5\f) -- (5.25\f,1.95\f);
+  \draw[threshmark] (6.5\f,1.5\f) -- (6.5\f,1.95\f);
+  \draw[threshmark] (8\f,1.5\f) -- (8\f,1.95\f);
+  \draw[threshmark] (11\f,1.5\f) -- (11\f,1.95\f);
+  \draw[threshmark] (13.75\f,1.5\f) -- (13.75\f,1.95\f);
+  \draw[threshmark] (14.75\f,1.5\f) -- (14.75\f,1.95\f);
+  \draw[threshmark] (15.5\f,1.5\f) -- (15.5\f,1.95\f);
+
+  \node[align=left] at (1.5\f,1.2\f) {\tiny $c_1$};
+  \node[align=left] at (2.5\f,1.2\f) {\tiny $c_2$};
+  \node[align=left,text width=10\f] at (3.75\f,1.2\f) {\tiny $c_3...$};
+  \node[align=left,text width=10\f] at (11\f,1.2\f) {\tiny $t^*$};
+
+  \node[align=right,text width=30\f] at (-0.5\f,2\f) {\footnotesize $t$};
+  \node[align=left,text width=30\f] at (-0.5\f,3\f) {\scriptsize 0};
+  \node[align=left,text width=30\f] at (-0.5\f,6\f) {\scriptsize 1};
+
+  \draw 
+    (-1.5\f,2.5\f) -- (-1.75\f,2.5\f)
+    (-1.75\f,2.5\f) -- (-1.75\f,6.5\f)
+    (-1.5\f,6.5\f) -- (-1.75\f,6.5\f);
+
+  \node at (-3\f,4.5\f) {\footnotesize $o$};
+
+  \draw[decorate,decoration={brace,amplitude=10\f},rotate=0] (9\f,7\f) -- (13\f,7\f);
+
+  \node[align=center] at (5.75\f,6.5\f) {\scriptsize Region 1};
+  \node[align=center] at (11\f,6.5\f) {\scriptsize Region 2};
+  \node[align=center] at (11\f,7.75\f) {\scriptsize $2\Delta^*$};
+\end{tikzpicture}
+\caption[Operation of the BestInterval algorithm]{Operation of the BestInterval algorithm.  Example values of a binary objective $o$ are shown for a range of input thresholds $t$.  $o$ is a sparse sample of the objective function $f$, evaluated at candidate cutpoints $c$, $o_i = f(w(c_i,d),y)$.  At discrete points defined by observed data values (shown as dots), the objective function $f$ can transition, as an observed data point changes its value relative to $t$, and therefore its assigned class.  Two regions in which $o = 1$ are shown.  BestInterval locates all such regions, selects the one with largest measure on $t$ (margin), and returns its centre and margin as $(t^*, \Delta^*)$.  In this example, the centre and margin of region 2 would be returned.  To ensure that $o$ is sampled at sufficient density, candidate thresholds $c_1, c_2, \dots$ are defined between all consecutive values, and beyond the extrema, of $x$; these are indicated by small arrows.}
+\label{fig:mess-bestinterval}
+\end{figure}
