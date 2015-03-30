@@ -9,9 +9,9 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="176.04955mm"
+   width="182.82289mm"
    height="41.546425mm"
-   viewBox="0 0 623.7976 147.21174"
+   viewBox="0 0 647.79764 147.21174"
    id="svg2"
    version="1.1"
    inkscape:version="0.91 r13725"
@@ -230,9 +230,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.979899"
-     inkscape:cx="472.67146"
-     inkscape:cy="88.652257"
+     inkscape:zoom="0.9899495"
+     inkscape:cx="220.61192"
+     inkscape:cy="43.632807"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -357,7 +357,7 @@
          id="tspan4420-4"
          x="431.49164"
          y="253.88689"
-         style="font-size:15px">$w(t)$</tspan></text>
+         style="font-size:15px">$w(t,1)$</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
@@ -655,39 +655,39 @@
     <rect
        style="fill:none;fill-opacity:0.47058824;stroke:#000000;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:2, 2;stroke-dashoffset:0;stroke-opacity:1"
        id="rect6753"
-       width="458.60925"
+       width="475.0242"
        height="67.680206"
        x="28.284281"
        y="230.09805" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker6757)"
-       d="m 486.89352,265.45337 118.69293,0"
+       d="m 502.8123,265.45337 126.77415,0"
        id="path6755"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cc" />
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="492.9126"
+       x="508.9126"
        y="253.92749"
        id="text4418-8-7"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan4420-4-0"
-         x="492.9126"
+         x="508.9126"
          y="253.92749"
-         style="font-size:15px">$f(w(t,d),y)$</tspan></text>
+         style="font-size:15px">$f(w(t,1),y)$</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="610.94824"
+       x="634.94824"
        y="269.59155"
        id="text4418-8-7-3"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan4420-4-0-1"
-         x="610.94824"
+         x="634.94824"
          y="269.59155"
-         style="font-size:15px">true</tspan></text>
+         style="font-size:15px">1</tspan></text>
   </g>
 </svg>

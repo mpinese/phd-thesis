@@ -75,7 +75,7 @@ ggplot(e1aii.design[e1aii.design$margin >= 0,], aes(x = margin, y = error, colou
 e1a3.design = expand.grid(Delta = seq(0, 4, 0.1), sigma_prime = c(0.5, 1, 2, 4))
 e1a3.design$error = pnorm((-e1a3.design$Delta - 1.28)/e1a3.design$sigma_prime)
 
-ggplot(e1a3.design, aes(x = Delta, y = error, colour = factor(sigma_prime))) + geom_line(lwd = 1) + xlab("Margin") + ylab("Error rate") + labs(colour = "$\\frac{\\sigma'}{\\sigma}$") + theme_bw()
+ggplot(e1a3.design, aes(x = Delta, y = error, colour = factor(sigma_prime))) + geom_line(lwd = 1) + xlab("Relative margin ($\\frac{\\Delta}{\\sigma}$)") + ylab("Error rate ($R_E$)") + labs(colour = "$\\frac{\\sigma'}{\\sigma}$") + theme_bw()
 @
 
 \end{document}
