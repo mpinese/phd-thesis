@@ -208,7 +208,7 @@ c7.GSE1460\_INTRATHYMIC\_T\_PROGENITOR\_VS\_                            \\
 \label{app:sigs-parse-approx}
 Exact calculation of \gls{PARSE} score requires the solution of a number of \gls{NNLS} problems, which complicates application.  The \gls{NNLS} solutions can be approximated with conventional least squares solutions, ultimately transforming the calculation of an approximate \gls{PARSE} score into a simple weighted sum of gene expression measurements.
 
-Recall that \gls{NMF} finds factorizations of the form $A = W H$, with all elements of $A$, $W$, and $H$, being non-negative.  In the reverse problem of \gls{PARSE} calculation, $A$ and $\widehat{W}$ are supplied, and $H$ is to be estimated.  I propose an approximation that removes the requirement that $H$ be non-negative, $H \approx \widehat{W}^+ A$, where $\widehat{W}^+$ is the Moore-Penrose pseudoinverse of $\widehat{W}$.  By combining this approximation with the linear combination of metagene coefficients that forms the \gls{PARSE} score, we can approximate \gls{PARSE} as a simple weighted sum of gene expression measurements:
+Recall that \gls{NMF} finds factorisations of the form $A = W H$, with all elements of $A$, $W$, and $H$, being non-negative.  In the reverse problem of \gls{PARSE} calculation, $A$ and $\widehat{W}$ are supplied, and $H$ is to be estimated.  I propose an approximation that removes the requirement that $H$ be non-negative, $H \approx \widehat{W}^+ A$, where $\widehat{W}^+$ is the Moore-Penrose pseudoinverse of $\widehat{W}$.  By combining this approximation with the linear combination of metagene coefficients that forms the \gls{PARSE} score, we can approximate \gls{PARSE} as a simple weighted sum of gene expression measurements:
 \begin{align}
   P &= L H \\
     &\approx L \widehat{W}^+ A \\
@@ -520,7 +520,7 @@ applyNomogram = function(nomogram, data)
 		if (input %in% colnames(data)) {
 			return(nomogram$inputs[[input]]$scorefunc(data[,input]))
 		}
-		warning(sprintf("Marginalizing missing variable: %s", input))
+		warning(sprintf("Marginalising missing variable: %s", input))
 		margin_score = sum(nomogram$inputs[[input]]$scorefunc(nomogram$inputs[[input]]$margins$value) * nomogram$inputs[[input]]$margins$fraction)
 		return(rep(margin_score, nrow(data)))
 	}))
