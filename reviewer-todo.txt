@@ -1,25 +1,17 @@
-
+Text changes:
 Chapter 2:
-* Was there a relationship between metagenes identified and location/grade?
 * Add discussion on how filtering only on survival-associated genes could introduce bias and limit discovery of networks.
-* "Why only include metagenes associated with decreased survival?  Were there any metagenes associated with increased survival?"
-* Pg 16, Pa 3: Expand on 'lenient selection parameters'
 * Pg 27: How do results compare to histopathology (eg do high proliferation signature samples also have high Ki67, do high EMT have loss of Ecad?).  Discuss relevance to lab testing by IHC.
-* What other hallmark signatures were examined specifically for relation to survival, even if not enriched?
 * Discuss: how could sigs be used to guide treatment strategies?  What about early met markers -- why / how would the knowledge of early met markers be useful to treating the mets themselves?
 * Expand discussion: applicability of pipeline to relapse and response.  Expand either here or in Ch 5.
 * Increase rationale for choosing A2/A4 as segue to Ch3.
-* Can a minimal geneset be suggested (down from 361)?
-* Were attempts made to find the point of "no benefit" from surgery and build a binary classifier for prognosis around that endpoint?
 
 Chapter 3:
 * Better link to Ch2.
-* Were attempts made to find the point of "no benefit" from surgery and build a binary classifier for prognosis around that endpoint?
 
 Chapter 4:
 * Add discussion on example biomarkers -- what are they, how could they be detected for validation, are they already known?
 * Does A2/A4 arise in any analyses?
-* Has any validation been attempted by IHC?
 
 Chapter 5:
 * Ch2: Should a similar analysis be done on mets?
@@ -27,3 +19,12 @@ Chapter 5:
 * Ch2: What about gene signatures in stroma?  What information could they provide on tumour-stroma interplay?
 * Ch2: How does clonal heterogeneity interact with these signatures and methods?
 * "Expansion on the application of the methods established in this chapter to other cancers (as touched on in the foreword)"
+
+
+
+Rebuttal:
+Chapter 2:
+* What other hallmark signatures were examined specifically for relation to survival, even if not enriched?  Not specifically examined, but done as part of MSigDB screen.
+
+Chapter 4:
+* Were attempts made to find the point of "no benefit" from surgery and build a binary classifier for prognosis around that endpoint?
