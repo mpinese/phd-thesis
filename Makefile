@@ -11,10 +11,10 @@ dissertation_final_public.pdf: dissertation_final_master.pdf
 	ln -s dissertation_master.pdf dissertation_public.pdf
 
 dissertation_temp_front.pdf: dissertation.pdf
-	pdftk dissertation.pdf 2-4 output dissertation_temp_front.pdf
+	pdftk dissertation.pdf cat 2-4 output dissertation_temp_front.pdf
 
 dissertation_temp_back.pdf: dissertation.pdf
-	pdftk dissertation.pdf 7-end output dissertation_temp_back.pdf
+	pdftk dissertation.pdf cat 7-end output dissertation_temp_back.pdf
 
 dissertation: dissertation.pdf
 
